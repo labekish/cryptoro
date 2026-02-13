@@ -1,0 +1,49 @@
+---
+import ProductLayout from '../../layouts/Product.astro';
+
+type MarkdownModule = {
+  frontmatter: {
+    title: string;
+    slug: string;
+    price: number;
+    badge?: string;
+    image: string;
+    inStock?: boolean;
+    seoTitle?: string;
+    seoDescription?: string;
+    features?: string[];
+    specs?: Record<string, string>;
+    boxContents?: string[];
+    relatedProducts?: string[];
+  };
+  default: any;
+};
+
+const modules = import.meta.glob('../../content/products/*.md', { eager: true }) as Record<string, MarkdownModule>;
+const all = Object.values(modules);
+
+export function getStaticPaths() {
+  const modules = import.meta.glob('../../content/products/*.md', { eager: true }) as Record<string, MarkdownModule>;
+  return Object.values(modules).map((entry) => ({
+    params: { slug: entry.frontmatter.slug },
+    props: { entry, all: Object.values(modules) }
+  }));
+}
+
+const { entry } = Astro.props as { entry: MarkdownModule; all: MarkdownModule[] };
+const product = entry.frontmatter;
+const Content = entry.default;
+
+const related = (product.relatedProducts ?? [])
+  .map((slug) => all.find((p) => p.frontmatter.slug === slug)?.frontmatter)
+  .filter(Boolean)
+  .map((p) => ({
+    slug: p!.slug,
+    title: p!.title,
+    price: p!.price,
+    image: p!.image
+  }));
+---
+<ProductLayout product={product} related={related}>
+  <Content />
+</ProductLayout>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Каталог AI Диктофонов | CRYPTORO</title>
+  <meta name="description" content="Выбирайте AI-диктофон для записи встреч и лекций. Plaud Note, Plaud Note Pro, Plaud NotePin, Вспомни всё. Сравнение, цены, характеристики." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef6ff',
+              100: '#dbeaff',
+              500: '#e88635',
+              600: '#cf7528',
+              900: '#1d1d1f'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Unbounded', 'sans-serif']
+          },
+          boxShadow: {
+            soft: '0 14px 34px rgba(16,24,40,.10)'
+          }
+        }
+      }
+    };
+  </script>
+<style id="unified-theme-override">
+:root{
+  --c-bg:#ffffff;
+  --c-bg-alt:#efeff3;
+  --c-surface:#ffffff;
+  --c-text:#1d1d1f;
+  --c-muted:#6e6e73;
+  --c-accent:#111111;
+  --line:rgba(29,29,31,.10);
+  --accent-soft:#f0f0f3;
+}
+
+html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
+
+/* Base surfaces */
+.pricing-wrap,.pcard,.fcard,.rvcard,.uccard,.pricingcard,.dcard,.paycard,.wcard,.mstat,.contact-cta,
+.citem,.faqitem,.smock,.hitem,.abadge,.tab-content,.rcard,.delivery-mini{
+  background:var(--c-surface)!important;
+  border-color:var(--line)!important;
+}
+
+/* Accent and text */
+.text-brand-500,.text-brand-600,.proc-label,.snum,.dtime,.sup,.recl,.pprice-preorder,.chkicon,.pfeat .c,.pfeat .c.bl{color:var(--c-text)!important}
+.text-zinc-600,.text-zinc-500,.sec-sub,.uc-topnote,.ptag,.pper,.rvrole,.lprivacy,.how-sub,.sdesc,.fdesc,.p-bottom span{color:var(--c-muted)!important}
+
+/* Buttons (same as product pages) */
+.btn-blue,.pbtn,.pbtn2.fil,.compare-btn,.lsubmit,.buy-btn,.sticky-btn,.pbtn-preorder,.filter-btn.active,.contact-cta a{
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+}
+.btn-ghost,.pbtn2.out,.btn-woutline,.filter-btn,.sort-select,.secondary-btn{
+  color:#111!important;
+  border-color:rgba(17,17,17,.22)!important;
+  background:transparent!important;
+}
+.btn-blue:hover,.pbtn:hover,.pbtn2.fil:hover,.lsubmit:hover,.buy-btn:hover,.sticky-btn:hover{filter:brightness(1.07)}
+
+/* Capsules and icon chips */
+.tbadge,.uctag,.hero-product-tag,.icon-wrap{
+  background:var(--accent-soft)!important;
+  color:var(--c-text)!important;
+  border-color:rgba(29,29,31,.15)!important;
+}
+.cart-n,.bg-brand-500,.bg-brand-600{background:#111!important;color:#fff!important;border-color:transparent!important}
+.bg-amber-500,.bg-amber-600,.bg-emerald-500,.bg-emerald-600{background:#111!important;color:#fff!important;border-color:#111!important}
+.text-amber-600{color:var(--c-muted)!important}
+
+/* Hero contrast (index) */
+.hero{background:linear-gradient(180deg,#f7f4ef 0%,#ede7dc 100%)!important}
+.hero::before{background:radial-gradient(72% 82% at 78% 28%, rgba(232,134,53,.16), transparent 62%)!important}
+.hero-title{color:#111!important}
+.hero-sub,.hero-label{color:#5f5a52!important}
+.hero-product{background:transparent!important;border:none!important}
+.hero-product-image img{filter:drop-shadow(0 20px 24px rgba(17,17,17,.20))!important}
+.hero .btn-ghost{color:#111!important;border-color:rgba(17,17,17,.24)!important}
+.hero .btn-ghost:hover{border-color:#111!important}
+
+/* Sticky/header micro-pass */
+header{background:rgba(255,255,255,.92)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(18px)!important}
+section.sticky{background:rgba(255,255,255,.94)!important;border-bottom:1px solid var(--line)!important;box-shadow:none!important}
+
+/* Alternating section rhythm (index) */
+.sec-products,.sec-usecases,.sec-reviews{background:var(--c-bg)!important}
+.sec-features,.sec-pricing,.sec-faq,.sec-lead{background:var(--c-surface)!important}
+.sec-how{background:#efe8dc!important;color:var(--c-text)!important}
+
+/* Alternating section rhythm (about) */
+.about-hero{background:linear-gradient(180deg,#f7f4ef 0%,#ede7dc 100%)!important;border-bottom:1px solid var(--line)!important}
+.sec{background:var(--c-surface)!important}
+.sec.sec-delivery,.sec.sec-warranty,#contacts{background:var(--c-bg)!important}
+
+/* Catalog visual pass */
+body.bg-zinc-100{background:var(--c-bg)!important}
+.from-zinc-200,.to-zinc-100{--tw-gradient-from:#ffffff!important;--tw-gradient-to:#ffffff!important}
+.via-brand-600{--tw-gradient-via:rgba(29,29,31,.45)!important}
+.border-zinc-200,.border-zinc-200\/80,.border-zinc-300{border-color:var(--line)!important}
+#productsGrid .pcard{background:var(--c-surface)!important}
+.catalog-hero{
+  background:#ffffff!important;
+  border-bottom:1px solid rgba(29,29,31,.08)!important;
+}
+.catalog-hero h1{
+  font-family:Inter,sans-serif!important;
+  font-weight:700!important;
+  letter-spacing:-.03em!important;
+}
+.catalog-hero p{
+  color:#6e6e73!important;
+}
+
+/* Better contrast on consult strip */
+.reveal.bg-gradient-to-r,.bg-gradient-to-r{filter:none}
+.reveal.relative.mb-10{
+  border-color:rgba(29,29,31,.10)!important;
+  background:#fff!important;
+  box-shadow:0 1px 2px rgba(29,29,31,.04),0 8px 22px rgba(29,29,31,.04)!important;
+}
+.reveal.relative.mb-10 > div{
+  background:#fff!important;
+  backdrop-filter:none!important;
+}
+.reveal.relative.mb-10 h3{color:var(--c-text)!important}
+.reveal.relative.mb-10 p{color:var(--c-muted)!important}
+.reveal.relative.mb-10 a{
+  background:#111!important;
+  color:#fff!important;
+}
+
+/* Motion/accessibility */
+:focus-visible{outline:2px solid var(--c-accent)!important;outline-offset:2px}
+img{max-width:100%;height:auto}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* Apple-like catalog controls and cards */
+.catalog-controls{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:16px!important;
+  min-height:56px;
+}
+.catalog-chips{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex-wrap:nowrap;
+  min-width:0;
+  overflow-x:auto;
+  scrollbar-width:none;
+  background:#e8e8ed;
+  border:1px solid rgba(29,29,31,.08);
+  border-radius:999px;
+  padding:4px;
+}
+.catalog-chips::-webkit-scrollbar{display:none}
+.catalog-sort{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+  margin-left:auto;
+}
+.filter-btn{
+  background:transparent!important;
+  border:1px solid transparent!important;
+  color:#3a3a3c!important;
+  border-radius:999px!important;
+  padding:10px 18px!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.15;
+  white-space:nowrap;
+}
+.filter-btn.bg-zinc-900,
+.filter-btn.active{
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+}
+#sortSelect{
+  border-radius:999px!important;
+  background:#fff!important;
+  border:1px solid rgba(29,29,31,.14)!important;
+  color:#3a3a3c!important;
+  min-height:42px;
+  padding-left:14px!important;
+  padding-right:34px!important;
+}
+#productsGrid{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(290px,320px))!important;
+  justify-content:start!important;
+  gap:24px!important;
+}
+#productsGrid .pcard{
+  border-radius:22px!important;
+  padding:20px 20px 20px!important;
+  border:1px solid rgba(29,29,31,.08)!important;
+  background:#fff!important;
+  box-shadow:0 1px 2px rgba(29,29,31,.05),0 10px 24px rgba(29,29,31,.04)!important;
+  transition:transform .28s ease, box-shadow .28s ease!important;
+  overflow:hidden;
+}
+#productsGrid .pcard:hover{
+  transform:translateY(-3px)!important;
+  box-shadow:0 2px 4px rgba(29,29,31,.06),0 18px 34px rgba(29,29,31,.08)!important;
+}
+#productsGrid .pcard .card-badge{
+  background:#f2f2f5!important;
+  color:#3a3a3c!important;
+  border:1px solid #d6d6dc!important;
+  border-radius:999px!important;
+  padding:6px 11px!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  letter-spacing:.08em!important;
+}
+#productsGrid .pcard .badge-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
+}
+#productsGrid .pcard h3,
+#productsGrid .pcard p,
+#productsGrid .pcard .text-2xl{
+  text-align:left!important;
+}
+#productsGrid .pcard .mb-3{
+  justify-content:flex-start!important;
+}
+#productsGrid .pcard .catalog-media{
+  height:282px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin-bottom:16px!important;
+  border-radius:18px!important;
+  background:#f5f5f7!important;
+}
+#productsGrid .pcard .catalog-media img{max-height:248px!important}
+#productsGrid .pcard .mt-4{
+  text-align:left!important;
+}
+#productsGrid .pcard .inline-flex.w-full{
+  border-radius:999px!important;
+  height:46px!important;
+}
+#productsCount{
+  color:#6e6e73!important;
+  font-size:16px!important;
+}
+@media (max-width:980px){
+  .catalog-controls{flex-direction:column;align-items:flex-start!important}
+  .catalog-chips{width:100%}
+}
+@media (max-width:640px){
+  #productsGrid{grid-template-columns:1fr!important;gap:18px!important}
+  #productsGrid .pcard{border-radius:20px!important;padding:20px 16px 18px!important}
+  #productsGrid .pcard .catalog-media{height:236px!important}
+  #productsGrid .pcard .catalog-media img{max-height:214px!important}
+}
+
+/* Final micro-pass: spacing/contrast rhythm */
+.catalog-hero{padding-bottom:72px!important}
+.catalog-hero h1{font-size:clamp(52px,6.4vw,86px)!important;line-height:1.02!important}
+main{padding-top:40px!important}
+.reveal.relative.mb-10{margin-bottom:28px!important}
+#productsCount{margin-bottom:12px!important}
+
+@media (min-width:1440px){
+  .catalog-controls,.catalog-hero + .sticky .mx-auto,.mx-auto.max-w-7xl{max-width:1280px!important}
+  .catalog-hero{padding-top:140px!important;padding-bottom:84px!important}
+  main{padding-bottom:120px!important}
+  #productsGrid{gap:26px!important}
+}
+@media (max-width:390px){
+  .catalog-hero{padding-top:100px!important;padding-bottom:42px!important}
+  .catalog-hero h1{font-size:clamp(42px,14vw,56px)!important}
+  .catalog-hero p{font-size:16px!important;line-height:1.5!important}
+  section.sticky{padding-left:18px!important;padding-right:18px!important}
+  .catalog-controls{gap:10px!important;min-height:0!important}
+  .catalog-chips{padding:3px!important}
+  .filter-btn{padding:9px 14px!important;font-size:13px!important}
+  main{padding-left:18px!important;padding-right:18px!important;padding-top:28px!important}
+  .reveal.relative.mb-10{margin-bottom:18px!important}
+  .reveal.relative.mb-10 > div{padding:18px 16px!important}
+  #productsCount{font-size:14px!important}
+}
+</style>
+
+
+</head>
+<body class="bg-zinc-100 text-zinc-900 font-sans antialiased">
+  <header class="fixed inset-x-0 top-0 z-50 h-14 border-b border-zinc-200/80 bg-white/90 backdrop-blur-xl">
+    <div class="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-6">
+      <a href="index.html" class="font-display text-sm font-black tracking-[0.08em]">CRYPTORO</a>
+      <nav class="hidden items-center gap-7 md:flex">
+        <a href="index.html" class="text-sm text-zinc-500 transition hover:text-zinc-900">Главная</a>
+        <a href="catalog.html" class="text-sm font-medium text-zinc-900">Каталог</a>
+        <a href="about.html" class="text-sm text-zinc-500 transition hover:text-zinc-900">О нас</a>
+      </nav>
+      <button aria-label="Корзина" class="relative inline-flex items-center justify-center">
+        <i data-lucide="shopping-cart" class="h-5 w-5 text-zinc-800"></i>
+        <span id="cartCount" class="absolute -right-2 -top-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[9px] font-bold text-white">0</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="catalog-hero border-b border-zinc-200/80 bg-gradient-to-b from-zinc-200 to-zinc-100 px-6 pb-16 pt-32 text-center">
+    <h1 class="font-display text-4xl font-black tracking-tight md:text-6xl">Каталог</h1>
+    <p class="mx-auto mt-4 max-w-2xl text-lg text-zinc-600">AI-диктофоны для встреч, лекций и звонков</p>
+  </section>
+
+  <section class="sticky top-14 z-40 border-b border-zinc-200/80 bg-white/95 px-6 backdrop-blur">
+    <div class="catalog-controls mx-auto max-w-7xl py-3">
+      <div class="catalog-chips">
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 bg-zinc-900 px-4 py-2 text-xs font-medium text-white" onclick="filterProducts('all', this)">Все модели</button>
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('vspomnit', this)">Вспомни всё</button>
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('note', this)">Plaud Note</button>
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('notepro', this)">Plaud Note Pro</button>
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('notepin', this)">Plaud NotePin</button>
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('accessory', this)">Аксессуары</button>
+      </div>
+
+    </div>
+  </section>
+
+  <main class="px-6 pb-24 pt-10">
+    <div class="mx-auto max-w-7xl">
+      <div class="reveal relative mb-10 overflow-hidden rounded-2xl border border-zinc-300/70 p-[1px] opacity-0 translate-y-5 transition-all duration-500">
+        <div class="flex flex-col items-start justify-between gap-5 rounded-2xl px-7 py-6 md:flex-row md:items-center">
+          <div>
+            <h3 class="text-xl font-semibold text-white">Не знаете какой выбрать?</h3>
+            <p class="mt-1 text-sm text-white/80">Оставьте контакт — подберём модель под ваш сценарий и бюджет.</p>
+          </div>
+          <a href="index.html#lead" class="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/95 px-6 py-3 text-sm font-semibold text-zinc-900 shadow transition hover:scale-[1.02] hover:bg-white">
+            <i data-lucide="sparkles" class="h-4 w-4"></i>
+            Получить консультацию
+          </a>
+        </div>
+      </div>
+
+      <div id="productsCount" class="mb-5 text-sm text-zinc-500" aria-live="polite">5 товаров</div>
+
+      <div id="productsGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <a href="product-vspomnit.html" data-cat="vspomnit" data-price="11990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft">
+          <div class="badge-stack absolute right-4 top-4 z-20">
+            <span class="card-badge">НОВИНКА</span>
+          </div>
+          <div class="catalog-media mb-5 flex h-56 items-center justify-center">
+            <img src="public/images/products/vspomnit-vse-cutout.png" alt="Вспомни всё" class="h-full w-full object-contain drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
+          </div>
+          <div class="mb-3 flex items-center gap-2">
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-zinc-900"></span>
+          </div>
+          <h3 class="text-xl font-semibold">Вспомни всё</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">AI-диктофон с ChatGPT. Бесплатный год безлимитной подписки в комплекте.</p>
+          <div class="mt-4 space-y-1 text-sm text-zinc-600">
+            <p>Battery: 30h</p>
+            <p>AI Transcription</p>
+            <p>MagSafe Mount</p>
+          </div>
+          <div class="mt-auto pt-5">
+            <div class="text-2xl font-bold">11 990 ₽</div>
+            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-zinc-800">Выбрать</span>
+          </div>
+        </a>
+
+        <a href="product-plaud-note.html" data-cat="note" data-price="17490" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.08s">
+          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
+            <img src="public/images/products/plaud-note-black.webp" alt="Plaud Note" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
+          </div>
+          <div class="mb-3 flex items-center gap-2">
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-zinc-900"></span>
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-zinc-300"></span>
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-amber-100"></span>
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-blue-900"></span>
+          </div>
+          <h3 class="text-xl font-semibold">Plaud Note</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Компактный металлический корпус. Магнитное крепление на телефон. 4 цвета.</p>
+          <div class="mt-4 space-y-1 text-sm text-zinc-600">
+            <p>Battery: 30h</p>
+            <p>Dual Noise Mic</p>
+            <p>MagSafe</p>
+          </div>
+          <div class="mt-auto pt-5">
+            <div class="text-2xl font-bold">17 490 ₽</div>
+            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-zinc-800">Выбрать</span>
+          </div>
+        </a>
+
+        <a href="product-plaud-note-pro.html" data-cat="notepro" data-price="25990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.14s">
+          <span class="card-badge absolute right-4 top-4">PRO</span>
+          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
+            <img src="public/images/products/plaud-note-silver.webp" alt="Plaud Note Pro" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
+          </div>
+          <div class="mb-3 flex items-center gap-2">
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-zinc-900"></span>
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-zinc-300"></span>
+          </div>
+          <h3 class="text-xl font-semibold">Plaud Note Pro</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Профессиональная версия 2025 года. Магнитный кейс в комплекте.</p>
+          <div class="mt-4 space-y-1 text-sm text-zinc-600">
+            <p>Battery: 40h</p>
+            <p>Studio Audio</p>
+            <p>Advanced AI</p>
+          </div>
+          <div class="mt-auto pt-5">
+            <div class="text-2xl font-bold">25 990 ₽</div>
+            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-zinc-800">Выбрать</span>
+          </div>
+        </a>
+
+        <a href="product-notepin.html" data-cat="notepin" data-price="20990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.2s">
+          <span class="card-badge absolute right-4 top-4">ПРЕДЗАКАЗ</span>
+          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
+            <img src="public/images/products/plaud-notepin.webp" alt="Plaud NotePin" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
+          </div>
+          <div class="mb-3 flex items-center gap-2">
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-zinc-500"></span>
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-zinc-300"></span>
+            <span class="h-3 w-3 rounded-full border border-zinc-300 bg-violet-300"></span>
+          </div>
+          <h3 class="text-xl font-semibold">Plaud NotePin</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Носимый значок 15 г. Водозащита IP54. Для живых разговоров без рук.</p>
+          <div class="mt-4 space-y-1 text-sm text-zinc-600">
+            <p>Battery: 20h</p>
+            <p>Wearable Clip</p>
+            <p>IP54</p>
+          </div>
+          <div class="mt-auto pt-5">
+            <div class="flex items-end gap-2">
+              <span class="text-2xl font-bold">20 990 ₽</span>
+              <span class="text-sm text-amber-600">предзаказ</span>
+            </div>
+            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-amber-600">Предзаказ</span>
+          </div>
+        </a>
+
+        <a href="product-accessories.html" data-cat="accessory" data-price="3670" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.24s">
+          <span class="card-badge absolute right-4 top-4">АКСЕССУАР</span>
+          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
+            <div class="flex flex-col items-center gap-2 text-zinc-500">
+              <i data-lucide="package" class="h-14 w-14"></i>
+              <span class="text-xs">Набор аксессуаров</span>
+            </div>
+          </div>
+          <div class="mb-3 h-4"></div>
+          <h3 class="text-xl font-semibold">Набор аксессуаров</h3>
+          <p class="mt-2 text-sm leading-6 text-zinc-600">Подходит для всех моделей. Магнит, кабель, защитная накладка и крепёж.</p>
+          <div class="mt-4 space-y-1 text-sm text-zinc-600">
+            <p>Комплект 4-в-1</p>
+            <p>Совместим со всеми</p>
+            <p>Фирменные материалы</p>
+          </div>
+          <div class="mt-auto pt-5">
+            <div class="text-2xl font-bold">3 670 ₽</div>
+            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-emerald-600">Выбрать</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-zinc-200 bg-white px-6 pb-10 pt-14 text-zinc-500">
+    <div class="mx-auto grid max-w-7xl grid-cols-1 gap-10 md:grid-cols-4">
+      <div>
+        <a href="index.html" class="font-display text-sm font-black tracking-[0.08em] text-zinc-900">CRYPTORO</a>
+        <p class="mt-3 max-w-xs text-sm leading-6">Официальный дистрибьютор AI-диктофонов Plaud в России. Помогаем не упускать важные детали.</p>
+      </div>
+      <div>
+        <h4 class="mb-4 text-sm font-semibold text-zinc-900">Товары</h4>
+        <div class="space-y-2 text-sm">
+          <a href="product-vspomnit.html" class="block hover:text-zinc-900">Вспомни всё</a>
+          <a href="product-plaud-note.html" class="block hover:text-zinc-900">Plaud Note</a>
+          <a href="product-plaud-note-pro.html" class="block hover:text-zinc-900">Plaud Note Pro</a>
+          <a href="product-notepin.html" class="block hover:text-zinc-900">Plaud NotePin</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="mb-4 text-sm font-semibold text-zinc-900">Компания</h4>
+        <div class="space-y-2 text-sm">
+          <a href="about.html" class="block hover:text-zinc-900">О нас</a>
+          <a href="about.html#delivery" class="block hover:text-zinc-900">Доставка</a>
+          <a href="about.html#payment" class="block hover:text-zinc-900">Оплата</a>
+          <a href="about.html#contacts" class="block hover:text-zinc-900">Контакты</a>
+        </div>
+      </div>
+      <div>
+        <h4 class="mb-4 text-sm font-semibold text-zinc-900">Методы оплаты</h4>
+        <div class="space-y-2">
+          <div class="inline-flex w-full items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <i data-lucide="zap" class="h-4 w-4 text-brand-500"></i><span>СБП</span>
+          </div>
+          <div class="inline-flex w-full items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <i data-lucide="credit-card" class="h-4 w-4 text-brand-500"></i><span>МИР</span>
+          </div>
+          <div class="inline-flex w-full items-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <i data-lucide="wallet" class="h-4 w-4 text-brand-500"></i><span>Яндекс Пэй</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mx-auto mt-10 flex max-w-7xl flex-wrap items-center justify-between gap-3 border-t border-zinc-200 pt-6 text-xs">
+      <span>© 2025 CRYPTORO. Все права защищены.</span>
+      <div class="flex items-center gap-4">
+        <a href="#" class="hover:text-zinc-900">Политика конфиденциальности</a>
+        <a href="#" class="hover:text-zinc-900">Условия использования</a>
+      </div>
+      <span>info@cryptoro.ru · +7 495 191-81-74</span>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('opacity-0', 'translate-y-5');
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+    function updateFilterButtonState(activeBtn) {
+      document.querySelectorAll('.filter-btn').forEach((btn) => {
+        btn.classList.remove('bg-zinc-900', 'text-white', 'border-zinc-900');
+        btn.classList.add('text-zinc-600', 'border-zinc-300');
+      });
+      activeBtn.classList.add('bg-zinc-900', 'text-white', 'border-zinc-900');
+      activeBtn.classList.remove('text-zinc-600', 'border-zinc-300');
+    }
+
+    function updateCount() {
+      const cards = [...document.querySelectorAll('#productsGrid .pcard')].filter((card) => card.style.display !== 'none');
+      const visible = cards.length;
+      const word = visible === 1 ? 'товар' : (visible < 5 ? 'товара' : 'товаров');
+      document.getElementById('productsCount').textContent = visible + ' ' + word;
+    }
+
+    function filterProducts(cat, btn) {
+      updateFilterButtonState(btn);
+      document.querySelectorAll('#productsGrid .pcard').forEach((card) => {
+        const show = cat === 'all' || card.dataset.cat === cat;
+        card.style.display = show ? '' : 'none';
+      });
+      updateCount();
+    }
+
+    function sortProducts(value) {
+      const grid = document.getElementById('productsGrid');
+      const cards = [...grid.querySelectorAll('.pcard')];
+      const activeFilterBtn = document.querySelector('.filter-btn.bg-zinc-900');
+      const activeFilter = activeFilterBtn ? activeFilterBtn.getAttribute('onclick').match(/'([^']+)'/)[1] : 'all';
+
+      cards.sort((a, b) => {
+        if (value === 'price-asc') return Number(a.dataset.price) - Number(b.dataset.price);
+        if (value === 'price-desc') return Number(b.dataset.price) - Number(a.dataset.price);
+        return 0;
+      });
+
+      cards.forEach((card) => grid.appendChild(card));
+
+      document.querySelectorAll('#productsGrid .pcard').forEach((card) => {
+        const show = activeFilter === 'all' || card.dataset.cat === activeFilter;
+        card.style.display = show ? '' : 'none';
+      });
+
+      updateCount();
+    }
+  </script>
+
+<script>
+  (function(){
+    document.querySelectorAll('[onclick]').forEach(function(el){
+      const tag=el.tagName.toLowerCase();
+      if(['button','a','input','select','textarea','label','summary'].includes(tag)) return;
+      if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0');
+      if(!el.hasAttribute('role')) el.setAttribute('role','button');
+      if(!el.hasAttribute('aria-label')){
+        const txt=(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,80);
+        if(txt) el.setAttribute('aria-label',txt);
+      }
+      el.addEventListener('keydown', function(e){
+        if(e.key==='Enter' || e.key===' '){
+          e.preventDefault();
+          el.click();
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

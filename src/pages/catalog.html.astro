@@ -1,0 +1,8 @@
+---
+import Base from '../layouts/Base.astro';
+import { loadLegacyPage } from '../lib/legacy';
+const page = loadLegacyPage('catalog.html');
+---
+<Base title={page.title} description={page.description} injectHead={page.styles} withChrome={false}>
+  <Fragment set:html={page.body} />
+</Base>

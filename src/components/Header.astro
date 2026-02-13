@@ -1,0 +1,19 @@
+---
+interface Props {
+  active?: 'home' | 'catalog' | 'about';
+}
+const { active } = Astro.props;
+---
+<header style="position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(255,255,255,0.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(29,29,31,.10)">
+  <div style="max-width:1200px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between">
+    <a href="/" style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;letter-spacing:.06em;color:#1d1d1f;text-decoration:none">CRYPTORO</a>
+    <nav>
+      <a href="/" style={`font-size:14px;color:${active === 'home' ? '#1d1d1f' : '#555'};text-decoration:none;margin-left:28px`}>Главная</a>
+      <a href="/catalog" style={`font-size:14px;color:${active === 'catalog' ? '#1d1d1f' : '#555'};text-decoration:none;margin-left:28px`}>Каталог</a>
+      <a href="/about" style={`font-size:14px;color:${active === 'about' ? '#1d1d1f' : '#555'};text-decoration:none;margin-left:28px`}>О нас</a>
+    </nav>
+    <button aria-label="Корзина" style="background:none;border:none;cursor:pointer;position:relative;margin-left:20px">
+      <span style="position:absolute;top:-5px;right:-7px;background:#111;color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center">0</span>
+    </button>
+  </div>
+</header>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>О компании CRYPTORO | AI Диктофоны</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    :root{
+      --c-bg:#f5f5f7;
+      --c-bg-alt:#eceef2;
+      --c-surface:#ffffff;
+      --c-text:#1d1d1f;
+      --c-muted:#6e6e73;
+      --c-accent:#e88635;
+      --c-line:rgba(29,29,31,.08);
+    }
+    body{font-family:'Inter',sans-serif;background:var(--c-bg);color:var(--c-text);overflow-x:hidden}
+    header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;
+      background:rgba(255,255,255,0.88);backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(0,0,0,0.08)}
+    .nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:56px;
+      display:flex;align-items:center;justify-content:space-between}
+    .logo{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;
+      letter-spacing:.06em;color:#1d1d1f;text-decoration:none}
+    nav a{font-size:14px;color:#555;text-decoration:none;margin-left:28px;transition:color .2s}
+    nav a:hover,nav a.active{color:#1d1d1f}
+    .cart{background:none;border:none;cursor:pointer;font-size:18px;position:relative;margin-left:20px}
+    .cart-n{position:absolute;top:-5px;right:-7px;background:#e88635;color:#fff;
+      font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center}
+    .wrap{max-width:1160px;margin:0 auto}
+    .sec{padding:96px 24px}
+    .sec-head{margin-bottom:42px}
+    .sec-head p{font-size:18px;color:var(--c-muted);line-height:1.7;max-width:780px}
+
+    /* HERO */
+    .about-hero{padding:148px 24px 90px;text-align:center;
+      background:linear-gradient(180deg,var(--c-bg-alt),var(--c-bg));
+      border-bottom:1px solid var(--c-line)}
+    .about-hero h1{font-family:'Unbounded',sans-serif;font-size:clamp(48px,6.8vw,88px);
+      font-weight:900;letter-spacing:-.02em;margin-bottom:22px}
+    .about-hero p{font-size:24px;color:var(--c-muted);font-weight:300;max-width:760px;
+      margin:0 auto;line-height:1.6}
+
+    /* MISSION */
+    .mission-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:52px;align-items:center}
+    .mission-text h2{font-family:'Unbounded',sans-serif;font-size:clamp(34px,4.2vw,52px);
+      font-weight:700;letter-spacing:-.02em;margin-bottom:20px}
+    .mission-text p{font-size:19px;color:var(--c-muted);line-height:1.75;margin-bottom:16px}
+    .mission-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .mstat{background:var(--c-surface);border-radius:16px;padding:26px;text-align:center;
+      border:1px solid var(--c-line)}
+    .mstat-num{font-family:'Unbounded',sans-serif;font-size:44px;font-weight:900;
+      color:var(--c-accent);margin-bottom:6px}
+    .mstat-label{font-size:15px;color:var(--c-muted);line-height:1.4}
+
+    /* DELIVERY */
+    .sec-delivery{background:var(--c-surface)}
+    .sec-title{font-family:'Unbounded',sans-serif;font-size:clamp(34px,4.2vw,54px);
+      font-weight:700;letter-spacing:-.02em;margin-bottom:40px}
+    .delivery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .dcard{background:var(--c-surface);border-radius:18px;padding:28px;
+      border:1px solid var(--c-line);transition:transform .25s ease,box-shadow .25s ease}
+    .dcard:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(29,29,31,.08)}
+    .dicon{margin-bottom:14px}
+    .dname{font-size:23px;font-weight:600;margin-bottom:9px}
+    .dtime{font-size:16px;color:var(--c-accent);font-weight:500;margin-bottom:8px}
+    .dprice{font-size:15px;color:var(--c-muted);margin-bottom:13px}
+    .ddesc{font-size:15px;color:var(--c-muted);line-height:1.65}
+
+    /* PAYMENT */
+    .payment-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:28px}
+    .paycard{background:var(--c-surface);border-radius:16px;padding:26px;text-align:center;
+      border:1px solid var(--c-line)}
+    .payicon{margin-bottom:12px}
+    .payname{font-size:17px;font-weight:600;color:#1d1d1f;margin-bottom:6px}
+    .paydesc{font-size:14px;color:var(--c-muted);line-height:1.5}
+
+    /* WARRANTY */
+    .sec-warranty{background:var(--c-bg)}
+    .warranty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .wcard{background:var(--c-surface);border-radius:18px;padding:28px;
+      border:1px solid var(--c-line)}
+    .wicon{margin-bottom:14px}
+    .wname{font-size:23px;font-weight:600;color:var(--c-text);margin-bottom:9px}
+    .wdesc{font-size:15px;color:var(--c-muted);line-height:1.65}
+
+    /* CONTACTS */
+    .contacts-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+    .contact-block h3{font-size:26px;font-weight:600;margin-bottom:22px}
+    .citem{display:flex;align-items:center;gap:14px;margin-bottom:16px;
+      padding:18px;background:var(--c-surface);border-radius:12px;border:1px solid var(--c-line)}
+    .cicon{flex-shrink:0}
+    .clabel{font-size:13px;color:var(--c-muted);margin-bottom:4px}
+    .cval{font-size:18px;font-weight:500;color:#1d1d1f;text-decoration:none}
+    .cval:hover{color:var(--c-accent)}
+    .contact-cta{margin-top:10px;padding:24px;background:var(--c-surface);border-radius:16px;border:1px solid var(--c-line)}
+    .contact-cta p:first-child{font-size:19px;font-weight:600;margin-bottom:10px}
+    .contact-cta p:nth-child(2){font-size:16px;color:var(--c-muted);margin-bottom:18px;line-height:1.55}
+    .contact-cta a{display:inline-block;background:var(--c-accent);color:#fff;border-radius:980px;
+      padding:13px 26px;font-size:15px;font-weight:500;text-decoration:none}
+
+    .icon-wrap{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:#edf4ff;color:var(--c-accent);border:1px solid #d7e8ff}
+    .icon{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+    .reveal.vis{opacity:1;transform:translateY(0)}
+    .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+    .mission-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+    /* FOOTER */
+    footer{background:var(--c-surface);color:var(--c-muted);padding:60px 24px 40px;border-top:1px solid var(--c-line)}
+    .foot-grid{max-width:1200px;margin:0 auto;
+      display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+    .foot-logo{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:900;
+      color:var(--c-text);margin-bottom:12px;display:block;text-decoration:none}
+    .foot-desc{font-size:13px;line-height:1.6;max-width:260px}
+    .foot-col h4{font-size:13px;font-weight:600;color:var(--c-text);margin-bottom:16px}
+    .foot-col a{display:block;font-size:13px;color:var(--c-muted);text-decoration:none;
+      margin-bottom:10px;transition:color .2s}
+    .foot-col a:hover{color:var(--c-text)}
+    .foot-div{border:none;border-top:1px solid var(--c-line);
+      margin:0 auto 24px;max-width:1200px;display:block}
+    .foot-bot{max-width:1200px;margin:0 auto;display:flex;
+      justify-content:space-between;font-size:12px;flex-wrap:wrap;gap:8px}
+    .foot-bot a{color:var(--c-muted);text-decoration:none}
+
+    @media(max-width:768px){
+      nav{display:none}
+      .sec{padding:78px 20px}
+      .mission-grid{grid-template-columns:1fr}
+      .mission-stats{grid-template-columns:1fr 1fr}
+      .mission-stats-grid{grid-template-columns:1fr 1fr}
+      .delivery-grid{grid-template-columns:1fr}
+      .payment-grid{grid-template-columns:repeat(2,1fr)}
+      .warranty-grid{grid-template-columns:1fr}
+      .contacts-grid{grid-template-columns:1fr}
+      .foot-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:480px){
+      .about-hero{padding:124px 20px 68px}
+      .about-hero p{font-size:19px}
+      .mission-text p{font-size:17px}
+      .dname,.wname{font-size:21px}
+      .payname{font-size:16px}
+      .cval{font-size:16px}
+      .mission-stats{grid-template-columns:1fr}
+      .mission-stats-grid{grid-template-columns:1fr}
+      .payment-grid{grid-template-columns:1fr}
+    }
+  </style>
+<style id="unified-theme-override">
+:root{
+  --c-bg:#ffffff;
+  --c-bg-alt:#f5f5f7;
+  --c-surface:#ffffff;
+  --c-text:#1d1d1f;
+  --c-muted:#6e6e73;
+  --c-accent:#111111;
+  --line:rgba(29,29,31,.10);
+  --accent-soft:#f0f0f3;
+}
+
+html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
+
+/* Base surfaces */
+.pricing-wrap,.pcard,.fcard,.rvcard,.uccard,.pricingcard,.dcard,.paycard,.wcard,.mstat,.contact-cta,
+.citem,.faqitem,.smock,.hitem,.abadge,.tab-content,.rcard,.delivery-mini{
+  background:var(--c-surface)!important;
+  border-color:var(--line)!important;
+}
+
+/* Accent and text */
+.text-brand-500,.text-brand-600,.proc-label,.snum,.dtime,.sup,.recl,.pprice-preorder,.chkicon,.pfeat .c,.pfeat .c.bl{color:var(--c-text)!important}
+.text-zinc-600,.text-zinc-500,.sec-sub,.uc-topnote,.ptag,.pper,.rvrole,.lprivacy,.how-sub,.sdesc,.fdesc,.p-bottom span{color:var(--c-muted)!important}
+
+/* Buttons (same as product pages) */
+.btn-blue,.pbtn,.pbtn2.fil,.compare-btn,.lsubmit,.buy-btn,.sticky-btn,.pbtn-preorder,.filter-btn.active,.contact-cta a{
+  background:#111!important;
+  color:#fff!important;
+  border-color:#111!important;
+}
+.btn-ghost,.pbtn2.out,.btn-woutline,.filter-btn,.sort-select,.secondary-btn{
+  color:#111!important;
+  border-color:rgba(17,17,17,.22)!important;
+  background:transparent!important;
+}
+.btn-blue:hover,.pbtn:hover,.pbtn2.fil:hover,.lsubmit:hover,.buy-btn:hover,.sticky-btn:hover{filter:brightness(1.07)}
+
+/* Capsules and icon chips */
+.tbadge,.uctag,.hero-product-tag,.icon-wrap{
+  background:var(--accent-soft)!important;
+  color:#3a3a3c!important;
+  border-color:rgba(29,29,31,.14)!important;
+}
+.cart-n,.bg-brand-500,.bg-brand-600{background:#111!important;color:#fff!important;border-color:transparent!important}
+
+/* Hero contrast (index) */
+.hero{background:linear-gradient(180deg,#f7f4ef 0%,#ede7dc 100%)!important}
+.hero::before{background:radial-gradient(72% 82% at 78% 28%, rgba(232,134,53,.16), transparent 62%)!important}
+.hero-title{color:#111!important}
+.hero-sub,.hero-label{color:#5f5a52!important}
+.hero-product{background:transparent!important;border:none!important}
+.hero-product-image img{filter:drop-shadow(0 20px 24px rgba(17,17,17,.20))!important}
+.hero .btn-ghost{color:#111!important;border-color:rgba(17,17,17,.24)!important}
+.hero .btn-ghost:hover{border-color:#111!important}
+
+/* Sticky/header micro-pass */
+header{background:rgba(255,255,255,.92)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(18px)!important}
+section.sticky{background:rgba(255,255,255,.94)!important;border-bottom:1px solid var(--line)!important;box-shadow:none!important}
+
+/* Alternating section rhythm (index) */
+.sec-products,.sec-usecases,.sec-reviews{background:var(--c-bg)!important}
+.sec-features,.sec-pricing,.sec-faq,.sec-lead{background:var(--c-surface)!important}
+.sec-how{background:#efe8dc!important;color:var(--c-text)!important}
+
+/* Alternating section rhythm (about) */
+.about-hero{background:#fff!important;border-bottom:1px solid var(--line)!important}
+.sec{background:var(--c-surface)!important;border-top:1px solid var(--line)!important}
+.sec.sec-delivery,.sec.sec-warranty,#contacts{background:var(--c-bg-alt)!important}
+
+/* Catalog visual pass */
+body.bg-zinc-100{background:var(--c-bg)!important}
+.from-zinc-200,.to-zinc-100{--tw-gradient-from:#ffffff!important;--tw-gradient-to:#ffffff!important}
+.via-brand-600{--tw-gradient-via:rgba(29,29,31,.45)!important}
+.border-zinc-200,.border-zinc-200\/80,.border-zinc-300{border-color:var(--line)!important}
+#productsGrid .pcard{background:var(--c-surface)!important}
+
+/* Better contrast on consult strip */
+.reveal.bg-gradient-to-r,.bg-gradient-to-r{filter:none}
+
+/* Motion/accessibility */
+:focus-visible{outline:2px solid #111!important;outline-offset:2px}
+img{max-width:100%;height:auto}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* About-specific neutral polish */
+.icon-wrap{background:#f2f2f5!important;color:#3a3a3c!important;border-color:#d6d6dc!important}
+.dtime,.mstat-num{color:var(--c-text)!important}
+.contact-cta a{background:#111!important;color:#fff!important;border:1px solid #111!important}
+.contact-cta a:hover{filter:brightness(1.06)}
+
+/* Final micro-pass: spacing/contrast rhythm */
+.about-hero{padding-top:136px!important;padding-bottom:76px!important}
+.about-hero h1{font-size:clamp(56px,6.8vw,92px)!important;line-height:1.01!important}
+.about-hero p{font-size:clamp(20px,1.9vw,26px)!important;line-height:1.58!important}
+.sec{padding:86px 24px!important}
+.sec-head{margin-bottom:36px!important}
+.mstat,.dcard,.paycard,.wcard,.citem,.contact-cta{border-radius:18px!important}
+
+@media (min-width:1440px){
+  .wrap,.nav-inner{max-width:1280px!important}
+  .about-hero{padding-top:150px!important;padding-bottom:92px!important}
+  .sec{padding:102px 24px!important}
+  .sec-title{font-size:clamp(38px,3.2vw,56px)!important}
+}
+@media (max-width:390px){
+  .about-hero{padding:98px 18px 50px!important}
+  .about-hero h1{font-size:clamp(42px,14vw,56px)!important}
+  .about-hero p{font-size:17px!important;line-height:1.55!important}
+  .sec{padding:62px 18px!important}
+  .sec-head{margin-bottom:26px!important}
+  .sec-title{font-size:clamp(28px,8.5vw,36px)!important;margin-bottom:18px!important}
+  .mission-grid,.delivery-grid,.payment-grid,.warranty-grid,.contacts-grid{gap:14px!important}
+  .mstat,.dcard,.paycard,.wcard,.citem,.contact-cta{border-radius:14px!important;padding:16px!important}
+  .cval{font-size:16px!important}
+}
+</style>
+
+
+</head>
+<body>
+
+<header>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">CRYPTORO</a>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="catalog.html">Каталог</a>
+      <a href="about.html" class="active">О нас</a>
+    </nav>
+    <div style="display:flex;align-items:center">
+      <button class="cart" aria-label="Корзина"><span class="cart-n">0</span></button>
+    </div>
+  </div>
+</header>
+
+<div class="about-hero">
+  <h1>О компании</h1>
+  <p>Официальный дистрибьютор AI-диктофонов Plaud в России с 2024 года</p>
+</div>
+
+<!-- MISSION -->
+<section class="sec">
+  <div class="wrap">
+    <div class="mission-grid">
+      <div class="mission-text reveal">
+        <h2>Наша миссия</h2>
+        <p>CRYPTORO — официальный дистрибьютор AI-диктофонов Plaud в России. Помогаем бизнесменам, журналистам и студентам не упускать важные детали благодаря AI-технологиям.</p>
+        <p>Мы верим, что голос — самый мощный инструмент коммуникации. Наша задача — сделать так, чтобы каждое важное слово было сохранено и превращено в действие.</p>
+      </div>
+      <div class="mission-stats reveal d1">
+      <div class="mission-stats-grid">
+          <div class="mstat">
+            <div class="mstat-num">1000+</div>
+            <div class="mstat-label">Довольных клиентов</div>
+          </div>
+          <div class="mstat">
+            <div class="mstat-num">57</div>
+            <div class="mstat-label">Языков поддержки</div>
+          </div>
+          <div class="mstat">
+            <div class="mstat-num">98%</div>
+            <div class="mstat-label">Точность транскрибации</div>
+          </div>
+          <div class="mstat">
+            <div class="mstat-num">1 год</div>
+            <div class="mstat-label">Гарантия на все товары</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERY -->
+<section class="sec sec-delivery" id="delivery">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">Доставка</h2>
+      <p>Отправляем по всей России. Выберите удобный способ получения.</p>
+    </div>
+    <div class="delivery-grid">
+      <div class="dcard reveal d1">
+        <div class="dicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M3 8.5 12 4l9 4.5"/><path d="M3 8.5V17l9 4 9-4V8.5"/><path d="M12 12v9"/></svg></span></div>
+        <div class="dname">СДЭК</div>
+        <div class="dtime">2–7 рабочих дней</div>
+        <div class="dprice">от 300 ₽</div>
+        <div class="ddesc">Доставка до пункта выдачи или курьером до двери. Отслеживание посылки в реальном времени.</div>
+      </div>
+      <div class="dcard reveal d2">
+        <div class="dicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16v10H4z"/><path d="m4 8 8 6 8-6"/></svg></span></div>
+        <div class="dname">Почта России</div>
+        <div class="dtime">5–14 рабочих дней</div>
+        <div class="dprice">от 200 ₽</div>
+        <div class="ddesc">Доставка в любую точку России включая отдалённые регионы. Уведомление о поступлении.</div>
+      </div>
+      <div class="dcard reveal d3">
+        <div class="dicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h5l2.5-5H12l-2 3H7"/><path d="M13 8h3"/></svg></span></div>
+        <div class="dname">Курьер по Москве</div>
+        <div class="dtime">1 рабочий день</div>
+        <div class="dprice">от 500 ₽</div>
+        <div class="ddesc">Экспресс-доставка по Москве и ближайшему Подмосковью. Заказы до 14:00 — доставим в тот же день.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAYMENT -->
+<section class="sec" id="payment">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">Способы оплаты</h2>
+      <p>Все платежи защищены и обрабатываются через CloudPayments.</p>
+    </div>
+    <div class="payment-grid">
+      <div class="paycard reveal d1">
+        <div class="payicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></span></div>
+        <div class="payname">Карты РФ</div>
+        <div class="paydesc">Visa, МИР, Mastercard</div>
+      </div>
+      <div class="paycard reveal d2">
+        <div class="payicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="m13 3-6 10h4l-1 8 7-11h-4z"/></svg></span></div>
+        <div class="payname">СБП</div>
+        <div class="paydesc">Система быстрых платежей</div>
+      </div>
+      <div class="paycard reveal d3">
+        <div class="payicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></span></div>
+        <div class="payname">Яндекс.Пей</div>
+        <div class="paydesc">Быстрая оплата через Яндекс</div>
+      </div>
+      <div class="paycard reveal d4">
+        <div class="payicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span></div>
+        <div class="payname">CloudPayments</div>
+        <div class="paydesc">Безопасный платёжный шлюз</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WARRANTY -->
+<section class="sec sec-warranty">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">Гарантия и поддержка</h2>
+      <p>Остаёмся на связи после покупки и помогаем на каждом этапе.</p>
+    </div>
+    <div class="warranty-grid">
+      <div class="wcard reveal d1">
+        <div class="wicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.6 3 7.6 7 9 4-1.4 7-4.4 7-9V6z"/></svg></span></div>
+        <div class="wname">Гарантия 1 год</div>
+        <div class="wdesc">На все устройства действует гарантия 1 год с момента покупки. Бесплатный ремонт или замена при производственном браке.</div>
+      </div>
+      <div class="wcard reveal d2">
+        <div class="wicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M9 8 5 12l4 4"/><path d="M5 12h9a5 5 0 0 1 0 10"/></svg></span></div>
+        <div class="wname">Возврат 14 дней</div>
+        <div class="wdesc">Если товар не подошёл — вернём деньги в течение 14 дней без лишних вопросов. Товар должен быть в оригинальной упаковке.</div>
+      </div>
+      <div class="wcard reveal d3">
+        <div class="wicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 3z"/></svg></span></div>
+        <div class="wname">Поддержка 24/7</div>
+        <div class="wdesc">Наша команда готова помочь с настройкой и любыми вопросами. Отвечаем в Telegram, по email и телефону.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTS -->
+<section class="sec" id="contacts">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">Контакты</h2>
+      <p>Свяжитесь с нами любым удобным способом, чтобы получить консультацию и помощь с выбором.</p>
+    </div>
+    <div class="contacts-grid">
+      <div class="contact-block reveal d1">
+        <h3>Свяжитесь с нами</h3>
+        <div class="citem">
+          <span class="cicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M6 4h4l2 5-2 2a14 14 0 0 0 3 3l2-2 5 2v4c-8 1-15-6-14-14z"/></svg></span></span>
+          <div>
+            <div class="clabel">Телефон</div>
+            <a class="cval" href="tel:+74951918174">+7 495 191-81-74</a>
+          </div>
+        </div>
+        <div class="citem">
+          <span class="cicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16v10H4z"/><path d="m4 8 8 6 8-6"/></svg></span></span>
+          <div>
+            <div class="clabel">Email</div>
+            <a class="cval" href="mailto:info@cryptoro.ru">info@cryptoro.ru</a>
+          </div>
+        </div>
+        <div class="citem">
+          <span class="cicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M21 3 3 10l7 2 2 7 9-16z"/></svg></span></span>
+          <div>
+            <div class="clabel">Telegram</div>
+            <a class="cval" href="#">@cryptoro_support</a>
+          </div>
+        </div>
+        <div class="citem">
+          <span class="cicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span></span>
+          <div>
+            <div class="clabel">Адрес</div>
+            <span class="cval">Москва, БЦ Полином</span>
+          </div>
+        </div>
+      </div>
+      <div class="contact-block reveal d2">
+        <h3>Режим работы</h3>
+        <div class="citem">
+          <span class="cicon"><span class="icon-wrap"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg></span></span>
+          <div>
+            <div class="clabel">Пн–Вс</div>
+            <span class="cval">10:00 — 19:00</span>
+          </div>
+        </div>
+        <div class="contact-cta">
+          <p>Нужна консультация?</p>
+          <p>Подберём идеальный диктофон под ваши задачи.</p>
+          <a href="index.html#lead">Оставить заявку</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <a href="index.html" class="foot-logo">CRYPTORO</a>
+      <p class="foot-desc">Официальный дистрибьютор AI-диктофонов Plaud в России.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Товары</h4>
+      <a href="product-vspomnit.html">Вспомни всё</a>
+      <a href="product-plaud-note.html">Plaud Note</a>
+      <a href="product-notepin.html">Plaud NotePin</a>
+    </div>
+    <div class="foot-col">
+      <h4>Компания</h4>
+      <a href="about.html">О нас</a>
+      <a href="about.html#delivery">Доставка</a>
+      <a href="about.html#contacts">Контакты</a>
+    </div>
+    <div class="foot-col">
+      <h4>Соцсети</h4>
+      <a href="#">ВКонтакте</a>
+      <a href="#">Telegram</a>
+      <a href="#">YouTube</a>
+    </div>
+  </div>
+  <hr class="foot-div"/>
+  <div class="foot-bot">
+    <span>© 2025 CRYPTORO. Все права защищены.</span>
+    <span>info@cryptoro.ru · +7 495 191-81-74</span>
+  </div>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+
+<script>
+  (function(){
+    document.querySelectorAll('[onclick]').forEach(function(el){
+      const tag=el.tagName.toLowerCase();
+      if(['button','a','input','select','textarea','label','summary'].includes(tag)) return;
+      if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0');
+      if(!el.hasAttribute('role')) el.setAttribute('role','button');
+      if(!el.hasAttribute('aria-label')){
+        const txt=(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,80);
+        if(txt) el.setAttribute('aria-label',txt);
+      }
+      el.addEventListener('keydown', function(e){
+        if(e.key==='Enter' || e.key===' '){
+          e.preventDefault();
+          el.click();
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

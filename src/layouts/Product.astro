@@ -1,0 +1,198 @@
+---
+import Base from './Base.astro';
+
+interface ProductData {
+  title: string;
+  slug: string;
+  price: number;
+  badge?: string;
+  image: string;
+  inStock?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  features?: string[];
+  specs?: {
+    color?: string;
+    dimensions?: string;
+    weight?: string;
+    connection?: string;
+    warranty?: string;
+    [key: string]: string | undefined;
+  };
+  boxContents?: string[];
+}
+
+interface RelatedItem {
+  slug: string;
+  title: string;
+  price: number;
+  image: string;
+}
+
+interface Props {
+  product: ProductData;
+  related?: RelatedItem[];
+}
+
+const { product, related = [] } = Astro.props;
+const price = new Intl.NumberFormat('ru-RU').format(product.price);
+const stockLabel = product.inStock === false ? 'Предзаказ' : 'Купить сейчас';
+const specsRows = [
+  { label: 'Цвет', value: product.specs?.color },
+  { label: 'Размеры', value: product.specs?.dimensions },
+  { label: 'Вес', value: product.specs?.weight },
+  { label: 'Подключение', value: product.specs?.connection },
+  { label: 'Гарантия', value: product.specs?.warranty }
+].filter((row) => row.value);
+---
+<Base title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
+  <main>
+    <section class="product-hero">
+      <div class="hero-grid">
+        <div class="gallery">
+          <div class="main-img">
+            <img id="mainImg" src={product.image} alt={product.title} />
+          </div>
+        </div>
+        <div>
+          <div class="badges-row">
+            {product.badge && <span class="badge">{product.badge}</span>}
+          </div>
+          <h1 class="prod-name">{product.title}</h1>
+          <p class="prod-sub">{product.seoDescription}</p>
+          <div class="price-main">{price} ₽</div>
+          <div class="trust-badges">
+            <span class="tbadge">Гарантия 1 год</span>
+            <span class="tbadge">Доставка по РФ</span>
+            <span class="tbadge">Возврат 14 дней</span>
+          </div>
+          <div class="features-list">
+            {(product.features ?? []).map((item) => (
+              <div class="feat-item"><span class="feat-check">✓</span><span>{item}</span></div>
+            ))}
+          </div>
+          <button class="buy-btn" id="buyBtn" onclick="addToCart()">{stockLabel}</button>
+          <a href="/catalog" class="secondary-btn">Смотреть все модели</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="tabs-section">
+      <div class="tabs-wrap">
+        <div class="tab-content active">
+          <h3 class="tab-title">Описание</h3>
+          <article class="md-body"><slot /></article>
+        </div>
+        <div class="tab-content active">
+          <h3 class="tab-title">Характеристики</h3>
+          <table class="specs-table">
+            <tbody>
+              {specsRows.map((row) => (
+                <tr>
+                  <td>{row.label}</td>
+                  <td>{row.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-content active">
+          <h3 class="tab-title">Комплектация</h3>
+          <ul class="box-list">
+            {(product.boxContents ?? []).map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    {!!related.length && (
+      <section class="related-section">
+        <div class="related-wrap">
+          <h2>Похожие товары</h2>
+          <div class="related-grid">
+            {related.map((item) => (
+              <a class="rcard" href={`/products/${item.slug}`}>
+                <img src={item.image} alt={item.title} />
+                <div class="rname">{item.title}</div>
+                <div class="rprice">{new Intl.NumberFormat('ru-RU').format(item.price)} ₽</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </main>
+
+  <script>
+    let cart = 0;
+    function addToCart() {
+      cart++;
+      const c = document.querySelector('.cart-n');
+      if (c) c.textContent = String(cart);
+      const btn = document.getElementById('buyBtn');
+      if (!btn) return;
+      const original = btn.textContent;
+      btn.textContent = '✓ Добавлено!';
+      btn.style.background = '#30d158';
+      setTimeout(() => {
+        btn.textContent = original ?? 'Купить сейчас';
+        btn.style.background = '#111111';
+      }, 2000);
+    }
+    window.addToCart = addToCart;
+  </script>
+
+  <style is:global>
+    body{background:#fff;color:#1d1d1f;font-family:'Inter',sans-serif}
+    main{padding-top:56px}
+    .product-hero{padding:44px 24px 84px}
+    .hero-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+    .main-img{width:100%;aspect-ratio:1;background:radial-gradient(120% 120% at 50% 0%,#fff 0%,#f7f8fb 55%,#f1f3f8 100%);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid rgba(29,29,31,.10)}
+    .main-img img{width:100%;height:100%;object-fit:contain;padding:16px}
+    .badges-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    .badge{background:#f2f2f5;color:#3a3a3c;border:1px solid #d6d6dc;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+    .prod-name{font-family:'Unbounded',sans-serif;font-size:clamp(34px,4.6vw,56px);line-height:1.03;letter-spacing:-.03em;margin-bottom:16px}
+    .prod-sub{font-size:clamp(17px,1.8vw,22px);line-height:1.5;color:#6e6e73;max-width:34ch}
+    .price-main{font-family:'Unbounded',sans-serif;font-size:clamp(38px,4.2vw,54px);letter-spacing:-.02em;margin:20px 0}
+    .trust-badges{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;margin-bottom:24px}
+    .tbadge{display:inline;background:none;border:none;padding:0;margin:0;color:#6e6e73;font-size:13px;font-weight:500}
+    .tbadge::after{content:' · ';color:#b6b6bd}
+    .tbadge:last-child::after{content:''}
+    .features-list{margin:24px 0}
+    .feat-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid rgba(29,29,31,.12);font-size:16px}
+    .feat-item:last-child{border-bottom:none}
+    .feat-check{color:#1d1d1f}
+    .buy-btn{display:block;width:100%;background:#111;color:#fff;border:1px solid #111;border-radius:14px;padding:16px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;box-shadow:0 10px 24px rgba(17,24,39,.10)}
+    .secondary-btn{display:block;width:100%;background:transparent;color:#1d1d1f;border:1.5px solid rgba(0,0,0,.2);border-radius:14px;padding:15px;font-size:16px;font-weight:500;text-align:center;text-decoration:none}
+    .tabs-section{padding:56px 24px;background:#f5f5f7;border-top:1px solid rgba(29,29,31,.10)}
+    .tabs-wrap{max-width:1240px;margin:0 auto;display:grid;gap:14px}
+    .tab-content{display:block;background:#fff;border:1px solid rgba(29,29,31,.12);border-radius:18px;padding:22px;box-shadow:0 10px 24px rgba(17,24,39,.06)}
+    .tab-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,2.2vw,24px);font-weight:700;letter-spacing:-.01em;margin:0 0 14px;color:#1d1d1f}
+    .md-body{font-size:16px;color:#4a4d55;line-height:1.75}
+    .specs-table{width:100%;border-collapse:collapse}
+    .specs-table td{border-bottom:1px solid rgba(29,29,31,.12);padding:16px 0}
+    .specs-table tr:last-child td{border-bottom:none}
+    .specs-table td:first-child{color:#6e6e73;width:45%}
+    .box-list{padding-left:20px;color:#4a4d55;line-height:1.7}
+    .related-section{background:#f5f5f7;border-top:1px solid rgba(29,29,31,.12);padding:60px 24px 100px}
+    .related-wrap{max-width:1240px;margin:0 auto}
+    .related-wrap h2{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3vw,36px);margin-bottom:22px}
+    .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .rcard{display:flex;flex-direction:column;gap:0;background:#fff;border:1px solid rgba(29,29,31,.12);border-radius:16px;padding:16px;text-decoration:none;color:inherit}
+    .rcard img{width:100%;height:180px;object-fit:contain;background:#f5f5f7;border-radius:12px;margin-bottom:12px}
+    .rname{font-size:18px;font-weight:600;margin-bottom:8px}
+    .rprice{font-size:20px;font-weight:700;margin-bottom:10px}
+    .rcard::after{content:'Выбрать';display:inline-flex;align-items:center;justify-content:center;height:42px;margin-top:auto;border-radius:12px;background:#111;color:#fff;font-size:14px;font-weight:600;letter-spacing:.01em}
+    @media(max-width:980px){
+      .hero-grid{grid-template-columns:1fr;gap:30px}
+      .related-grid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:390px){
+      .product-hero{padding:32px 18px 58px}
+      .tabs-section{padding:42px 18px}
+      .related-section{padding:42px 18px 70px}
+      .related-grid{grid-template-columns:1fr}
+      .tab-content{padding:18px;border-radius:14px}
+    }
+  </style>
+</Base>

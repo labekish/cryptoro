@@ -1,0 +1,34 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: public/images/products
+public_folder: /images/products
+
+collections:
+  - name: products
+    label: Товары
+    folder: src/content/products
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Название, name: title, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Цена, name: price, widget: number }
+      - { label: Бейдж, name: badge, widget: string, required: false }
+      - { label: Фото, name: image, widget: image }
+      - { label: В наличии, name: inStock, widget: boolean, default: true }
+      - { label: SEO Title, name: seoTitle, widget: string }
+      - { label: SEO Description, name: seoDescription, widget: text }
+      - { label: Особенности, name: features, widget: list }
+      - label: Характеристики
+        name: specs
+        widget: object
+        fields:
+          - { label: Цвет, name: color, widget: string }
+          - { label: Размеры, name: dimensions, widget: string }
+          - { label: Вес, name: weight, widget: string }
+          - { label: Подключение, name: connection, widget: string }
+          - { label: Гарантия, name: warranty, widget: string }
+      - { label: Комплектация, name: boxContents, widget: list }
+      - { label: Описание, name: body, widget: markdown }

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+ <meta charset="UTF-8"/>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+ <title>Вспомни всё — AI Диктофон ChatGPT | 11 990 ₽ | CRYPTORO</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com"/>
+ <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+ <style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;background:#fff;color:#1d1d1f;overflow-x:hidden}
+  header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.08)}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;letter-spacing:.06em;color:#1d1d1f;text-decoration:none}
+  nav a{font-size:14px;color:#555;text-decoration:none;margin-left:28px;transition:color .2s}
+  nav a:hover{color:#1d1d1f}
+  .cart{background:none;border:none;cursor:pointer;font-size:18px;position:relative;margin-left:20px}
+  .cart-n{position:absolute;top:-5px;right:-7px;background:#e88635;color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .sticky-bar{position:fixed;top:56px;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.08);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;transform:translateY(-100%);transition:transform .3s ease;opacity:0}
+  .sticky-bar.show{transform:translateY(0);opacity:1}
+  .sticky-name{font-size:15px;font-weight:600}
+  .sticky-price{font-size:17px;font-weight:700;color:#e88635}
+  .sticky-btn{background:#e88635;color:#fff;border:none;border-radius:980px;padding:10px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif}
+  .breadcrumb{padding:80px 24px 0;max-width:1200px;margin:0 auto}
+  .breadcrumb a{font-size:13px;color:#888;text-decoration:none}
+  .breadcrumb a:hover{color:#1d1d1f}
+  .breadcrumb span{font-size:13px;color:#aaa;margin:0 6px}
+  .product-hero{padding:32px 24px 80px}
+  .hero-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+  .gallery{position:sticky;top:80px}
+  .main-img{width:100%;aspect-ratio:1;background:#f5f5f7;border-radius:20px;overflow:hidden;margin-bottom:12px;display:flex;align-items:center;justify-content:center}
+  .main-img img{width:100%;height:100%;object-fit:contain;padding:20px}
+  .thumbs{display:flex;gap:8px}
+  .thumb{width:72px;height:72px;border-radius:10px;background:#f5f5f7;border:2px solid transparent;cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:border-color .2s}
+  .thumb.active{border-color:#e88635}
+  .thumb img{width:100%;height:100%;object-fit:contain;padding:4px}
+  .badges-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:980px}
+  .badge-new{background:#e88635;color:#fff}
+  .badge-hit{background:#ff375f;color:#fff}
+  .badge-cryptoro{background:#1d1d1f;color:#fff}
+  .prod-name{font-family:'Unbounded',sans-serif;font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-.02em;margin-bottom:12px;line-height:1.1}
+  .prod-sub{font-size:17px;color:#666;font-weight:300;margin-bottom:24px;line-height:1.5}
+  .trust-badges{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+  .tbadge{font-size:12px;color:#666;display:flex;align-items:center;gap:5px}
+  .price-block{margin-bottom:28px}
+  .price-main{font-family:'Unbounded',sans-serif;font-size:40px;font-weight:900;color:#1d1d1f;margin-bottom:4px}
+  .price-note{font-size:13px;color:#888}
+  .features-list{margin-bottom:28px}
+  .feat-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.06);font-size:15px}
+  .feat-item:last-child{border-bottom:none}
+  .feat-check{color:#e88635;font-size:16px;flex-shrink:0;margin-top:1px}
+  .buy-btn{display:block;width:100%;background:#e88635;color:#fff;border:none;border-radius:14px;padding:16px;font-size:17px;font-weight:600;text-align:center;cursor:pointer;margin-bottom:12px;transition:background .2s,transform .15s;font-family:'Inter',sans-serif}
+  .buy-btn:hover{background:#0077ed;transform:scale(1.01)}
+  .secondary-btn{display:block;width:100%;background:transparent;color:#1d1d1f;border:1.5px solid rgba(0,0,0,.2);border-radius:14px;padding:15px;font-size:16px;font-weight:500;text-align:center;cursor:pointer;transition:border-color .2s;font-family:'Inter',sans-serif;text-decoration:none}
+  .secondary-btn:hover{border-color:#1d1d1f}
+  .delivery-mini{margin-top:20px;padding:16px;background:#f5f5f7;border-radius:12px}
+  .deli-row{display:flex;align-items:center;gap:10px;font-size:13px;color:#555;padding:5px 0}
+  .tabs-section{padding:60px 24px}
+  .tabs-wrap{max-width:1200px;margin:0 auto}
+  .tabs-nav{display:flex;border-bottom:1px solid rgba(0,0,0,.1);margin-bottom:40px}
+  .tab-btn{background:none;border:none;padding:14px 24px;font-size:15px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;font-family:'Inter',sans-serif}
+  .tab-btn.active{color:#1d1d1f;border-bottom-color:#1d1d1f}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+  .specs-table{width:100%;border-collapse:collapse}
+  .specs-table tr:nth-child(odd){background:#f5f5f7}
+  .specs-table td{padding:14px 20px;font-size:15px}
+  .specs-table td:first-child{color:#888;width:45%}
+  .specs-table td:last-child{font-weight:500}
+  .related-section{padding:60px 24px 100px;background:#f5f5f7}
+  .related-wrap{max-width:1200px;margin:0 auto}
+  .sec-title{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:32px}
+  .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .rcard{background:#fff;border-radius:18px;border:1px solid rgba(0,0,0,.07);padding:20px;display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:box-shadow .3s,transform .3s}
+  .rcard:hover{box-shadow:0 8px 30px rgba(0,0,0,.08);transform:translateY(-3px)}
+  .rimg{height:160px;background:#f5f5f7;border-radius:10px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .rimg img{width:100%;height:100%;object-fit:contain;padding:10px}
+  .rname{font-size:15px;font-weight:600;margin-bottom:6px}
+  .rprice{font-size:15px;font-weight:700}
+  footer{background:#1d1d1f;color:#888;padding:60px 24px 40px}
+  .foot-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+  .foot-logo{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:900;color:#fff;margin-bottom:12px;display:block;text-decoration:none}
+  .foot-desc{font-size:13px;line-height:1.6;max-width:260px}
+  .foot-col h4{font-size:13px;font-weight:600;color:#fff;margin-bottom:16px}
+  .foot-col a{display:block;font-size:13px;color:#888;text-decoration:none;margin-bottom:10px;transition:color .2s}
+  .foot-col a:hover{color:#fff}
+  .foot-div{border:none;border-top:1px solid rgba(255,255,255,.08);margin:0 auto 24px;max-width:1200px;display:block}
+  .foot-bot{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;font-size:12px;flex-wrap:wrap;gap:8px}
+  @media(max-width:768px){nav{display:none}.hero-grid{grid-template-columns:1fr}.gallery{position:static}.related-grid{grid-template-columns:1fr 1fr}.foot-grid{grid-template-columns:1fr}}
+ </style>
+<style id="light-accent-override">
+:root{
+ --accent:#f08a2b;
+ --accent-2:#d39b43;
+ --accent-grad:linear-gradient(135deg,#f08a2b 0%,#d39b43 100%);
+ --accent-soft:#fff4e7;
+ --accent-line:rgba(240,138,43,.26);
+}
+
+/* Accent layer (softer, premium) */
+.btn-blue,.pbtn,.pbtn2.fil,.compare-btn,.contact-cta a,.lsubmit,.filter-btn.active,
+.pbadge,.pbadge-new,.pbadge-hit,.pbadge-pro,.pbadge-preorder,.pbadge2.bl,.cart-n,.pbtn-preorder,
+.bg-brand-500,.bg-brand-600{
+ background:var(--accent-grad)!important;
+ color:#fff!important;
+ border-color:transparent!important;
+}
+.text-brand-500,.text-brand-600{color:var(--accent)!important}
+.pbtn-preorder:hover,.pbtn:hover,.btn-blue:hover,.pbtn2.fil:hover,.compare-btn:hover,.lsubmit:hover{filter:brightness(1.03)}
+
+.btn-ghost,.pbtn2.out,.btn-woutline,.filter-btn,.sort-select,.p-bottom a{
+ border-color:rgba(29,29,31,.22)!important;
+}
+
+.tbadge,.uctag,.hero-product-tag{
+ background:var(--accent-soft)!important;
+ border-color:var(--accent-line)!important;
+ color:var(--accent)!important;
+}
+.proc-label,.snum,.dtime,.sup,.recl,.pprice-preorder,
+.chkicon,.pfeat .c,.pfeat .c.bl,.faqitem.open .faqarr{color:var(--accent)!important}
+.faqitem.open .faqarr,.abadge .dot,.dot,.sfill,.hero-bar,.wbar{background:var(--accent-grad)!important}
+
+/* Keep image zones clean */
+.pimg-wrap,.ucimg-w,.pmedia,.hero-product,.hero-screen-main,.fvisual,.hub{background:transparent!important}
+.pimg-wrap{border-color:transparent!important}
+.bg-zinc-100,.bg-zinc-50,.bg-gradient-to-br{background:transparent!important;background-image:none!important}
+
+/* Softer hero wave */
+.hero::after{
+ content:'';
+ position:absolute;
+ left:8%;
+ right:8%;
+ bottom:-120px;
+ height:260px;
+ pointer-events:none;
+ z-index:0;
+ background:
+  radial-gradient(80% 95% at 35% 55%, rgba(240,138,43,.20), transparent 62%),
+  radial-gradient(75% 90% at 70% 52%, rgba(211,155,67,.16), transparent 64%);
+ filter:blur(12px);
+}
+.hero>*{position:relative;z-index:1}
+
+/* Alignment consistency across pages */
+.pbtn,.pbtn2.fil,.pbtn2.out,.btn-blue,.btn-ghost,.btn-woutline,.compare-btn{min-height:44px}
+.products-grid,.feat-grid,.uc-grid,.rv-grid,.delivery-grid,.payment-grid,.warranty-grid,.contacts-grid,.p-cards{align-items:stretch}
+.pcard,.fcard,.uccard,.rvcard,.dcard,.paycard,.wcard,.pricingcard{height:100%}
+
+/* About icons */
+.icon-wrap{background:var(--accent-soft)!important;color:var(--accent)!important;border-color:#ffd3ab!important}
+
+/* Motion, accessibility, rendering quality */
+:focus-visible{outline:2px solid var(--accent)!important;outline-offset:2px}
+img{max-width:100%;height:auto}
+.reveal{will-change:transform,opacity}
+.pcard img,.pmedia img,.hero-product img{transform:translateZ(0);backface-visibility:hidden}
+@media (prefers-reduced-motion: reduce){
+ html{scroll-behavior:auto!important}
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* Product pages: premium blocks without click-tabs */
+.product-hero{padding:44px 24px 84px!important}
+.hero-grid{gap:72px!important;align-items:center!important}
+.prod-name{font-size:clamp(34px,4.6vw,56px)!important;line-height:1.03!important;margin-bottom:16px!important}
+.prod-sub{font-size:clamp(17px,1.8vw,22px)!important;line-height:1.5!important;color:#5f6470!important;max-width:34ch}
+.price-main{font-size:clamp(38px,4.2vw,54px)!important;letter-spacing:-.02em}
+.features-list{margin:30px 0!important}
+.feat-item{padding:12px 0!important;font-size:16px!important}
+.story-section{padding:24px 24px 12px;background:linear-gradient(180deg,#ffffff 0%,#f5f7fb 100%)}
+.story-wrap{max-width:1200px;margin:0 auto;border:1px solid rgba(29,29,31,.08);border-radius:28px;padding:38px 40px;background:radial-gradient(120% 180% at 0% 0%,#fff7ef 0%,#ffffff 42%,#f8f9fc 100%);box-shadow:0 18px 36px rgba(17,24,39,.08)}
+.story-kicker{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.story-title{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.6vw,46px);line-height:1.12;letter-spacing:-.02em;margin:0 0 14px;color:#1d1d1f;max-width:22ch}
+.story-sub{font-size:17px;line-height:1.7;color:#5f6470;max-width:60ch}
+.story-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:24px}
+.story-metric{background:#fff;border:1px solid rgba(29,29,31,.08);border-radius:16px;padding:14px 16px;display:flex;align-items:baseline;gap:8px}
+.story-metric strong{font-family:'Unbounded',sans-serif;font-size:22px;line-height:1;color:#1d1d1f}
+.story-metric span{font-size:13px;color:#6a6f7a;text-transform:uppercase;letter-spacing:.06em}
+@media(max-width:980px){
+ .hero-grid{grid-template-columns:1fr!important;gap:30px!important}
+ .gallery{position:relative!important;top:auto!important}
+ .story-wrap{padding:26px 22px;border-radius:20px}
+ .story-metrics{grid-template-columns:1fr}
+}
+
+.main-img{background:radial-gradient(120% 120% at 50% 0%,#ffffff 0%,#f7f8fb 55%,#f1f3f8 100%)!important;border:1px solid rgba(29,29,31,.08)}
+.main-img img{filter:drop-shadow(0 18px 28px rgba(17,24,39,.18));transition:transform .45s ease}
+.main-img:hover img{transform:scale(1.045)}
+.buy-btn{box-shadow:0 12px 26px rgba(240,138,43,.24)}
+.buy-btn:hover{transform:translateY(-1px) scale(1.01)}
+.related-section{background:#f5f5f7!important;border-top:1px solid var(--prod-line)!important}
+.rcard{border-color:rgba(29,29,31,.09)!important}
+.tabs-section{padding:56px 24px!important}
+.tabs-wrap{max-width:1200px;margin:0 auto;display:grid;gap:14px!important}
+.tabs-nav{display:none!important}
+.tab-content{display:block!important;background:#fff;border:1px solid rgba(29,29,31,.08);border-radius:18px;padding:22px;box-shadow:0 10px 24px rgba(17,24,39,.06)}
+.tab-content.active{display:block!important}
+.tab-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,2.2vw,24px);font-weight:700;letter-spacing:-.01em;margin:0 0 14px;color:#1d1d1f}
+.tab-content p[style]{font-size:16px!important;color:#4a4d55!important;line-height:1.75!important}
+@media(max-width:768px){
+ .tab-content{padding:18px;border-radius:14px}
+ .tabs-section{padding:44px 20px!important}
+}
+
+/* Premium product polish */
+:root{--prod-bg:#ffffff;--prod-surface:#ffffff;--prod-text:#1d1d1f;--prod-muted:#6e6e73;--prod-line:rgba(29,29,31,.12);--prod-accent:#111111}
+body{background:var(--prod-bg)!important;color:var(--prod-text)!important}
+.product-hero,.tabs-section,.related-section{background:transparent!important}
+.main-img,.tab-content,.rcard,.delivery-mini,.compat-banner,.inbox-item{background:var(--prod-surface)!important;border-color:var(--prod-line)!important}
+.hero-grid,.tabs-wrap,.related-wrap{max-width:1240px!important}
+
+/* Replace legacy blue with orange accent */
+.cart-n,.feat-check,.sticky-price,.price-note .accent,.color-opt.active,.thumb.active,.compat-check,.badge-new,.badge-hit,.badge-cryptoro,.acc-badge,.cryptoro-badge{color:var(--prod-text)!important}
+.thumb.active,.color-opt.active{border-color:var(--prod-text)!important}
+.cart-n,.badge-new,.badge-hit,.badge-cryptoro,.acc-badge,.cryptoro-badge{background:#f2f2f5!important;border:1px solid #d6d6dc!important}.cart-n{background:#111!important;color:#fff!important;border-color:#111!important}
+
+/* Badges: one neutral badge only */
+.badges-row .badge,.acc-badge,.cryptoro-badge{background:#f2f2f5!important;color:#3a3a3c!important;border:1px solid #d6d6dc!important}
+.badges-row .badge:not(:first-child),.cryptoro-badge{display:none!important}
+
+/* Buy CTA should be black */
+.buy-btn,.sticky-btn{background:#111!important;color:#fff!important;border:1px solid #111!important;box-shadow:none!important}
+.buy-btn:hover,.sticky-btn:hover{background:#111!important;filter:brightness(1.08)}
+
+/* Specs table: clean rows */
+.specs-table tr,.specs-table tr:nth-child(odd),.specs-table tr:nth-child(even){background:transparent!important}
+.specs-table td{border-bottom:1px solid var(--prod-line)!important;padding:16px 0!important}
+.specs-table tr:last-child td{border-bottom:none!important}
+
+/* Hide thumbs when only one image */
+.thumbs:has(.thumb:only-child){display:none!important}
+
+/* Related cards: add choose button */
+.rcard{display:flex!important;flex-direction:column!important;gap:0}
+.rcard::after{content:'Выбрать';display:inline-flex;align-items:center;justify-content:center;height:42px;margin-top:14px;border-radius:12px;background:#111;color:#fff;font-size:14px;font-weight:600;letter-spacing:.01em}
+
+/* Trust badges inline with separators */
+.trust-badges{display:block!important;white-space:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important}
+.tbadge{display:inline!important;background:none!important;border:none!important;padding:0!important;margin:0!important;color:var(--prod-muted)!important;font-size:13px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important}
+.tbadge::after{content:' · ';color:#b6b6bd}
+.tbadge:last-child::after{content:''}
+
+/* Typography and spacing refinement */
+.prod-name{letter-spacing:-.03em!important}
+.prod-sub{color:var(--prod-muted)!important;max-width:38ch}
+.feat-item{border-bottom:1px solid var(--prod-line)!important}
+.feat-item:last-child{border-bottom:none!important}
+
+/* Accent typography */
+.pbadge,.pbadge-new,.pbadge-hit,.pbadge-pro,.pbadge-preorder,.pbadge2,.proc-label,.hero-label,.uctag,.tbadge{
+ text-transform:uppercase!important;
+ letter-spacing:.07em!important;
+ font-weight:700!important;
+}
+/* Final neutral pass */
+.story-section{background:#f5f5f7!important;border-top:1px solid var(--prod-line)!important}
+.story-wrap{background:#fff!important;border-color:var(--prod-line)!important;box-shadow:0 10px 24px rgba(17,24,39,.06)!important}
+.story-kicker{color:var(--prod-muted)!important}
+.buy-btn{box-shadow:0 10px 24px rgba(17,24,39,.10)!important}
+.preorder-badge,.price-note{background:transparent!important;color:var(--prod-muted)!important;border-color:var(--prod-line)!important}
+</style>
+
+
+</head>
+<body>
+<header>
+ <div class="nav-inner">
+  <a href="index.html" class="logo">CRYPTORO</a>
+  <nav>
+   <a href="index.html">Главная</a>
+   <a href="catalog.html">Каталог</a>
+   <a href="about.html">О нас</a>
+  </nav>
+  <div style="display:flex;align-items:center">
+   <button class="cart" aria-label="Корзина"><span class="cart-n" id="cartCount">0</span></button>
+  </div>
+ </div>
+</header>
+<div class="sticky-bar" id="stickyBar">
+ <span class="sticky-name">Вспомни всё</span>
+ <span class="sticky-price">11 990 ₽</span>
+ <button class="sticky-btn" onclick="addToCart()">Купить сейчас</button>
+</div>
+<div class="breadcrumb">
+ <a href="index.html">Главная</a><span>›</span>
+ <a href="catalog.html">Каталог</a><span>›</span>
+ <span style="color:#1d1d1f">Вспомни всё</span>
+</div>
+<div class="product-hero" id="productHero">
+ <div class="hero-grid">
+  <div class="gallery">
+   <div class="main-img">
+    <img src="public/images/products/vspomnit-vse-cutout.png" alt="Вспомни всё" id="mainImg"
+     onerror="this.parentElement.innerHTML='<span style=color:#aaa;font-size:14px>📷 Фото товара</span>'"/>
+   </div>
+   <div class="thumbs">
+    <div class="thumb active" onclick="switchImg(this,'public/images/products/vspomnit-vse-cutout.png')">
+     <img src="public/images/products/vspomnit-vse-cutout.png" alt="" onerror="this.style.display='none'"/>
+    </div>
+   </div>
+  </div>
+  <div>
+   <div class="badges-row">
+    <span class="badge badge-new">НОВИНКА</span>
+    <span class="badge badge-hit">ХИТ</span>
+    <span class="badge badge-cryptoro">CRYPTORO</span>
+   </div>
+   <h1 class="prod-name">Вспомни всё</h1>
+   <p class="prod-sub">Диктофон с искусственным интеллектом ChatGPT AI от CRYPTORO</p>
+   <div class="trust-badges">
+    <span class="tbadge">Гарантия 1 год</span>
+    <span class="tbadge">Доставка по РФ</span>
+    <span class="tbadge">Возврат 14 дней</span>
+   </div>
+   <div class="price-block">
+    <div class="price-main">11 990 ₽</div>
+    <div class="price-note">Разовая покупка · В наличии</div>
+   </div>
+   <div class="features-list">
+    <div class="feat-item"><span class="feat-check">✓</span><span>Транскрибация речи с точными временными метками</span></div>
+    <div class="feat-item"><span class="feat-check">✓</span><span>Бесплатный год безлимитной AI-подписки в комплекте</span></div>
+    <div class="feat-item"><span class="feat-check">✓</span><span>Приложение на базе OpenAI ChatGPT</span></div>
+    <div class="feat-item"><span class="feat-check">✓</span><span>Распознавание речи на 57 языках включая русский</span></div>
+    <div class="feat-item"><span class="feat-check">✓</span><span>Идеально для встреч, звонков и лекций</span></div>
+    <div class="feat-item"><span class="feat-check">✓</span><span>Эксклюзивная модель от CRYPTORO</span></div>
+   </div>
+   <button class="buy-btn" id="buyBtn" onclick="addToCart()">Купить сейчас</button>
+   <a href="catalog.html" class="secondary-btn">Смотреть все модели</a>
+   <div class="delivery-mini">
+    <div class="deli-row"><span>СДЭК: <strong>2–7 дней</strong> от 300 ₽</span></div>
+    <div class="deli-row"><span>Почта России: <strong>5–14 дней</strong> от 200 ₽</span></div>
+    <div class="deli-row"><span>Курьер по Москве: <strong>1 день</strong> от 500 ₽</span></div>
+   </div>
+  </div>
+ </div>
+</div>
+<section class="story-section">
+ <div class="story-wrap">
+  <p class="story-kicker">CRYPTORO AI RECORDER</p>
+  <h2 class="story-title">Слушает точно. Пишет чисто. Превращает речь в готовое действие.</h2>
+  <p class="story-sub">Премиальная запись, структурированная расшифровка и итог без ручной рутины — в вашем рабочем темпе.</p>
+  <div class="story-metrics">
+   <div class="story-metric"><strong>57</strong><span>языков</span></div>
+   <div class="story-metric"><strong>98%</strong><span>точность</span></div>
+   <div class="story-metric"><strong>1 год</strong><span>гарантия</span></div>
+  </div>
+ </div>
+</section>
+
+<div class="tabs-section">
+ <div class="tabs-wrap">
+  <div class="tab-content active" id="tab-desc">
+   <h3 class="tab-title">Описание</h3>
+   <div style="max-width:680px">
+    <p style="font-size:16px;color:#444;line-height:1.8;margin-bottom:20px">«Вспомни всё» — эксклюзивная модель CRYPTORO с искусственным интеллектом ChatGPT AI. Компактный диктофон, который автоматически расшифровывает ваши встречи, звонки и лекции в текст с высокой точностью.</p>
+    <p style="font-size:16px;color:#444;line-height:1.8;margin-bottom:20px">Приложение на базе OpenAI точно транскрибирует записи и создаёт персонализированные заметки. В комплекте — бесплатный год безлимитной AI-подписки, которая сразу открывает все возможности устройства.</p>
+    <p style="font-size:16px;color:#444;line-height:1.8">Уникальное предложение от CRYPTORO: купите один раз и получите год полного доступа к AI-функциям без доплат.</p>
+   </div>
+  </div>
+  <div class="tab-content" id="tab-specs">
+   <h3 class="tab-title">Характеристики</h3>
+   <table class="specs-table">
+    <tr><td>Цвет</td><td>Чёрный</td></tr>
+    <tr><td>Страна производитель</td><td>Китай</td></tr>
+    <tr><td>Размеры</td><td>86 × 54 × 3 мм</td></tr>
+    <tr><td>Вес</td><td>~30 г</td></tr>
+    <tr><td>Подключение</td><td>USB Type-C</td></tr>
+    <tr><td>Поддержка языков</td><td>57 языков</td></tr>
+    <tr><td>AI-платформа</td><td>OpenAI ChatGPT</td></tr>
+    <tr><td>Подписка</td><td>1 год бесплатно в комплекте</td></tr>
+    <tr><td>Год выпуска</td><td>2025</td></tr>
+    <tr><td>Гарантия</td><td>1 год</td></tr>
+   </table>
+  </div>
+  <div class="tab-content" id="tab-box">
+   <h3 class="tab-title">Комплектация</h3>
+   <div style="display:flex;flex-direction:column;gap:10px;max-width:400px">
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f5f5f7;border-radius:10px;font-size:15px">
+     <span style="font-size:20px">•</span> Диктофон «Вспомни всё»
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f5f5f7;border-radius:10px;font-size:15px">
+     <span style="font-size:20px">•</span> Кабель питания USB-C
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f5f5f7;border-radius:10px;font-size:15px">
+     <span style="font-size:20px">•</span> Инструкция на русском
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f5f5f7;border-radius:10px;font-size:15px">
+     <span style="font-size:20px">•</span> Год AI-подписки (активация через приложение)
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
+<section class="related-section">
+ <div class="related-wrap">
+  <h2 class="sec-title">Похожие товары</h2>
+  <div class="related-grid">
+   <a href="product-plaud-note.html" class="rcard">
+    <div class="rimg"><img src="public/images/products/plaud-note-black.webp" alt="Plaud Note" onerror="this.outerHTML='<span style=color:#aaa;font-size:12px>Plaud Note</span>'"/></div>
+    <div class="rname">Plaud Note</div>
+    <div class="rprice">17 490 ₽</div>
+   </a>
+   <a href="product-plaud-note-pro.html" class="rcard">
+    <div class="rimg"><img src="public/images/products/plaud-note-silver.webp" alt="Plaud Note Pro" onerror="this.outerHTML='<span style=color:#aaa;font-size:12px>Plaud Note Pro</span>'"/></div>
+    <div class="rname">Plaud Note Pro</div>
+    <div class="rprice">25 990 ₽</div>
+   </a>
+   <a href="product-notepin.html" class="rcard">
+    <div class="rimg"><img src="public/images/products/plaud-notepin.webp" alt="Plaud NotePin" onerror="this.outerHTML='<span style=color:#aaa;font-size:12px>Plaud NotePin</span>'"/></div>
+    <div class="rname">Plaud NotePin</div>
+    <div class="rprice">20 990 ₽</div>
+   </a>
+  </div>
+ </div>
+</section>
+<footer>
+ <div class="foot-grid">
+  <div><a href="index.html" class="foot-logo">CRYPTORO</a><p class="foot-desc">Официальный дистрибьютор AI-диктофонов Plaud в России.</p></div>
+  <div class="foot-col"><h4>Товары</h4><a href="product-vspomnit.html">Вспомни всё</a><a href="product-plaud-note.html">Plaud Note</a><a href="product-plaud-note-pro.html">Plaud Note Pro</a><a href="product-notepin.html">Plaud NotePin</a></div>
+  <div class="foot-col"><h4>Компания</h4><a href="about.html">О нас</a><a href="about.html#delivery">Доставка</a><a href="about.html#contacts">Контакты</a></div>
+  <div class="foot-col"><h4>Соцсети</h4><a href="#">ВКонтакте</a><a href="#">Telegram</a><a href="#">YouTube</a></div>
+ </div>
+ <hr class="foot-div"/>
+ <div class="foot-bot"><span>© 2025 CRYPTORO. Все права защищены.</span><span>info@cryptoro.ru · +7 495 191-81-74</span></div>
+</footer>
+<script>
+ const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')}),{threshold:.1});
+ document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+ const hero=document.getElementById('productHero');
+ const bar=document.getElementById('stickyBar');
+ window.addEventListener('scroll',()=>{bar.classList.toggle('show',hero.getBoundingClientRect().bottom<100)});
+ let cart=0;
+ function addToCart(){cart++;document.getElementById('cartCount').textContent=cart;const btn=document.getElementById('buyBtn');btn.textContent='✓ Добавлено в корзину!';btn.style.background='#30d158';setTimeout(()=>{btn.textContent='Купить сейчас';btn.style.background='#111111'},2000)}
+ function switchImg(thumb,src){document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active'));thumb.classList.add('active');const m=document.getElementById('mainImg');if(m)m.src=src}
+</script>
+
+<script>
+ (function(){
+  document.querySelectorAll('[onclick]').forEach(function(el){
+   const tag=el.tagName.toLowerCase();
+   if(['button','a','input','select','textarea','label','summary'].includes(tag)) return;
+   if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0');
+   if(!el.hasAttribute('role')) el.setAttribute('role','button');
+   if(!el.hasAttribute('aria-label')){
+    const txt=(el.textContent||'').trim().replace(/\s+/g,' ').slice(0,80);
+    if(txt) el.setAttribute('aria-label',txt);
+   }
+   el.addEventListener('keydown', function(e){
+    if(e.key==='Enter' || e.key===' '){
+     e.preventDefault();
+     el.click();
+    }
+   });
+  });
+ })();
+</script>
+</body>
+</html>

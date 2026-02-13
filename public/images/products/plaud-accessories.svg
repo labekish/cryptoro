@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="180" y1="120" x2="720" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6F7FB"/>
+      <stop offset="1" stop-color="#E9ECF4"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="320" y1="220" x2="580" y2="410" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F39A3C"/>
+      <stop offset="1" stop-color="#D28A2F"/>
+    </linearGradient>
+    <filter id="s" x="220" y="120" width="460" height="360" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#111827" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="900" height="560" fill="transparent"/>
+  <g filter="url(#s)">
+    <rect x="270" y="170" width="360" height="250" rx="28" fill="url(#g1)"/>
+    <rect x="300" y="205" width="300" height="40" rx="12" fill="#DDE3F1"/>
+    <rect x="300" y="265" width="135" height="120" rx="16" fill="#EEF2FB"/>
+    <rect x="465" y="265" width="135" height="120" rx="16" fill="#EEF2FB"/>
+    <path d="M450 120 480 165H420L450 120Z" fill="url(#g2)"/>
+    <circle cx="330" cy="225" r="7" fill="#F39A3C"/>
+    <circle cx="355" cy="225" r="7" fill="#EAA24A"/>
+    <circle cx="380" cy="225" r="7" fill="#D28A2F"/>
+  </g>
+  <text x="450" y="455" text-anchor="middle" fill="#6B7280" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="600">Набор аксессуаров</text>
+</svg>

@@ -1,0 +1,29 @@
+---
+title: "Plaud NotePin"
+slug: "notepin"
+price: 20990
+badge: "ПРЕДЗАКАЗ"
+image: "/images/products/plaud-notepin.webp"
+inStock: false
+seoTitle: "Plaud NotePin — AI Диктофон | CRYPTORO"
+seoDescription: "Носимый значок 15 г. Водозащита IP54. Для живых разговоров без рук."
+features:
+  - "Battery: 20h"
+  - "Wearable Clip"
+  - "IP54"
+specs:
+  color: "Graphite / Silver / Violet"
+  dimensions: "44 × 19 × 8 мм"
+  weight: "15 г"
+  connection: "USB Type-C / BT"
+  warranty: "1 год"
+boxContents:
+  - "Plaud NotePin"
+  - "Клипса"
+  - "Кабель USB-C"
+  - "Инструкция"
+relatedProducts:
+  - "plaud-note"
+  - "vspomnit"
+---
+Plaud NotePin создан для hands-free сценариев: быстрые разговоры, интервью и встречи в движении. Лёгкий корпус и защита IP54 позволяют использовать устройство каждый день.
