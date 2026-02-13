@@ -5,7 +5,8 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
-  injectHead?: string;
+  globalCss?: string;
+  headScripts?: string;
   withChrome?: boolean;
   active?: 'home' | 'catalog' | 'about';
 }
@@ -13,7 +14,8 @@ interface Props {
 const {
   title = 'CRYPTORO',
   description = '',
-  injectHead = '',
+  globalCss = '',
+  headScripts = '',
   withChrome = false,
   active
 } = Astro.props;
@@ -27,8 +29,10 @@ const {
     {description && <meta name="description" content={description} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    {injectHead && <Fragment set:html={injectHead} />}
+    {globalCss && <style is:global set:html={globalCss} />}
+    {headScripts && <Fragment set:html={headScripts} />}
     <slot name="head" />
   </head>
   <body>

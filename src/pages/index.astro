@@ -4,6 +4,6 @@ import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('index.html');
 ---
-<Base title={page.title} description={page.description} injectHead={page.styles} withChrome={false}>
+<Base title={page.title} description={page.description} globalCss={page.css} headScripts={page.headScripts} withChrome={false}>
   <Fragment set:html={page.body} />
 </Base>
