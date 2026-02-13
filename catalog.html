@@ -315,11 +315,11 @@ main{padding-top:40px!important}
 <body class="bg-zinc-100 text-zinc-900 font-sans antialiased">
   <header class="fixed inset-x-0 top-0 z-50 h-14 border-b border-zinc-200/80 bg-white/90 backdrop-blur-xl">
     <div class="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-6">
-      <a href="index.html" class="font-display text-sm font-black tracking-[0.08em]">CRYPTORO</a>
+      <a href="/" class="font-display text-sm font-black tracking-[0.08em]">CRYPTORO</a>
       <nav class="hidden items-center gap-7 md:flex">
-        <a href="index.html" class="text-sm text-zinc-500 transition hover:text-zinc-900">Главная</a>
-        <a href="catalog.html" class="text-sm font-medium text-zinc-900">Каталог</a>
-        <a href="about.html" class="text-sm text-zinc-500 transition hover:text-zinc-900">О нас</a>
+        <a href="/" class="text-sm text-zinc-500 transition hover:text-zinc-900">Главная</a>
+        <a href="/catalog" class="text-sm font-medium text-zinc-900">Каталог</a>
+        <a href="/about" class="text-sm text-zinc-500 transition hover:text-zinc-900">О нас</a>
       </nav>
       <button aria-label="Корзина" class="relative inline-flex items-center justify-center">
         <i data-lucide="shopping-cart" class="h-5 w-5 text-zinc-800"></i>
@@ -355,7 +355,7 @@ main{padding-top:40px!important}
             <h3 class="text-xl font-semibold text-white">Не знаете какой выбрать?</h3>
             <p class="mt-1 text-sm text-white/80">Оставьте контакт — подберём модель под ваш сценарий и бюджет.</p>
           </div>
-          <a href="index.html#lead" class="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/95 px-6 py-3 text-sm font-semibold text-zinc-900 shadow transition hover:scale-[1.02] hover:bg-white">
+          <a href="/#lead" class="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/95 px-6 py-3 text-sm font-semibold text-zinc-900 shadow transition hover:scale-[1.02] hover:bg-white">
             <i data-lucide="sparkles" class="h-4 w-4"></i>
             Получить консультацию
           </a>
@@ -365,7 +365,7 @@ main{padding-top:40px!important}
       <div id="productsCount" class="mb-5 text-sm text-zinc-500" aria-live="polite">5 товаров</div>
 
       <div id="productsGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <a href="product-vspomnit.html" data-cat="vspomnit" data-price="11990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft">
+        <a href="/products/vspomnit" data-cat="vspomnit" data-price="11990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft">
           <div class="badge-stack absolute right-4 top-4 z-20">
             <span class="card-badge">НОВИНКА</span>
           </div>
@@ -388,7 +388,7 @@ main{padding-top:40px!important}
           </div>
         </a>
 
-        <a href="product-plaud-note.html" data-cat="note" data-price="17490" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.08s">
+        <a href="/products/plaud-note" data-cat="note" data-price="17490" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.08s">
           <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
             <img src="public/images/products/plaud-note-black.webp" alt="Plaud Note" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
           </div>
@@ -411,7 +411,7 @@ main{padding-top:40px!important}
           </div>
         </a>
 
-        <a href="product-plaud-note-pro.html" data-cat="notepro" data-price="25990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.14s">
+        <a href="/products/plaud-note-pro" data-cat="notepro" data-price="25990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.14s">
           <span class="card-badge absolute right-4 top-4">PRO</span>
           <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
             <img src="public/images/products/plaud-note-silver.webp" alt="Plaud Note Pro" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
@@ -433,7 +433,7 @@ main{padding-top:40px!important}
           </div>
         </a>
 
-        <a href="product-notepin.html" data-cat="notepin" data-price="20990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.2s">
+        <a href="/products/notepin" data-cat="notepin" data-price="20990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.2s">
           <span class="card-badge absolute right-4 top-4">ПРЕДЗАКАЗ</span>
           <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
             <img src="public/images/products/plaud-notepin.webp" alt="Plaud NotePin" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
@@ -459,7 +459,7 @@ main{padding-top:40px!important}
           </div>
         </a>
 
-        <a href="product-accessories.html" data-cat="accessory" data-price="3670" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.24s">
+        <a href="/products/accessories" data-cat="accessory" data-price="3670" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.24s">
           <span class="card-badge absolute right-4 top-4">АКСЕССУАР</span>
           <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
             <div class="flex flex-col items-center gap-2 text-zinc-500">
@@ -487,25 +487,25 @@ main{padding-top:40px!important}
   <footer class="border-t border-zinc-200 bg-white px-6 pb-10 pt-14 text-zinc-500">
     <div class="mx-auto grid max-w-7xl grid-cols-1 gap-10 md:grid-cols-4">
       <div>
-        <a href="index.html" class="font-display text-sm font-black tracking-[0.08em] text-zinc-900">CRYPTORO</a>
+        <a href="/" class="font-display text-sm font-black tracking-[0.08em] text-zinc-900">CRYPTORO</a>
         <p class="mt-3 max-w-xs text-sm leading-6">Официальный дистрибьютор AI-диктофонов Plaud в России. Помогаем не упускать важные детали.</p>
       </div>
       <div>
         <h4 class="mb-4 text-sm font-semibold text-zinc-900">Товары</h4>
         <div class="space-y-2 text-sm">
-          <a href="product-vspomnit.html" class="block hover:text-zinc-900">Вспомни всё</a>
-          <a href="product-plaud-note.html" class="block hover:text-zinc-900">Plaud Note</a>
-          <a href="product-plaud-note-pro.html" class="block hover:text-zinc-900">Plaud Note Pro</a>
-          <a href="product-notepin.html" class="block hover:text-zinc-900">Plaud NotePin</a>
+          <a href="/products/vspomnit" class="block hover:text-zinc-900">Вспомни всё</a>
+          <a href="/products/plaud-note" class="block hover:text-zinc-900">Plaud Note</a>
+          <a href="/products/plaud-note-pro" class="block hover:text-zinc-900">Plaud Note Pro</a>
+          <a href="/products/notepin" class="block hover:text-zinc-900">Plaud NotePin</a>
         </div>
       </div>
       <div>
         <h4 class="mb-4 text-sm font-semibold text-zinc-900">Компания</h4>
         <div class="space-y-2 text-sm">
-          <a href="about.html" class="block hover:text-zinc-900">О нас</a>
-          <a href="about.html#delivery" class="block hover:text-zinc-900">Доставка</a>
-          <a href="about.html#payment" class="block hover:text-zinc-900">Оплата</a>
-          <a href="about.html#contacts" class="block hover:text-zinc-900">Контакты</a>
+          <a href="/about" class="block hover:text-zinc-900">О нас</a>
+          <a href="/about#delivery" class="block hover:text-zinc-900">Доставка</a>
+          <a href="/about#payment" class="block hover:text-zinc-900">Оплата</a>
+          <a href="/about#contacts" class="block hover:text-zinc-900">Контакты</a>
         </div>
       </div>
       <div>

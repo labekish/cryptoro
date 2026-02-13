@@ -273,11 +273,11 @@ body{background:var(--prod-bg)!important;color:var(--prod-text)!important}
 <body>
 <header>
  <div class="nav-inner">
-  <a href="index.html" class="logo">CRYPTORO</a>
+  <a href="/" class="logo">CRYPTORO</a>
   <nav>
-   <a href="index.html">Главная</a>
-   <a href="catalog.html">Каталог</a>
-   <a href="about.html">О нас</a>
+   <a href="/">Главная</a>
+   <a href="/catalog">Каталог</a>
+   <a href="/about">О нас</a>
   </nav>
   <div style="display:flex;align-items:center">
    <button class="cart" aria-label="Корзина"><span class="cart-n" id="cartCount">0</span></button>
@@ -290,8 +290,8 @@ body{background:var(--prod-bg)!important;color:var(--prod-text)!important}
  <button class="sticky-btn" onclick="addToCart()">Купить сейчас</button>
 </div>
 <div class="breadcrumb">
- <a href="index.html">Главная</a><span>›</span>
- <a href="catalog.html">Каталог</a><span>›</span>
+ <a href="/">Главная</a><span>›</span>
+ <a href="/catalog">Каталог</a><span>›</span>
  <span style="color:#1d1d1f">Plaud Note</span>
 </div>
 <div class="product-hero" id="productHero">
@@ -349,7 +349,7 @@ body{background:var(--prod-bg)!important;color:var(--prod-text)!important}
     <div class="feat-item"><span class="feat-check">✓</span><span>4 варианта цвета на выбор</span></div>
    </div>
    <button class="buy-btn" id="buyBtn" onclick="addToCart()">Купить сейчас</button>
-   <a href="catalog.html" class="secondary-btn">Смотреть все модели</a>
+   <a href="/catalog" class="secondary-btn">Смотреть все модели</a>
    <div class="delivery-mini">
     <div class="deli-row"><span>СДЭК: <strong>2–7 дней</strong> от 300 ₽</span></div>
     <div class="deli-row"><span>Почта России: <strong>5–14 дней</strong> от 200 ₽</span></div>
@@ -411,17 +411,17 @@ body{background:var(--prod-bg)!important;color:var(--prod-text)!important}
  <div class="related-wrap">
   <h2 class="sec-title">Похожие товары</h2>
   <div class="related-grid">
-   <a href="product-vspomnit.html" class="rcard">
+   <a href="/products/vspomnit" class="rcard">
     <div class="rimg"><img src="public/images/products/vspomnit-vse-cutout.png" alt="Вспомни всё" onerror="this.outerHTML='<span style=color:#aaa;font-size:12px>Вспомни всё</span>'"/></div>
     <div class="rname">Вспомни всё</div>
     <div class="rprice">11 990 ₽</div>
    </a>
-   <a href="product-plaud-note-pro.html" class="rcard">
+   <a href="/products/plaud-note-pro" class="rcard">
     <div class="rimg"><img src="public/images/products/plaud-note-silver.webp" alt="Plaud Note Pro" onerror="this.outerHTML='<span style=color:#aaa;font-size:12px>Plaud Note Pro</span>'"/></div>
     <div class="rname">Plaud Note Pro</div>
     <div class="rprice">25 990 ₽</div>
    </a>
-   <a href="product-notepin.html" class="rcard">
+   <a href="/products/notepin" class="rcard">
     <div class="rimg"><img src="public/images/products/plaud-notepin.webp" alt="Plaud NotePin" onerror="this.outerHTML='<span style=color:#aaa;font-size:12px>Plaud NotePin</span>'"/></div>
     <div class="rname">Plaud NotePin</div>
     <div class="rprice">20 990 ₽</div>
@@ -431,9 +431,9 @@ body{background:var(--prod-bg)!important;color:var(--prod-text)!important}
 </section>
 <footer>
  <div class="foot-grid">
-  <div><a href="index.html" class="foot-logo">CRYPTORO</a><p class="foot-desc">Официальный дистрибьютор AI-диктофонов Plaud в России.</p></div>
-  <div class="foot-col"><h4>Товары</h4><a href="product-vspomnit.html">Вспомни всё</a><a href="product-plaud-note.html">Plaud Note</a><a href="product-plaud-note-pro.html">Plaud Note Pro</a><a href="product-notepin.html">Plaud NotePin</a></div>
-  <div class="foot-col"><h4>Компания</h4><a href="about.html">О нас</a><a href="about.html#delivery">Доставка</a><a href="about.html#contacts">Контакты</a></div>
+  <div><a href="/" class="foot-logo">CRYPTORO</a><p class="foot-desc">Официальный дистрибьютор AI-диктофонов Plaud в России.</p></div>
+  <div class="foot-col"><h4>Товары</h4><a href="/products/vspomnit">Вспомни всё</a><a href="/products/plaud-note">Plaud Note</a><a href="/products/plaud-note-pro">Plaud Note Pro</a><a href="/products/notepin">Plaud NotePin</a></div>
+  <div class="foot-col"><h4>Компания</h4><a href="/about">О нас</a><a href="/about#delivery">Доставка</a><a href="/about#contacts">Контакты</a></div>
   <div class="foot-col"><h4>Соцсети</h4><a href="#">ВКонтакте</a><a href="#">Telegram</a><a href="#">YouTube</a></div>
  </div>
  <hr class="foot-div"/>
