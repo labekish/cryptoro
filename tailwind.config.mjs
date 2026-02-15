@@ -1,22 +1,27 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    './src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx,vue,svelte}',
+    './src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}',
+    './src/content/**/*.{md,mdx}',
     './public/**/*.html',
-    './*.{html,js,ts,mjs,cjs}'
+    './*.{html,js,jsx,ts,tsx,mjs,cjs}'
   ],
   safelist: [
-    // JS-toggled classes in catalog filtering/reveal interactions
+    // JS-toggled classes
     'opacity-0',
     'opacity-100',
     'translate-y-0',
     'translate-y-5',
+    'scale-100',
+    'scale-105',
+    'scale-[1.02]',
     'bg-zinc-900',
     'text-white',
     'text-zinc-600',
     'border-zinc-900',
     'border-zinc-300',
-    // Core UI primitives used across legacy pages
+
+    // Core UI primitives
     'hidden',
     'block',
     'flex',
@@ -41,9 +46,12 @@ export default {
     'shadow-lg',
     'transition',
     'duration-300',
-    // Brand accents and arbitrary utilities used in cards/buttons
+
+    // Gradient and accent utilities
     'bg-gradient-to-r',
     'bg-gradient-to-b',
+    'bg-gradient-to-tr',
+    'bg-gradient-to-br',
     'from-zinc-900/95',
     'to-zinc-900/95',
     'from-zinc-200',
@@ -65,16 +73,25 @@ export default {
     'p-[1px]',
     'drop-shadow-[0_16px_28px_rgba(17,24,39,.18)]',
     'from-cryptoro-orange',
-    'to-cryptoro-gold'
+    'to-cryptoro-yellow',
+
+    // Pattern safelist to avoid aggressive purge in production
+    { pattern: /^bg-(black|white|zinc-(50|100|200|300|400|500|600|700|800|900)|brand-(50|100|200|300|400|500|600|700|800|900)|cryptoro-(black|orange|yellow))$/ },
+    { pattern: /^text-(black|white|zinc-(50|100|200|300|400|500|600|700|800|900)|brand-(50|100|200|300|400|500|600|700|800|900)|cryptoro-(black|orange|yellow))$/ },
+    { pattern: /^border-(black|white|zinc-(100|200|300|400|500|600|700|800|900)|brand-(300|400|500|600|700)|cryptoro-(black|orange|yellow))$/ },
+    { pattern: /^(from|via|to)-(zinc-(100|200|300|400|500|600|700|800|900)|brand-(300|400|500|600|700)|cryptoro-(orange|yellow|black))$/ },
+    { pattern: /^(bg|text|border)-(black|white|zinc-(100|200|300|400|500|600|700|800|900)|brand-(300|400|500|600|700)|cryptoro-(orange|yellow|black))$/, variants: ['hover'] },
+    { pattern: /^scale-(100|105|110)$/, variants: ['hover'] },
+    { pattern: /^opacity-(0|5|10|20|25|30|40|50|60|70|75|80|90|95|100)$/ },
+    { pattern: /^opacity-(50|60|70|80|90|100)$/, variants: ['hover'] }
   ],
   theme: {
     extend: {
       colors: {
         cryptoro: {
-          black: '#0a0a0a',
-          surface: '#111111',
+          black: '#000000',
           orange: '#FF4500',
-          gold: '#FFD700'
+          yellow: '#FFD700'
         },
         brand: {
           50: '#fff5eb',

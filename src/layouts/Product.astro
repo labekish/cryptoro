@@ -1,5 +1,5 @@
 ---
-import Base from './Base.astro';
+import Layout from './Layout.astro';
 
 interface ProductData {
   title: string;
@@ -45,7 +45,7 @@ const specsRows = [
   { label: 'Гарантия', value: product.specs?.warranty }
 ].filter((row) => row.value);
 ---
-<Base title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
+<Layout title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
   <main>
     <section class="product-hero">
       <div class="hero-grid">
@@ -195,4 +195,4 @@ const specsRows = [
       .tab-content{padding:18px;border-radius:14px}
     }
   </style>
-</Base>
+</Layout>

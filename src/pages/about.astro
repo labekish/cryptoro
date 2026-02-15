@@ -1,9 +1,9 @@
 ---
-import Base from '../layouts/Base.astro';
+import Layout from '../layouts/Layout.astro';
 import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('about.html');
 ---
-<Base title={page.title} description={page.description} globalCss={page.css} headScripts={page.headScripts} withChrome={false}>
+<Layout title={page.title} description={page.description} globalCss={page.css} headScripts={page.headScripts} withChrome={false}>
   <Fragment set:html={page.body} />
-</Base>
+</Layout>
