@@ -134,10 +134,10 @@ const specsRows = [
       if (!btn) return;
       const original = btn.textContent;
       btn.textContent = '✓ Добавлено!';
-      btn.style.background = 'linear-gradient(90deg,#FF4500,#FFD700)';
+      btn.style.background = '#111';
       setTimeout(() => {
         btn.textContent = original ?? 'Купить сейчас';
-        btn.style.background = 'linear-gradient(90deg,#FF4500,#FFD700)';
+        btn.style.background = '#111';
       }, 2000);
     }
     window.addToCart = addToCart;
@@ -178,8 +178,8 @@ const specsRows = [
     .feat-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.12);font-size:16px}
     .feat-item:last-child{border-bottom:none}
     .feat-check{color:#111}
-    .buy-btn{display:block;width:100%;background:linear-gradient(90deg,#FF4500,#FFD700);color:#111;border:none;border-radius:12px;padding:16px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;box-shadow:0 0 0 rgba(255,69,0,0);transition:all .3s ease-out}
-    .buy-btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(255,69,0,.5)}
+    .buy-btn{display:block;width:100%;background:#111;color:#fff;border:none;border-radius:12px;padding:16px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;box-shadow:0 0 0 rgba(0,0,0,0);transition:all .3s ease-out}
+    .buy-btn:hover{transform:scale(1.04);box-shadow:0 12px 24px rgba(0,0,0,.16)}
     .secondary-btn{display:block;width:100%;background:rgba(255,255,255,.9);color:#111;border:1.5px solid rgba(0,0,0,.2);border-radius:12px;padding:15px;font-size:16px;font-weight:500;text-align:center;text-decoration:none;backdrop-filter:blur(20px)}
     .tabs-section{padding:56px 24px;background:#f9fafb;border-top:1px solid rgba(0,0,0,.08)}
     .tabs-wrap{max-width:1240px;margin:0 auto;display:grid;gap:14px}
@@ -200,7 +200,7 @@ const specsRows = [
     .rcard img{width:100%;height:180px;object-fit:contain;background:transparent;border-radius:12px;margin-bottom:12px}
     .rname{font-size:18px;font-weight:600;margin-bottom:8px}
     .rprice{font-size:20px;font-weight:700;margin-bottom:10px}
-    .rcard::after{content:'Выбрать';display:inline-flex;align-items:center;justify-content:center;height:42px;margin-top:auto;border-radius:12px;background:linear-gradient(90deg,#FF4500,#FFD700);color:#111;font-size:14px;font-weight:600;letter-spacing:.01em}
+    .rcard::after{content:'Выбрать';display:inline-flex;align-items:center;justify-content:center;height:42px;margin-top:auto;border-radius:12px;background:#111;color:#fff;font-size:14px;font-weight:600;letter-spacing:.01em}
     @media(max-width:980px){
       .hero-grid{grid-template-columns:1fr;gap:30px}
       .related-grid{grid-template-columns:1fr 1fr}
