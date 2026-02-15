@@ -12,7 +12,8 @@ const { active } = Astro.props;
       <a href="/catalog" style={`font-size:14px;color:${active === 'catalog' ? '#1d1d1f' : '#555'};text-decoration:none;margin-left:28px`}>Каталог</a>
       <a href="/about" style={`font-size:14px;color:${active === 'about' ? '#1d1d1f' : '#555'};text-decoration:none;margin-left:28px`}>О нас</a>
     </nav>
-    <button id="cartBtn" aria-label="Корзина" style="background:none;border:none;cursor:pointer;position:relative;margin-left:20px">
+    <button id="cartBtn" aria-label="Корзина" style="background:none;border:none;cursor:pointer;position:relative;margin-left:20px;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;color:#1d1d1f">
+      <span aria-hidden="true" style="font-size:16px;line-height:1">🛒</span>
       <span id="cartCount" class="cart-n" style="position:absolute;top:-5px;right:-7px;background:#111;color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center">0</span>
     </button>
   </div>

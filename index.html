@@ -1269,22 +1269,7 @@ img{max-width:100%;height:auto}
       }, 3000);
   }
 
-  // Cart counter
-  let cartItems = (window.cryptoroCart && typeof window.cryptoroCart.read === 'function')
-    ? window.cryptoroCart.read()
-    : 0;
-  document.querySelectorAll('.pbtn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (window.cryptoroCart && typeof window.cryptoroCart.add === 'function') {
-        cartItems = window.cryptoroCart.add(1);
-      } else {
-        cartItems++;
-      }
-      const countEl = document.getElementById('cartCount');
-      if (countEl) countEl.textContent = cartItems;
-    });
-  });
+  // Keep product card links clickable; cart updates happen on product pages.
 </script>
 
 <script>
