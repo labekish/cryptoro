@@ -37,15 +37,16 @@ const {
     {headScripts && <Fragment set:html={headScripts} />}
     <style is:global>
       :root{
-        --bg:#0a0a0a;
-        --bg-2:#111111;
-        --surface:#151515;
-        --surface-2:#1b1b1b;
-        --text:#ffffff;
-        --muted:#d1d5db;
-        --line:rgba(255,255,255,.12);
+        --bg:#ffffff;
+        --bg-2:#f9fafb;
+        --surface:rgba(255,255,255,.9);
+        --surface-2:rgba(255,255,255,.82);
+        --text:#111111;
+        --muted:#4b5563;
+        --line:rgba(255,255,255,.3);
         --accent-a:#ff4500;
         --accent-b:#ffd700;
+        --glass-shadow:0 4px 30px rgba(0,0,0,.1);
       }
       html,body{
         background:var(--bg)!important;
@@ -66,9 +67,9 @@ const {
         .wrap,.hero-inner,.nav-inner,.foot-grid,.foot-bot,.catalog-controls,.mx-auto.max-w-7xl,.hero-grid,.tabs-wrap,.related-wrap{padding-left:3rem!important;padding-right:3rem!important}
       }
       header{
-        background:rgba(10,10,10,.86)!important;
-        border-bottom:1px solid var(--line)!important;
-        backdrop-filter:blur(16px)!important;
+        background:rgba(255,255,255,.9)!important;
+        border-bottom:1px solid rgba(0,0,0,.08)!important;
+        backdrop-filter:blur(20px)!important;
       }
       header a, nav a, .logo, .foot-logo, .foot-col h4, .sec-title, .ftitle, .stitle, .pname, .pname2, .rvname, .wname, .dname, .payname, .clabel, .cval, h1, h2, h3, h4{
         color:var(--text)!important;
@@ -77,8 +78,9 @@ const {
         color:var(--muted)!important;
       }
       footer{
-        background:#080808!important;
-        border-top:1px solid var(--line)!important;
+        background:rgba(255,255,255,.92)!important;
+        border-top:1px solid rgba(0,0,0,.08)!important;
+        backdrop-filter:blur(20px)!important;
       }
       section, .sec, .about-hero, .catalog-hero, main, body.bg-zinc-100{
         background:var(--bg)!important;
@@ -86,16 +88,20 @@ const {
       .sec:nth-of-type(even), .tabs-section, .related-section, .sec-products, .sec-features, .sec-how, .sec-usecases, .sec-pricing, .sec-reviews, .sec-faq, .sec-lead{
         background:var(--bg-2)!important;
       }
-      .pcard,.fcard,.rvcard,.uccard,.pricingcard,.dcard,.paycard,.wcard,.mstat,.contact-cta,.citem,.faqitem,.smock,.hitem,.abadge,.tab-content,.rcard,.delivery-mini,.main-img{
+      .pcard,.fcard,.rvcard,.uccard,.pricingcard,.dcard,.paycard,.wcard,.mstat,.contact-cta,.citem,.faqitem,.smock,.hitem,.abadge,.tab-content,.rcard,.delivery-mini,.main-img,.reveal.relative.mb-10 > div,.consult-modal-card{
         background:var(--surface)!important;
         border-color:var(--line)!important;
+        border:1px solid var(--line)!important;
+        backdrop-filter:blur(20px)!important;
+        box-shadow:var(--glass-shadow)!important;
+        border-radius:1rem!important;
       }
       .pimg-wrap,.catalog-media,.rcard img{
-        background:var(--surface-2)!important;
+        background:transparent!important;
       }
       .btn-blue,.pbtn,.pbtn2.fil,.compare-btn,.lsubmit,.buy-btn,.sticky-btn,.pbtn-preorder,.filter-btn.active,.contact-cta a,.inline-flex.w-full,.consult-btn.primary{
         background:linear-gradient(90deg,var(--accent-a),var(--accent-b))!important;
-        color:#fff!important;
+        color:#111!important;
         border:none!important;
         border-radius:12px!important;
         box-shadow:0 0 0 rgba(255,69,0,0)!important;
@@ -105,53 +111,71 @@ const {
         box-shadow:0 0 30px rgba(255,69,0,.5)!important;
       }
       .btn-ghost,.pbtn2.out,.btn-woutline,.filter-btn,.sort-select,.secondary-btn,.consult-btn{
-        color:#fff!important;
-        background:transparent!important;
-        border:1px solid rgba(255,255,255,.35)!important;
+        color:#111!important;
+        background:rgba(255,255,255,.86)!important;
+        border:1px solid rgba(0,0,0,.18)!important;
+        backdrop-filter:blur(20px)!important;
       }
       .catalog-sort{display:none!important}
       .catalog-chips{
-        background:rgba(255,255,255,.06)!important;
-        border-color:var(--line)!important;
+        background:rgba(243,244,246,.9)!important;
+        border-color:rgba(0,0,0,.1)!important;
+        border-radius:999px!important;
       }
       .filter-btn{
-        color:#e5e5e5!important;
+        color:#111!important;
+        position:relative;
       }
+      .catalog-chips .filter-btn::after{
+        content:'';
+        position:absolute;
+        left:14px;
+        right:14px;
+        bottom:5px;
+        height:2px;
+        background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
+        transform:scaleX(0);
+        transform-origin:left center;
+        transition:transform .25s ease;
+      }
+      .catalog-chips .filter-btn:hover::after,
+      .catalog-chips .filter-btn.active::after,
+      .catalog-chips .filter-btn.bg-zinc-900::after{transform:scaleX(1)}
       .filter-btn:hover{
         transform:translateY(-1px) scale(1.02)!important;
-        border-color:rgba(255,255,255,.55)!important;
+        border-color:rgba(255,69,0,.5)!important;
       }
-      .faqarr{background:rgba(255,255,255,.08)!important;color:#fff!important}
-      .faqitem.open .faqarr{background:linear-gradient(90deg,var(--accent-a),var(--accent-b))!important;color:#fff!important}
-      .faqa{padding-left:4rem!important;overflow:hidden!important}
+      .faqarr{background:rgba(0,0,0,.06)!important;color:#111!important}
+      .faqitem.open .faqarr{background:linear-gradient(90deg,var(--accent-a),var(--accent-b))!important;color:#111!important}
+      .faqa{padding-left:1rem!important;overflow:hidden!important}
       .section-divider,.foot-div,hr{border-color:rgba(255,69,0,.45)!important}
       .reveal,.pcard,.rcard,.fcard,.dcard,.wcard,.paycard,.mstat,.faqitem{
         transition:all .3s ease-out!important;
       }
       .pcard:hover,.rcard:hover,.fcard:hover,.dcard:hover,.wcard:hover,.paycard:hover,.mstat:hover{
         transform:translateY(-4px) scale(1.02)!important;
-        box-shadow:0 18px 32px rgba(0,0,0,.45)!important;
+        box-shadow:0 18px 32px rgba(0,0,0,.14)!important;
       }
       .hero-title,.prod-name,.sec-title,.lead-title{
         font-family:'Unbounded','Inter',sans-serif!important;
       }
       .hero{
-        background:radial-gradient(65% 85% at 82% 14%, rgba(255,69,0,.2), transparent 58%), linear-gradient(180deg,#000 0%,#0a0a0a 100%)!important;
+        background:radial-gradient(65% 85% at 82% 14%, rgba(255,69,0,.2), transparent 58%), linear-gradient(180deg,#ffffff 0%,#f9fafb 100%)!important;
       }
-      .hero-title{color:#fff!important}
-      .hero-sub,.hero-label{color:#e5e5e5!important}
-      .hero .btn-ghost{border-color:rgba(255,255,255,.45)!important;color:#fff!important}
-      .hero .btn-ghost:hover{border-color:#fff!important}
+      .hero-title{color:#111!important}
+      .hero-sub,.hero-label{color:#4b5563!important}
+      .hero .btn-ghost{border-color:rgba(0,0,0,.2)!important;color:#111!important}
+      .hero .btn-ghost:hover{border-color:#111!important}
       .mobile-menu-toggle{
         display:none;
         align-items:center;
         justify-content:center;
         width:36px;
         height:36px;
-        border:1px solid rgba(29,29,31,.14);
+        border:1px solid rgba(0,0,0,.14);
         border-radius:999px;
-        background:#151515;
-        color:#fff;
+        background:#fff;
+        color:#111;
         cursor:pointer;
       }
       .mobile-nav-panel{
@@ -160,10 +184,10 @@ const {
         top:56px;
         left:14px;
         right:14px;
-        background:#151515;
-        border:1px solid var(--line);
+        background:#fff;
+        border:1px solid rgba(0,0,0,.1);
         border-radius:14px;
-        box-shadow:0 14px 34px rgba(0,0,0,.4);
+        box-shadow:0 14px 34px rgba(0,0,0,.12);
         padding:12px;
         z-index:120;
       }
@@ -171,11 +195,11 @@ const {
         display:block;
         padding:10px 12px;
         border-radius:10px;
-        color:#fff;
+        color:#111;
         font-size:15px;
         text-decoration:none;
       }
-      .mobile-nav-panel a:hover{background:#1f1f1f}
+      .mobile-nav-panel a:hover{background:#f3f4f6}
       .mobile-nav-open .mobile-nav-panel{display:block}
       .consult-modal{
         position:fixed;
@@ -188,11 +212,12 @@ const {
       .consult-modal.open{display:flex;align-items:center;justify-content:center}
       .consult-modal-card{
         width:min(560px,100%);
-        background:#111;
-        color:#fff;
+        background:#fff;
+        color:#111;
         border-radius:18px;
-        border:1px solid var(--line);
-        box-shadow:0 20px 52px rgba(0,0,0,.45);
+        border:1px solid rgba(255,255,255,.3);
+        box-shadow:0 4px 30px rgba(0,0,0,.1);
+        backdrop-filter:blur(20px);
         padding:20px;
       }
       .consult-modal-title{
@@ -201,17 +226,17 @@ const {
         line-height:1.15;
         margin-bottom:8px;
       }
-      .consult-modal-sub{color:#d1d5db;font-size:14px;line-height:1.6;margin-bottom:14px}
+      .consult-modal-sub{color:#4b5563;font-size:14px;line-height:1.6;margin-bottom:14px}
       .consult-grid{display:grid;gap:10px}
       .consult-input{
         width:100%;
-        border:1px solid var(--line);
+        border:1px solid rgba(0,0,0,.14);
         border-radius:12px;
         padding:12px 14px;
         font-size:15px;
         font-family:'Inter',sans-serif;
-        color:#fff;
-        background:#151515;
+        color:#111;
+        background:#fff;
       }
       .consult-actions{
         display:flex;
@@ -220,19 +245,19 @@ const {
         margin-top:12px;
       }
       .consult-btn{
-        border:1px solid rgba(255,255,255,.3);
+        border:1px solid rgba(0,0,0,.2);
         border-radius:12px;
         padding:10px 14px;
         font-size:14px;
         font-weight:600;
         cursor:pointer;
-        background:#151515;
-        color:#fff;
+        background:#fff;
+        color:#111;
       }
       .consult-btn.primary{
         background:#f97316;
         border-color:#f97316;
-        color:#fff;
+        color:#111;
       }
       .fade-in{
         opacity:0;
@@ -360,6 +385,7 @@ const {
               <form name="consult" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="consult-grid">
                 <input type="hidden" name="form-name" value="consult" />
                 <input type="hidden" name="bot-field" />
+                <input class="consult-input" type="text" name="name" placeholder="Имя" required />
                 <input class="consult-input" type="email" name="email" placeholder="Email" required />
                 <input class="consult-input" type="tel" name="tel" placeholder="Телефон" required />
                 <textarea class="consult-input" name="message" rows="4" placeholder="Кратко опишите задачу"></textarea>
