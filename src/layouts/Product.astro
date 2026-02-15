@@ -144,43 +144,44 @@ const specsRows = [
   </script>
 
   <style is:global>
-    body{background:#fff;color:#1d1d1f;font-family:'Inter',sans-serif}
+    body{background:#0a0a0a;color:#fff;font-family:'Inter',sans-serif}
     main{padding-top:56px}
     .product-hero{padding:44px 24px 84px}
     .hero-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
-    .main-img{width:100%;aspect-ratio:1;background:radial-gradient(120% 120% at 50% 0%,#fff 0%,#f7f8fb 55%,#f1f3f8 100%);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid rgba(29,29,31,.10)}
+    .main-img{width:100%;aspect-ratio:1;background:radial-gradient(120% 120% at 50% 0%,#1c1c1c 0%,#161616 55%,#101010 100%);border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.12)}
     .main-img img{width:100%;height:100%;object-fit:contain;padding:16px}
     .badges-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-    .badge{background:#f2f2f5;color:#3a3a3c;border:1px solid #d6d6dc;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+    .badge{background:#1f1f1f;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
     .prod-name{font-family:'Unbounded',sans-serif;font-size:clamp(34px,4.6vw,56px);line-height:1.03;letter-spacing:-.03em;margin-bottom:16px}
-    .prod-sub{font-size:clamp(17px,1.8vw,22px);line-height:1.5;color:#6e6e73;max-width:34ch}
+    .prod-sub{font-size:clamp(17px,1.8vw,22px);line-height:1.5;color:#e5e5e5;max-width:34ch}
     .price-main{font-family:'Unbounded',sans-serif;font-size:clamp(38px,4.2vw,54px);letter-spacing:-.02em;margin:20px 0}
     .trust-badges{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;margin-bottom:24px}
-    .tbadge{display:inline;background:none;border:none;padding:0;margin:0;color:#6e6e73;font-size:13px;font-weight:500}
-    .tbadge::after{content:' · ';color:#b6b6bd}
+    .tbadge{display:inline;background:none;border:none;padding:0;margin:0;color:#d1d5db;font-size:13px;font-weight:500}
+    .tbadge::after{content:' · ';color:#7f7f87}
     .tbadge:last-child::after{content:''}
     .features-list{margin:24px 0}
-    .feat-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid rgba(29,29,31,.12);font-size:16px}
+    .feat-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.14);font-size:16px}
     .feat-item:last-child{border-bottom:none}
-    .feat-check{color:#1d1d1f}
-    .buy-btn{display:block;width:100%;background:#111;color:#fff;border:1px solid #111;border-radius:14px;padding:16px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;box-shadow:0 10px 24px rgba(17,24,39,.10)}
-    .secondary-btn{display:block;width:100%;background:transparent;color:#1d1d1f;border:1.5px solid rgba(0,0,0,.2);border-radius:14px;padding:15px;font-size:16px;font-weight:500;text-align:center;text-decoration:none}
-    .tabs-section{padding:56px 24px;background:#f5f5f7;border-top:1px solid rgba(29,29,31,.10)}
+    .feat-check{color:#fff}
+    .buy-btn{display:block;width:100%;background:linear-gradient(90deg,#FF4500,#FFD700);color:#fff;border:none;border-radius:12px;padding:16px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;box-shadow:0 0 0 rgba(255,69,0,0);transition:all .3s ease-out}
+    .buy-btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(255,69,0,.5)}
+    .secondary-btn{display:block;width:100%;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.35);border-radius:12px;padding:15px;font-size:16px;font-weight:500;text-align:center;text-decoration:none}
+    .tabs-section{padding:56px 24px;background:#111;border-top:1px solid rgba(255,255,255,.12)}
     .tabs-wrap{max-width:1240px;margin:0 auto;display:grid;gap:14px}
-    .tab-content{display:block;background:#fff;border:1px solid rgba(29,29,31,.12);border-radius:18px;padding:22px;box-shadow:0 10px 24px rgba(17,24,39,.06)}
-    .tab-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,2.2vw,24px);font-weight:700;letter-spacing:-.01em;margin:0 0 14px;color:#1d1d1f}
-    .md-body{font-size:16px;color:#4a4d55;line-height:1.75}
+    .tab-content{display:block;background:#151515;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:22px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+    .tab-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,2.2vw,24px);font-weight:700;letter-spacing:-.01em;margin:0 0 14px;color:#fff}
+    .md-body{font-size:16px;color:#d1d5db;line-height:1.75}
     .specs-table{width:100%;border-collapse:collapse}
-    .specs-table td{border-bottom:1px solid rgba(29,29,31,.12);padding:16px 0}
+    .specs-table td{border-bottom:1px solid rgba(255,255,255,.12);padding:16px 0}
     .specs-table tr:last-child td{border-bottom:none}
-    .specs-table td:first-child{color:#6e6e73;width:45%}
-    .box-list{padding-left:20px;color:#4a4d55;line-height:1.7}
-    .related-section{background:#f5f5f7;border-top:1px solid rgba(29,29,31,.12);padding:60px 24px 100px}
+    .specs-table td:first-child{color:#d1d5db;width:45%}
+    .box-list{padding-left:20px;color:#d1d5db;line-height:1.7}
+    .related-section{background:#111;border-top:1px solid rgba(255,255,255,.12);padding:60px 24px 100px}
     .related-wrap{max-width:1240px;margin:0 auto}
     .related-wrap h2{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3vw,36px);margin-bottom:22px}
     .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .rcard{display:flex;flex-direction:column;gap:0;background:#fff;border:1px solid rgba(29,29,31,.12);border-radius:16px;padding:16px;text-decoration:none;color:inherit}
-    .rcard img{width:100%;height:180px;object-fit:contain;background:#f5f5f7;border-radius:12px;margin-bottom:12px}
+    .rcard{display:flex;flex-direction:column;gap:0;background:#151515;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;text-decoration:none;color:inherit}
+    .rcard img{width:100%;height:180px;object-fit:contain;background:#1b1b1b;border-radius:12px;margin-bottom:12px}
     .rname{font-size:18px;font-weight:600;margin-bottom:8px}
     .rprice{font-size:20px;font-weight:700;margin-bottom:10px}
     .rcard::after{content:'Выбрать';display:inline-flex;align-items:center;justify-content:center;height:42px;margin-top:auto;border-radius:12px;background:#111;color:#fff;font-size:14px;font-weight:600;letter-spacing:.01em}
