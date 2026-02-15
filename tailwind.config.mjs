@@ -4,8 +4,9 @@ export default {
     './src/**/*.{astro,html,js,ts,jsx,tsx,md,mdx}',
     './src/pages/**/*.{astro,md,mdx}',
     './src/components/**/*.{astro,js,ts}',
-    './src/layouts/**/*.{astro}',
-    './public/**/*.html'
+    './src/layouts/**/*.astro',
+    './public/**/*.html',
+    './*.html'
   ],
   safelist: [
     // Requested core classes
@@ -134,8 +135,8 @@ export default {
 
     // Pattern safelist to avoid aggressive purge in production
     { pattern: /^(max-w|w|h|min-h|px|py|pt|pb|pl|pr|mx|my|mt|mb)-/ },
-    { pattern: /^(sm|md|lg|xl):(block|hidden|flex|grid|inline-flex)$/ },
-    { pattern: /^(sm|md|lg|xl):grid-cols-[1-6]$/ },
+    { pattern: /^(block|hidden|flex|grid|inline-flex)$/, variants: ['sm', 'md', 'lg', 'xl'] },
+    { pattern: /^grid-cols-[1-6]$/, variants: ['sm', 'md', 'lg', 'xl'] },
     { pattern: /^bg-(black|white|zinc-(50|100|200|300|400|500|600|700|800|900)|brand-(50|100|200|300|400|500|600|700|800|900)|cryptoro-(black|orange|yellow))$/ },
     { pattern: /^text-(black|white|zinc-(50|100|200|300|400|500|600|700|800|900)|brand-(50|100|200|300|400|500|600|700|800|900)|cryptoro-(black|orange|yellow))$/ },
     { pattern: /^border-(black|white|zinc-(100|200|300|400|500|600|700|800|900)|brand-(300|400|500|600|700)|cryptoro-(black|orange|yellow))$/ },
