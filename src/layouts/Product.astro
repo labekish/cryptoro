@@ -71,7 +71,7 @@ const specsRows = [
               <div class="feat-item"><span class="feat-check">✓</span><span>{item}</span></div>
             ))}
           </div>
-          <button class="buy-btn" id="buyBtn" onclick="addToCart()">{stockLabel}</button>
+          <button class="buy-btn" id="buyBtn" onclick="addToCart()" aria-label={`Купить ${product.title}`}>{stockLabel}</button>
           <a href="/catalog" class="secondary-btn">Смотреть все модели</a>
         </div>
       </div>

@@ -28,12 +28,119 @@ const {
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    <meta name="keywords" content="AI диктофон, CRYPTORO, Plaud Note, транскрипция, запись встреч, диктофон с ChatGPT" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     {globalCss && <style is:global set:html={globalCss} />}
     {headScripts && <Fragment set:html={headScripts} />}
+    <style is:global>
+      .mobile-menu-toggle{
+        display:none;
+        align-items:center;
+        justify-content:center;
+        width:36px;
+        height:36px;
+        border:1px solid rgba(29,29,31,.14);
+        border-radius:999px;
+        background:#fff;
+        color:#1d1d1f;
+        cursor:pointer;
+      }
+      .mobile-nav-panel{
+        display:none;
+        position:absolute;
+        top:56px;
+        left:14px;
+        right:14px;
+        background:#fff;
+        border:1px solid rgba(29,29,31,.12);
+        border-radius:14px;
+        box-shadow:0 14px 34px rgba(17,24,39,.14);
+        padding:12px;
+        z-index:120;
+      }
+      .mobile-nav-panel a{
+        display:block;
+        padding:10px 12px;
+        border-radius:10px;
+        color:#1d1d1f;
+        font-size:15px;
+        text-decoration:none;
+      }
+      .mobile-nav-panel a:hover{background:#f5f5f7}
+      .mobile-nav-open .mobile-nav-panel{display:block}
+      .consult-modal{
+        position:fixed;
+        inset:0;
+        display:none;
+        z-index:140;
+        background:rgba(17,24,39,.5);
+        padding:16px;
+      }
+      .consult-modal.open{display:flex;align-items:center;justify-content:center}
+      .consult-modal-card{
+        width:min(560px,100%);
+        background:#fff;
+        color:#1d1d1f;
+        border-radius:18px;
+        border:1px solid rgba(29,29,31,.12);
+        box-shadow:0 20px 52px rgba(17,24,39,.24);
+        padding:20px;
+      }
+      .consult-modal-title{
+        font-family:'Unbounded',sans-serif;
+        font-size:24px;
+        line-height:1.15;
+        margin-bottom:8px;
+      }
+      .consult-modal-sub{color:#6e6e73;font-size:14px;line-height:1.6;margin-bottom:14px}
+      .consult-grid{display:grid;gap:10px}
+      .consult-input{
+        width:100%;
+        border:1px solid rgba(29,29,31,.14);
+        border-radius:12px;
+        padding:12px 14px;
+        font-size:15px;
+        font-family:'Inter',sans-serif;
+        color:#1d1d1f;
+        background:#fff;
+      }
+      .consult-actions{
+        display:flex;
+        gap:10px;
+        justify-content:flex-end;
+        margin-top:12px;
+      }
+      .consult-btn{
+        border:1px solid rgba(29,29,31,.2);
+        border-radius:12px;
+        padding:10px 14px;
+        font-size:14px;
+        font-weight:600;
+        cursor:pointer;
+        background:#fff;
+        color:#1d1d1f;
+      }
+      .consult-btn.primary{
+        background:#f97316;
+        border-color:#f97316;
+        color:#fff;
+      }
+      .fade-in{
+        opacity:0;
+        transform:translateY(16px);
+        transition:opacity .52s ease, transform .52s ease;
+      }
+      .fade-in.in-view{
+        opacity:1;
+        transform:translateY(0);
+      }
+      @media (max-width: 768px){
+        .mobile-menu-toggle{display:inline-flex}
+      }
+    </style>
     <slot name="head" />
   </head>
   <body>
@@ -73,14 +180,140 @@ const {
 
         window.cryptoroCart = { read, write, sync, add };
 
+        function bindCartButtons() {
+          document.querySelectorAll('#cartBtn, [data-cart-btn], button.cart, .cart, button[aria-label="Корзина"]').forEach((button) => {
+            if (button.dataset.cartBound === '1') return;
+            button.dataset.cartBound = '1';
+            button.addEventListener('click', () => {
+              window.location.href = '/cart';
+            });
+          });
+        }
+
+        function setupMobileNav() {
+          document.querySelectorAll('header').forEach((header) => {
+            if (header.dataset.mobileNavReady === '1') return;
+            const nav = header.querySelector('nav');
+            if (!nav) return;
+            const navParent = nav.parentElement;
+            if (!navParent) return;
+
+            const links = Array.from(nav.querySelectorAll('a'))
+              .map((a) => ({ href: a.getAttribute('href') || '#', text: (a.textContent || '').trim() }))
+              .filter((x) => x.text);
+            if (!links.length) return;
+
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'mobile-menu-toggle';
+            toggle.setAttribute('aria-label', 'Открыть меню');
+            toggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+
+            const panel = document.createElement('div');
+            panel.className = 'mobile-nav-panel';
+            panel.innerHTML = links.map((item) => `<a href="${item.href}">${item.text}</a>`).join('');
+
+            toggle.addEventListener('click', () => {
+              header.classList.toggle('mobile-nav-open');
+            });
+            panel.querySelectorAll('a').forEach((link) => {
+              link.addEventListener('click', () => header.classList.remove('mobile-nav-open'));
+            });
+            document.addEventListener('click', (event) => {
+              if (!header.contains(event.target)) header.classList.remove('mobile-nav-open');
+            });
+
+            navParent.appendChild(toggle);
+            header.appendChild(panel);
+            header.dataset.mobileNavReady = '1';
+          });
+        }
+
+        function setupConsultModal() {
+          if (document.getElementById('consultModal')) return;
+          const modal = document.createElement('div');
+          modal.id = 'consultModal';
+          modal.className = 'consult-modal';
+          modal.setAttribute('aria-hidden', 'true');
+          modal.innerHTML = `
+            <div class="consult-modal-card" role="dialog" aria-modal="true" aria-labelledby="consultTitle">
+              <h3 id="consultTitle" class="consult-modal-title">Получить консультацию</h3>
+              <p class="consult-modal-sub">Подберем модель под ваши задачи и бюджет.</p>
+              <form name="consult" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="consult-grid">
+                <input type="hidden" name="form-name" value="consult" />
+                <input type="hidden" name="bot-field" />
+                <input class="consult-input" type="email" name="email" placeholder="Email" required />
+                <input class="consult-input" type="tel" name="tel" placeholder="Телефон" required />
+                <textarea class="consult-input" name="message" rows="4" placeholder="Кратко опишите задачу"></textarea>
+                <div class="consult-actions">
+                  <button type="button" class="consult-btn" data-consult-close>Отмена</button>
+                  <button type="submit" class="consult-btn primary">Отправить</button>
+                </div>
+              </form>
+            </div>
+          `;
+          document.body.appendChild(modal);
+
+          const openModal = () => {
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+          };
+          const closeModal = () => {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+          };
+
+          modal.addEventListener('click', (event) => {
+            if (event.target === modal) closeModal();
+          });
+          modal.querySelectorAll('[data-consult-close]').forEach((btn) => btn.addEventListener('click', closeModal));
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') closeModal();
+          });
+
+          const isHome = window.location.pathname === '/';
+          document.querySelectorAll('a[href="/#lead"], a[href="#lead"], [data-open-consult]').forEach((link) => {
+            if (isHome && link.getAttribute('href') === '#lead') return;
+            link.addEventListener('click', (event) => {
+              event.preventDefault();
+              openModal();
+            });
+          });
+        }
+
+        function setupFadeIn() {
+          if (!('IntersectionObserver' in window)) return;
+          const nodes = document.querySelectorAll('.reveal, [data-fade]');
+          if (!nodes.length) return;
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('in-view', 'vis');
+                if (entry.target.classList.contains('opacity-0')) {
+                  entry.target.classList.remove('opacity-0');
+                  entry.target.classList.add('opacity-100');
+                }
+                if (entry.target.classList.contains('translate-y-5')) {
+                  entry.target.classList.remove('translate-y-5');
+                  entry.target.classList.add('translate-y-0');
+                }
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.08 });
+
+          nodes.forEach((node) => {
+            node.classList.add('fade-in');
+            observer.observe(node);
+          });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
           sync();
-          const cartBtn = document.getElementById('cartBtn');
-          if (cartBtn) {
-            cartBtn.addEventListener('click', () => {
-              window.location.href = '/catalog';
-            });
-          }
+          bindCartButtons();
+          setupMobileNav();
+          setupConsultModal();
+          setupFadeIn();
         });
       })();
     </script>
