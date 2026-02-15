@@ -124,11 +124,12 @@ const specsRows = [
   </main>
 
   <script>
-    let cart = 0;
     function addToCart() {
-      cart++;
-      const c = document.querySelector('.cart-n');
-      if (c) c.textContent = String(cart);
+      const nextCount = window.cryptoroCart && typeof window.cryptoroCart.add === 'function'
+        ? window.cryptoroCart.add(1)
+        : 1;
+      const c = document.querySelector('#cartCount, .cart-n');
+      if (c) c.textContent = String(nextCount);
       const btn = document.getElementById('buyBtn');
       if (!btn) return;
       const original = btn.textContent;

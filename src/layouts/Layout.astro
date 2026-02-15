@@ -40,5 +40,49 @@ const {
     {withChrome && <Header active={active} />}
     <slot />
     {withChrome && <Footer />}
+    <script is:inline>
+      (function () {
+        const KEY = 'cryptoro_cart_count';
+
+        function read() {
+          const value = Number(window.localStorage.getItem(KEY) || '0');
+          return Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+        }
+
+        function write(value) {
+          window.localStorage.setItem(KEY, String(Math.max(0, Math.floor(value))));
+        }
+
+        function paint(value) {
+          document.querySelectorAll('#cartCount, .cart-n, [data-cart-count]').forEach((node) => {
+            node.textContent = String(value);
+          });
+        }
+
+        function sync() {
+          paint(read());
+        }
+
+        function add(step) {
+          const current = read();
+          const next = current + Math.max(1, Math.floor(step || 1));
+          write(next);
+          paint(next);
+          return next;
+        }
+
+        window.cryptoroCart = { read, write, sync, add };
+
+        document.addEventListener('DOMContentLoaded', () => {
+          sync();
+          const cartBtn = document.getElementById('cartBtn');
+          if (cartBtn) {
+            cartBtn.addEventListener('click', () => {
+              window.location.href = '/catalog';
+            });
+          }
+        });
+      })();
+    </script>
   </body>
 </html>
