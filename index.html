@@ -37,6 +37,18 @@
     .cart-n{position:absolute;top:-5px;right:-7px;background:#e88635;color:#fff;
       font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;
       display:flex;align-items:center;justify-content:center}
+    .menu-toggle{display:none;background:#fff;border:1px solid rgba(0,0,0,.14);
+      width:36px;height:36px;border-radius:999px;align-items:center;justify-content:center;
+      color:#111;cursor:pointer;margin-right:10px}
+    .menu-toggle svg{width:18px;height:18px}
+    .mobile-nav{display:none;position:absolute;top:56px;left:16px;right:16px;
+      background:rgba(255,255,255,.96);backdrop-filter:blur(14px);
+      border:1px solid rgba(0,0,0,.1);border-radius:14px;padding:10px;
+      box-shadow:0 14px 30px rgba(0,0,0,.14)}
+    .mobile-nav a{display:block;padding:10px 12px;border-radius:10px;
+      text-decoration:none;color:#111;font-size:15px}
+    .mobile-nav a:hover{background:#f3f4f6}
+    header.menu-open .mobile-nav{display:block}
 
     /* HERO */
     .hero{min-height:92vh;display:flex;align-items:center;justify-content:center;
@@ -214,9 +226,10 @@
       border-bottom:1px solid rgba(255,255,255,.08)}
     .step:last-child{border-bottom:none}
     .step-line{display:flex;flex-direction:column;align-items:center}
-    .sdot{width:40px;height:40px;border-radius:50%;background:#e88635;flex-shrink:0;
+    .sdot{width:48px;height:48px;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
-      box-shadow:0 0 20px rgba(232,134,53,.4);font-size:18px}
+      color:#e88635}
+    .sdot svg{width:48px;height:48px;display:block}
     .sconn{width:1px;flex:1;background:rgba(255,255,255,.1);margin:8px 0}
     .scont{flex:1;padding-top:4px}
     .snum{font-size:11px;color:#e88635;letter-spacing:.1em;margin-bottom:8px;font-weight:500}
@@ -253,10 +266,10 @@
       padding:20px;display:flex;flex-direction:column;gap:12px;min-height:190px;
       transition:transform .28s ease,box-shadow .28s ease}
     .uccard:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.08)}
-    .ucicon{width:42px;height:42px;border-radius:12px;
-      background:linear-gradient(180deg,#edf4ff,#e2efff);border:1px solid #d7e7ff;
-      color:#e88635;font-size:12px;font-weight:700;letter-spacing:.02em;
-      display:flex;align-items:center;justify-content:center}
+    .ucicon{width:44px;height:44px;border-radius:12px;
+      background:rgba(232,134,53,.10);border:1px solid rgba(232,134,53,.22);
+      color:#e88635;display:flex;align-items:center;justify-content:center}
+    .ucicon svg{width:22px;height:22px;display:block}
     .uclabel{font-size:20px;font-weight:600;color:#1d1d1f;line-height:1.2}
     .ucdesc{font-size:14px;color:#666;line-height:1.55;flex:1}
     .uctag{display:inline-flex;align-items:center;background:#f2f7ff;color:#276ac0;
@@ -318,13 +331,19 @@
     .sec-reviews{background:#fff}
     .rv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
     .rvcard{background:#f5f5f7;border-radius:18px;padding:28px;
-      border:1px solid rgba(0,0,0,.05)}
+      border:1px solid rgba(0,0,0,.05);transition:transform .28s ease,box-shadow .28s ease}
+    .rvcard:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(0,0,0,.10)}
+    .rvquote{width:24px;height:24px;display:block;color:#e88635;margin-bottom:12px}
+    .rvquote svg{width:24px;height:24px;display:block}
     .rvstars{color:#ff9f0a;font-size:14px;margin-bottom:14px}
     .rvtext{font-size:15px;color:#333;line-height:1.6;margin-bottom:20px}
     .rvauthor{display:flex;align-items:center;gap:12px}
-    .rvav{width:36px;height:36px;border-radius:50%;background:#e88635;
+    .rvav{width:36px;height:36px;border-radius:50%;
       color:#fff;font-size:13px;font-weight:600;
       display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rvav.blue{background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)}
+    .rvav.green{background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%)}
+    .rvav.violet{background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%)}
     .rvname{font-size:14px;font-weight:600;color:#1d1d1f}
     .rvrole{font-size:12px;color:#888}
 
@@ -348,19 +367,36 @@
       transition:transform .15s,box-shadow .2s;font-family:'Inter',sans-serif;
       white-space:nowrap}
     .lsubmit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(0,0,0,.15)}
+    .lsubmit:disabled{opacity:.75;cursor:wait;transform:none}
     .lprivacy{font-size:12px;color:rgba(255,255,255,.6);margin-top:12px}
+    .lead-status{
+      margin-top:14px;
+      font-size:14px;
+      color:#fff;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.28);
+      border-radius:12px;
+      padding:10px 12px;
+      text-align:left;
+    }
+    .lead-status.error{
+      color:#fff;
+      background:rgba(183,28,28,.3);
+      border-color:rgba(255,255,255,.3);
+    }
 
     /* FAQ */
     .sec-faq{background:#f5f5f7}
     .faq-inner{max-width:700px;margin:0 auto}
     .faqitem{border-bottom:1px solid rgba(0,0,0,.08);overflow:hidden}
     .faqq{display:flex;align-items:center;justify-content:space-between;
-      padding:22px 0;cursor:pointer;font-size:16px;font-weight:500;
-      color:#1d1d1f;user-select:none}
+      width:100%;padding:22px 0;cursor:pointer;font-size:16px;font-weight:500;
+      color:#1d1d1f;user-select:none;background:transparent;border:0;text-align:left}
     .faqarr{width:24px;height:24px;border-radius:50%;background:#e0e0e0;
       flex-shrink:0;display:flex;align-items:center;justify-content:center;
-      transition:background .2s,transform .3s;font-size:14px;color:#555}
-    .faqitem.open .faqarr{background:#e88635;color:#fff;transform:rotate(45deg)}
+      transition:background .2s,transform .25s ease,font-size .2s,color .2s;
+      font-size:16px;line-height:1;color:#555}
+    .faqitem.open .faqarr{background:#e88635;color:#fff;transform:rotate(180deg)}
     .faqa{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;
       font-size:15px;color:#555;line-height:1.7}
     .faqitem.open .faqa{max-height:220px;padding-bottom:20px}
@@ -399,7 +435,7 @@
     .hero-title,.sec-title,.ftitle,.pname2,.how-title,.stitle,.lead-title,.faqq,.rvname{
       color:var(--c-text)
     }
-    .btn-blue,.pbtn2.fil,.lsubmit,.sdot,.hcenter,.pbadge,.pbadge2.bl{
+    .btn-blue,.pbtn2.fil,.lsubmit,.hcenter,.pbadge,.pbadge2.bl{
       background:var(--c-accent)
     }
     .btn-ghost,.pbtn2.out,.btn-woutline{
@@ -504,6 +540,8 @@
     }
     @media(max-width:768px){
       nav{display:none}
+      .menu-toggle{display:inline-flex}
+      .nav-inner{position:relative}
       .hero{padding-top:100px}
       .hero-title{font-size:clamp(36px,10vw,56px)}
       .hero-sub{font-size:16px}
@@ -534,6 +572,10 @@
       .hlink.l2,.hlink.l3{right:70px}
       .hlink.l5,.hlink.l6{left:70px}
       .feat-grid{grid-template-columns:1fr}
+      .step{flex-direction:column;gap:16px}
+      .step-line{flex-direction:row;align-items:center}
+      .sconn{display:none}
+      .products-grid{grid-template-columns:repeat(2,1fr)}
       .uc-grid{grid-template-columns:repeat(2,1fr)}
       .uccard{min-height:170px;padding:18px}
       .uclabel{font-size:18px}
@@ -541,13 +583,25 @@
       .p-cards{grid-template-columns:1fr}
       .lead-row{flex-direction:column}
       .foot-grid{grid-template-columns:1fr;gap:24px}
+      .foot-bot{flex-direction:column;align-items:flex-start}
     }
     @media(max-width:480px){
       .hero-label{font-size:10px}
       .btn-blue,.btn-ghost{width:100%}
       .hero-product-image{min-height:250px}
       .hero-product-image img{max-width:270px;transform:rotate(-4deg)}
-      .products-grid{grid-template-columns:1fr}
+      .products-grid{
+        display:flex;
+        gap:12px;
+        overflow-x:auto;
+        padding-bottom:6px;
+        scroll-snap-type:x mandatory;
+      }
+      .products-grid .pcard{
+        min-width:82%;
+        scroll-snap-align:start;
+        flex:0 0 auto;
+      }
       .uc-grid{grid-template-columns:1fr}
       .uccard{min-height:auto}
     }
@@ -571,6 +625,7 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
 .citem,.faqitem,.smock,.hitem,.abadge,.tab-content,.rcard,.delivery-mini{
   background:var(--c-surface)!important;
   border-color:var(--line)!important;
+  transition:all .2s ease-in-out!important;
 }
 
 /* Accent and text */
@@ -582,13 +637,17 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
   background:#111!important;
   color:#fff!important;
   border-color:#111!important;
+  transition:all .2s ease-in-out!important;
 }
 .btn-ghost,.pbtn2.out,.btn-woutline,.filter-btn,.sort-select,.secondary-btn{
   color:#111!important;
   border-color:rgba(17,17,17,.22)!important;
   background:transparent!important;
 }
-.btn-blue:hover,.pbtn:hover,.pbtn2.fil:hover,.lsubmit:hover,.buy-btn:hover,.sticky-btn:hover{filter:brightness(1.07)}
+.btn-blue:hover,.pbtn:hover,.pbtn2.fil:hover,.lsubmit:hover,.buy-btn:hover,.sticky-btn:hover{
+  filter:brightness(.9)!important;
+  transform:scale(1.02)!important;
+}
 
 /* Capsules and icon chips */
 .tbadge,.uctag,.hero-product-tag,.icon-wrap{
@@ -629,6 +688,32 @@ body.bg-zinc-100{background:var(--c-bg)!important}
 .via-brand-600{--tw-gradient-via:rgba(29,29,31,.45)!important}
 .border-zinc-200,.border-zinc-200\/80,.border-zinc-300{border-color:var(--line)!important}
 #productsGrid .pcard{background:var(--c-surface)!important}
+
+/* Product cards hover (home + catalog) */
+.products-grid .pcard,
+#productsGrid .pcard{
+  transition:all .2s ease-in-out!important;
+}
+.products-grid .pcard:hover,
+#productsGrid .pcard:hover{
+  transform:translateY(-4px)!important;
+  box-shadow:0 16px 30px rgba(0,0,0,.12)!important;
+}
+
+/* Comparison cards hover */
+.pricingcard{
+  transition:all .2s ease-in-out!important;
+}
+.pricingcard:hover{
+  transform:translateY(-4px)!important;
+  border-color:#e88635!important;
+  box-shadow:0 16px 30px rgba(232,134,53,.18)!important;
+}
+.pricingcard .pbtn2{transition:all .2s ease-in-out!important}
+.pricingcard:hover .pbtn2{
+  filter:brightness(.9)!important;
+  transform:scale(1.02)!important;
+}
 
 /* Better contrast on consult strip */
 .reveal.bg-gradient-to-r,.bg-gradient-to-r{filter:none}
@@ -674,7 +759,19 @@ img{max-width:100%;height:auto}
   .sec{padding:104px 24px!important}
   .sec-title{font-size:clamp(38px,3.2vw,56px)!important}
 }
-@media (max-width:390px){
+@media (max-width:768px){
+  header nav{display:none!important}
+  .menu-toggle{display:inline-flex!important}
+  .nav-inner{position:relative!important}
+  .step{flex-direction:column!important;gap:14px!important}
+  .step-line{flex-direction:row!important;align-items:center!important}
+  .sconn{display:none!important}
+  .uc-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .foot-grid{grid-template-columns:1fr!important;gap:24px!important}
+  .foot-bot{flex-direction:column!important;align-items:flex-start!important}
+}
+@media (max-width:375px){
   .hero{min-height:auto!important;padding-top:96px!important;padding-bottom:40px!important}
   .hero-title{font-size:clamp(34px,11.5vw,48px)!important;line-height:1.04!important}
   .hero-sub{font-size:16px!important;line-height:1.55!important}
@@ -683,7 +780,20 @@ img{max-width:100%;height:auto}
   .sec{padding:64px 18px!important}
   .sec-head{margin-bottom:30px!important}
   .sec-title{font-size:clamp(28px,8.5vw,36px)!important}
-  .products-grid,.feat-grid,.uc-grid,.rv-grid,.p-cards{gap:14px!important}
+  .products-grid{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:12px!important;
+    scroll-snap-type:x mandatory!important;
+    padding-bottom:8px!important;
+  }
+  .products-grid .pcard{
+    min-width:84%!important;
+    flex:0 0 auto!important;
+    scroll-snap-align:start!important;
+  }
+  .feat-grid,.uc-grid,.rv-grid,.p-cards{gap:14px!important}
+  .uc-grid{grid-template-columns:1fr!important}
   .pcard,.fcard,.uccard,.rvcard,.pricingcard{border-radius:16px!important}
 }
 </style>
@@ -702,6 +812,11 @@ img{max-width:100%;height:auto}
       <a href="/about">О нас</a>
     </nav>
     <div style="display:flex;align-items:center">
+      <button class="menu-toggle" id="menuToggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileNav">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </button>
       <button class="cart" id="cartBtn" aria-label="Корзина">
         <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M4 5h2l2.1 9.2a2 2 0 0 0 2 1.6h6.8a2 2 0 0 0 2-1.6L21 8H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -709,6 +824,11 @@ img{max-width:100%;height:auto}
           <circle cx="17.2" cy="19" r="1.5" fill="currentColor"></circle>
         </svg><span class="cart-n" id="cartCount">0</span>
       </button>
+    </div>
+    <div class="mobile-nav" id="mobileNav">
+      <a href="/">Главная</a>
+      <a href="/catalog">Каталог</a>
+      <a href="/about">О нас</a>
     </div>
   </div>
 </header>
@@ -899,7 +1019,13 @@ img{max-width:100%;height:auto}
 
         <div class="step reveal">
           <div class="step-line">
-            <div class="sdot">🎙</div>
+            <div class="sdot" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M12 19v3"></path>
+                <path d="M8 11v1a4 4 0 0 0 8 0v-1"></path>
+                <rect x="9" y="2" width="6" height="11" rx="3"></rect>
+              </svg>
+            </div>
             <div class="sconn"></div>
           </div>
           <div class="scont">
@@ -926,7 +1052,13 @@ img{max-width:100%;height:auto}
 
         <div class="step reveal d1">
           <div class="step-line">
-            <div class="sdot">1</div>
+            <div class="sdot" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                <rect x="9" y="9" width="6" height="6"></rect>
+                <path d="M9 2v2M15 2v2M9 20v2M15 20v2M20 9h2M20 14h2M2 9h2M2 14h2"></path>
+              </svg>
+            </div>
             <div class="sconn"></div>
           </div>
           <div class="scont">
@@ -947,7 +1079,13 @@ img{max-width:100%;height:auto}
 
         <div class="step reveal d2">
           <div class="step-line">
-            <div class="sdot">📄</div>
+            <div class="sdot" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <path d="M14 2v6h6"></path>
+                <path d="m9 15 2 2 4-4"></path>
+              </svg>
+            </div>
           </div>
           <div class="scont">
             <div class="snum">ШАГ 03</div>
@@ -978,37 +1116,76 @@ img{max-width:100%;height:auto}
     </div>
     <div class="uc-grid">
       <div class="uccard reveal d1">
-        <div class="ucicon">CEO</div>
+        <div class="ucicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+            <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <path d="M3 12h18"></path>
+          </svg>
+        </div>
         <div class="uclabel">Руководители</div>
         <div class="ucdesc">Фиксируйте договорённости на встречах и сразу получайте итог с задачами и сроками.</div>
         <span class="uctag">Совещания и 1:1</span>
       </div>
       <div class="uccard reveal d2">
-        <div class="ucicon">B2B</div>
+        <div class="ucicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M22 16.9V7.1a2 2 0 0 0-1-1.73l-8-4.57a2 2 0 0 0-2 0L3 5.37A2 2 0 0 0 2 7.1v9.8a2 2 0 0 0 1 1.73l8 4.57a2 2 0 0 0 2 0l8-4.57a2 2 0 0 0 1-1.73z"></path>
+            <path d="M7 14h5a2 2 0 0 0 0-4H9"></path>
+            <path d="M15 10h1"></path>
+            <path d="M8 10h1"></path>
+          </svg>
+        </div>
         <div class="uclabel">Отдел продаж</div>
         <div class="ucdesc">Сохраняйте детали звонков с клиентами и формируйте follow-up за минуты.</div>
         <span class="uctag">Звонки и демо</span>
       </div>
       <div class="uccard reveal d3">
-        <div class="ucicon">MED</div>
+        <div class="ucicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M11 2v4"></path>
+            <path d="M13 2v4"></path>
+            <path d="M12 6a4 4 0 0 0-4 4v4a4 4 0 0 0 8 0v-4a4 4 0 0 0-4-4z"></path>
+            <path d="M16 13h2a3 3 0 0 1 3 3v2"></path>
+            <circle cx="7" cy="20" r="2"></circle>
+          </svg>
+        </div>
         <div class="uclabel">Врачи и клиники</div>
         <div class="ucdesc">Быстро оформляйте консультации и сохраняйте ключевые рекомендации без ручной расшифровки.</div>
         <span class="uctag">Приёмы и консилиумы</span>
       </div>
       <div class="uccard reveal d1">
-        <div class="ucicon">LAW</div>
+        <div class="ucicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M12 3v18"></path>
+            <path d="M3 7h18"></path>
+            <path d="M5 7 3 11h4L5 7z"></path>
+            <path d="M19 7 17 11h4l-2-4z"></path>
+            <path d="M4 21h16"></path>
+          </svg>
+        </div>
         <div class="uclabel">Юристы</div>
         <div class="ucdesc">Ведите протоколы переговоров и интервью, быстро находите цитаты и факты по таймкодам.</div>
         <span class="uctag">Переговоры и разборы</span>
       </div>
       <div class="uccard reveal d2">
-        <div class="ucicon">EDU</div>
+        <div class="ucicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M22 10 12 5 2 10l10 5 10-5z"></path>
+            <path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"></path>
+          </svg>
+        </div>
         <div class="uclabel">Преподаватели</div>
         <div class="ucdesc">Превращайте лекции и семинары в понятные конспекты и материалы для студентов.</div>
         <span class="uctag">Лекции и семинары</span>
       </div>
       <div class="uccard reveal d3">
-        <div class="ucicon">CREA</div>
+        <div class="ucicon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+          </svg>
+        </div>
         <div class="uclabel">Контент-команды</div>
         <div class="ucdesc">Собирайте идеи из интервью и брейнштормов, получайте структуру для сценариев и постов.</div>
         <span class="uctag">Интервью и продакшн</span>
@@ -1093,10 +1270,18 @@ img{max-width:100%;height:auto}
     <div class="rv-grid">
 
       <div class="rvcard reveal d1">
+        <span class="rvquote" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M10 11H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
+            <path d="M20 11h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
+            <path d="M8 11v2a4 4 0 0 1-4 4"></path>
+            <path d="M18 11v2a4 4 0 0 1-4 4"></path>
+          </svg>
+        </span>
         <div class="rvstars">★★★★★</div>
         <p class="rvtext">«Пользуюсь уже 3 месяца на деловых встречах. Транскрипция точная, резюме составляет само. Сэкономил кучу времени на ведении протоколов.»</p>
         <div class="rvauthor">
-          <div class="rvav">АК</div>
+          <div class="rvav blue">АК</div>
           <div>
             <div class="rvname">Алексей К.</div>
             <div class="rvrole">Директор по развитию, Москва</div>
@@ -1105,10 +1290,18 @@ img{max-width:100%;height:auto}
       </div>
 
       <div class="rvcard reveal d2">
+        <span class="rvquote" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M10 11H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
+            <path d="M20 11h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
+            <path d="M8 11v2a4 4 0 0 1-4 4"></path>
+            <path d="M18 11v2a4 4 0 0 1-4 4"></path>
+          </svg>
+        </span>
         <div class="rvstars">★★★★★</div>
         <p class="rvtext">«NotePin ношу на рубашке весь день. Записывает незаметно, звук отличный. Очень удобно для интервью с клиентами.»</p>
         <div class="rvauthor">
-          <div class="rvav" style="background:#ff375f">МС</div>
+          <div class="rvav green">МС</div>
           <div>
             <div class="rvname">Мария С.</div>
             <div class="rvrole">Журналист, Санкт-Петербург</div>
@@ -1117,10 +1310,18 @@ img{max-width:100%;height:auto}
       </div>
 
       <div class="rvcard reveal d3">
+        <span class="rvquote" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+            <path d="M10 11H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
+            <path d="M20 11h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
+            <path d="M8 11v2a4 4 0 0 1-4 4"></path>
+            <path d="M18 11v2a4 4 0 0 1-4 4"></path>
+          </svg>
+        </span>
         <div class="rvstars">★★★★★</div>
         <p class="rvtext">«Студентам рекомендую! Записываю лекции, потом получаю готовый конспект. Цена оправдана полностью.»</p>
         <div class="rvauthor">
-          <div class="rvav" style="background:#30d158">ДМ</div>
+          <div class="rvav violet">ДМ</div>
           <div>
             <div class="rvname">Дмитрий М.</div>
             <div class="rvrole">Студент магистратуры, Казань</div>
@@ -1137,7 +1338,7 @@ img{max-width:100%;height:auto}
   <div class="lead-inner">
     <h2 class="lead-title">Не знаете какой выбрать?</h2>
     <p class="lead-sub">Оставьте контакт — перезвоним и подберём идеальный диктофон под ваши задачи</p>
-    <form class="lead-form" name="consult" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+    <form class="lead-form" id="leadConsultForm" name="consult" method="POST" data-netlify="true" netlify-honeypot="bot-field">
       <input type="hidden" name="form-name" value="consult"/>
       <input type="hidden" name="bot-field"/>
       <div class="lead-row">
@@ -1148,6 +1349,7 @@ img{max-width:100%;height:auto}
       <textarea class="linput" name="message" rows="4" placeholder="Комментарий"></textarea>
       <button type="submit" class="lsubmit">Получить консультацию</button>
     </form>
+    <p class="lead-status" id="leadStatus" role="status" aria-live="polite" hidden></p>
     <p class="lprivacy">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности. Не передаём данные третьим лицам.</p>
   </div>
 </section>
@@ -1161,42 +1363,42 @@ img{max-width:100%;height:auto}
     <div class="faq-inner">
 
       <div class="faqitem">
-        <div class="faqq" onclick="toggleFaq(this)">
-          Как работает транскрипция?
-          <span class="faqarr">+</span>
-        </div>
+        <button type="button" class="faqq" aria-expanded="false">
+          <span>Как работает транскрипция?</span>
+          <span class="faqarr" aria-hidden="true">+</span>
+        </button>
         <div class="faqa">Диктофон записывает аудио и отправляет его в приложение. Там ChatGPT автоматически расшифровывает речь в текст с точностью до 98%, определяет разных спикеров и ставит временные метки. Поддерживается 57 языков включая русский.</div>
       </div>
 
       <div class="faqitem">
-        <div class="faqq" onclick="toggleFaq(this)">
-          Нужна ли подписка после покупки?
-          <span class="faqarr">+</span>
-        </div>
+        <button type="button" class="faqq" aria-expanded="false">
+          <span>Нужна ли подписка после покупки?</span>
+          <span class="faqarr" aria-hidden="true">+</span>
+        </button>
         <div class="faqa">К устройству «Вспомни всё» прилагается бесплатный год безлимитной AI-подписки. После окончания можно продлить по тарифам Plaud. У Plaud Note и NotePin также есть бесплатный пробный период.</div>
       </div>
 
       <div class="faqitem">
-        <div class="faqq" onclick="toggleFaq(this)">
-          Куда сохраняются записи?
-          <span class="faqarr">+</span>
-        </div>
+        <button type="button" class="faqq" aria-expanded="false">
+          <span>Куда сохраняются записи?</span>
+          <span class="faqarr" aria-hidden="true">+</span>
+        </button>
         <div class="faqa">Аудиозаписи хранятся в защищённом облаке Plaud и синхронизируются с приложением на телефоне. Вы можете экспортировать текст в Notion, Google Docs, Telegram и другие сервисы.</div>
       </div>
 
       <div class="faqitem">
-        <div class="faqq" onclick="toggleFaq(this)">
-          Какие способы оплаты?
-          <span class="faqarr">+</span>
-        </div>
+        <button type="button" class="faqq" aria-expanded="false">
+          <span>Какие способы оплаты?</span>
+          <span class="faqarr" aria-hidden="true">+</span>
+        </button>
         <div class="faqa">Принимаем карты РФ (Visa, МИР, Mastercard), Яндекс.Пей, СБП. Обработка платежей через CloudPayments. Оплата безопасна и защищена.</div>
       </div>
 
       <div class="faqitem">
-        <div class="faqq" onclick="toggleFaq(this)">
-          Как быстро доставите?
-          <span class="faqarr">+</span>
-        </div>
+        <button type="button" class="faqq" aria-expanded="false">
+          <span>Как быстро доставите?</span>
+          <span class="faqarr" aria-hidden="true">+</span>
+        </button>
         <div class="faqa">Доставка по России через СДЭК (2–7 дней от 300 ₽), Почту России (5–14 дней от 200 ₽) и курьером по Москве (1 день от 500 ₽). Все заказы отправляем в течение 1 рабочего дня.</div>
       </div>
 
@@ -1251,34 +1453,45 @@ img{max-width:100%;height:auto}
   }, { threshold: 0.12 });
   reveals.forEach(el => obs.observe(el));
 
-  // FAQ toggle
-  function toggleFaq(el) {
-    const item = el.parentElement;
-    const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faqitem').forEach(i => {
-      i.classList.remove('open');
-      const q = i.querySelector('.faqq');
-      if (q) q.setAttribute('aria-expanded', 'false');
-    });
-    if(!isOpen) {
-      item.classList.add('open');
-      el.setAttribute('aria-expanded', 'true');
-    }
-  }
-
   // Keep product card links clickable; cart updates happen on product pages.
 </script>
 
 <script>
   (function(){
+    function setFaqOpen(item, open) {
+      if (!item) return;
+      const trigger = item.querySelector('.faqq');
+      const panel = item.querySelector('.faqa');
+      const icon = item.querySelector('.faqarr');
+      if (!trigger || !panel) return;
+
+      item.classList.toggle('open', open);
+      trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+      if (icon) icon.textContent = open ? '−' : '+';
+    }
+
+    function toggleFaqItem(item) {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faqitem').forEach((faqItem) => setFaqOpen(faqItem, false));
+      if (!isOpen) setFaqOpen(item, true);
+    }
+
     document.querySelectorAll('.faqitem').forEach(function(item, idx){
       const trigger = item.querySelector('.faqq');
       const panel = item.querySelector('.faqa');
       if(!trigger || !panel) return;
       const pid = panel.id || ('faq-panel-' + (idx + 1));
+      const tid = trigger.id || ('faq-trigger-' + (idx + 1));
       panel.id = pid;
+      trigger.id = tid;
       trigger.setAttribute('aria-controls', pid);
-      trigger.setAttribute('aria-expanded', item.classList.contains('open') ? 'true' : 'false');
+      panel.setAttribute('role', 'region');
+      panel.setAttribute('aria-labelledby', tid);
+      trigger.addEventListener('click', function () {
+        toggleFaqItem(item);
+      });
+      setFaqOpen(item, item.classList.contains('open'));
     });
 
     document.querySelectorAll('[onclick]').forEach(function(el){
@@ -1296,6 +1509,135 @@ img{max-width:100%;height:auto}
           el.click();
         }
       });
+    });
+  })();
+</script>
+<script>
+  (function () {
+    const form = document.getElementById('leadConsultForm');
+    if (!form) return;
+
+    const status = document.getElementById('leadStatus');
+    const submitBtn = form.querySelector('.lsubmit');
+    if (!submitBtn) return;
+
+    const endpoint = (window.CRYPTORO_CONSULT_ENDPOINT || '').trim();
+    const defaultBtnText = submitBtn.textContent || 'Получить консультацию';
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRe = /^\+?[0-9\s()\-]{10,20}$/;
+
+    function setStatus(message, isError) {
+      if (!status) return;
+      status.hidden = false;
+      status.textContent = message;
+      status.classList.toggle('error', Boolean(isError));
+    }
+
+    function clearStatus() {
+      if (!status) return;
+      status.hidden = true;
+      status.textContent = '';
+      status.classList.remove('error');
+    }
+
+    function validateByType(input) {
+      if (!input || input.disabled) return true;
+      const value = (input.value || '').trim();
+      input.setCustomValidity('');
+
+      if (input.type === 'tel') {
+        if (!value || !phoneRe.test(value)) {
+          input.setCustomValidity('Введите корректный номер телефона.');
+          return false;
+        }
+      }
+
+      if (input.type === 'email' && value && !emailRe.test(value)) {
+        input.setCustomValidity('Введите корректный email.');
+        return false;
+      }
+
+      return true;
+    }
+
+    form.querySelectorAll('input[type="tel"], input[type="email"]').forEach((input) => {
+      input.addEventListener('input', () => {
+        validateByType(input);
+        input.reportValidity();
+      });
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearStatus();
+
+      const fields = Array.from(form.querySelectorAll('input[type="tel"], input[type="email"]'));
+      const validByType = fields.every((field) => validateByType(field));
+      if (!validByType || !form.reportValidity()) {
+        setStatus('Проверьте корректность email и телефона.', true);
+        return;
+      }
+
+      if (!endpoint) {
+        setStatus('Не настроен URL отправки. Добавьте PUBLIC_CONSULT_ENDPOINT в .env.', true);
+        return;
+      }
+
+      const formData = new FormData(form);
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Отправляем...';
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Request failed');
+        }
+
+        form.style.display = 'none';
+        setStatus('Спасибо! Мы перезвоним вам в ближайшее время.', false);
+      } catch (error) {
+        setStatus('Не удалось отправить заявку. Попробуйте ещё раз.', true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = defaultBtnText;
+      }
+    });
+  })();
+</script>
+<script>
+  (function () {
+    const header = document.querySelector('header');
+    const toggle = document.getElementById('menuToggle');
+    const menu = document.getElementById('mobileNav');
+    if (!header || !toggle || !menu) return;
+
+    function closeMenu() {
+      header.classList.remove('menu-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', function () {
+      const isOpen = header.classList.toggle('menu-open');
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    menu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    document.addEventListener('click', function (event) {
+      if (!header.contains(event.target)) closeMenu();
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 768) closeMenu();
     });
   })();
 </script>

@@ -29,6 +29,7 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
 .citem,.faqitem,.smock,.hitem,.abadge,.tab-content,.rcard,.delivery-mini{
   background:var(--c-surface)!important;
   border-color:var(--line)!important;
+  transition:all .2s ease-in-out!important;
 }
 
 /* Accent and text */
@@ -40,13 +41,17 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
   background:#111!important;
   color:#fff!important;
   border-color:#111!important;
+  transition:all .2s ease-in-out!important;
 }
 .btn-ghost,.pbtn2.out,.btn-woutline,.filter-btn,.sort-select,.secondary-btn{
   color:#111!important;
   border-color:rgba(17,17,17,.22)!important;
   background:transparent!important;
 }
-.btn-blue:hover,.pbtn:hover,.pbtn2.fil:hover,.lsubmit:hover,.buy-btn:hover,.sticky-btn:hover{filter:brightness(1.07)}
+.btn-blue:hover,.pbtn:hover,.pbtn2.fil:hover,.lsubmit:hover,.buy-btn:hover,.sticky-btn:hover{
+  filter:brightness(.9)!important;
+  transform:scale(1.02)!important;
+}
 
 /* Capsules and icon chips */
 .tbadge,.uctag,.hero-product-tag,.icon-wrap{
@@ -223,12 +228,12 @@ header nav a:hover{color:#1d1d1f!important}
   border:1px solid rgba(29,29,31,.08)!important;
   background:#fff!important;
   box-shadow:0 1px 2px rgba(29,29,31,.05),0 10px 24px rgba(29,29,31,.04)!important;
-  transition:transform .28s ease, box-shadow .28s ease!important;
+  transition:all .2s ease-in-out!important;
   overflow:hidden;
 }
 #productsGrid .pcard:hover{
-  transform:translateY(-3px)!important;
-  box-shadow:0 2px 4px rgba(29,29,31,.06),0 18px 34px rgba(29,29,31,.08)!important;
+  transform:translateY(-4px)!important;
+  box-shadow:0 16px 30px rgba(0,0,0,.12)!important;
 }
 #productsGrid .pcard .card-badge{
   background:#111!important;
@@ -270,6 +275,11 @@ header nav a:hover{color:#1d1d1f!important}
 #productsGrid .pcard .inline-flex.w-full{
   border-radius:999px!important;
   height:46px!important;
+  transition:all .2s ease-in-out!important;
+}
+#productsGrid .pcard .inline-flex.w-full:hover{
+  filter:brightness(.9)!important;
+  transform:scale(1.02)!important;
 }
 #productsCount{
   color:#6e6e73!important;

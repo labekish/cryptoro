@@ -20,6 +20,7 @@ interface ProductData {
     [key: string]: string | undefined;
   };
   boxContents?: string[];
+  gallery?: string[];
 }
 
 interface RelatedItem {
@@ -37,9 +38,46 @@ interface Props {
 const { product, related = [] } = Astro.props;
 const price = new Intl.NumberFormat('ru-RU').format(product.price);
 const stockLabel = product.inStock === false ? 'Предзаказ' : 'Купить сейчас';
+const galleryFallbackBySlug: Record<string, string[]> = {
+  vspomnit: ['/images/products/vspomnit-vse-cutout.png', '/images/products/vspomnit-vse.jpg'],
+  'plaud-note': ['/images/products/plaud-note-black.webp', '/images/products/plaud-note-silver.webp'],
+  'plaud-note-pro': ['/images/products/plaud-note-silver.webp', '/images/products/plaud-note-black.webp'],
+  notepin: ['/images/products/plaud-notepin.webp', '/images/products/plaud-notepin.webp']
+};
+const gallery = (product.gallery && product.gallery.length ? product.gallery : galleryFallbackBySlug[product.slug] ?? [product.image])
+  .filter(Boolean);
+
+const runtimeBySlug: Record<string, string> = {
+  vspomnit: 'До 30 часов',
+  'plaud-note': 'До 30 часов',
+  'plaud-note-pro': 'До 40 часов',
+  notepin: 'До 20 часов'
+};
+const memoryBySlug: Record<string, string> = {
+  vspomnit: '64 ГБ',
+  'plaud-note': '64 ГБ',
+  'plaud-note-pro': '128 ГБ',
+  notepin: '64 ГБ'
+};
+const languageBySlug: Record<string, string> = {
+  vspomnit: '57+ языков',
+  'plaud-note': '57+ языков',
+  'plaud-note-pro': '57+ языков',
+  notepin: '57+ языков'
+};
+const formatBySlug: Record<string, string> = {
+  vspomnit: 'WAV, MP3, TXT',
+  'plaud-note': 'WAV, MP3, TXT',
+  'plaud-note-pro': 'WAV, MP3, TXT',
+  notepin: 'WAV, MP3, TXT'
+};
 const specsRows = [
-  { label: 'Цвет', value: product.specs?.color },
+  { label: 'Время работы', value: runtimeBySlug[product.slug] },
+  { label: 'Память', value: memoryBySlug[product.slug] },
+  { label: 'Языки', value: languageBySlug[product.slug] },
+  { label: 'Форматы файлов', value: formatBySlug[product.slug] },
   { label: 'Размеры', value: product.specs?.dimensions },
+  { label: 'Цвет', value: product.specs?.color },
   { label: 'Вес', value: product.specs?.weight },
   { label: 'Подключение', value: product.specs?.connection },
   { label: 'Гарантия', value: product.specs?.warranty }
@@ -50,8 +88,22 @@ const specsRows = [
     <section class="product-hero">
       <div class="hero-grid">
         <div class="gallery">
+          <nav class="breadcrumbs" aria-label="Хлебные крошки">
+            <a href="/">Главная</a>
+            <span aria-hidden="true">→</span>
+            <a href="/catalog">Каталог</a>
+            <span aria-hidden="true">→</span>
+            <span>{product.title}</span>
+          </nav>
           <div class="main-img">
-            <img id="mainImg" src={product.image} alt={`AI-диктофон ${product.title} в фирменном корпусе`} />
+            <img id="mainImg" src={gallery[0] ?? product.image} alt={`AI-диктофон ${product.title} в фирменном корпусе`} />
+          </div>
+          <div class="thumbs">
+            {gallery.map((image, idx) => (
+              <button class={`thumb ${idx === 0 ? 'active' : ''}`} type="button" data-gallery-thumb data-src={image} aria-label={`Фото ${idx + 1}: ${product.title}`}>
+                <img src={image} alt={`Фото ${idx + 1} продукта ${product.title}`} />
+              </button>
+            ))}
           </div>
         </div>
         <div>
@@ -71,7 +123,10 @@ const specsRows = [
               <div class="feat-item"><span class="feat-check">✓</span><span>{item}</span></div>
             ))}
           </div>
-          <button class="buy-btn" id="buyBtn" onclick="addToCart()" aria-label={`Купить ${product.title}`}>{stockLabel}</button>
+          <div class="actions-row">
+            <button class="buy-btn" id="addBtn" onclick="addToCart()" aria-label={`Добавить в корзину ${product.title}`}>Добавить в корзину</button>
+            <button class="buy-btn" id="buyBtn" onclick="buyNow()" aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
+          </div>
           <a href="/catalog" class="secondary-btn">Смотреть все модели</a>
         </div>
       </div>
@@ -123,6 +178,11 @@ const specsRows = [
     )}
   </main>
 
+  <div class="lightbox" id="productLightbox" aria-hidden="true">
+    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Закрыть просмотр">×</button>
+    <img id="lightboxImg" src={gallery[0] ?? product.image} alt={`Увеличенное фото ${product.title}`} />
+  </div>
+
   <script define:vars={{ cartItem: { slug: product.slug, title: product.title, price: product.price, image: product.image } }}>
     function addToCart() {
       const nextCount = window.cryptoroCart && typeof window.cryptoroCart.add === 'function'
@@ -140,7 +200,51 @@ const specsRows = [
         btn.style.background = '#111';
       }, 2000);
     }
+    function buyNow() {
+      addToCart();
+      window.location.href = '/cart';
+    }
     window.addToCart = addToCart;
+    window.buyNow = buyNow;
+  </script>
+
+  <script>
+    (function () {
+      const mainImg = document.getElementById('mainImg');
+      const lightbox = document.getElementById('productLightbox');
+      const lightboxImg = document.getElementById('lightboxImg');
+      const closeBtn = document.getElementById('lightboxClose');
+      if (!mainImg || !lightbox || !lightboxImg || !closeBtn) return;
+
+      document.querySelectorAll('[data-gallery-thumb]').forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+          const src = thumb.getAttribute('data-src');
+          if (!src) return;
+          mainImg.src = src;
+          lightboxImg.src = src;
+          document.querySelectorAll('[data-gallery-thumb]').forEach((el) => el.classList.remove('active'));
+          thumb.classList.add('active');
+        });
+      });
+
+      function openLightbox() {
+        lightbox.classList.add('open');
+        lightbox.setAttribute('aria-hidden', 'false');
+      }
+      function closeLightbox() {
+        lightbox.classList.remove('open');
+        lightbox.setAttribute('aria-hidden', 'true');
+      }
+
+      mainImg.addEventListener('click', openLightbox);
+      closeBtn.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (event) => {
+        if (event.target === lightbox) closeLightbox();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeLightbox();
+      });
+    })();
   </script>
 
   <script type="application/ld+json" set:html={JSON.stringify({
@@ -157,14 +261,30 @@ const specsRows = [
       availability: product.inStock === false ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock'
     }
   })} />
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Главная', item: 'https://cryptoro.ru/' },
+      { '@type': 'ListItem', position: 2, name: 'Каталог', item: 'https://cryptoro.ru/catalog' },
+      { '@type': 'ListItem', position: 3, name: product.title, item: `https://cryptoro.ru/products/${product.slug}` }
+    ]
+  })} />
 
   <style is:global>
     body{background:#fff;color:#111;font-family:'Inter',sans-serif}
     main{padding-top:56px}
     .product-hero{padding:44px 24px 84px}
     .hero-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+    .breadcrumbs{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;color:#6b7280}
+    .breadcrumbs a{text-decoration:none;color:#374151}
+    .breadcrumbs a:hover{color:#111}
     .main-img{width:100%;aspect-ratio:1;background:transparent;border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(20px);box-shadow:0 4px 30px rgba(0,0,0,.1)}
-    .main-img img{width:100%;height:100%;object-fit:contain;padding:16px}
+    .main-img img{width:100%;height:100%;object-fit:contain;padding:16px;cursor:zoom-in}
+    .thumbs{display:flex;gap:10px;margin-top:12px}
+    .thumb{border:1px solid rgba(0,0,0,.12);border-radius:12px;background:#fff;padding:6px;cursor:pointer;transition:all .2s}
+    .thumb.active{border-color:#111;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+    .thumb img{width:64px;height:64px;object-fit:contain;display:block}
     .badges-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
     .badge{background:rgba(255,255,255,.9);color:#111;border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(20px);border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
     .prod-name{font-family:'Unbounded',sans-serif;font-size:clamp(34px,4.6vw,56px);line-height:1.03;letter-spacing:-.03em;margin-bottom:16px}
@@ -178,6 +298,7 @@ const specsRows = [
     .feat-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.12);font-size:16px}
     .feat-item:last-child{border-bottom:none}
     .feat-check{color:#111}
+    .actions-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .buy-btn{display:block;width:100%;background:#111;color:#fff;border:none;border-radius:12px;padding:16px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;box-shadow:0 0 0 rgba(0,0,0,0);transition:all .3s ease-out}
     .buy-btn:hover{transform:scale(1.04);box-shadow:0 12px 24px rgba(0,0,0,.16)}
     .secondary-btn{display:block;width:100%;background:rgba(255,255,255,.9);color:#111;border:1.5px solid rgba(0,0,0,.2);border-radius:12px;padding:15px;font-size:16px;font-weight:500;text-align:center;text-decoration:none;backdrop-filter:blur(20px)}
@@ -201,16 +322,22 @@ const specsRows = [
     .rname{font-size:18px;font-weight:600;margin-bottom:8px}
     .rprice{font-size:20px;font-weight:700;margin-bottom:10px}
     .rcard::after{content:'Выбрать';display:inline-flex;align-items:center;justify-content:center;height:42px;margin-top:auto;border-radius:12px;background:#111;color:#fff;font-size:14px;font-weight:600;letter-spacing:.01em}
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+    .lightbox.open{display:flex}
+    .lightbox img{max-width:min(92vw,980px);max-height:88vh;object-fit:contain;border-radius:16px;background:#fff;padding:10px}
+    .lightbox-close{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.35);color:#fff;font-size:30px;line-height:1;cursor:pointer}
     @media(max-width:980px){
       .hero-grid{grid-template-columns:1fr;gap:30px}
       .related-grid{grid-template-columns:1fr 1fr}
     }
     @media(max-width:390px){
       .product-hero{padding:32px 18px 58px}
+      .actions-row{grid-template-columns:1fr}
       .tabs-section{padding:42px 18px}
       .related-section{padding:42px 18px 70px}
       .related-grid{grid-template-columns:1fr}
       .tab-content{padding:18px;border-radius:14px}
+      .thumb img{width:52px;height:52px}
     }
   </style>
 </Layout>
