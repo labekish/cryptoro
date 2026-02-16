@@ -8,9 +8,9 @@ inStock: true
 seoTitle: "Plaud Note — AI Диктофон | CRYPTORO"
 seoDescription: "Компактный металлический корпус. Магнитное крепление на телефон. 4 цвета."
 features:
-  - "Battery: 30h"
-  - "Dual Noise Mic"
-  - "MagSafe"
+  - "Батарея 30 ч"
+  - "Шумоподавление"
+  - "MagSafe крепление"
 specs:
   color: "Black / Silver / Gold / Blue"
   dimensions: "86 × 54 × 3 мм"

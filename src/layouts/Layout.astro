@@ -6,6 +6,7 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
   globalCss?: string;
   headScripts?: string;
   withChrome?: boolean;
@@ -15,11 +16,15 @@ interface Props {
 const {
   title = 'CRYPTORO',
   description = '',
+  image,
   globalCss = '',
   headScripts = '',
   withChrome = false,
   active
 } = Astro.props;
+
+const ogImage = image || '/images/og-default.jpg';
+const ogUrl = Astro.url?.toString() || '';
 ---
 <!doctype html>
 <html lang="ru">
@@ -27,7 +32,20 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
-    {description && <meta name="description" content={description} />}
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={ogUrl} />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="CRYPTORO" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="keywords" content="AI диктофон, CRYPTORO, Plaud Note, транскрипция, запись встреч, диктофон с ChatGPT" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -196,6 +214,21 @@ const {
         padding:12px;
         z-index:120;
       }
+      .mobile-nav-close{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width:30px;
+        height:30px;
+        border:1px solid rgba(0,0,0,.14);
+        border-radius:999px;
+        background:#fff;
+        color:#111;
+        font-size:18px;
+        line-height:1;
+        margin-left:auto;
+        cursor:pointer;
+      }
       .mobile-nav-panel a{
         display:block;
         padding:10px 12px;
@@ -298,11 +331,12 @@ const {
     <script is:inline>
       (function () {
         const KEY = 'cryptoro_cart_count';
-        const ITEMS_KEY = 'cryptoro_cart_items';
+        const ITEMS_KEY = 'cryptoro_cart';
+        const LEGACY_ITEMS_KEY = 'cryptoro_cart_items';
 
         function readItems() {
           try {
-            const raw = window.localStorage.getItem(ITEMS_KEY);
+            const raw = window.localStorage.getItem(ITEMS_KEY) ?? window.localStorage.getItem(LEGACY_ITEMS_KEY);
             const parsed = raw ? JSON.parse(raw) : [];
             return Array.isArray(parsed) ? parsed : [];
           } catch {
@@ -312,6 +346,7 @@ const {
 
         function writeItems(items) {
           window.localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+          window.localStorage.removeItem(LEGACY_ITEMS_KEY);
         }
 
         function read() {
@@ -337,7 +372,8 @@ const {
             paint(items.length);
             return;
           }
-          paint(read());
+          const fallbackCount = read();
+          paint(fallbackCount);
         }
 
         function add(payloadOrStep) {
@@ -357,6 +393,7 @@ const {
           writeItems(items);
           write(items.length);
           paint(items.length);
+          window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count: items.length } }));
           return items.length;
         }
 
@@ -364,6 +401,7 @@ const {
           writeItems([]);
           write(0);
           paint(0);
+          window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count: 0 } }));
         }
 
         window.cryptoroCart = { read, write, readItems, writeItems, sync, add, clear };
@@ -404,11 +442,15 @@ const {
 
             const panel = document.createElement('div');
             panel.className = 'mobile-nav-panel';
-            panel.innerHTML = links.map((item) => `<a href="${item.href}">${item.text}</a>`).join('');
+            panel.innerHTML = `<button type="button" class="mobile-nav-close" aria-label="Закрыть меню">×</button>${links.map((item) => `<a href="${item.href}">${item.text}</a>`).join('')}`;
 
             toggle.addEventListener('click', () => {
               header.classList.toggle('mobile-nav-open');
             });
+            const closeBtn = panel.querySelector('.mobile-nav-close');
+            if (closeBtn) {
+              closeBtn.addEventListener('click', () => header.classList.remove('mobile-nav-open'));
+            }
             panel.querySelectorAll('a').forEach((link) => {
               link.addEventListener('click', () => header.classList.remove('mobile-nav-open'));
             });

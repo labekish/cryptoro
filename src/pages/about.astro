@@ -4,6 +4,12 @@ import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('about.html');
 ---
-<Layout title={page.title} description={page.description} globalCss={page.css} headScripts={page.headScripts} withChrome={false}>
+<Layout
+  title={page.title}
+  description="О компании CRYPTORO — официальный дистрибьютор AI-диктофонов Plaud в России. Доставка, оплата, гарантия."
+  globalCss={page.css}
+  headScripts={page.headScripts}
+  withChrome={false}
+>
   <Fragment set:html={page.body} />
 </Layout>

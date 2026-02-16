@@ -45,6 +45,10 @@
       background:rgba(255,255,255,.96);backdrop-filter:blur(14px);
       border:1px solid rgba(0,0,0,.1);border-radius:14px;padding:10px;
       box-shadow:0 14px 30px rgba(0,0,0,.14)}
+    .mobile-nav-close{display:inline-flex;align-items:center;justify-content:center;
+      width:30px;height:30px;border:1px solid rgba(0,0,0,.14);border-radius:999px;
+      background:#fff;color:#111;cursor:pointer;font-size:18px;line-height:1;
+      margin-left:auto}
     .mobile-nav a{display:block;padding:10px 12px;border-radius:10px;
       text-decoration:none;color:#111;font-size:15px}
     .mobile-nav a:hover{background:#f3f4f6}
@@ -266,10 +270,13 @@
       padding:20px;display:flex;flex-direction:column;gap:12px;min-height:190px;
       transition:transform .28s ease,box-shadow .28s ease}
     .uccard:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.08)}
-    .ucicon{width:44px;height:44px;border-radius:12px;
+    .ucicon-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+    .ucicon{width:56px;height:56px;border-radius:12px;
       background:rgba(232,134,53,.10);border:1px solid rgba(232,134,53,.22);
-      color:#e88635;display:flex;align-items:center;justify-content:center}
-    .ucicon svg{width:22px;height:22px;display:block}
+      color:var(--color-accent,#e88635);padding:12px;
+      display:flex;align-items:center;justify-content:center}
+    .ucicon svg{width:32px;height:32px;display:block}
+    .ucicon-code{font-size:11px;opacity:.6;color:#111;font-weight:600;letter-spacing:.05em}
     .uclabel{font-size:20px;font-weight:600;color:#1d1d1f;line-height:1.2}
     .ucdesc{font-size:14px;color:#666;line-height:1.55;flex:1}
     .uctag{display:inline-flex;align-items:center;background:#f2f7ff;color:#276ac0;
@@ -331,19 +338,19 @@
     .sec-reviews{background:#fff}
     .rv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
     .rvcard{background:#f5f5f7;border-radius:18px;padding:28px;
-      border:1px solid rgba(0,0,0,.05);transition:transform .28s ease,box-shadow .28s ease}
-    .rvcard:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(0,0,0,.10)}
-    .rvquote{width:24px;height:24px;display:block;color:#e88635;margin-bottom:12px}
+      border:1px solid rgba(0,0,0,.05);transition:all .2s ease}
+    .rvcard:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+    .rvquote{width:24px;height:24px;display:block;color:var(--accent-color,#e88635);opacity:.3;margin-bottom:8px}
     .rvquote svg{width:24px;height:24px;display:block}
     .rvstars{color:#ff9f0a;font-size:14px;margin-bottom:14px}
     .rvtext{font-size:15px;color:#333;line-height:1.6;margin-bottom:20px}
     .rvauthor{display:flex;align-items:center;gap:12px}
-    .rvav{width:36px;height:36px;border-radius:50%;
-      color:#fff;font-size:13px;font-weight:600;
+    .rvav{width:48px;height:48px;border-radius:50%;
+      color:#fff;font-size:16px;font-weight:600;
       display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .rvav.blue{background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)}
-    .rvav.green{background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%)}
-    .rvav.violet{background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%)}
+    .rvav.blue{background:linear-gradient(135deg,#667eea,#764ba2)}
+    .rvav.green{background:linear-gradient(135deg,#f093fb,#f5576c)}
+    .rvav.violet{background:linear-gradient(135deg,#4facfe,#00f2fe)}
     .rvname{font-size:14px;font-weight:600;color:#1d1d1f}
     .rvrole{font-size:12px;color:#888}
 
@@ -826,6 +833,7 @@ img{max-width:100%;height:auto}
       </button>
     </div>
     <div class="mobile-nav" id="mobileNav">
+      <button type="button" class="mobile-nav-close" id="menuClose" aria-label="Закрыть меню">×</button>
       <a href="/">Главная</a>
       <a href="/catalog">Каталог</a>
       <a href="/about">О нас</a>
@@ -1019,11 +1027,11 @@ img{max-width:100%;height:auto}
 
         <div class="step reveal">
           <div class="step-line">
-            <div class="sdot" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                <path d="M12 19v3"></path>
-                <path d="M8 11v1a4 4 0 0 0 8 0v-1"></path>
-                <rect x="9" y="2" width="6" height="11" rx="3"></rect>
+            <div class="sdot step-icon" style="color: var(--color-accent, #e88635)" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
               </svg>
             </div>
             <div class="sconn"></div>
@@ -1052,11 +1060,10 @@ img{max-width:100%;height:auto}
 
         <div class="step reveal d1">
           <div class="step-line">
-            <div class="sdot" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                <rect x="9" y="9" width="6" height="6"></rect>
-                <path d="M9 2v2M15 2v2M9 20v2M15 20v2M20 9h2M20 14h2M2 9h2M2 14h2"></path>
+            <div class="sdot step-icon" style="color: var(--color-accent, #e88635)" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
+                <path d="M5 17l.75 2.25L8 20l-2.25.75L5 23l-.75-2.25L2 20l2.25-.75L5 17z"/>
               </svg>
             </div>
             <div class="sconn"></div>
@@ -1079,11 +1086,11 @@ img{max-width:100%;height:auto}
 
         <div class="step reveal d2">
           <div class="step-line">
-            <div class="sdot" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <path d="M14 2v6h6"></path>
-                <path d="m9 15 2 2 4-4"></path>
+            <div class="sdot step-icon" style="color: var(--color-accent, #e88635)" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <polyline points="9,15 11,17 15,13"/>
               </svg>
             </div>
           </div>
@@ -1116,75 +1123,96 @@ img{max-width:100%;height:auto}
     </div>
     <div class="uc-grid">
       <div class="uccard reveal d1">
-        <div class="ucicon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <rect x="3" y="7" width="18" height="13" rx="2"></rect>
-            <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            <path d="M3 12h18"></path>
-          </svg>
+        <div class="ucicon-wrap">
+          <div class="ucicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+              <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              <path d="M3 12h18"></path>
+            </svg>
+          </div>
+          <span class="ucicon-code">CEO</span>
         </div>
         <div class="uclabel">Руководители</div>
         <div class="ucdesc">Фиксируйте договорённости на встречах и сразу получайте итог с задачами и сроками.</div>
         <span class="uctag">Совещания и 1:1</span>
       </div>
       <div class="uccard reveal d2">
-        <div class="ucicon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M22 16.9V7.1a2 2 0 0 0-1-1.73l-8-4.57a2 2 0 0 0-2 0L3 5.37A2 2 0 0 0 2 7.1v9.8a2 2 0 0 0 1 1.73l8 4.57a2 2 0 0 0 2 0l8-4.57a2 2 0 0 0 1-1.73z"></path>
-            <path d="M7 14h5a2 2 0 0 0 0-4H9"></path>
-            <path d="M15 10h1"></path>
-            <path d="M8 10h1"></path>
-          </svg>
+        <div class="ucicon-wrap">
+          <div class="ucicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.63 2.62a2 2 0 0 1-.45 2.11L8 9.71a16 16 0 0 0 6.29 6.29l1.26-1.29a2 2 0 0 1 2.11-.45c.84.3 1.72.51 2.62.63A2 2 0 0 1 22 16.92z"></path>
+              <path d="M15 3h6"></path>
+              <path d="m18 0 3 3-3 3"></path>
+            </svg>
+          </div>
+          <span class="ucicon-code">B2B</span>
         </div>
         <div class="uclabel">Отдел продаж</div>
         <div class="ucdesc">Сохраняйте детали звонков с клиентами и формируйте follow-up за минуты.</div>
         <span class="uctag">Звонки и демо</span>
       </div>
       <div class="uccard reveal d3">
-        <div class="ucicon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M11 2v4"></path>
-            <path d="M13 2v4"></path>
-            <path d="M12 6a4 4 0 0 0-4 4v4a4 4 0 0 0 8 0v-4a4 4 0 0 0-4-4z"></path>
-            <path d="M16 13h2a3 3 0 0 1 3 3v2"></path>
-            <circle cx="7" cy="20" r="2"></circle>
-          </svg>
+        <div class="ucicon-wrap">
+          <div class="ucicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <path d="M11 2v4"></path>
+              <path d="M13 2v4"></path>
+              <path d="M12 6a4 4 0 0 0-4 4v4a4 4 0 0 0 8 0v-4a4 4 0 0 0-4-4z"></path>
+              <path d="M16 13h2a3 3 0 0 1 3 3v2"></path>
+              <circle cx="7" cy="20" r="2"></circle>
+            </svg>
+          </div>
+          <span class="ucicon-code">MED</span>
         </div>
         <div class="uclabel">Врачи и клиники</div>
         <div class="ucdesc">Быстро оформляйте консультации и сохраняйте ключевые рекомендации без ручной расшифровки.</div>
         <span class="uctag">Приёмы и консилиумы</span>
       </div>
       <div class="uccard reveal d1">
-        <div class="ucicon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M12 3v18"></path>
-            <path d="M3 7h18"></path>
-            <path d="M5 7 3 11h4L5 7z"></path>
-            <path d="M19 7 17 11h4l-2-4z"></path>
-            <path d="M4 21h16"></path>
-          </svg>
+        <div class="ucicon-wrap">
+          <div class="ucicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <path d="M12 3v18"></path>
+              <path d="M3 7h18"></path>
+              <path d="M5 7 3 11h4L5 7z"></path>
+              <path d="M19 7 17 11h4l-2-4z"></path>
+              <path d="M4 21h16"></path>
+            </svg>
+          </div>
+          <span class="ucicon-code">LAW</span>
         </div>
         <div class="uclabel">Юристы</div>
         <div class="ucdesc">Ведите протоколы переговоров и интервью, быстро находите цитаты и факты по таймкодам.</div>
         <span class="uctag">Переговоры и разборы</span>
       </div>
       <div class="uccard reveal d2">
-        <div class="ucicon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M22 10 12 5 2 10l10 5 10-5z"></path>
-            <path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"></path>
-          </svg>
+        <div class="ucicon-wrap">
+          <div class="ucicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <path d="M2 6.5A2.5 2.5 0 0 1 4.5 4H20"></path>
+              <path d="M2 17.5A2.5 2.5 0 0 0 4.5 20H20"></path>
+              <path d="M4.5 4A2.5 2.5 0 0 0 2 6.5v11"></path>
+              <path d="M20 4v16"></path>
+              <path d="M8 8h8"></path>
+              <path d="M8 12h6"></path>
+            </svg>
+          </div>
+          <span class="ucicon-code">EDU</span>
         </div>
         <div class="uclabel">Преподаватели</div>
         <div class="ucdesc">Превращайте лекции и семинары в понятные конспекты и материалы для студентов.</div>
         <span class="uctag">Лекции и семинары</span>
       </div>
       <div class="uccard reveal d3">
-        <div class="ucicon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M12 20h9"></path>
-            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
-          </svg>
+        <div class="ucicon-wrap">
+          <div class="ucicon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <path d="m22 8-6 4 6 4V8Z"></path>
+              <rect x="2" y="6" width="14" height="12" rx="2"></rect>
+            </svg>
+          </div>
+          <span class="ucicon-code">CREA</span>
         </div>
         <div class="uclabel">Контент-команды</div>
         <div class="ucdesc">Собирайте идеи из интервью и брейнштормов, получайте структуру для сценариев и постов.</div>
@@ -1271,11 +1299,8 @@ img{max-width:100%;height:auto}
 
       <div class="rvcard reveal d1">
         <span class="rvquote" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M10 11H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
-            <path d="M20 11h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
-            <path d="M8 11v2a4 4 0 0 1-4 4"></path>
-            <path d="M18 11v2a4 4 0 0 1-4 4"></path>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
           </svg>
         </span>
         <div class="rvstars">★★★★★</div>
@@ -1291,11 +1316,8 @@ img{max-width:100%;height:auto}
 
       <div class="rvcard reveal d2">
         <span class="rvquote" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M10 11H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
-            <path d="M20 11h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
-            <path d="M8 11v2a4 4 0 0 1-4 4"></path>
-            <path d="M18 11v2a4 4 0 0 1-4 4"></path>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
           </svg>
         </span>
         <div class="rvstars">★★★★★</div>
@@ -1311,11 +1333,8 @@ img{max-width:100%;height:auto}
 
       <div class="rvcard reveal d3">
         <span class="rvquote" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-            <path d="M10 11H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
-            <path d="M20 11h-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3"></path>
-            <path d="M8 11v2a4 4 0 0 1-4 4"></path>
-            <path d="M18 11v2a4 4 0 0 1-4 4"></path>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
           </svg>
         </span>
         <div class="rvstars">★★★★★</div>
@@ -1338,18 +1357,12 @@ img{max-width:100%;height:auto}
   <div class="lead-inner">
     <h2 class="lead-title">Не знаете какой выбрать?</h2>
     <p class="lead-sub">Оставьте контакт — перезвоним и подберём идеальный диктофон под ваши задачи</p>
-    <form class="lead-form" id="leadConsultForm" name="consult" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-      <input type="hidden" name="form-name" value="consult"/>
-      <input type="hidden" name="bot-field"/>
-      <div class="lead-row">
-        <input class="linput" type="text" name="name" placeholder="Ваше имя" aria-label="Ваше имя" required/>
-        <input class="linput" type="tel" name="tel" placeholder="Телефон" aria-label="Телефон" required/>
-      </div>
-      <input class="linput" type="email" name="email" placeholder="Email (необязательно)" aria-label="Email (необязательно)"/>
-      <textarea class="linput" name="message" rows="4" placeholder="Комментарий"></textarea>
+    <form class="lead-form" id="leadConsultForm" name="consult">
+      <input class="linput" id="leadContactInput" type="tel" name="contact" placeholder="Ваш телефон или email" aria-label="Ваш телефон или email" minlength="5" required/>
       <button type="submit" class="lsubmit">Получить консультацию</button>
     </form>
     <p class="lead-status" id="leadStatus" role="status" aria-live="polite" hidden></p>
+    <p class="lead-status" id="leadSuccess" role="status" aria-live="polite" hidden>✓ Спасибо! Мы перезвоним вам в течение 30 минут.</p>
     <p class="lprivacy">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности. Не передаём данные третьим лицам.</p>
   </div>
 </section>
@@ -1429,17 +1442,16 @@ img{max-width:100%;height:auto}
     </div>
     <div class="foot-col">
       <h4>Соцсети</h4>
-      <a href="https://vk.com" target="_blank" rel="noopener">ВКонтакте</a>
+      <a href="https://vk.com/cryptoro" target="_blank" rel="noopener">ВКонтакте</a>
       <a href="https://t.me/cryptoro_support" target="_blank" rel="noopener">Telegram</a>
-      <a href="#">YouTube</a>
     </div>
   </div>
   <hr class="foot-div"/>
   <div class="foot-bot">
     <span>© 2025 CRYPTORO. Все права защищены.</span>
     <div style="display:flex;gap:16px">
-      <a href="#">Политика конфиденциальности</a>
-      <a href="#">Условия использования</a>
+      <a href="/privacy">Политика конфиденциальности</a>
+      <a href="/terms">Условия использования</a>
     </div>
     <span>info@cryptoro.ru · +7 495 191-81-74</span>
   </div>
@@ -1518,13 +1530,14 @@ img{max-width:100%;height:auto}
     if (!form) return;
 
     const status = document.getElementById('leadStatus');
+    const success = document.getElementById('leadSuccess');
+    const contactInput = document.getElementById('leadContactInput');
     const submitBtn = form.querySelector('.lsubmit');
-    if (!submitBtn) return;
+    if (!submitBtn || !contactInput) return;
 
-    const endpoint = (window.CRYPTORO_CONSULT_ENDPOINT || '').trim();
+    const formspreeId = (window.CRYPTORO_FORMSPREE_ID || '').trim();
+    const endpoint = formspreeId ? `https://formspree.io/f/${formspreeId}` : '';
     const defaultBtnText = submitBtn.textContent || 'Получить консультацию';
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRe = /^\+?[0-9\s()\-]{10,20}$/;
 
     function setStatus(message, isError) {
       if (!status) return;
@@ -1540,60 +1553,37 @@ img{max-width:100%;height:auto}
       status.classList.remove('error');
     }
 
-    function validateByType(input) {
-      if (!input || input.disabled) return true;
-      const value = (input.value || '').trim();
-      input.setCustomValidity('');
-
-      if (input.type === 'tel') {
-        if (!value || !phoneRe.test(value)) {
-          input.setCustomValidity('Введите корректный номер телефона.');
-          return false;
-        }
-      }
-
-      if (input.type === 'email' && value && !emailRe.test(value)) {
-        input.setCustomValidity('Введите корректный email.');
-        return false;
-      }
-
-      return true;
-    }
-
-    form.querySelectorAll('input[type="tel"], input[type="email"]').forEach((input) => {
-      input.addEventListener('input', () => {
-        validateByType(input);
-        input.reportValidity();
-      });
-    });
-
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       clearStatus();
+      if (success) success.hidden = true;
 
-      const fields = Array.from(form.querySelectorAll('input[type="tel"], input[type="email"]'));
-      const validByType = fields.every((field) => validateByType(field));
-      if (!validByType || !form.reportValidity()) {
-        setStatus('Проверьте корректность email и телефона.', true);
+      const contactValue = (contactInput.value || '').trim();
+      if (!contactValue || contactValue.length < 5) {
+        setStatus('Введите телефон или email (минимум 5 символов).', true);
+        contactInput.focus();
         return;
       }
 
       if (!endpoint) {
-        setStatus('Не настроен URL отправки. Добавьте PUBLIC_CONSULT_ENDPOINT в .env.', true);
+        setStatus('Не настроен Formspree ID. Добавьте PUBLIC_FORMSPREE_ID в .env.', true);
         return;
       }
 
-      const formData = new FormData(form);
       submitBtn.disabled = true;
       submitBtn.textContent = 'Отправляем...';
 
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
-          body: formData,
           headers: {
+            'Content-Type': 'application/json',
             Accept: 'application/json'
-          }
+          },
+          body: JSON.stringify({
+            contact: contactValue,
+            source: 'index-lead'
+          })
         });
 
         if (!response.ok) {
@@ -1601,12 +1591,16 @@ img{max-width:100%;height:auto}
         }
 
         form.style.display = 'none';
-        setStatus('Спасибо! Мы перезвоним вам в ближайшее время.', false);
+        if (success) success.hidden = false;
       } catch (error) {
-        setStatus('Не удалось отправить заявку. Попробуйте ещё раз.', true);
-      } finally {
+        setStatus('Ошибка отправки. Попробуйте ещё раз.', true);
         submitBtn.disabled = false;
         submitBtn.textContent = defaultBtnText;
+      } finally {
+        if (form.style.display !== 'none') {
+          submitBtn.disabled = false;
+          submitBtn.textContent = defaultBtnText;
+        }
       }
     });
   })();
@@ -1616,6 +1610,7 @@ img{max-width:100%;height:auto}
     const header = document.querySelector('header');
     const toggle = document.getElementById('menuToggle');
     const menu = document.getElementById('mobileNav');
+    const close = document.getElementById('menuClose');
     if (!header || !toggle || !menu) return;
 
     function closeMenu() {
@@ -1627,6 +1622,9 @@ img{max-width:100%;height:auto}
       const isOpen = header.classList.toggle('menu-open');
       toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
+    if (close) {
+      close.addEventListener('click', closeMenu);
+    }
 
     menu.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', closeMenu);

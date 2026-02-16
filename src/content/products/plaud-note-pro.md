@@ -8,9 +8,9 @@ inStock: true
 seoTitle: "Plaud Note Pro — AI Диктофон | CRYPTORO"
 seoDescription: "Профессиональная версия 2025 года. Магнитный кейс в комплекте."
 features:
-  - "Battery: 40h"
-  - "Studio Audio"
-  - "Advanced AI"
+  - "Батарея 40 ч"
+  - "Студийный звук"
+  - "Расширенный AI"
 specs:
   color: "Silver / Black"
   dimensions: "86 × 54 × 3 мм"

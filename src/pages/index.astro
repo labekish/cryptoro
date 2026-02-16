@@ -3,11 +3,17 @@ import Layout from '../layouts/Layout.astro';
 import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('index.html');
-const consultEndpoint = import.meta.env.PUBLIC_CONSULT_ENDPOINT ?? '';
+const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? '';
 ---
-<Layout title={page.title} description={page.description} globalCss={page.css} headScripts={page.headScripts} withChrome={false}>
-  <script slot="head" define:vars={{ consultEndpoint }} is:inline>
-    window.CRYPTORO_CONSULT_ENDPOINT = consultEndpoint;
+<Layout
+  title={page.title}
+  description="CRYPTORO — AI-диктофоны с ChatGPT. Записывайте встречи и лекции, получайте автоматическую расшифровку. Официальный дистрибьютор Plaud в России."
+  globalCss={page.css}
+  headScripts={page.headScripts}
+  withChrome={false}
+>
+  <script slot="head" define:vars={{ formspreeId }} is:inline>
+    window.CRYPTORO_FORMSPREE_ID = formspreeId;
   </script>
   <Fragment set:html={page.body} />
 </Layout>

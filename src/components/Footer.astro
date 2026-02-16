@@ -1,35 +1,54 @@
-<footer style="background:rgba(255,255,255,.92);color:#4b5563;padding:60px 24px 40px;border-top:1px solid rgba(0,0,0,.08);backdrop-filter:blur(20px)">
-  <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px">
+<style is:global>
+  .app-footer{background:rgba(255,255,255,.92);color:#4b5563;padding:60px 24px 40px;border-top:1px solid rgba(0,0,0,.08);backdrop-filter:blur(20px)}
+  .app-footer-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+  .app-footer-logo{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:900;color:#111;margin-bottom:12px;display:block;text-decoration:none}
+  .app-footer-desc{font-size:13px;line-height:1.6;max-width:260px}
+  .app-footer-title{font-size:13px;font-weight:600;color:#111;margin-bottom:16px}
+  .app-footer-link{display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px}
+  .app-footer-divider{border:none;border-top:1px solid rgba(0,0,0,.08);margin:0 auto 24px;max-width:1200px}
+  .app-footer-bottom{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;font-size:12px;flex-wrap:wrap;gap:8px}
+  .app-footer-bottom-links{display:flex;gap:14px;flex-wrap:wrap}
+  .app-footer-bottom-link{color:#4b5563;text-decoration:none}
+  @media (max-width:768px){
+    .app-footer-grid{grid-template-columns:1fr;gap:24px}
+    .app-footer-bottom{flex-direction:column;align-items:flex-start}
+  }
+</style>
+
+<footer class="app-footer">
+  <div class="app-footer-grid">
     <div>
-      <a href="/" style="font-family:'Unbounded',sans-serif;font-size:15px;font-weight:900;color:#111;margin-bottom:12px;display:block;text-decoration:none">CRYPTORO</a>
-      <p style="font-size:13px;line-height:1.6;max-width:260px">Официальный дистрибьютор AI-диктофонов Plaud в России.</p>
+      <a href="/" class="app-footer-logo">CRYPTORO</a>
+      <p class="app-footer-desc">Официальный дистрибьютор AI-диктофонов Plaud в России.</p>
     </div>
     <div>
-      <h4 style="font-size:13px;font-weight:600;color:#111;margin-bottom:16px">Товары</h4>
-      <a href="/products/vspomnit" style="display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px">Вспомни всё</a>
-      <a href="/products/plaud-note" style="display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px">Plaud Note</a>
-      <a href="/products/notepin" style="display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px">Plaud NotePin</a>
+      <h4 class="app-footer-title">Товары</h4>
+      <a href="/products/vspomnit" class="app-footer-link">Вспомни всё</a>
+      <a href="/products/plaud-note" class="app-footer-link">Plaud Note</a>
+      <a href="/products/plaud-note-pro" class="app-footer-link">Plaud Note Pro</a>
+      <a href="/products/notepin" class="app-footer-link">Plaud NotePin</a>
     </div>
     <div>
-      <h4 style="font-size:13px;font-weight:600;color:#111;margin-bottom:16px">Компания</h4>
-      <a href="/about" style="display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px">О нас</a>
-      <a href="/about#delivery" style="display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px">Доставка</a>
-      <a href="/about#contacts" style="display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px">Контакты</a>
-      <a href="https://vk.com/cryptoro" target="_blank" rel="noopener" style="display:block;font-size:13px;color:#4b5563;text-decoration:none;margin-bottom:10px">ВКонтакте</a>
+      <h4 class="app-footer-title">Компания</h4>
+      <a href="/about" class="app-footer-link">О нас</a>
+      <a href="/about#delivery" class="app-footer-link">Доставка</a>
+      <a href="/about#payment" class="app-footer-link">Оплата</a>
+      <a href="/about#contacts" class="app-footer-link">Контакты</a>
     </div>
     <div>
-      <h4 style="font-size:13px;font-weight:600;color:#111;margin-bottom:16px">Контакты</h4>
-      <p style="font-size:13px;line-height:1.6">info@cryptoro.ru</p>
-      <p style="font-size:13px;line-height:1.6">+7 495 191-81-74</p>
+      <h4 class="app-footer-title">Соцсети</h4>
+      <a href="https://vk.com/cryptoro" target="_blank" rel="noopener" class="app-footer-link">ВКонтакте</a>
+      <a href="https://t.me/cryptoro_support" target="_blank" rel="noopener" class="app-footer-link">Telegram</a>
     </div>
   </div>
-  <hr style="border:none;border-top:1px solid rgba(0,0,0,.08);margin:0 auto 24px;max-width:1200px"/>
-  <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;font-size:12px;flex-wrap:wrap;gap:8px">
+  <hr class="app-footer-divider" />
+  <div class="app-footer-bottom">
     <span>© 2025 CRYPTORO. Все права защищены.</span>
-    <div style="display:flex;gap:14px;flex-wrap:wrap">
-      <a href="/privacy" style="color:#4b5563;text-decoration:none">Политика конфиденциальности</a>
-      <a href="/terms" style="color:#4b5563;text-decoration:none">Условия использования</a>
+    <div class="app-footer-bottom-links">
+      <a href="/privacy" class="app-footer-bottom-link">Политика конфиденциальности</a>
+      <a href="/terms" class="app-footer-bottom-link">Условия использования</a>
     </div>
     <span>info@cryptoro.ru · +7 495 191-81-74</span>
   </div>
 </footer>
+

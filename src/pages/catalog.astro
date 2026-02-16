@@ -4,6 +4,12 @@ import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('catalog.html');
 ---
-<Layout title={page.title} description={page.description} globalCss={page.css} headScripts={page.headScripts} withChrome={false}>
+<Layout
+  title={page.title}
+  description="Каталог AI-диктофонов CRYPTORO: Вспомни всё, Plaud Note, Plaud Note Pro, Plaud NotePin. Цены, характеристики, доставка по России."
+  globalCss={page.css}
+  headScripts={page.headScripts}
+  withChrome={false}
+>
   <Fragment set:html={page.body} />
 </Layout>

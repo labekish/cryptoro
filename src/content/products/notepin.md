@@ -8,9 +8,9 @@ inStock: false
 seoTitle: "Plaud NotePin — AI Диктофон | CRYPTORO"
 seoDescription: "Носимый значок 15 г. Водозащита IP54. Для живых разговоров без рук."
 features:
-  - "Battery: 20h"
-  - "Wearable Clip"
-  - "IP54"
+  - "Батарея 20 ч"
+  - "Носимый клип"
+  - "Защита IP54"
 specs:
   color: "Graphite / Silver / Violet"
   dimensions: "44 × 19 × 8 мм"

@@ -27,3 +27,17 @@ const { active } = Astro.props;
     </button>
   </div>
 </header>
+<script>
+  import { getCartCount } from '../utils/cart';
+
+  function paintCartCount() {
+    const count = getCartCount();
+    document.querySelectorAll('#cartCount, .cart-n, [data-cart-count]').forEach((node) => {
+      node.textContent = String(count);
+      node.style.display = count > 0 ? 'flex' : 'none';
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', paintCartCount);
+  window.addEventListener('cart:updated', paintCartCount);
+</script>
