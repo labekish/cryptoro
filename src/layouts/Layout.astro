@@ -298,6 +298,21 @@ const {
     <script is:inline>
       (function () {
         const KEY = 'cryptoro_cart_count';
+        const ITEMS_KEY = 'cryptoro_cart_items';
+
+        function readItems() {
+          try {
+            const raw = window.localStorage.getItem(ITEMS_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        }
+
+        function writeItems(items) {
+          window.localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+        }
 
         function read() {
           const value = Number(window.localStorage.getItem(KEY) || '0');
@@ -311,22 +326,47 @@ const {
         function paint(value) {
           document.querySelectorAll('#cartCount, .cart-n, [data-cart-count]').forEach((node) => {
             node.textContent = String(value);
+            node.style.display = value > 0 ? 'flex' : 'none';
           });
         }
 
         function sync() {
+          const items = readItems();
+          if (items.length > 0) {
+            write(items.length);
+            paint(items.length);
+            return;
+          }
           paint(read());
         }
 
-        function add(step) {
-          const current = read();
-          const next = current + Math.max(1, Math.floor(step || 1));
-          write(next);
-          paint(next);
-          return next;
+        function add(payloadOrStep) {
+          const items = readItems();
+          if (payloadOrStep && typeof payloadOrStep === 'object') {
+            items.push({
+              ...payloadOrStep,
+              qty: 1,
+              addedAt: Date.now()
+            });
+          } else {
+            const step = Math.max(1, Math.floor(payloadOrStep || 1));
+            for (let i = 0; i < step; i += 1) {
+              items.push({ qty: 1, addedAt: Date.now(), source: 'quick-add' });
+            }
+          }
+          writeItems(items);
+          write(items.length);
+          paint(items.length);
+          return items.length;
         }
 
-        window.cryptoroCart = { read, write, sync, add };
+        function clear() {
+          writeItems([]);
+          write(0);
+          paint(0);
+        }
+
+        window.cryptoroCart = { read, write, readItems, writeItems, sync, add, clear };
 
         function bindCartButtons() {
           document.querySelectorAll('#cartBtn, [data-cart-btn], button.cart, .cart, button[aria-label="Корзина"]').forEach((button) => {

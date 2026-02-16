@@ -123,10 +123,10 @@ const specsRows = [
     )}
   </main>
 
-  <script>
+  <script define:vars={{ cartItem: { slug: product.slug, title: product.title, price: product.price, image: product.image } }}>
     function addToCart() {
       const nextCount = window.cryptoroCart && typeof window.cryptoroCart.add === 'function'
-        ? window.cryptoroCart.add(1)
+        ? window.cryptoroCart.add(cartItem)
         : 1;
       const c = document.querySelector('#cartCount, .cart-n');
       if (c) c.textContent = String(nextCount);
