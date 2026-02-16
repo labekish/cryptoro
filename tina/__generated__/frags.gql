@@ -1,0 +1,24 @@
+fragment ProductsParts on Products {
+  __typename
+  title
+  slug
+  price
+  image
+  description
+  status
+  features
+}
+
+fragment ReviewsParts on Reviews {
+  __typename
+  author
+  text
+  rating
+}
+
+fragment PagesParts on Pages {
+  __typename
+  slug
+  title
+  body
+}

@@ -19,11 +19,11 @@ type MarkdownModule = {
   default: any;
 };
 
-const modules = import.meta.glob('../../content/products/*.md', { eager: true }) as Record<string, MarkdownModule>;
+const modules = import.meta.glob('../../content/products/*.{md,mdx}', { eager: true }) as Record<string, MarkdownModule>;
 const all = Object.values(modules);
 
 export function getStaticPaths() {
-  const modules = import.meta.glob('../../content/products/*.md', { eager: true }) as Record<string, MarkdownModule>;
+  const modules = import.meta.glob('../../content/products/*.{md,mdx}', { eager: true }) as Record<string, MarkdownModule>;
   return Object.values(modules).map((entry) => ({
     params: { slug: entry.frontmatter.slug },
     props: { entry, all: Object.values(modules) }

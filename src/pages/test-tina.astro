@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SafeTinaAdmin from '../components/SafeTinaAdmin.jsx';
+---
+
+<Layout title="Tina Test" description="Tina CMS test page" includeNetlifyIdentity={false} withTinaProvider={true}>
+  <main style="min-height:100vh;padding:24px;max-width:1200px;margin:0 auto;">
+    <h1 style="font-size:28px;font-weight:700;margin:0 0 8px;">Tina Test Page</h1>
+    <p style="margin:0 0 16px;color:#4b5563;">
+      Тестовый рендер админ-компонента TinaCMS.
+    </p>
+    <div style="border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#fff;">
+      <SafeTinaAdmin client:only="react" />
+    </div>
+  </main>
+</Layout>

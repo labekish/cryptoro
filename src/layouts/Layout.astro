@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import TinaProviderMount from '../components/TinaProviderMount.jsx';
 
 interface Props {
   title?: string;
@@ -10,6 +11,8 @@ interface Props {
   globalCss?: string;
   headScripts?: string;
   withChrome?: boolean;
+  withTinaProvider?: boolean;
+  includeNetlifyIdentity?: boolean;
   active?: 'home' | 'catalog' | 'about';
 }
 
@@ -20,6 +23,8 @@ const {
   globalCss = '',
   headScripts = '',
   withChrome = false,
+  withTinaProvider = false,
+  includeNetlifyIdentity = true,
   active
 } = Astro.props;
 
@@ -50,7 +55,7 @@ const ogUrl = Astro.url?.toString() || '';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    {includeNetlifyIdentity && <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>}
     {globalCss && <style is:global set:html={globalCss} />}
     {headScripts && <Fragment set:html={headScripts} />}
     <style is:global>
@@ -326,6 +331,7 @@ const ogUrl = Astro.url?.toString() || '';
   </head>
   <body>
     {withChrome && <Header active={active} />}
+    {withTinaProvider && <div style="display:none"><TinaProviderMount client:only="react" /></div>}
     <slot />
     {withChrome && <Footer />}
     <script is:inline>
