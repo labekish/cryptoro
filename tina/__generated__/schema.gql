@@ -93,14 +93,28 @@ type Collection {
 
 union DocumentNode = Products | Reviews | Pages | Folder
 
+type ProductsSpecs {
+  color: String
+  dimensions: String
+  weight: String
+  connection: String
+  warranty: String
+}
+
 type Products implements Node & Document {
-  title: String
-  slug: String
-  price: String
+  title: String!
+  slug: String!
+  price: Float!
+  badge: String
   image: String
-  description: JSON
-  status: String
+  inStock: Boolean
+  seoTitle: String
+  seoDescription: String
   features: [String]
+  specs: ProductsSpecs
+  boxContents: [String]
+  relatedProducts: [String]
+  body: JSON
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
@@ -113,11 +127,34 @@ input StringFilter {
   in: [String]
 }
 
+input NumberFilter {
+  lt: Float
+  lte: Float
+  gte: Float
+  gt: Float
+  eq: Float
+  exists: Boolean
+  in: [Float]
+}
+
 input ImageFilter {
   startsWith: String
   eq: String
   exists: Boolean
   in: [String]
+}
+
+input BooleanFilter {
+  eq: Boolean
+  exists: Boolean
+}
+
+input ProductsSpecsFilter {
+  color: StringFilter
+  dimensions: StringFilter
+  weight: StringFilter
+  connection: StringFilter
+  warranty: StringFilter
 }
 
 input RichTextFilter {
@@ -129,11 +166,17 @@ input RichTextFilter {
 input ProductsFilter {
   title: StringFilter
   slug: StringFilter
-  price: StringFilter
+  price: NumberFilter
+  badge: StringFilter
   image: ImageFilter
-  description: RichTextFilter
-  status: StringFilter
+  inStock: BooleanFilter
+  seoTitle: StringFilter
+  seoDescription: StringFilter
   features: StringFilter
+  specs: ProductsSpecsFilter
+  boxContents: StringFilter
+  relatedProducts: StringFilter
+  body: RichTextFilter
 }
 
 type ProductsConnectionEdges {
@@ -148,28 +191,18 @@ type ProductsConnection implements Connection {
 }
 
 type Reviews implements Node & Document {
-  author: String
-  text: JSON
-  rating: Float
+  author: String!
+  rating: Float!
+  body: JSON
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
 }
 
-input NumberFilter {
-  lt: Float
-  lte: Float
-  gte: Float
-  gt: Float
-  eq: Float
-  exists: Boolean
-  in: [Float]
-}
-
 input ReviewsFilter {
   author: StringFilter
-  text: RichTextFilter
   rating: NumberFilter
+  body: RichTextFilter
 }
 
 type ReviewsConnectionEdges {
@@ -184,8 +217,8 @@ type ReviewsConnection implements Connection {
 }
 
 type Pages implements Node & Document {
-  slug: String
-  title: String
+  slug: String!
+  title: String!
   body: JSON
   id: ID!
   _sys: SystemInfo!
@@ -236,20 +269,34 @@ input DocumentMutation {
   pages: PagesMutation
 }
 
+input ProductsSpecsMutation {
+  color: String
+  dimensions: String
+  weight: String
+  connection: String
+  warranty: String
+}
+
 input ProductsMutation {
   title: String
   slug: String
-  price: String
+  price: Float
+  badge: String
   image: String
-  description: JSON
-  status: String
+  inStock: Boolean
+  seoTitle: String
+  seoDescription: String
   features: [String]
+  specs: ProductsSpecsMutation
+  boxContents: [String]
+  relatedProducts: [String]
+  body: JSON
 }
 
 input ReviewsMutation {
   author: String
-  text: JSON
   rating: Float
+  body: JSON
 }
 
 input PagesMutation {

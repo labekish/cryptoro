@@ -3,17 +3,30 @@ fragment ProductsParts on Products {
   title
   slug
   price
+  badge
   image
-  description
-  status
+  inStock
+  seoTitle
+  seoDescription
   features
+  specs {
+    __typename
+    color
+    dimensions
+    weight
+    connection
+    warranty
+  }
+  boxContents
+  relatedProducts
+  body
 }
 
 fragment ReviewsParts on Reviews {
   __typename
   author
-  text
   rating
+  body
 }
 
 fragment PagesParts on Pages {
