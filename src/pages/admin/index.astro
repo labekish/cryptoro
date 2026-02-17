@@ -28,6 +28,7 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
       [data-test='tina-admin'] {
         height: 100dvh !important;
         min-height: 100dvh !important;
+        overflow: auto !important;
       }
       /* Tina иногда ставит overflow-hidden/h-screen на обертки, из-за чего форма обрезается */
       [data-tina-root] .overflow-hidden,
@@ -40,12 +41,39 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
       [data-test='tina-admin'] .h-full {
         max-height: none !important;
       }
+      /* Не даем внутренним строкам вылезать по ширине и прятать Save справа */
+      [data-tina-root] .w-full,
+      [data-test='tina-admin'] .w-full,
+      [data-tina-root] .max-w-full,
+      [data-test='tina-admin'] .max-w-full {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
       .tina-tailwind main,
       [data-test='tina-admin'] main {
         overflow-y: auto !important;
         overscroll-behavior: contain;
         max-height: calc(100dvh - 48px) !important;
         padding-bottom: 120px !important;
+      }
+      #codex-admin-save-fab {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 9999;
+        border: none;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: #111;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+        cursor: pointer;
+      }
+      #codex-admin-save-fab[disabled] {
+        opacity: 0.55;
+        cursor: not-allowed;
       }
     </style>
   </head>
@@ -93,6 +121,31 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
             bar.style.padding = '10px 12px';
             bar.style.borderTop = '1px solid rgba(17,24,39,.12)';
           });
+
+          // Страховка: плавающая кнопка "Сохранить", всегда доступна
+          let fab = document.getElementById('codex-admin-save-fab');
+          if (!fab) {
+            fab = document.createElement('button');
+            fab.id = 'codex-admin-save-fab';
+            fab.type = 'button';
+            fab.textContent = 'Сохранить';
+            fab.addEventListener('click', () => {
+              const target = [...document.querySelectorAll('button')].find((btn) =>
+                /save|сохран/i.test(btn.textContent || '')
+              );
+              if (target && !target.disabled) target.click();
+            });
+            document.body.appendChild(fab);
+          }
+          const activeSave = [...document.querySelectorAll('button')].find((btn) =>
+            /save|сохран/i.test(btn.textContent || '')
+          );
+          if (activeSave) {
+            fab.disabled = activeSave.disabled;
+            fab.style.display = 'inline-flex';
+          } else {
+            fab.style.display = 'none';
+          }
         };
 
         window.addEventListener('load', patchTinaLayout);
