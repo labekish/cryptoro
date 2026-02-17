@@ -305,9 +305,8 @@ export type ProductsConnection = Connection & {
 export type Reviews = Node & Document & {
   __typename?: 'Reviews';
   author: Scalars['String']['output'];
-  role?: Maybe<Scalars['String']['output']>;
   rating: Scalars['Float']['output'];
-  text: Scalars['String']['output'];
+  body?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
   _values: Scalars['JSON']['output'];
@@ -315,9 +314,8 @@ export type Reviews = Node & Document & {
 
 export type ReviewsFilter = {
   author?: InputMaybe<StringFilter>;
-  role?: InputMaybe<StringFilter>;
   rating?: InputMaybe<NumberFilter>;
-  text?: InputMaybe<StringFilter>;
+  body?: InputMaybe<RichTextFilter>;
 };
 
 export type ReviewsConnectionEdges = {
@@ -337,15 +335,6 @@ export type Pages = Node & Document & {
   __typename?: 'Pages';
   slug: Scalars['String']['output'];
   title: Scalars['String']['output'];
-  heroTitle?: Maybe<Scalars['String']['output']>;
-  heroSubtitle?: Maybe<Scalars['String']['output']>;
-  productsTitle?: Maybe<Scalars['String']['output']>;
-  productsSubtitle?: Maybe<Scalars['String']['output']>;
-  reviewsTitle?: Maybe<Scalars['String']['output']>;
-  reviewsSubtitle?: Maybe<Scalars['String']['output']>;
-  leadTitle?: Maybe<Scalars['String']['output']>;
-  leadSubtitle?: Maybe<Scalars['String']['output']>;
-  text?: Maybe<Scalars['String']['output']>;
   body?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   _sys: SystemInfo;
@@ -355,15 +344,6 @@ export type Pages = Node & Document & {
 export type PagesFilter = {
   slug?: InputMaybe<StringFilter>;
   title?: InputMaybe<StringFilter>;
-  heroTitle?: InputMaybe<StringFilter>;
-  heroSubtitle?: InputMaybe<StringFilter>;
-  productsTitle?: InputMaybe<StringFilter>;
-  productsSubtitle?: InputMaybe<StringFilter>;
-  reviewsTitle?: InputMaybe<StringFilter>;
-  reviewsSubtitle?: InputMaybe<StringFilter>;
-  leadTitle?: InputMaybe<StringFilter>;
-  leadSubtitle?: InputMaybe<StringFilter>;
-  text?: InputMaybe<StringFilter>;
   body?: InputMaybe<RichTextFilter>;
 };
 
@@ -503,31 +483,21 @@ export type ProductsMutation = {
 
 export type ReviewsMutation = {
   author?: InputMaybe<Scalars['String']['input']>;
-  role?: InputMaybe<Scalars['String']['input']>;
   rating?: InputMaybe<Scalars['Float']['input']>;
-  text?: InputMaybe<Scalars['String']['input']>;
+  body?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 export type PagesMutation = {
   slug?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
-  heroTitle?: InputMaybe<Scalars['String']['input']>;
-  heroSubtitle?: InputMaybe<Scalars['String']['input']>;
-  productsTitle?: InputMaybe<Scalars['String']['input']>;
-  productsSubtitle?: InputMaybe<Scalars['String']['input']>;
-  reviewsTitle?: InputMaybe<Scalars['String']['input']>;
-  reviewsSubtitle?: InputMaybe<Scalars['String']['input']>;
-  leadTitle?: InputMaybe<Scalars['String']['input']>;
-  leadSubtitle?: InputMaybe<Scalars['String']['input']>;
-  text?: InputMaybe<Scalars['String']['input']>;
   body?: InputMaybe<Scalars['JSON']['input']>;
 };
 
 export type ProductsPartsFragment = { __typename: 'Products', title: string, slug: string, price: number, badge?: string | null, image?: string | null, inStock?: boolean | null, seoTitle?: string | null, seoDescription?: string | null, features?: Array<string | null> | null, boxContents?: Array<string | null> | null, relatedProducts?: Array<string | null> | null, body?: any | null, specs?: { __typename: 'ProductsSpecs', color?: string | null, dimensions?: string | null, weight?: string | null, connection?: string | null, warranty?: string | null } | null };
 
-export type ReviewsPartsFragment = { __typename: 'Reviews', author: string, role?: string | null, rating: number, text: string };
+export type ReviewsPartsFragment = { __typename: 'Reviews', author: string, rating: number, body?: any | null };
 
-export type PagesPartsFragment = { __typename: 'Pages', slug: string, title: string, heroTitle?: string | null, heroSubtitle?: string | null, productsTitle?: string | null, productsSubtitle?: string | null, reviewsTitle?: string | null, reviewsSubtitle?: string | null, leadTitle?: string | null, leadSubtitle?: string | null, text?: string | null, body?: any | null };
+export type PagesPartsFragment = { __typename: 'Pages', slug: string, title: string, body?: any | null };
 
 export type ProductsQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
@@ -553,7 +523,7 @@ export type ReviewsQueryVariables = Exact<{
 }>;
 
 
-export type ReviewsQuery = { __typename?: 'Query', reviews: { __typename: 'Reviews', id: string, author: string, role?: string | null, rating: number, text: string, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type ReviewsQuery = { __typename?: 'Query', reviews: { __typename: 'Reviews', id: string, author: string, rating: number, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
 
 export type ReviewsConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -565,14 +535,14 @@ export type ReviewsConnectionQueryVariables = Exact<{
 }>;
 
 
-export type ReviewsConnectionQuery = { __typename?: 'Query', reviewsConnection: { __typename?: 'ReviewsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ReviewsConnectionEdges', cursor: string, node?: { __typename: 'Reviews', id: string, author: string, role?: string | null, rating: number, text: string, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type ReviewsConnectionQuery = { __typename?: 'Query', reviewsConnection: { __typename?: 'ReviewsConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'ReviewsConnectionEdges', cursor: string, node?: { __typename: 'Reviews', id: string, author: string, rating: number, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
 
 export type PagesQueryVariables = Exact<{
   relativePath: Scalars['String']['input'];
 }>;
 
 
-export type PagesQuery = { __typename?: 'Query', pages: { __typename: 'Pages', id: string, slug: string, title: string, heroTitle?: string | null, heroSubtitle?: string | null, productsTitle?: string | null, productsSubtitle?: string | null, reviewsTitle?: string | null, reviewsSubtitle?: string | null, leadTitle?: string | null, leadSubtitle?: string | null, text?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
+export type PagesQuery = { __typename?: 'Query', pages: { __typename: 'Pages', id: string, slug: string, title: string, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } };
 
 export type PagesConnectionQueryVariables = Exact<{
   before?: InputMaybe<Scalars['String']['input']>;
@@ -584,7 +554,7 @@ export type PagesConnectionQueryVariables = Exact<{
 }>;
 
 
-export type PagesConnectionQuery = { __typename?: 'Query', pagesConnection: { __typename?: 'PagesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PagesConnectionEdges', cursor: string, node?: { __typename: 'Pages', id: string, slug: string, title: string, heroTitle?: string | null, heroSubtitle?: string | null, productsTitle?: string | null, productsSubtitle?: string | null, reviewsTitle?: string | null, reviewsSubtitle?: string | null, leadTitle?: string | null, leadSubtitle?: string | null, text?: string | null, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
+export type PagesConnectionQuery = { __typename?: 'Query', pagesConnection: { __typename?: 'PagesConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasPreviousPage: boolean, hasNextPage: boolean, startCursor: string, endCursor: string }, edges?: Array<{ __typename?: 'PagesConnectionEdges', cursor: string, node?: { __typename: 'Pages', id: string, slug: string, title: string, body?: any | null, _sys: { __typename?: 'SystemInfo', filename: string, basename: string, hasReferences?: boolean | null, breadcrumbs: Array<string>, path: string, relativePath: string, extension: string } } | null } | null> | null } };
 
 export const ProductsPartsFragmentDoc = gql`
     fragment ProductsParts on Products {
@@ -615,9 +585,8 @@ export const ReviewsPartsFragmentDoc = gql`
     fragment ReviewsParts on Reviews {
   __typename
   author
-  role
   rating
-  text
+  body
 }
     `;
 export const PagesPartsFragmentDoc = gql`
@@ -625,15 +594,6 @@ export const PagesPartsFragmentDoc = gql`
   __typename
   slug
   title
-  heroTitle
-  heroSubtitle
-  productsTitle
-  productsSubtitle
-  reviewsTitle
-  reviewsSubtitle
-  leadTitle
-  leadSubtitle
-  text
   body
 }
     `;

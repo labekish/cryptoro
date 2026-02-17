@@ -192,9 +192,8 @@ type ProductsConnection implements Connection {
 
 type Reviews implements Node & Document {
   author: String!
-  role: String
   rating: Float!
-  text: String!
+  body: JSON
   id: ID!
   _sys: SystemInfo!
   _values: JSON!
@@ -202,9 +201,8 @@ type Reviews implements Node & Document {
 
 input ReviewsFilter {
   author: StringFilter
-  role: StringFilter
   rating: NumberFilter
-  text: StringFilter
+  body: RichTextFilter
 }
 
 type ReviewsConnectionEdges {
@@ -221,15 +219,6 @@ type ReviewsConnection implements Connection {
 type Pages implements Node & Document {
   slug: String!
   title: String!
-  heroTitle: String
-  heroSubtitle: String
-  productsTitle: String
-  productsSubtitle: String
-  reviewsTitle: String
-  reviewsSubtitle: String
-  leadTitle: String
-  leadSubtitle: String
-  text: String
   body: JSON
   id: ID!
   _sys: SystemInfo!
@@ -239,15 +228,6 @@ type Pages implements Node & Document {
 input PagesFilter {
   slug: StringFilter
   title: StringFilter
-  heroTitle: StringFilter
-  heroSubtitle: StringFilter
-  productsTitle: StringFilter
-  productsSubtitle: StringFilter
-  reviewsTitle: StringFilter
-  reviewsSubtitle: StringFilter
-  leadTitle: StringFilter
-  leadSubtitle: StringFilter
-  text: StringFilter
   body: RichTextFilter
 }
 
@@ -315,23 +295,13 @@ input ProductsMutation {
 
 input ReviewsMutation {
   author: String
-  role: String
   rating: Float
-  text: String
+  body: JSON
 }
 
 input PagesMutation {
   slug: String
   title: String
-  heroTitle: String
-  heroSubtitle: String
-  productsTitle: String
-  productsSubtitle: String
-  reviewsTitle: String
-  reviewsSubtitle: String
-  leadTitle: String
-  leadSubtitle: String
-  text: String
   body: JSON
 }
 

@@ -8,8 +8,7 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CRYPTORO Admin</title>
-    <link rel="stylesheet" href="/admin/custom.css" />
-    <style is:global>
+    <style>
       html,
       body {
         margin: 0;
@@ -61,7 +60,7 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
         position: fixed;
         right: 16px;
         bottom: 16px;
-        z-index: 2147483000;
+        z-index: 9999;
         border: none;
         border-radius: 999px;
         padding: 10px 16px;
@@ -82,56 +81,13 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
     <TinaAdminApp client:only="react" />
     <script is:inline>
       (() => {
-        const forceScrollStyles = () => {
-          document.documentElement.style.setProperty('height', '100%', 'important');
-          document.documentElement.style.setProperty('overflow', 'auto', 'important');
-          document.body.style.setProperty('height', '100%', 'important');
-          document.body.style.setProperty('min-height', '100vh', 'important');
-          document.body.style.setProperty('overflow', 'auto', 'important');
-        };
-
-        const findSaveButton = () => {
-          const candidates = [...document.querySelectorAll('button, [role="button"], a[role="button"]')];
-          return candidates.find((el) => {
-            const text = (el.textContent || '').toLowerCase();
-            const aria = (el.getAttribute('aria-label') || '').toLowerCase();
-            const title = (el.getAttribute('title') || '').toLowerCase();
-            const testid = (el.getAttribute('data-testid') || '').toLowerCase();
-            const dataTest = (el.getAttribute('data-test') || '').toLowerCase();
-            return (
-              /save|сохран/.test(text) ||
-              /save|сохран/.test(aria) ||
-              /save|сохран/.test(title) ||
-              testid.includes('save') ||
-              dataTest.includes('save')
-            );
-          });
-        };
-
         const patchTinaLayout = () => {
-          forceScrollStyles();
-
           const root =
             document.querySelector('[data-test="tina-admin"]') ||
             document.querySelector('[data-tina-root]') ||
             document.querySelector('.tina-tailwind');
 
           if (!root) return;
-
-          root.style.setProperty('height', 'auto', 'important');
-          root.style.setProperty('min-height', '100vh', 'important');
-          root.style.setProperty('overflow', 'visible', 'important');
-
-          const allNodes = root.querySelectorAll('*');
-          allNodes.forEach((el) => {
-            const computed = window.getComputedStyle(el);
-            if (computed.overflowY === 'hidden') {
-              el.style.setProperty('overflow-y', 'visible', 'important');
-            }
-            if (computed.overflow === 'hidden') {
-              el.style.setProperty('overflow', 'visible', 'important');
-            }
-          });
 
           // Находим самый вероятный скролл-контейнер внутри Tina и включаем вертикальный скролл.
           const candidates = [root, ...root.querySelectorAll('main, [role="main"], div')];
@@ -145,24 +101,25 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
             }
           }
           if (best) {
-            best.style.setProperty('overflow-y', 'auto', 'important');
-            best.style.setProperty('max-height', 'calc(100dvh - 48px)', 'important');
-            best.style.setProperty('padding-bottom', '120px', 'important');
-            best.style.setProperty('scroll-padding-bottom', '120px', 'important');
+            best.style.overflowY = 'auto';
+            best.style.maxHeight = 'calc(100dvh - 48px)';
+            best.style.paddingBottom = '84px';
+            best.style.scrollPaddingBottom = '84px';
           }
 
           // Фиксируем панель с кнопкой Save, чтобы она не уезжала вниз.
-          const saveCandidate = findSaveButton();
-          const saveButtons = saveCandidate ? [saveCandidate] : [];
+          const saveButtons = [...root.querySelectorAll('button')].filter((btn) =>
+            /save|сохран/i.test(btn.textContent || '')
+          );
           saveButtons.forEach((btn) => {
             const bar = btn.closest('div');
             if (!bar) return;
-            bar.style.setProperty('position', 'sticky', 'important');
-            bar.style.setProperty('bottom', '0', 'important');
-            bar.style.setProperty('z-index', '999', 'important');
-            bar.style.setProperty('background', '#f3f4f6', 'important');
-            bar.style.setProperty('padding', '10px 12px', 'important');
-            bar.style.setProperty('border-top', '1px solid rgba(17,24,39,.12)', 'important');
+            bar.style.position = 'sticky';
+            bar.style.bottom = '0';
+            bar.style.zIndex = '999';
+            bar.style.background = '#f3f4f6';
+            bar.style.padding = '10px 12px';
+            bar.style.borderTop = '1px solid rgba(17,24,39,.12)';
           });
 
           // Страховка: плавающая кнопка "Сохранить", всегда доступна
@@ -172,42 +129,22 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
             fab.id = 'codex-admin-save-fab';
             fab.type = 'button';
             fab.textContent = 'Сохранить';
-            Object.assign(fab.style, {
-              position: 'fixed',
-              right: '16px',
-              bottom: '16px',
-              zIndex: '2147483000',
-              border: 'none',
-              borderRadius: '999px',
-              padding: '10px 16px',
-              background: '#111',
-              color: '#fff',
-              fontSize: '14px',
-              fontWeight: '600',
-              boxShadow: '0 8px 24px rgba(0,0,0,.24)',
-              cursor: 'pointer'
-            });
             fab.addEventListener('click', () => {
-              const target = findSaveButton();
-              if (target && !target.disabled) {
-                target.click();
-                return;
-              }
-              if (best) {
-                best.scrollTo({ top: best.scrollHeight, behavior: 'smooth' });
-              } else {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-              }
+              const target = [...document.querySelectorAll('button')].find((btn) =>
+                /save|сохран/i.test(btn.textContent || '')
+              );
+              if (target && !target.disabled) target.click();
             });
             document.body.appendChild(fab);
           }
-          const activeSave = findSaveButton();
+          const activeSave = [...document.querySelectorAll('button')].find((btn) =>
+            /save|сохран/i.test(btn.textContent || '')
+          );
           if (activeSave) {
             fab.disabled = activeSave.disabled;
             fab.style.display = 'inline-flex';
           } else {
-            fab.disabled = false;
-            fab.style.display = 'inline-flex';
+            fab.style.display = 'none';
           }
         };
 
@@ -215,7 +152,7 @@ import TinaAdminApp from '../../components/TinaAdminApp.jsx';
         window.addEventListener('hashchange', () => setTimeout(patchTinaLayout, 150));
         setTimeout(patchTinaLayout, 500);
         setTimeout(patchTinaLayout, 1500);
-        window.setInterval(patchTinaLayout, 1200);
+        window.setInterval(patchTinaLayout, 2000);
       })();
     </script>
   </body>

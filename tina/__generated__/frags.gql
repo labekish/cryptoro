@@ -25,23 +25,13 @@ fragment ProductsParts on Products {
 fragment ReviewsParts on Reviews {
   __typename
   author
-  role
   rating
-  text
+  body
 }
 
 fragment PagesParts on Pages {
   __typename
   slug
   title
-  heroTitle
-  heroSubtitle
-  productsTitle
-  productsSubtitle
-  reviewsTitle
-  reviewsSubtitle
-  leadTitle
-  leadSubtitle
-  text
   body
 }
