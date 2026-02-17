@@ -101,6 +101,7 @@ export default defineConfig({
         },
         fields: [
           { type: 'string', name: 'author', label: 'Автор', required: true },
+          { type: 'string', name: 'role', label: 'Роль / город' },
           {
             type: 'number',
             name: 'rating',
@@ -112,7 +113,15 @@ export default defineConfig({
               }
             }
           },
-          { type: 'rich-text', name: 'body', label: 'Текст отзыва', isBody: true }
+          {
+            type: 'string',
+            name: 'text',
+            label: 'Текст отзыва',
+            required: true,
+            ui: {
+              component: 'textarea'
+            }
+          }
         ]
       },
       {
@@ -135,7 +144,22 @@ export default defineConfig({
         fields: [
           { type: 'string', name: 'slug', label: 'Slug (латиницей)', required: true },
           { type: 'string', name: 'title', label: 'Заголовок', required: true },
-          { type: 'rich-text', name: 'body', label: 'Контент', isBody: true }
+          { type: 'string', name: 'heroTitle', label: 'Главная: заголовок hero' },
+          { type: 'string', name: 'heroSubtitle', label: 'Главная: подзаголовок hero' },
+          { type: 'string', name: 'productsTitle', label: 'Главная: заголовок секции товаров' },
+          { type: 'string', name: 'productsSubtitle', label: 'Главная: подзаголовок секции товаров' },
+          { type: 'string', name: 'reviewsTitle', label: 'Главная: заголовок отзывов' },
+          { type: 'string', name: 'reviewsSubtitle', label: 'Главная: подзаголовок отзывов' },
+          { type: 'string', name: 'leadTitle', label: 'Главная: заголовок консультации' },
+          { type: 'string', name: 'leadSubtitle', label: 'Главная: подзаголовок консультации' },
+          {
+            type: 'string',
+            name: 'text',
+            label: 'Свободный текст страницы',
+            ui: {
+              component: 'textarea'
+            }
+          }
         ]
       }
     ]

@@ -33,7 +33,8 @@ const reviews = defineCollection({
   loader: glob({ base: './src/content/reviews', pattern: '**/*.mdx' }),
   schema: z.object({
     author: z.string(),
-    text: z.any().optional(),
+    role: z.string().optional(),
+    text: z.string(),
     rating: z.number().min(1).max(5)
   })
 });
@@ -43,7 +44,15 @@ const pages = defineCollection({
   schema: z.object({
     slug: z.string(),
     title: z.string(),
-    body: z.any().optional()
+    heroTitle: z.string().optional(),
+    heroSubtitle: z.string().optional(),
+    productsTitle: z.string().optional(),
+    productsSubtitle: z.string().optional(),
+    reviewsTitle: z.string().optional(),
+    reviewsSubtitle: z.string().optional(),
+    leadTitle: z.string().optional(),
+    leadSubtitle: z.string().optional(),
+    text: z.string().optional()
   })
 });
 

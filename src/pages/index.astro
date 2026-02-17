@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { loadLegacyPage } from '../lib/legacy';
+import { getCollection } from 'astro:content';
 
 const page = loadLegacyPage('index.html');
 const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? '';
@@ -13,7 +14,31 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
   if (mod.frontmatter?.slug) acc[mod.frontmatter.slug] = Number(mod.frontmatter.price || 0);
   return acc;
 }, {});
+const pageEntries = await getCollection('pages');
+const homePage = pageEntries.find((p) => p.data.slug === 'home')?.data;
+const reviewOrder = ['alexey-k', 'maria-s', 'dmitry-m'];
+const reviewEntries = (await getCollection('reviews'))
+  .sort((a, b) => {
+    const ai = reviewOrder.findIndex((item) => a.id.includes(item));
+    const bi = reviewOrder.findIndex((item) => b.id.includes(item));
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  })
+  .slice(0, 3);
 const formatPrice = (value: number) => `${Math.round(Number(value || 0)).toLocaleString('ru-RU')} ₽`;
+const escapeHtml = (value: string) =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+const replaceNth = (source: string, pattern: RegExp, index: number, replacement: string) => {
+  let seen = 0;
+  return source.replace(pattern, (match) => {
+    seen += 1;
+    return seen === index ? replacement : match;
+  });
+};
 
 let syncedBody = page.body;
 
@@ -39,6 +64,72 @@ if (prices['plaud-note'] != null) {
     /(<div class="pricingcard reg[\s\S]*?<div class="pprice2">)([\s\S]*?)(<\/div>)/i,
     `$1<span style="font-size:18px;font-weight:500;color:#6e6e73">от </span>${formatPrice(prices['plaud-note'])}$3`
   );
+}
+
+if (homePage) {
+  if (homePage.heroTitle) {
+    syncedBody = syncedBody.replace(/(<h1 class="h1">)([\s\S]*?)(<\/h1>)/i, `$1${escapeHtml(homePage.heroTitle)}$3`);
+  }
+  if (homePage.heroSubtitle) {
+    syncedBody = syncedBody.replace(/(<p class="sub">)([\s\S]*?)(<\/p>)/i, `$1${escapeHtml(homePage.heroSubtitle)}$3`);
+  }
+  if (homePage.productsTitle) {
+    syncedBody = syncedBody.replace(/(<h2 class="sec-title">)Выберите AI диктофон(<\/h2>)/i, `$1${escapeHtml(homePage.productsTitle)}$2`);
+  }
+  if (homePage.productsSubtitle) {
+    syncedBody = syncedBody.replace(
+      /(<section class="sec sec-products">[\s\S]*?<p class="sec-sub">)([\s\S]*?)(<\/p>)/i,
+      `$1${escapeHtml(homePage.productsSubtitle)}$3`
+    );
+  }
+  if (homePage.reviewsTitle) {
+    syncedBody = syncedBody.replace(/(<h2 class="sec-title">)Что говорят клиенты(<\/h2>)/i, `$1${escapeHtml(homePage.reviewsTitle)}$2`);
+  }
+  if (homePage.reviewsSubtitle) {
+    syncedBody = syncedBody.replace(
+      /(<section class="sec sec-reviews">[\s\S]*?<p class="sec-sub">)([\s\S]*?)(<\/p>)/i,
+      `$1${escapeHtml(homePage.reviewsSubtitle)}$3`
+    );
+  }
+  if (homePage.leadTitle) {
+    syncedBody = syncedBody.replace(/(<h2 class="lead-title">)([\s\S]*?)(<\/h2>)/i, `$1${escapeHtml(homePage.leadTitle)}$3`);
+  }
+  if (homePage.leadSubtitle) {
+    syncedBody = syncedBody.replace(/(<p class="lead-sub">)([\s\S]*?)(<\/p>)/i, `$1${escapeHtml(homePage.leadSubtitle)}$3`);
+  }
+}
+
+if (reviewEntries.length) {
+  reviewEntries.forEach((review, idx) => {
+    const n = idx + 1;
+    const stars = '★'.repeat(Math.max(1, Math.min(5, Math.round(Number(review.data.rating || 5)))));
+    syncedBody = replaceNth(
+      syncedBody,
+      /<div class="rvstars">[^<]*<\/div>/g,
+      n,
+      `<div class="rvstars">${stars}</div>`
+    );
+    syncedBody = replaceNth(
+      syncedBody,
+      /<p class="rvtext">[\s\S]*?<\/p>/g,
+      n,
+      `<p class="rvtext">«${escapeHtml(review.data.text)}»</p>`
+    );
+    syncedBody = replaceNth(
+      syncedBody,
+      /<div class="rvname">[\s\S]*?<\/div>/g,
+      n,
+      `<div class="rvname">${escapeHtml(review.data.author)}</div>`
+    );
+    if (review.data.role) {
+      syncedBody = replaceNth(
+        syncedBody,
+        /<div class="rvrole">[\s\S]*?<\/div>/g,
+        n,
+        `<div class="rvrole">${escapeHtml(review.data.role)}</div>`
+      );
+    }
+  });
 }
 ---
 <Layout
