@@ -111,12 +111,19 @@ import Layout from '../layouts/Layout.astro';
                     <h3>${item.name}</h3>
                     <p>${money(item.price)}</p>
                     <div class="qty-row">
-                      <button type="button" data-action="minus" aria-label="Уменьшить количество">−</button>
+                      <button type="button" class="qty-btn" data-action="minus" aria-label="Уменьшить количество">−</button>
                       <input type="number" min="1" value="${qty}" data-qty-input />
-                      <button type="button" data-action="plus" aria-label="Увеличить количество">+</button>
+                      <button type="button" class="qty-btn" data-action="plus" aria-label="Увеличить количество">+</button>
                     </div>
                   </div>
-                  <button class="remove-btn" type="button" data-action="remove">Удалить</button>
+                  <button class="remove-btn" type="button" data-action="remove" aria-label="Удалить товар из корзины">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M3 6h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="2"/>
+                      <path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Удалить
+                  </button>
                 </article>
               `;
             })
@@ -252,10 +259,55 @@ import Layout from '../layouts/Layout.astro';
     .cart-item-main h3{font-size:22px;line-height:1.2;margin:0 0 8px;color:#111}
     .cart-item-main p{font-size:18px;font-weight:700;margin:0 0 10px;color:#111}
     .qty-row{display:inline-flex;align-items:center;gap:8px}
-    .qty-row button{width:34px;height:34px;border-radius:10px;border:1px solid rgba(0,0,0,.15);background:#fff;font-size:22px;line-height:1;cursor:pointer}
-    .qty-row input{width:64px;height:34px;border-radius:10px;border:1px solid rgba(0,0,0,.15);text-align:center;font-size:16px}
-    .remove-btn{border:none;background:transparent;color:#6b7280;font-size:14px;cursor:pointer}
-    .remove-btn:hover{color:#111}
+    .qty-btn{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      border:1px solid #111;
+      background:#111;
+      color:#fff;
+      font-size:22px;
+      line-height:1;
+      font-weight:700;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      transition:opacity .2s ease, transform .2s ease, border-color .2s ease;
+    }
+    .qty-btn:hover{opacity:.92;transform:translateY(-1px)}
+    .qty-btn:active{transform:translateY(0)}
+    .qty-row input{
+      width:68px;
+      height:36px;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,.18);
+      text-align:center;
+      font-size:16px;
+      font-weight:600;
+      color:#111;
+      background:#fff;
+    }
+    .remove-btn{
+      border:1px solid rgba(239,68,68,.3);
+      background:rgba(239,68,68,.08);
+      color:#b91c1c;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      border-radius:10px;
+      height:36px;
+      padding:0 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition:all .2s ease;
+    }
+    .remove-btn:hover{
+      background:#ef4444;
+      color:#fff;
+      border-color:#ef4444;
+    }
     .summary-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08);margin-bottom:14px;color:#111}
     .summary-row strong{font-size:30px;line-height:1.1}
     .checkout-form{display:grid;gap:14px}
@@ -278,6 +330,7 @@ import Layout from '../layouts/Layout.astro';
     .form-message.err{color:#991b1b}
     .form-message.warn{color:#92400e}
     .empty-state{display:grid;gap:10px}
+    .empty-state[hidden]{display:none !important}
     .empty-state p{margin:0;color:#4b5563}
     @media (max-width: 1024px){
       .cart-grid{grid-template-columns:1fr}
