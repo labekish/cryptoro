@@ -10,7 +10,7 @@ var config_default = defineConfig({
   },
   media: {
     tina: {
-      mediaRoot: "",
+      mediaRoot: "images/products",
       publicFolder: "public"
     }
   },
@@ -18,71 +18,109 @@ var config_default = defineConfig({
     collections: [
       {
         name: "products",
-        label: "Products",
+        label: "\u0422\u043E\u0432\u0430\u0440\u044B",
         path: "src/content/products",
         format: "mdx",
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values) => {
+              return String(values?.slug || values?.title || "product").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+            }
+          }
+        },
         fields: [
-          { type: "string", name: "title", label: "Title", required: true },
-          { type: "string", name: "slug", label: "Slug", required: true },
-          { type: "number", name: "price", label: "Price", required: true },
-          { type: "string", name: "badge", label: "Badge" },
-          { type: "image", name: "image", label: "Image" },
-          { type: "boolean", name: "inStock", label: "In stock" },
-          { type: "string", name: "seoTitle", label: "SEO title" },
-          { type: "string", name: "seoDescription", label: "SEO description" },
+          { type: "string", name: "title", label: "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435", required: true },
+          { type: "string", name: "slug", label: "Slug (\u043B\u0430\u0442\u0438\u043D\u0438\u0446\u0435\u0439)", required: true },
+          {
+            type: "number",
+            name: "price",
+            label: "\u0426\u0435\u043D\u0430",
+            required: true,
+            ui: {
+              validate: (value) => {
+                if (value == null || Number(value) <= 0) return "\u0426\u0435\u043D\u0430 \u0434\u043E\u043B\u0436\u043D\u0430 \u0431\u044B\u0442\u044C \u0431\u043E\u043B\u044C\u0448\u0435 0";
+              }
+            }
+          },
+          { type: "string", name: "badge", label: "\u0411\u0435\u0439\u0434\u0436" },
+          {
+            type: "image",
+            name: "image",
+            label: "\u0418\u0437\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435"
+          },
+          { type: "boolean", name: "inStock", label: "\u0412 \u043D\u0430\u043B\u0438\u0447\u0438\u0438" },
+          { type: "string", name: "seoTitle", label: "SEO \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A" },
+          { type: "string", name: "seoDescription", label: "SEO \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435" },
           {
             type: "string",
             name: "features",
-            label: "Features",
+            label: "\u041F\u0440\u0435\u0438\u043C\u0443\u0449\u0435\u0441\u0442\u0432\u0430",
             list: true
           },
           {
             type: "object",
             name: "specs",
-            label: "Specs",
+            label: "\u0425\u0430\u0440\u0430\u043A\u0442\u0435\u0440\u0438\u0441\u0442\u0438\u043A\u0438",
             fields: [
-              { type: "string", name: "color", label: "Color" },
-              { type: "string", name: "dimensions", label: "Dimensions" },
-              { type: "string", name: "weight", label: "Weight" },
-              { type: "string", name: "connection", label: "Connection" },
-              { type: "string", name: "warranty", label: "Warranty" }
+              { type: "string", name: "color", label: "\u0426\u0432\u0435\u0442" },
+              { type: "string", name: "dimensions", label: "\u0420\u0430\u0437\u043C\u0435\u0440\u044B" },
+              { type: "string", name: "weight", label: "\u0412\u0435\u0441" },
+              { type: "string", name: "connection", label: "\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435" },
+              { type: "string", name: "warranty", label: "\u0413\u0430\u0440\u0430\u043D\u0442\u0438\u044F" }
             ]
           },
-          { type: "string", name: "boxContents", label: "Box contents", list: true },
-          { type: "string", name: "relatedProducts", label: "Related products", list: true },
-          { type: "rich-text", name: "body", label: "Description", isBody: true }
+          { type: "string", name: "boxContents", label: "\u041A\u043E\u043C\u043F\u043B\u0435\u043A\u0442\u0430\u0446\u0438\u044F", list: true },
+          { type: "string", name: "relatedProducts", label: "\u041F\u043E\u0445\u043E\u0436\u0438\u0435 \u0442\u043E\u0432\u0430\u0440\u044B (slug)", list: true },
+          { type: "rich-text", name: "body", label: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435", isBody: true }
         ]
       },
       {
         name: "reviews",
-        label: "Reviews",
+        label: "\u041E\u0442\u0437\u044B\u0432\u044B",
         path: "src/content/reviews",
         format: "mdx",
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values) => {
+              return String(values?.author || "review").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+            }
+          }
+        },
         fields: [
-          { type: "string", name: "author", label: "Author", required: true },
+          { type: "string", name: "author", label: "\u0410\u0432\u0442\u043E\u0440", required: true },
           {
             type: "number",
             name: "rating",
-            label: "Rating",
+            label: "\u0420\u0435\u0439\u0442\u0438\u043D\u0433",
             required: true,
             ui: {
               validate: (value) => {
-                if (value < 1 || value > 5) return "Rating must be between 1 and 5";
+                if (value < 1 || value > 5) return "\u0420\u0435\u0439\u0442\u0438\u043D\u0433 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 5";
               }
             }
           },
-          { type: "rich-text", name: "body", label: "Text", isBody: true }
+          { type: "rich-text", name: "body", label: "\u0422\u0435\u043A\u0441\u0442 \u043E\u0442\u0437\u044B\u0432\u0430", isBody: true }
         ]
       },
       {
         name: "pages",
-        label: "Pages",
+        label: "\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u044B",
         path: "src/content/pages",
         format: "mdx",
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values) => {
+              return String(values?.slug || values?.title || "page").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+            }
+          }
+        },
         fields: [
-          { type: "string", name: "slug", label: "Slug", required: true },
-          { type: "string", name: "title", label: "Title", required: true },
-          { type: "rich-text", name: "body", label: "Body", isBody: true }
+          { type: "string", name: "slug", label: "Slug (\u043B\u0430\u0442\u0438\u043D\u0438\u0446\u0435\u0439)", required: true },
+          { type: "string", name: "title", label: "\u0417\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A", required: true },
+          { type: "rich-text", name: "body", label: "\u041A\u043E\u043D\u0442\u0435\u043D\u0442", isBody: true }
         ]
       }
     ]
