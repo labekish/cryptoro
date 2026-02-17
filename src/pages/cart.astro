@@ -18,12 +18,13 @@ import Layout from '../layouts/Layout.astro';
           <div id="cartList" class="items-list"></div>
         </div>
 
-        <div class="checkout-panel">
+        <div class="checkout-panel" id="checkoutPanel">
           <h2>Оформление заказа</h2>
           <div class="summary-row">
             <span>Итоговая сумма</span>
             <strong id="cartTotal">0 ₽</strong>
           </div>
+          <p id="checkoutHint" class="checkout-hint">Добавьте товар в корзину, чтобы заполнить форму заказа.</p>
 
           <form id="checkoutForm" class="checkout-form">
             <div class="field-grid">
@@ -77,6 +78,8 @@ import Layout from '../layouts/Layout.astro';
     const cartEmpty = document.getElementById('cartEmpty');
     const cartTotal = document.getElementById('cartTotal');
     const checkoutForm = document.getElementById('checkoutForm');
+    const checkoutPanel = document.getElementById('checkoutPanel');
+    const checkoutHint = document.getElementById('checkoutHint');
     const submitBtn = document.getElementById('submitBtn');
     const cardPayBtn = document.getElementById('cardPayBtn');
     const formMessage = document.getElementById('formMessage');
@@ -91,6 +94,8 @@ import Layout from '../layouts/Layout.astro';
       const isEmpty = !items.length;
       if (cartEmpty) cartEmpty.hidden = !isEmpty;
       if (checkoutForm) checkoutForm.style.display = isEmpty ? 'none' : 'block';
+      if (checkoutHint) checkoutHint.style.display = isEmpty ? 'block' : 'none';
+      if (checkoutPanel) checkoutPanel.classList.toggle('is-empty', isEmpty);
 
       if (cartList) {
         if (isEmpty) {
@@ -239,6 +244,8 @@ import Layout from '../layouts/Layout.astro';
     .cart-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:20px}
     .cart-panel,.checkout-panel{background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.3);border-radius:18px;box-shadow:0 4px 30px rgba(0,0,0,.1);backdrop-filter:blur(20px);padding:22px}
     .checkout-panel h2{font-family:'Unbounded',sans-serif;font-size:24px;line-height:1.2;margin:0 0 14px}
+    .checkout-hint{margin:12px 0 0;color:#6b7280;font-size:14px;line-height:1.5}
+    .checkout-panel.is-empty .summary-row{margin-bottom:0}
     .items-list{display:grid;gap:14px}
     .cart-item{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:14px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:#fff}
     .cart-item img{width:96px;height:96px;object-fit:contain;background:#fff}
@@ -260,7 +267,7 @@ import Layout from '../layouts/Layout.astro';
     .delivery-group label{display:flex;gap:8px;align-items:center;font-size:14px;color:#111;margin-bottom:8px}
     .delivery-note{margin:8px 0 0;font-size:13px;color:#6b7280}
     .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .dark-btn,.ghost-btn{height:46px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer}
+    .dark-btn,.ghost-btn{height:46px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;line-height:1;padding:0 16px}
     .dark-btn{background:#111;color:#fff;border:none}
     .dark-btn:hover{background:#000}
     .dark-btn:disabled{opacity:.6;cursor:not-allowed}

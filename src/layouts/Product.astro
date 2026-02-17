@@ -124,8 +124,8 @@ const specsRows = [
             ))}
           </div>
           <div class="actions-row">
-            <button class="buy-btn" id="addBtn" onclick="addToCart()" aria-label={`Добавить в корзину ${product.title}`}>Добавить в корзину</button>
-            <button class="buy-btn" id="buyBtn" onclick="buyNow()" aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
+            <button class="buy-btn" id="addBtn" aria-label={`Добавить в корзину ${product.title}`}>Добавить в корзину</button>
+            <button class="buy-btn" id="buyBtn" aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
           </div>
           <a href="/catalog" class="secondary-btn">Смотреть все модели</a>
         </div>
@@ -184,9 +184,7 @@ const specsRows = [
   </div>
   <div class="cart-toast" id="cartToast" role="status" aria-live="polite">Товар добавлен в корзину</div>
 
-  <script define:vars={{ cartItem: { id: product.slug, name: product.title, price: product.price, image: product.image } }}>
-    import { addToCart as addItemToCart, getCartCount } from '../utils/cart';
-
+  <script define:vars={{ cartItem: { id: product.slug, name: product.title, price: product.price, image: product.image, qty: 1 } }} is:inline>
     function showToast() {
       const toast = document.getElementById('cartToast');
       if (!toast) return;
@@ -194,9 +192,19 @@ const specsRows = [
       window.setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    function addToCart() {
-      addItemToCart(cartItem);
-      const nextCount = getCartCount();
+    function getCartCountSafe() {
+      if (window.cryptoroCart && typeof window.cryptoroCart.readItems === 'function') {
+        const items = window.cryptoroCart.readItems();
+        return items.reduce((sum, item) => sum + Math.max(1, Number(item?.qty) || 1), 0);
+      }
+      return 0;
+    }
+
+    function addToCartItem() {
+      if (window.cryptoroCart && typeof window.cryptoroCart.add === 'function') {
+        window.cryptoroCart.add(cartItem);
+      }
+      const nextCount = getCartCountSafe();
       const c = document.querySelector('#cartCount, .cart-n');
       if (c) {
         c.textContent = String(nextCount);
@@ -214,12 +222,17 @@ const specsRows = [
         btn.style.background = '#111';
       }, 2000);
     }
-    function buyNow() {
-      addToCart();
+    function buyNowItem() {
+      addToCartItem();
       window.location.href = '/cart';
     }
-    window.addToCart = addToCart;
-    window.buyNow = buyNow;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const addBtn = document.getElementById('addBtn');
+      const buyBtn = document.getElementById('buyBtn');
+      if (addBtn) addBtn.addEventListener('click', addToCartItem);
+      if (buyBtn) buyBtn.addEventListener('click', buyNowItem);
+    });
   </script>
 
   <script>
