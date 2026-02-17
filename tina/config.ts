@@ -10,7 +10,7 @@ export default defineConfig({
   },
   media: {
     tina: {
-      mediaRoot: '',
+      mediaRoot: 'images/products',
       publicFolder: 'public'
     }
   },
@@ -18,71 +18,122 @@ export default defineConfig({
     collections: [
       {
         name: 'products',
-        label: 'Products',
+        label: 'Товары',
         path: 'src/content/products',
         format: 'mdx',
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values) => {
+              return String(values?.slug || values?.title || 'product')
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+            }
+          }
+        },
         fields: [
-          { type: 'string', name: 'title', label: 'Title', required: true },
-          { type: 'string', name: 'slug', label: 'Slug', required: true },
-          { type: 'number', name: 'price', label: 'Price', required: true },
-          { type: 'string', name: 'badge', label: 'Badge' },
-          { type: 'image', name: 'image', label: 'Image' },
-          { type: 'boolean', name: 'inStock', label: 'In stock' },
-          { type: 'string', name: 'seoTitle', label: 'SEO title' },
-          { type: 'string', name: 'seoDescription', label: 'SEO description' },
+          { type: 'string', name: 'title', label: 'Название', required: true },
+          { type: 'string', name: 'slug', label: 'Slug (латиницей)', required: true },
+          {
+            type: 'number',
+            name: 'price',
+            label: 'Цена',
+            required: true,
+            ui: {
+              validate: (value) => {
+                if (value == null || Number(value) <= 0) return 'Цена должна быть больше 0';
+              }
+            }
+          },
+          { type: 'string', name: 'badge', label: 'Бейдж' },
+          {
+            type: 'image',
+            name: 'image',
+            label: 'Изображение',
+            required: true
+          },
+          { type: 'boolean', name: 'inStock', label: 'В наличии' },
+          { type: 'string', name: 'seoTitle', label: 'SEO заголовок' },
+          { type: 'string', name: 'seoDescription', label: 'SEO описание' },
           {
             type: 'string',
             name: 'features',
-            label: 'Features',
+            label: 'Преимущества',
             list: true
           },
           {
             type: 'object',
             name: 'specs',
-            label: 'Specs',
+            label: 'Характеристики',
             fields: [
-              { type: 'string', name: 'color', label: 'Color' },
-              { type: 'string', name: 'dimensions', label: 'Dimensions' },
-              { type: 'string', name: 'weight', label: 'Weight' },
-              { type: 'string', name: 'connection', label: 'Connection' },
-              { type: 'string', name: 'warranty', label: 'Warranty' }
+              { type: 'string', name: 'color', label: 'Цвет' },
+              { type: 'string', name: 'dimensions', label: 'Размеры' },
+              { type: 'string', name: 'weight', label: 'Вес' },
+              { type: 'string', name: 'connection', label: 'Подключение' },
+              { type: 'string', name: 'warranty', label: 'Гарантия' }
             ]
           },
-          { type: 'string', name: 'boxContents', label: 'Box contents', list: true },
-          { type: 'string', name: 'relatedProducts', label: 'Related products', list: true },
-          { type: 'rich-text', name: 'body', label: 'Description', isBody: true }
+          { type: 'string', name: 'boxContents', label: 'Комплектация', list: true },
+          { type: 'string', name: 'relatedProducts', label: 'Похожие товары (slug)', list: true },
+          { type: 'rich-text', name: 'body', label: 'Описание', isBody: true }
         ]
       },
       {
         name: 'reviews',
-        label: 'Reviews',
+        label: 'Отзывы',
         path: 'src/content/reviews',
         format: 'mdx',
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values) => {
+              return String(values?.author || 'review')
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+            }
+          }
+        },
         fields: [
-          { type: 'string', name: 'author', label: 'Author', required: true },
+          { type: 'string', name: 'author', label: 'Автор', required: true },
           {
             type: 'number',
             name: 'rating',
-            label: 'Rating',
+            label: 'Рейтинг',
             required: true,
             ui: {
               validate: (value) => {
-                if (value < 1 || value > 5) return 'Rating must be between 1 and 5';
+                if (value < 1 || value > 5) return 'Рейтинг должен быть от 1 до 5';
               }
             }
           },
-          { type: 'rich-text', name: 'body', label: 'Text', isBody: true }
+          { type: 'rich-text', name: 'body', label: 'Текст отзыва', isBody: true }
         ]
       },
       {
         name: 'pages',
-        label: 'Pages',
+        label: 'Страницы',
         path: 'src/content/pages',
         format: 'mdx',
+        ui: {
+          filename: {
+            readonly: true,
+            slugify: (values) => {
+              return String(values?.slug || values?.title || 'page')
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '');
+            }
+          }
+        },
         fields: [
-          { type: 'string', name: 'slug', label: 'Slug', required: true },
-          { type: 'string', name: 'title', label: 'Title', required: true },
-          { type: 'rich-text', name: 'body', label: 'Body', isBody: true }
+          { type: 'string', name: 'slug', label: 'Slug (латиницей)', required: true },
+          { type: 'string', name: 'title', label: 'Заголовок', required: true },
+          { type: 'rich-text', name: 'body', label: 'Контент', isBody: true }
         ]
       }
     ]
