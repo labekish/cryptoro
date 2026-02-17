@@ -1,9 +1,12 @@
 import { defineConfig } from 'tinacms';
 
+const tinaToken = process.env.TINA_TOKEN;
+
 export default defineConfig({
   branch: process.env.GITHUB_BRANCH || process.env.CF_PAGES_BRANCH || 'main',
   clientId: process.env.TINA_CLIENT_ID || '728bd19e-e8c4-4186-aa72-6eab6290b3f1',
-  token: process.env.TINA_TOKEN || '',
+  isLocalClient: false,
+  ...(tinaToken ? { token: tinaToken } : {}),
   build: {
     outputFolder: 'admin',
     publicFolder: 'public'
