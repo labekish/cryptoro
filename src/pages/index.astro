@@ -4,6 +4,15 @@ import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('index.html');
 const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? '';
+type ProductFM = { slug: string; price: number };
+const modules = import.meta.glob('../content/products/*.{md,mdx}', { eager: true }) as Record<
+  string,
+  { frontmatter: ProductFM }
+>;
+const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) => {
+  if (mod.frontmatter?.slug) acc[mod.frontmatter.slug] = Number(mod.frontmatter.price || 0);
+  return acc;
+}, {});
 ---
 <Layout
   title={page.title}
@@ -14,6 +23,31 @@ const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? '';
 >
   <script slot="head" define:vars={{ formspreeId }} is:inline>
     window.CRYPTORO_FORMSPREE_ID = formspreeId;
+  </script>
+  <script define:vars={{ prices }} is:inline>
+    (() => {
+      const fmt = (value) => `${Number(value || 0).toLocaleString('ru-RU')} ₽`;
+      const update = () => {
+        const map = prices || {};
+        Object.entries(map).forEach(([slug, price]) => {
+          const card = document.querySelector(`.pcard[href="/products/${slug}"]`);
+          if (card) {
+            const priceNode = card.querySelector('.pprice');
+            if (priceNode) priceNode.textContent = fmt(price);
+          }
+        });
+
+        const mainPriceNode = document.querySelector('.pricingcard.feat .pprice2');
+        if (mainPriceNode && map.vspomnit != null) mainPriceNode.textContent = fmt(map.vspomnit);
+
+        const lineNode = document.querySelector('.pricingcard.reg .pprice2');
+        if (lineNode && map['plaud-note'] != null) {
+          lineNode.innerHTML = `<span style="font-size:18px;font-weight:500;color:#6e6e73">от </span>${fmt(map['plaud-note'])}`;
+        }
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', update);
+      else update();
+    })();
   </script>
   <Fragment set:html={page.body} />
 </Layout>

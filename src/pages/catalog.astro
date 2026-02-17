@@ -3,6 +3,15 @@ import Layout from '../layouts/Layout.astro';
 import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('catalog.html');
+type ProductFM = { slug: string; price: number };
+const modules = import.meta.glob('../content/products/*.{md,mdx}', { eager: true }) as Record<
+  string,
+  { frontmatter: ProductFM }
+>;
+const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) => {
+  if (mod.frontmatter?.slug) acc[mod.frontmatter.slug] = Number(mod.frontmatter.price || 0);
+  return acc;
+}, {});
 ---
 <Layout
   title={page.title}
@@ -11,5 +20,22 @@ const page = loadLegacyPage('catalog.html');
   headScripts={page.headScripts}
   withChrome={false}
 >
+  <script define:vars={{ prices }} is:inline>
+    (() => {
+      const fmt = (value) => `${Number(value || 0).toLocaleString('ru-RU')} ₽`;
+      const update = () => {
+        const map = prices || {};
+        Object.entries(map).forEach(([slug, price]) => {
+          const card = document.querySelector(`a.pcard[href="/products/${slug}"]`);
+          if (!card) return;
+          card.setAttribute('data-price', String(price));
+          const priceNode = card.querySelector('.text-2xl.font-bold');
+          if (priceNode) priceNode.textContent = fmt(price);
+        });
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', update);
+      else update();
+    })();
+  </script>
   <Fragment set:html={page.body} />
 </Layout>
