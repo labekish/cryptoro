@@ -5,12 +5,11 @@ export default defineConfig({
   branch: 'main',
   isLocalClient: false,
   token: process.env.TINA_TOKEN || '',
-  // Tina Cloud Git backend settings requested for this repo.
   backend: {
     type: 'github',
     repo: 'labekish/cryptoro',
     branch: 'main'
-  } as any,
+  },
   build: {
     outputFolder: 'admin',
     publicFolder: 'public'
