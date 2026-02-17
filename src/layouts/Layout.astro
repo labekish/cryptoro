@@ -340,7 +340,11 @@ const ogUrl = Astro.url?.toString() || '';
           try {
             const raw = window.localStorage.getItem(ITEMS_KEY) ?? window.localStorage.getItem(LEGACY_ITEMS_KEY);
             const parsed = raw ? JSON.parse(raw) : [];
-            return Array.isArray(parsed) ? parsed : [];
+            if (!Array.isArray(parsed)) return [];
+            return parsed.map((item) => ({
+              ...item,
+              qty: Math.max(1, Number(item?.qty) || 1)
+            }));
           } catch {
             return [];
           }
@@ -367,11 +371,16 @@ const ogUrl = Astro.url?.toString() || '';
           });
         }
 
+        function getItemsCount(items) {
+          return items.reduce((sum, item) => sum + Math.max(1, Number(item?.qty) || 1), 0);
+        }
+
         function sync() {
           const items = readItems();
           if (items.length > 0) {
-            write(items.length);
-            paint(items.length);
+            const count = getItemsCount(items);
+            write(count);
+            paint(count);
             return;
           }
           const fallbackCount = read();
@@ -381,11 +390,16 @@ const ogUrl = Astro.url?.toString() || '';
         function add(payloadOrStep) {
           const items = readItems();
           if (payloadOrStep && typeof payloadOrStep === 'object') {
-            items.push({
-              ...payloadOrStep,
-              qty: 1,
-              addedAt: Date.now()
-            });
+            const idx = items.findIndex((item) => item.id === payloadOrStep.id);
+            if (idx >= 0) {
+              items[idx].qty = Math.max(1, Number(items[idx].qty) || 1) + Math.max(1, Number(payloadOrStep.qty) || 1);
+            } else {
+              items.push({
+                ...payloadOrStep,
+                qty: Math.max(1, Number(payloadOrStep.qty) || 1),
+                addedAt: Date.now()
+              });
+            }
           } else {
             const step = Math.max(1, Math.floor(payloadOrStep || 1));
             for (let i = 0; i < step; i += 1) {
@@ -393,10 +407,11 @@ const ogUrl = Astro.url?.toString() || '';
             }
           }
           writeItems(items);
-          write(items.length);
-          paint(items.length);
-          window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count: items.length } }));
-          return items.length;
+          const count = getItemsCount(items);
+          write(count);
+          paint(count);
+          window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count } }));
+          return count;
         }
 
         function clear() {

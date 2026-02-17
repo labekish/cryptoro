@@ -195,8 +195,8 @@ const specsRows = [
     }
 
     function addToCart() {
-      const nextCart = addItemToCart(cartItem);
-      const nextCount = nextCart.length || getCartCount();
+      addItemToCart(cartItem);
+      const nextCount = getCartCount();
       const c = document.querySelector('#cartCount, .cart-n');
       if (c) {
         c.textContent = String(nextCount);
