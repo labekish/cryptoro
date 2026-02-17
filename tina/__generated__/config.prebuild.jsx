@@ -1,9 +1,14 @@
 // tina/config.ts
 import { defineConfig } from "tinacms";
+var viteEnv = typeof import.meta !== "undefined" && import.meta.env ? import.meta.env : {};
+var nodeEnv = typeof globalThis !== "undefined" && globalThis.process?.env ? globalThis.process?.env : {};
+var getEnv = (key) => viteEnv[key] ?? nodeEnv[key];
+var tinaToken = getEnv("TINA_TOKEN");
 var config_default = defineConfig({
-  branch: process.env.GITHUB_BRANCH || process.env.CF_PAGES_BRANCH || "main",
-  clientId: process.env.TINA_CLIENT_ID || "728bd19e-e8c4-4186-aa72-6eab6290b3f1",
-  token: process.env.TINA_TOKEN || "",
+  branch: getEnv("GITHUB_BRANCH") || getEnv("CF_PAGES_BRANCH") || "main",
+  clientId: getEnv("PUBLIC_TINA_CLIENT_ID") || "728bd19e-e8c4-4186-aa72-6eab6290b3f1",
+  isLocalClient: false,
+  ...tinaToken ? { token: tinaToken } : {},
   build: {
     outputFolder: "admin",
     publicFolder: "public"
@@ -90,6 +95,7 @@ var config_default = defineConfig({
         },
         fields: [
           { type: "string", name: "author", label: "\u0410\u0432\u0442\u043E\u0440", required: true },
+          { type: "string", name: "role", label: "\u0420\u043E\u043B\u044C / \u0433\u043E\u0440\u043E\u0434" },
           {
             type: "number",
             name: "rating",
@@ -101,7 +107,12 @@ var config_default = defineConfig({
               }
             }
           },
-          { type: "rich-text", name: "body", label: "\u0422\u0435\u043A\u0441\u0442 \u043E\u0442\u0437\u044B\u0432\u0430", isBody: true }
+          {
+            type: "string",
+            name: "text",
+            label: "\u0422\u0435\u043A\u0441\u0442 \u043E\u0442\u0437\u044B\u0432\u0430",
+            required: true
+          }
         ]
       },
       {
@@ -120,7 +131,20 @@ var config_default = defineConfig({
         fields: [
           { type: "string", name: "slug", label: "Slug (\u043B\u0430\u0442\u0438\u043D\u0438\u0446\u0435\u0439)", required: true },
           { type: "string", name: "title", label: "\u0417\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A", required: true },
-          { type: "rich-text", name: "body", label: "\u041A\u043E\u043D\u0442\u0435\u043D\u0442", isBody: true }
+          { type: "string", name: "heroTitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A hero" },
+          { type: "string", name: "heroSubtitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u043F\u043E\u0434\u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A hero" },
+          { type: "string", name: "productsTitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A \u0441\u0435\u043A\u0446\u0438\u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432" },
+          { type: "string", name: "productsSubtitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u043F\u043E\u0434\u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A \u0441\u0435\u043A\u0446\u0438\u0438 \u0442\u043E\u0432\u0430\u0440\u043E\u0432" },
+          { type: "string", name: "reviewsTitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A \u043E\u0442\u0437\u044B\u0432\u043E\u0432" },
+          { type: "string", name: "reviewsSubtitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u043F\u043E\u0434\u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A \u043E\u0442\u0437\u044B\u0432\u043E\u0432" },
+          { type: "string", name: "leadTitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A \u043A\u043E\u043D\u0441\u0443\u043B\u044C\u0442\u0430\u0446\u0438\u0438" },
+          { type: "string", name: "leadSubtitle", label: "\u0413\u043B\u0430\u0432\u043D\u0430\u044F: \u043F\u043E\u0434\u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043E\u043A \u043A\u043E\u043D\u0441\u0443\u043B\u044C\u0442\u0430\u0446\u0438\u0438" },
+          {
+            type: "string",
+            name: "text",
+            label: "\u0421\u0432\u043E\u0431\u043E\u0434\u043D\u044B\u0439 \u0442\u0435\u043A\u0441\u0442 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B"
+          },
+          { type: "rich-text", name: "body", label: "\u041A\u043E\u043D\u0442\u0435\u043D\u0442 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B", isBody: true }
         ]
       }
     ]

@@ -1,10 +1,20 @@
 import { defineConfig } from 'tinacms';
 
-const tinaToken = process.env.TINA_TOKEN;
+const viteEnv = (typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {}) as Record<
+  string,
+  string | undefined
+>;
+const nodeEnv =
+  typeof globalThis !== 'undefined' && (globalThis as { process?: { env?: Record<string, string> } }).process?.env
+    ? ((globalThis as { process?: { env?: Record<string, string> } }).process?.env as Record<string, string>)
+    : {};
+
+const getEnv = (key: string) => viteEnv[key] ?? nodeEnv[key];
+const tinaToken = getEnv('TINA_TOKEN');
 
 export default defineConfig({
-  branch: process.env.GITHUB_BRANCH || process.env.CF_PAGES_BRANCH || 'main',
-  clientId: process.env.TINA_CLIENT_ID || '728bd19e-e8c4-4186-aa72-6eab6290b3f1',
+  branch: getEnv('GITHUB_BRANCH') || getEnv('CF_PAGES_BRANCH') || 'main',
+  clientId: getEnv('PUBLIC_TINA_CLIENT_ID') || '728bd19e-e8c4-4186-aa72-6eab6290b3f1',
   isLocalClient: false,
   ...(tinaToken ? { token: tinaToken } : {}),
   build: {
@@ -117,10 +127,7 @@ export default defineConfig({
             type: 'string',
             name: 'text',
             label: 'Текст отзыва',
-            required: true,
-            ui: {
-              component: 'textarea'
-            }
+            required: true
           }
         ]
       },
@@ -155,11 +162,9 @@ export default defineConfig({
           {
             type: 'string',
             name: 'text',
-            label: 'Свободный текст страницы',
-            ui: {
-              component: 'textarea'
-            }
-          }
+            label: 'Свободный текст страницы'
+          },
+          { type: 'rich-text', name: 'body', label: 'Контент страницы', isBody: true }
         ]
       }
     ]
