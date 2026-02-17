@@ -1,7 +1,13 @@
 import React from 'react';
-import { TinaAdmin } from 'tinacms';
+import TinaCMSProvider, { TinaAdmin } from 'tinacms';
 import config from '../../tina/config';
 
 export default function TinaAdminApp() {
-  return <TinaAdmin config={config} />;
+  const schema = { ...config.schema, config };
+
+  return (
+    <TinaCMSProvider {...config} schema={schema}>
+      <TinaAdmin config={config} />
+    </TinaCMSProvider>
+  );
 }
