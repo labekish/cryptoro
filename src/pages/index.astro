@@ -13,6 +13,33 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
   if (mod.frontmatter?.slug) acc[mod.frontmatter.slug] = Number(mod.frontmatter.price || 0);
   return acc;
 }, {});
+const formatPrice = (value: number) => `${Math.round(Number(value || 0)).toLocaleString('ru-RU')} ₽`;
+
+let syncedBody = page.body;
+
+const replaceInProductCard = (slug: string, className: string, html: string, value: string) =>
+  html.replace(
+    new RegExp(`(<a[^>]*href="/products/${slug}"[\\s\\S]*?<div class="${className}">)([^<]*)(</div>)`, 'i'),
+    `$1${value}$3`
+  );
+
+Object.entries(prices).forEach(([slug, price]) => {
+  syncedBody = replaceInProductCard(slug, 'pprice', syncedBody, formatPrice(price));
+});
+
+if (prices.vspomnit != null) {
+  syncedBody = syncedBody.replace(
+    /(<div class="pricingcard feat[\s\S]*?<div class="pprice2">)([^<]*)(<\/div>)/i,
+    `$1${formatPrice(prices.vspomnit)}$3`
+  );
+}
+
+if (prices['plaud-note'] != null) {
+  syncedBody = syncedBody.replace(
+    /(<div class="pricingcard reg[\s\S]*?<div class="pprice2">)([\s\S]*?)(<\/div>)/i,
+    `$1<span style="font-size:18px;font-weight:500;color:#6e6e73">от </span>${formatPrice(prices['plaud-note'])}$3`
+  );
+}
 ---
 <Layout
   title={page.title}
@@ -24,32 +51,5 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
   <script slot="head" define:vars={{ formspreeId }} is:inline>
     window.CRYPTORO_FORMSPREE_ID = formspreeId;
   </script>
-  <Fragment set:html={page.body} />
-  <script define:vars={{ prices }} is:inline>
-    (() => {
-      const fmt = (value) => `${Number(value || 0).toLocaleString('ru-RU')} ₽`;
-      const update = () => {
-        const map = prices || {};
-        Object.entries(map).forEach(([slug, price]) => {
-          const card = document.querySelector(`.pcard[href="/products/${slug}"]`);
-          if (card) {
-            const priceNode = card.querySelector('.pprice');
-            if (priceNode) priceNode.textContent = fmt(price);
-          }
-        });
-
-        const mainPriceNode = document.querySelector('.pricingcard.feat .pprice2');
-        if (mainPriceNode && map.vspomnit != null) mainPriceNode.textContent = fmt(map.vspomnit);
-
-        const lineNode = document.querySelector('.pricingcard.reg .pprice2');
-        if (lineNode && map['plaud-note'] != null) {
-          lineNode.innerHTML = `<span style="font-size:18px;font-weight:500;color:#6e6e73">от </span>${fmt(map['plaud-note'])}`;
-        }
-      };
-      // Run after legacy inline scripts.
-      window.addEventListener('load', update);
-      setTimeout(update, 120);
-      setTimeout(update, 600);
-    })();
-  </script>
+  <Fragment set:html={syncedBody} />
 </Layout>
