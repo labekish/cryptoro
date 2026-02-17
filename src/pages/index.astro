@@ -24,6 +24,7 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
   <script slot="head" define:vars={{ formspreeId }} is:inline>
     window.CRYPTORO_FORMSPREE_ID = formspreeId;
   </script>
+  <Fragment set:html={page.body} />
   <script define:vars={{ prices }} is:inline>
     (() => {
       const fmt = (value) => `${Number(value || 0).toLocaleString('ru-RU')} ₽`;
@@ -45,9 +46,10 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
           lineNode.innerHTML = `<span style="font-size:18px;font-weight:500;color:#6e6e73">от </span>${fmt(map['plaud-note'])}`;
         }
       };
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', update);
-      else update();
+      // Run after legacy inline scripts.
+      window.addEventListener('load', update);
+      setTimeout(update, 120);
+      setTimeout(update, 600);
     })();
   </script>
-  <Fragment set:html={page.body} />
 </Layout>

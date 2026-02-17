@@ -20,6 +20,7 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
   headScripts={page.headScripts}
   withChrome={false}
 >
+  <Fragment set:html={page.body} />
   <script define:vars={{ prices }} is:inline>
     (() => {
       const fmt = (value) => `${Number(value || 0).toLocaleString('ru-RU')} ₽`;
@@ -33,9 +34,10 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
           if (priceNode) priceNode.textContent = fmt(price);
         });
       };
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', update);
-      else update();
+      // Run after legacy inline scripts.
+      window.addEventListener('load', update);
+      setTimeout(update, 120);
+      setTimeout(update, 600);
     })();
   </script>
-  <Fragment set:html={page.body} />
 </Layout>
