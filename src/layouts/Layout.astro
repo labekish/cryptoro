@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import TinaProviderMount from '../components/TinaProviderMount.jsx';
 
 interface Props {
   title?: string;
@@ -11,7 +10,6 @@ interface Props {
   globalCss?: string;
   headScripts?: string;
   withChrome?: boolean;
-  withTinaProvider?: boolean;
   includeNetlifyIdentity?: boolean;
   active?: 'home' | 'catalog' | 'about';
 }
@@ -23,7 +21,6 @@ const {
   globalCss = '',
   headScripts = '',
   withChrome = false,
-  withTinaProvider = false,
   includeNetlifyIdentity = true,
   active
 } = Astro.props;
@@ -331,7 +328,6 @@ const ogUrl = Astro.url?.toString() || '';
   </head>
   <body>
     {withChrome && <Header active={active} />}
-    {withTinaProvider && <div style="display:none"><TinaProviderMount client:only="react" /></div>}
     <slot />
     {withChrome && <Footer />}
     <script is:inline>

@@ -3,15 +3,8 @@ import { defineConfig } from 'tinacms';
 export default defineConfig({
   clientId: '728bd19e-c4-4186-aa72-6eab6290b3f1',
   branch: 'main',
+  isLocalClient: false,
   token: process.env.TINA_TOKEN || '',
-  cmsCallback: (cms: any) => {
-    if (cms?.api?.tina) {
-      cms.api.tina.isSelfHosted = true;
-      cms.api.tina.isLocalClient = true;
-    }
-  },
-  // Allow admin shell to render without relying on local tina server.
-  useGraphQL: false as any,
   // Tina Cloud Git backend settings requested for this repo.
   backend: {
     type: 'github',
