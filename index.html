@@ -136,78 +136,100 @@
       font-family:'Inter',sans-serif}
     .pbtn:hover{background:#333}
 
-    /* FEATURES */
+    /* FEATURES (BENTO) */
     .sec-features{background:#fff}
-    .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
-    .fcard{background:#f5f5f7;border-radius:20px;padding:32px;
-      border:1px solid rgba(0,0,0,.05);transition:transform .3s,box-shadow .3s;
-      display:flex;flex-direction:column}
-    .fcard:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(0,0,0,.08)}
-    .fvisual{background:#fff;border-radius:14px;padding:20px;margin-bottom:24px;
-      min-height:180px;display:flex;flex-direction:column;justify-content:center;
-      box-shadow:0 2px 12px rgba(0,0,0,.06)}
-    .ftitle{font-size:20px;font-weight:600;color:#1d1d1f;margin-bottom:10px}
-    .fdesc{font-size:14px;color:#666;line-height:1.6}
-    /* transcript */
-    .tline{display:flex;align-items:center;gap:10px;padding:6px 0;
-      border-bottom:1px solid #f0f0f0;font-size:12px;color:#444}
-    .av{width:24px;height:24px;border-radius:50%;background:#e88635;color:#fff;
-      font-size:10px;font-weight:600;display:flex;align-items:center;
-      justify-content:center;flex-shrink:0}
-    .av.pink{background:#ff375f}
-    .tbadge{display:inline-flex;align-items:center;gap:4px;background:#e8f0fe;
-      color:#e88635;font-size:10px;font-weight:500;padding:3px 8px;
-      border-radius:980px;margin-top:8px}
-    /* hub */
-    .hub{position:relative;height:180px;display:flex;align-items:center;justify-content:center;
-      border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#f9fbff 0%,#f3f6fc 100%)}
-    .hub::before{content:'';position:absolute;width:170px;height:170px;border-radius:50%;
-      border:1px solid rgba(232,134,53,.18)}
-    .hub::after{content:'';position:absolute;width:228px;height:228px;border-radius:50%;
-      border:1px dashed rgba(232,134,53,.12);animation:hubRotate 24s linear infinite}
-    @keyframes hubRotate{to{transform:rotate(360deg)}}
-    .hcenter{width:72px;height:72px;border-radius:18px;background:#e88635;color:#fff;
-      font-size:11px;font-weight:700;letter-spacing:.03em;
-      display:flex;align-items:center;justify-content:center;z-index:3;position:relative;
-      box-shadow:0 12px 24px rgba(232,134,53,.28)}
-    .hpulse{position:absolute;width:96px;height:96px;border-radius:50%;
-      background:rgba(232,134,53,.15);z-index:1;animation:hubPulse 2.4s ease-out infinite}
-    @keyframes hubPulse{0%{transform:scale(.75);opacity:.6}100%{transform:scale(1.25);opacity:0}}
-    .hitem{position:absolute;min-width:78px;height:38px;padding:0 12px;border-radius:12px;
-      background:#fff;border:1px solid #e3e8f2;font-size:10.5px;font-weight:600;
-      color:#4b566a;display:flex;align-items:center;justify-content:center;
-      box-shadow:0 4px 12px rgba(17,24,39,.08);z-index:2;
-      animation:hubFloat 3.4s ease-in-out infinite}
-    @keyframes hubFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-    .hitem.h-cal{top:16px;left:50%;margin-left:-42px;animation-delay:-.1s}
-    .hitem.h-slack{top:42px;right:30px;animation-delay:-.5s}
-    .hitem.h-tg{bottom:40px;right:26px;animation-delay:-1.1s}
-    .hitem.h-docs{bottom:14px;left:50%;margin-left:-42px;animation-delay:-1.6s}
-    .hitem.h-mail{bottom:40px;left:26px;animation-delay:-2s}
-    .hitem.h-notion{top:42px;left:30px;animation-delay:-2.4s}
-    .hlink{position:absolute;height:1px;background:rgba(232,134,53,.22);z-index:1;transform-origin:left center}
-    .hlink.l1{width:66px;top:42px;left:50%;transform:translateX(-50%) rotate(90deg)}
-    .hlink.l2{width:84px;top:74px;right:86px;transform:rotate(-23deg)}
-    .hlink.l3{width:84px;bottom:74px;right:86px;transform:rotate(23deg)}
-    .hlink.l4{width:66px;bottom:42px;left:50%;transform:translateX(-50%) rotate(90deg)}
-    .hlink.l5{width:84px;bottom:74px;left:86px;transform:rotate(-23deg)}
-    .hlink.l6{width:84px;top:74px;left:86px;transform:rotate(23deg)}
-    /* badges */
-    .abadges{display:flex;flex-wrap:wrap;gap:8px;padding:8px;
-      justify-content:center;align-items:center;min-height:130px}
-    .abadge{display:flex;align-items:center;gap:6px;background:#f5f5f7;
-      border:1px solid #e0e0e0;border-radius:980px;padding:7px 14px;
-      font-size:12px;font-weight:500;color:#1d1d1f}
-    .abadge .dot{width:7px;height:7px;border-radius:50%;background:#e88635}
-    /* stats */
-    .srow{margin-bottom:10px}
-    .srow-h{display:flex;justify-content:space-between;font-size:11px;
-      color:#444;margin-bottom:4px}
-    .sup{color:#30d158;font-weight:600}
-    .sdown{color:#ff375f;font-weight:600}
-    .sbar{height:4px;border-radius:2px;background:#e0e0e0;overflow:hidden}
-    .sfill{height:100%;border-radius:2px;background:#e88635;transform-origin:left;
-      animation:barLoad 1.1s ease}
+    .feat-grid{
+      display:grid;
+      grid-template-columns:1.2fr 1fr;
+      gap:18px;
+      align-items:stretch
+    }
+    .fcard{
+      background:linear-gradient(180deg,#ffffff 0%,#fafafa 100%);
+      border-radius:24px;
+      padding:26px;
+      border:1px solid rgba(17,24,39,.06);
+      transition:transform .3s ease,box-shadow .3s ease;
+      box-shadow:0 6px 20px rgba(17,24,39,.06);
+      display:flex;
+      flex-direction:column
+    }
+    .fcard:hover{transform:translateY(-4px);box-shadow:0 18px 34px rgba(17,24,39,.12)}
+    .fcard--trans{grid-row:1 / span 2}
+    .fcard--assistant{grid-row:3 / span 1}
+    .fcard--integrations{grid-row:1 / span 1}
+    .fcard--analytics{grid-row:2 / span 2}
+    .fvisual{
+      background:#fff;
+      border-radius:18px;
+      padding:18px;
+      margin-bottom:20px;
+      min-height:170px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      box-shadow:inset 0 0 0 1px rgba(17,24,39,.05)
+    }
+    .ftitle{font-size:30px;font-weight:700;line-height:1.1;color:#111827;margin-bottom:10px}
+    .fdesc{font-size:15px;color:#5b6578;line-height:1.62}
+    .accent-icon{
+      width:52px;height:52px;border-radius:14px;
+      background:linear-gradient(135deg,#e88635 0%,#ffb066 100%);
+      display:inline-flex;align-items:center;justify-content:center;
+      color:#fff;box-shadow:0 10px 20px rgba(232,134,53,.35);
+      margin-bottom:12px
+    }
+    .trans-lines{display:grid;gap:8px}
+    .trans-line{
+      height:10px;border-radius:999px;background:linear-gradient(90deg,rgba(232,134,53,.24),rgba(232,134,53,.05))
+    }
+    .trans-line:nth-child(2){width:86%}
+    .trans-line:nth-child(3){width:72%}
+    .trans-line:nth-child(4){width:90%}
+    .trans-chip{
+      margin-top:14px;display:inline-flex;align-items:center;gap:7px;
+      width:max-content;padding:6px 12px;border-radius:999px;
+      background:rgba(232,134,53,.12);color:#b76626;font-size:11px;font-weight:600
+    }
+    .integration-map{
+      position:relative;height:170px;border-radius:16px;
+      background:linear-gradient(180deg,#f8fbff 0%,#f5f7fb 100%);
+      overflow:hidden
+    }
+    .integration-map svg{
+      position:absolute;inset:0;width:100%;height:100%
+    }
+    .int-center{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:82px;height:82px;border-radius:22px;background:#111827;color:#fff;
+      display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.04em
+    }
+    .int-node{
+      position:absolute;min-width:78px;height:38px;padding:0 12px;border-radius:12px;
+      background:#fff;border:1px solid rgba(17,24,39,.08);display:flex;
+      align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#4b5563;
+      box-shadow:0 6px 18px rgba(17,24,39,.08)
+    }
+    .int-node.n1{left:16px;top:20px}
+    .int-node.n2{right:16px;top:20px}
+    .int-node.n3{left:16px;bottom:20px}
+    .int-node.n4{right:16px;bottom:20px}
+    .assist-actions{display:flex;flex-wrap:wrap;gap:10px}
+    .assist-pill{
+      display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;
+      border-radius:999px;border:1px solid rgba(17,24,39,.08);background:#fff;color:#1f2937;
+      font-size:13px;font-weight:600
+    }
+    .assist-pill .dot{width:8px;height:8px;border-radius:999px;background:#e88635}
+    .stat-card{
+      padding:2px
+    }
+    .srow{margin-bottom:14px}
+    .srow-h{display:flex;justify-content:space-between;font-size:12px;color:#4b5563;margin-bottom:6px}
+    .sup{color:#16a34a;font-weight:700}
+    .sdown{color:#dc2626;font-weight:700}
+    .sbar{height:8px;border-radius:999px;background:#e5e7eb;overflow:hidden}
+    .sfill{height:100%;border-radius:999px;background:linear-gradient(90deg,#e88635,#ffb066);transform-origin:left;animation:barLoad 1s ease}
     @keyframes barLoad{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
     /* HOW IT WORKS */
@@ -561,24 +583,13 @@
       .hero-product{width:min(100%,420px)}
       .hero-product-image{min-height:320px;justify-content:center}
       .hero-product-image img{max-width:360px;transform:rotate(-6deg)}
-      .fcard{padding:24px}
-      .fvisual{min-height:160px}
-      .hub{height:160px}
-      .hub::before{width:144px;height:144px}
-      .hub::after{width:194px;height:194px}
-      .hcenter{width:64px;height:64px;font-size:10px}
-      .hitem{min-width:66px;height:34px;padding:0 10px;font-size:9.5px}
-      .hitem.h-cal{margin-left:-36px}
-      .hitem.h-docs{margin-left:-36px}
-      .hitem.h-slack{right:14px}
-      .hitem.h-tg{right:12px}
-      .hitem.h-mail{left:12px}
-      .hitem.h-notion{left:14px}
-      .hlink.l1,.hlink.l4{width:56px}
-      .hlink.l2,.hlink.l3,.hlink.l5,.hlink.l6{width:68px}
-      .hlink.l2,.hlink.l3{right:70px}
-      .hlink.l5,.hlink.l6{left:70px}
+      .fcard{padding:22px}
+      .fvisual{min-height:150px}
       .feat-grid{grid-template-columns:1fr}
+      .fcard--trans,.fcard--assistant,.fcard--integrations,.fcard--analytics{grid-row:auto}
+      .ftitle{font-size:24px}
+      .integration-map{height:154px}
+      .int-node{min-width:72px;height:34px;font-size:11px}
       .step{flex-direction:column;gap:16px}
       .step-line{flex-direction:row;align-items:center}
       .sconn{display:none}
@@ -947,53 +958,65 @@ img{max-width:100%;height:auto}
     </div>
     <div class="feat-grid">
 
-      <div class="fcard reveal d1">
+      <div class="fcard fcard--trans reveal d1">
         <div class="fvisual">
-          <div class="tline"><div class="av">И</div><span>Нужно обсудить бюджет на Q3...</span></div>
-          <div class="tline"><div class="av pink">М</div><span>Предлагаю увеличить на 20%...</span></div>
-          <span class="tbadge">Транскрипция</span>
+          <span class="accent-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+              <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
+              <path d="M19 11v1a7 7 0 0 1-14 0v-1"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+            </svg>
+          </span>
+          <div class="trans-lines">
+            <div class="trans-line"></div>
+            <div class="trans-line"></div>
+            <div class="trans-line"></div>
+            <div class="trans-line"></div>
+          </div>
+          <span class="trans-chip">AI транскрипция 57 языков</span>
         </div>
         <div class="ftitle">Точная транскрипция</div>
         <div class="fdesc">98% точность распознавания на 57 языках включая русский. Автоматическое определение спикеров.</div>
       </div>
 
-      <div class="fcard reveal d2">
+      <div class="fcard fcard--integrations reveal d2">
         <div class="fvisual">
-          <div class="hub">
-            <span class="hpulse"></span>
-            <div class="hcenter">CRYPTORO</div>
-            <span class="hlink l1"></span><span class="hlink l2"></span><span class="hlink l3"></span>
-            <span class="hlink l4"></span><span class="hlink l5"></span><span class="hlink l6"></span>
-            <div class="hitem h-cal">Calendar</div>
-            <div class="hitem h-slack">Slack</div>
-            <div class="hitem h-tg">Telegram</div>
-            <div class="hitem h-docs">Docs</div>
-            <div class="hitem h-mail">Email</div>
-            <div class="hitem h-notion">Notion</div>
+          <div class="integration-map">
+            <svg viewBox="0 0 360 170" fill="none" aria-hidden="true">
+              <path d="M98 38 C136 54, 155 64, 178 85" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M262 38 C224 54, 205 64, 182 85" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M98 130 C134 114, 155 104, 178 84" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M262 130 C226 114, 205 104, 182 84" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <div class="int-center">CRYPTORO</div>
+            <div class="int-node n1">Notion</div>
+            <div class="int-node n2">Slack</div>
+            <div class="int-node n3">Docs</div>
+            <div class="int-node n4">Telegram</div>
           </div>
         </div>
         <div class="ftitle">Интеграции с вашими инструментами</div>
         <div class="fdesc">Notion, Google Docs, Telegram, Slack. Записи попадают туда где нужно — автоматически.</div>
       </div>
 
-      <div class="fcard reveal d3">
+      <div class="fcard fcard--assistant reveal d3">
         <div class="fvisual">
-          <div class="abadges">
-            <span class="abadge"><span class="dot"></span>Создать резюме</span>
-            <span class="abadge"><span class="dot"></span>Выделить задачи</span>
-            <span class="abadge"><span class="dot"></span>Отправить команде</span>
+          <div class="assist-actions">
+            <span class="assist-pill"><span class="dot"></span>Создать резюме</span>
+            <span class="assist-pill"><span class="dot"></span>Выделить задачи</span>
+            <span class="assist-pill"><span class="dot"></span>Отправить команде</span>
           </div>
         </div>
         <div class="ftitle">AI-ассистент на каждой встрече</div>
         <div class="fdesc">Краткое резюме, список задач и ключевые решения — автоматически после каждой встречи.</div>
       </div>
 
-      <div class="fcard reveal d4">
+      <div class="fcard fcard--analytics reveal d4">
         <div class="fvisual">
-          <div style="padding:4px">
+          <div class="stat-card">
             <div style="display:flex;justify-content:space-between;margin-bottom:12px">
               <span style="font-size:12px;font-weight:600;color:#1d1d1f">Статистика</span>
-              <span style="font-size:16px">⏱</span>
+              <span style="font-size:16px;color:#e88635">◔</span>
             </div>
             <div class="srow">
               <div class="srow-h"><span>Деловые встречи</span><span class="sup">▲ 12%</span></div>
