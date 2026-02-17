@@ -242,7 +242,7 @@ import Layout from '../layouts/Layout.astro';
     renderCart();
   </script>
 
-  <style>
+  <style is:global>
     .cart-page{padding:96px 0 80px;background:#f9fafb;min-height:72vh}
     .cart-wrap{max-width:1280px;margin:0 auto;padding:0 24px}
     .cart-head{margin-bottom:20px}
@@ -258,7 +258,7 @@ import Layout from '../layouts/Layout.astro';
     .cart-item img{width:96px;height:96px;object-fit:contain;background:#fff}
     .cart-item-main h3{font-size:22px;line-height:1.2;margin:0 0 8px;color:#111}
     .cart-item-main p{font-size:18px;font-weight:700;margin:0 0 10px;color:#111}
-    .qty-row{display:inline-flex;align-items:center;gap:8px}
+    .qty-row{display:inline-flex;align-items:center;gap:8px;margin-top:4px}
     .qty-btn{
       width:36px;
       height:36px;
@@ -288,6 +288,9 @@ import Layout from '../layouts/Layout.astro';
       color:#111;
       background:#fff;
     }
+    .qty-row input::-webkit-outer-spin-button,
+    .qty-row input::-webkit-inner-spin-button{appearance:none;margin:0}
+    .qty-row input[type=number]{appearance:textfield;-moz-appearance:textfield}
     .remove-btn{
       border:1px solid rgba(239,68,68,.3);
       background:rgba(239,68,68,.08);
@@ -302,6 +305,7 @@ import Layout from '../layouts/Layout.astro';
       align-items:center;
       gap:6px;
       transition:all .2s ease;
+      margin-top:8px;
     }
     .remove-btn:hover{
       background:#ef4444;
