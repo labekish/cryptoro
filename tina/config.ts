@@ -51,8 +51,7 @@ export default defineConfig({
           {
             type: 'image',
             name: 'image',
-            label: 'Изображение',
-            required: true
+            label: 'Изображение'
           },
           { type: 'boolean', name: 'inStock', label: 'В наличии' },
           { type: 'string', name: 'seoTitle', label: 'SEO заголовок' },
