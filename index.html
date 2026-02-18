@@ -112,7 +112,7 @@
     .sec{padding:112px 24px}
     /* Добавляем воздух между hero и следующими блоками */
     .sec-products{padding-top:112px}
-    .sec-features{padding-top:118px}
+    .sec-features{padding-top:92px}
     .sec-head{text-align:center;margin-bottom:60px}
     .sec-title{font-family:'Unbounded',sans-serif;
       font-size:clamp(42px,4.2vw,48px);font-weight:700;
@@ -151,34 +151,35 @@
 
     /* FEATURES (BENTO) */
     .sec-features{background:#fff}
-    .sec-features .sec-head{margin-bottom:34px}
+    .sec-features .sec-head{margin-bottom:26px}
     .feat-grid{
       display:grid;
-      grid-template-columns:1.2fr 1fr;
-      gap:14px;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:16px;
       align-items:stretch
     }
     .fcard{
       background:linear-gradient(180deg,#ffffff 0%,#fafafa 100%);
       border-radius:24px;
-      padding:22px;
+      padding:28px;
       border:1px solid rgba(17,24,39,.06);
+      border-left:3px solid transparent;
       transition:transform .3s ease,box-shadow .3s ease;
-      box-shadow:0 6px 20px rgba(17,24,39,.06);
+      box-shadow:0 4px 12px rgba(0,0,0,.08);
       display:flex;
       flex-direction:column
     }
     .fcard:hover{transform:translateY(-4px);box-shadow:0 18px 34px rgba(17,24,39,.12)}
-    .fcard--trans{grid-row:1 / span 2}
-    .fcard--assistant{grid-row:3 / span 1}
-    .fcard--integrations{grid-row:1 / span 1}
-    .fcard--analytics{grid-row:2 / span 2}
+    .fcard--trans{grid-column:1 / span 3;grid-row:1;border-left-color:#3b82f6}
+    .fcard--integrations{grid-column:4 / span 2;grid-row:1;border-left-color:#f59e0b}
+    .fcard--assistant{grid-column:1 / span 2;grid-row:2;border-left-color:#22c55e}
+    .fcard--analytics{grid-column:3 / span 3;grid-row:2;border-left-color:#8b5cf6}
     .fvisual{
       background:#fff;
       border-radius:16px;
-      padding:16px;
-      margin-bottom:16px;
-      min-height:148px;
+      padding:18px;
+      margin-bottom:14px;
+      min-height:132px;
       display:flex;
       flex-direction:column;
       justify-content:center;
@@ -541,9 +542,9 @@
       transition:background .2s,transform .25s ease,font-size .2s,color .2s;
       font-size:16px;line-height:1;color:#555}
     .faqitem.open .faqarr{background:#e88635;color:#fff;transform:rotate(180deg)}
-    .faqa{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;
-      font-size:16px;color:#555;line-height:1.6}
-    .faqitem.open .faqa{max-height:180px;padding-bottom:16px}
+    .faqa{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease,opacity .25s ease;
+      font-size:16px;color:#555;line-height:1.6;opacity:0;padding-bottom:0}
+    .faqitem.open .faqa{padding-bottom:16px;opacity:1}
 
     /* FOOTER */
     footer{background:#1d1d1f;color:#888;padding:60px 24px 40px}
@@ -701,10 +702,10 @@
       .hero-product{width:min(100%,520px)}
       .hero-product-image{min-height:320px;justify-content:center}
       .hero-product-image img{width:86%;max-width:360px}
-      .fcard{padding:22px}
+      .fcard{padding:24px}
       .fvisual{min-height:150px}
       .feat-grid{grid-template-columns:1fr}
-      .fcard--trans,.fcard--assistant,.fcard--integrations,.fcard--analytics{grid-row:auto}
+      .fcard--trans,.fcard--assistant,.fcard--integrations,.fcard--analytics{grid-row:auto;grid-column:auto}
       .ftitle{font-size:24px}
       .integration-map{height:136px}
       .int-node{min-width:72px;height:34px;font-size:11px}
@@ -891,7 +892,7 @@ img{max-width:100%;height:auto}
 .hero{min-height:100vh!important;padding-top:112px!important;padding-bottom:56px!important}
 .sec{padding:108px 24px!important}
 .sec-products{padding-top:102px!important}
-    .sec-features{padding-top:86px!important;padding-bottom:86px!important}
+    .sec-features{padding-top:64px!important;padding-bottom:64px!important}
 .sec-head{margin-bottom:56px!important}
 .sec-products,.sec-pricing,.sec-faq{background:#f5f5f7!important}
 .sec-features,.sec-how,.sec-usecases,.sec-reviews,.sec-lead{background:#fff!important}
@@ -899,6 +900,30 @@ img{max-width:100%;height:auto}
 .sec-title{font-size:clamp(42px,4.2vw,48px)!important;line-height:1.08!important}
 .sec-sub{font-size:19px!important;line-height:1.6!important;font-weight:400!important}
 .fdesc,.sdesc,.ucdesc,.rvtext,.faqa,.lead-sub{font-size:16px!important;line-height:1.6!important}
+.btn-blue,.btn-ghost,.btn-woutline,.pbtn,.pbtn2,.pcard,.faqq,.rv-nav,.rv-dot,.menu-toggle,.mobile-nav-close,.cart{
+  cursor:pointer!important;
+}
+.btn-blue:active,.btn-ghost:active,.btn-woutline:active,.pbtn2:active,.pcard:active,.rv-nav:active,.menu-toggle:active,.mobile-nav-close:active,.cart:active{
+  transform:translateY(1px)!important;
+}
+.pcard:focus-visible,.pbtn2:focus-visible,.btn-blue:focus-visible,.btn-ghost:focus-visible,.btn-woutline:focus-visible,
+.faqq:focus-visible,.rv-nav:focus-visible,.rv-dot:focus-visible,.menu-toggle:focus-visible,.mobile-nav-close:focus-visible,.cart:focus-visible{
+  outline:2px solid #111!important;
+  outline-offset:2px!important;
+}
+.sec-features .feat-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:16px!important}
+.sec-features .sec-title{font-size:clamp(36px,3.6vw,52px)!important}
+.sec-features .sec-sub{font-size:17px!important}
+.sec-features .fcard{
+  border-radius:24px!important;
+  padding:28px!important;
+  box-shadow:0 4px 12px rgba(0,0,0,.08)!important;
+}
+.sec-features .fcard--trans{grid-column:1 / span 3!important;grid-row:1!important}
+.sec-features .fcard--integrations{grid-column:4 / span 2!important;grid-row:1!important}
+.sec-features .fcard--assistant{grid-column:1 / span 2!important;grid-row:2!important}
+.sec-features .fcard--analytics{grid-column:3 / span 3!important;grid-row:2!important}
+.sec-features .fvisual{min-height:132px!important;margin-bottom:14px!important}
 
 /* Reviews: светлый компактный стиль */
 .sec-reviews{background:#fff!important}
@@ -1155,7 +1180,7 @@ img{max-width:100%;height:auto}
       <h1 class="hero-title">Речь в готовые<br>заметки<br>за секунды</h1>
       <p class="hero-sub">Записывайте. ChatGPT расшифрует, выделит главное и подготовит итог — автоматически.</p>
       <div class="btns">
-        <a href="#products" class="btn-blue">Смотреть модели</a>
+        <a href="/catalog" class="btn-blue">Смотреть модели</a>
         <a href="/catalog" class="btn-ghost">Перейти в каталог</a>
       </div>
       <div class="hero-proof">
@@ -1435,7 +1460,7 @@ img{max-width:100%;height:auto}
 </section>
 
 <!-- USE CASES -->
-<section class="sec sec-usecases">
+<section class="sec sec-usecases" id="about">
   <div class="wrap">
     <div class="sec-head reveal">
       <h2 class="sec-title">Кому подойдёт CRYPTORO</h2>
@@ -1504,7 +1529,7 @@ img{max-width:100%;height:auto}
 </section>
 
 <!-- PRICING -->
-<section class="sec sec-pricing">
+<section class="sec sec-pricing" id="pricing">
   <div class="wrap">
     <div class="pricing-wrap">
       <div class="sec-head reveal" style="margin-bottom:0">
@@ -1529,7 +1554,7 @@ img{max-width:100%;height:auto}
             <div class="pfeat"><span class="c">✓</span><span>Персонализированные заметки на базе OpenAI</span></div>
             <div class="pfeat"><span class="c">✓</span><span>Для встреч, звонков и лекций</span></div>
           </div>
-          <a href="/products/vspomnit" class="pbtn2 fil">Заказать</a>
+          <a href="/catalog" class="pbtn2 fil">Заказать</a>
         </div>
 
         <div class="pricingcard reg reveal d2">
@@ -1780,8 +1805,8 @@ img{max-width:100%;height:auto}
     </div>
     <div class="foot-col">
       <h4>Соцсети</h4>
-      <a href="https://vk.com/cryptoro" target="_blank" rel="noopener">ВКонтакте</a>
-      <a href="https://t.me/cryptoro_support" target="_blank" rel="noopener">Telegram</a>
+      <a href="https://vk.com/cryptoro" target="_blank" rel="noopener noreferrer">ВКонтакте</a>
+      <a href="https://t.me/cryptoro_support" target="_blank" rel="noopener noreferrer">Telegram</a>
     </div>
   </div>
   <hr class="foot-div"/>
@@ -1932,6 +1957,7 @@ img{max-width:100%;height:auto}
       item.classList.toggle('open', open);
       trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
       panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+      panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
       if (icon) icon.textContent = open ? '−' : '+';
     }
 
@@ -1956,6 +1982,12 @@ img{max-width:100%;height:auto}
         toggleFaqItem(item);
       });
       setFaqOpen(item, item.classList.contains('open'));
+    });
+
+    window.addEventListener('resize', function () {
+      document.querySelectorAll('.faqitem.open .faqa').forEach(function (panel) {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      });
     });
 
     document.querySelectorAll('[onclick]').forEach(function(el){
@@ -2005,14 +2037,22 @@ img{max-width:100%;height:auto}
       status.classList.remove('error');
     }
 
+    function isValidContact(value) {
+      const v = value.trim();
+      if (v.length < 5) return false;
+      if (v.includes('@')) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      const digits = v.replace(/\D/g, '');
+      return digits.length >= 10;
+    }
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       clearStatus();
       if (success) success.hidden = true;
 
       const contactValue = (contactInput.value || '').trim();
-      if (!contactValue || contactValue.length < 5) {
-        setStatus('Введите телефон или email (минимум 5 символов).', true);
+      if (!isValidContact(contactValue)) {
+        setStatus('Введите корректный телефон или email.', true);
         contactInput.focus();
         return;
       }
@@ -2063,6 +2103,7 @@ img{max-width:100%;height:auto}
     const toggle = document.getElementById('menuToggle');
     const menu = document.getElementById('mobileNav');
     const close = document.getElementById('menuClose');
+    const cartBtn = document.getElementById('cartBtn');
     if (!header || !toggle || !menu) return;
 
     function closeMenu() {
@@ -2089,6 +2130,12 @@ img{max-width:100%;height:auto}
     window.addEventListener('resize', function () {
       if (window.innerWidth > 768) closeMenu();
     });
+
+    if (cartBtn) {
+      cartBtn.addEventListener('click', function () {
+        window.location.href = '/cart';
+      });
+    }
   })();
 </script>
 </body>
