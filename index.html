@@ -366,12 +366,26 @@
       box-shadow:0 24px 44px rgba(232,134,53,.20),0 14px 30px rgba(15,23,42,.12);
       transform:translateY(-2px);
     }
-    .pbadge2{display:inline-block;font-size:11px;font-weight:700;
+    .pbadge2{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      align-self:flex-start;
+      width:fit-content;
+      max-width:100%;
+      white-space:nowrap;
+      line-height:1;
+      font-size:11px;font-weight:700;
       letter-spacing:.04em;text-transform:uppercase;padding:6px 16px;
-      border-radius:20px;margin-bottom:16px}
+      border-radius:20px;margin-bottom:18px}
     .pbadge2.gr{background:#f0f1f4;color:#6e6e73}
     .pbadge2.bl{background:#e88635;color:#fff}
-    .pname2{font-size:34px;font-weight:700;color:#1d1d1f;margin-bottom:8px;line-height:1}
+    .pricingcard .pbadge2{
+      display:inline-flex!important;
+      width:fit-content!important;
+      align-self:flex-start!important;
+    }
+    .pname2{font-size:34px;font-weight:700;color:#1d1d1f;margin-bottom:10px;line-height:1}
     .ptag{font-size:14px;color:#6e6e73;margin-bottom:16px}
     .pmedia{display:flex;align-items:center;justify-content:center;min-height:220px;margin:8px 0 16px}
     .pmedia img{width:100%;max-width:200px;height:auto;object-fit:contain;
