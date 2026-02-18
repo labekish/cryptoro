@@ -110,6 +110,12 @@
 
     /* SECTION SHARED */
     .sec{padding:112px 24px}
+    .sec{position:relative}
+    .sec + .sec,
+    .sec + .sec{
+      border-top:1px solid rgba(29,29,31,.025);
+      box-shadow:none;
+    }
     /* Добавляем воздух между hero и следующими блоками */
     .sec-products{padding-top:112px}
     .sec-features{padding-top:92px}
@@ -883,7 +889,7 @@ img{max-width:100%;height:auto}
 .faqarr{background:#f0f0f3!important;color:#3a3a3c!important}
 .faqitem.open .faqarr{background:#111!important;color:#fff!important}
 .faqa{
-  padding-left:4rem!important;
+  padding-left:0!important;
   overflow:hidden!important;
 }
 .rvstars{color:#6e6e73!important}
@@ -1180,7 +1186,7 @@ img{max-width:100%;height:auto}
       <h1 class="hero-title">Речь в готовые<br>заметки<br>за секунды</h1>
       <p class="hero-sub">Записывайте. ChatGPT расшифрует, выделит главное и подготовит итог — автоматически.</p>
       <div class="btns">
-        <a href="/catalog" class="btn-blue">Смотреть модели</a>
+        <a href="#products" class="btn-blue">Смотреть модели</a>
         <a href="/catalog" class="btn-ghost">Перейти в каталог</a>
       </div>
       <div class="hero-proof">
@@ -1296,10 +1302,10 @@ img{max-width:100%;height:auto}
             <div class="trans-line"></div>
             <div class="trans-line"></div>
           </div>
-          <span class="trans-chip">AI транскрипция 57 языков</span>
+          <span class="trans-chip">AI транскрипция 81 язык</span>
         </div>
         <div class="ftitle">Точная транскрипция</div>
-        <div class="fdesc">98% точность распознавания на 57 языках включая русский. Автоматическое определение спикеров.</div>
+        <div class="fdesc">98% точность распознавания на 81 языке включая русский. Автоматическое определение спикеров.</div>
       </div>
 
       <div class="fcard fcard--integrations reveal d2">
@@ -1552,9 +1558,9 @@ img{max-width:100%;height:auto}
             <div class="pfeat"><span class="c">✓</span><span>Точная транскрипция с временными метками</span></div>
             <div class="pfeat"><span class="c">✓</span><span>Бесплатный год безлимитной подписки</span></div>
             <div class="pfeat"><span class="c">✓</span><span>Персонализированные заметки на базе OpenAI</span></div>
-            <div class="pfeat"><span class="c">✓</span><span>Для встреч, звонков и лекций</span></div>
+            <div class="pfeat"><span class="c">✓</span><span>81 язык, 32 часа записи, 64 ГБ памяти</span></div>
           </div>
-          <a href="/catalog" class="pbtn2 fil">Заказать</a>
+          <a href="/products/vspomnit" class="pbtn2 fil">Заказать</a>
         </div>
 
         <div class="pricingcard reg reveal d2">
@@ -1743,7 +1749,7 @@ img{max-width:100%;height:auto}
           <span>Как работает транскрипция?</span>
           <span class="faqarr" aria-hidden="true">+</span>
         </button>
-        <div class="faqa">Запись уходит в приложение, где ChatGPT делает текст, таймкоды и разбивку по спикерам. Поддерживается 57 языков, включая русский.</div>
+        <div class="faqa">Запись уходит в приложение, где ChatGPT делает текст, таймкоды и разбивку по спикерам. Поддерживается 81 язык, включая русский.</div>
       </div>
 
       <div class="faqitem">

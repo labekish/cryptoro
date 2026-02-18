@@ -20,6 +20,9 @@ const products = defineCollection({
         color: z.string().optional(),
         dimensions: z.string().optional(),
         weight: z.string().optional(),
+        memory: z.string().optional(),
+        battery: z.string().optional(),
+        languages: z.string().optional(),
         connection: z.string().optional(),
         warranty: z.string().optional()
       })

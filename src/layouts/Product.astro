@@ -15,6 +15,9 @@ interface ProductData {
     color?: string;
     dimensions?: string;
     weight?: string;
+    memory?: string;
+    battery?: string;
+    languages?: string;
     connection?: string;
     warranty?: string;
     [key: string]: string | undefined;
@@ -47,12 +50,6 @@ const galleryFallbackBySlug: Record<string, string[]> = {
 const gallery = (product.gallery && product.gallery.length ? product.gallery : galleryFallbackBySlug[product.slug] ?? [product.image])
   .filter(Boolean);
 
-const runtimeBySlug: Record<string, string> = {
-  vspomnit: 'До 30 часов',
-  'plaud-note': 'До 30 часов',
-  'plaud-note-pro': 'До 40 часов',
-  notepin: 'До 20 часов'
-};
 const memoryBySlug: Record<string, string> = {
   vspomnit: '64 ГБ',
   'plaud-note': '64 ГБ',
@@ -60,10 +57,16 @@ const memoryBySlug: Record<string, string> = {
   notepin: '64 ГБ'
 };
 const languageBySlug: Record<string, string> = {
-  vspomnit: '57+ языков',
-  'plaud-note': '57+ языков',
-  'plaud-note-pro': '57+ языков',
-  notepin: '57+ языков'
+  vspomnit: '81 язык включая русский',
+  'plaud-note': '81 язык включая русский',
+  'plaud-note-pro': '81 язык включая русский',
+  notepin: '81 язык включая русский'
+};
+const autonomyBySlug: Record<string, string> = {
+  vspomnit: 'До 32 часов записи / 200 дней ожидания',
+  'plaud-note': 'До 30 часов',
+  'plaud-note-pro': 'До 40 часов',
+  notepin: 'До 20 часов'
 };
 const formatBySlug: Record<string, string> = {
   vspomnit: 'WAV, MP3, TXT',
@@ -72,13 +75,13 @@ const formatBySlug: Record<string, string> = {
   notepin: 'WAV, MP3, TXT'
 };
 const specsRows = [
-  { label: 'Время работы', value: runtimeBySlug[product.slug] },
-  { label: 'Память', value: memoryBySlug[product.slug] },
-  { label: 'Языки', value: languageBySlug[product.slug] },
-  { label: 'Форматы файлов', value: formatBySlug[product.slug] },
   { label: 'Размеры', value: product.specs?.dimensions },
-  { label: 'Цвет', value: product.specs?.color },
   { label: 'Вес', value: product.specs?.weight },
+  { label: 'Память', value: product.specs?.memory ?? memoryBySlug[product.slug] },
+  { label: 'Автономность', value: product.specs?.battery ?? autonomyBySlug[product.slug] },
+  { label: 'Языки', value: product.specs?.languages ?? languageBySlug[product.slug] },
+  { label: 'Форматы файлов', value: formatBySlug[product.slug] },
+  { label: 'Цвет', value: product.specs?.color },
   { label: 'Подключение', value: product.specs?.connection },
   { label: 'Гарантия', value: product.specs?.warranty }
 ].filter((row) => row.value);
