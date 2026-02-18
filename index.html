@@ -356,27 +356,29 @@
     .pricingcard{border-radius:20px;padding:40px;
       border:1px solid rgba(29,29,31,.10);
       display:flex;flex-direction:column;height:100%}
-    .pricingcard.reg{background:#fff}
+    /* Правая карточка: спокойная альтернатива */
+    .pricingcard.reg{background:#fff;padding:40px;box-shadow:0 8px 18px rgba(15,23,42,.05)}
     /* Левая карточка-бестселлер с усиленной рамкой и тенью */
     .pricingcard.feat{
       background:#fff;
-      border:2px solid rgba(232,134,53,.55);
-      box-shadow:0 18px 36px rgba(232,134,53,.16),0 8px 20px rgba(15,23,42,.08);
+      padding:48px;
+      border:3px solid rgba(232,134,53,.72);
+      box-shadow:0 24px 44px rgba(232,134,53,.20),0 14px 30px rgba(15,23,42,.12);
       transform:translateY(-2px);
     }
-    .pbadge2{display:inline-block;font-size:10px;font-weight:600;
-      letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;
-      border-radius:980px;margin-bottom:16px}
+    .pbadge2{display:inline-block;font-size:11px;font-weight:700;
+      letter-spacing:.04em;text-transform:uppercase;padding:6px 16px;
+      border-radius:20px;margin-bottom:16px}
     .pbadge2.gr{background:#f0f1f4;color:#6e6e73}
-    .pbadge2.bl{background:#111;color:#fff}
+    .pbadge2.bl{background:#e88635;color:#fff}
     .pname2{font-size:34px;font-weight:700;color:#1d1d1f;margin-bottom:8px;line-height:1}
     .ptag{font-size:14px;color:#6e6e73;margin-bottom:16px}
-    .pmedia{display:flex;align-items:center;justify-content:center;min-height:190px;margin:6px 0 14px}
+    .pmedia{display:flex;align-items:center;justify-content:center;min-height:220px;margin:8px 0 16px}
     .pmedia img{width:100%;max-width:200px;height:auto;object-fit:contain;
       filter:drop-shadow(0 12px 20px rgba(0,0,0,.16))}
-    .pricingcard.feat .pmedia img{max-width:270px}
+    .pricingcard.feat .pmedia img{width:72%;max-width:390px;min-width:260px}
     .pmedia.multi{gap:10px;justify-content:space-between}
-    .pmedia.multi img{max-width:120px}
+    .pmedia.multi img{max-width:136px}
     /* Подписи под тремя моделями линейки */
     .plineup-labels{
       display:grid;
@@ -388,7 +390,7 @@
       text-align:center;
       font-weight:600;
     }
-    .pprice2{font-size:34px;font-weight:700;color:#1d1d1f;margin-bottom:4px}
+    .pprice2{font-size:40px;font-weight:700;color:#1d1d1f;margin-bottom:4px;line-height:1.05}
     .pper{font-size:12px;color:#6e6e73;margin-bottom:24px}
     .pdiv{height:1px;background:rgba(29,29,31,.1);margin-bottom:20px}
     .pfeats{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
@@ -521,7 +523,7 @@
     .hero-title,.sec-title,.ftitle,.pname2,.how-title,.stitle,.lead-title,.faqq,.rvname{
       color:var(--c-text)
     }
-    .btn-blue,.pbtn2.fil,.lsubmit,.hcenter,.pbadge,.pbadge2.bl{
+    .btn-blue,.pbtn2.fil,.lsubmit,.hcenter,.pbadge{
       background:var(--c-accent)
     }
     .btn-ghost,.pbtn2.out,.btn-woutline{
@@ -569,7 +571,7 @@
     .abadge .dot,.cart-n,.faqitem.open .faqarr,.pbadge2.bl{
       background:var(--c-accent)
     }
-    .pbadge2.bl{color:#fff}
+    .pbadge2.bl{background:#e88635!important;color:#fff}
     .faq-inner{display:flex;flex-direction:column;gap:10px}
     .faqitem{
       background:transparent;
@@ -1299,7 +1301,7 @@ img{max-width:100%;height:auto}
   <div class="wrap">
     <div class="pricing-wrap">
       <div class="sec-head reveal" style="margin-bottom:0">
-        <h2 class="sec-title">Выберите свой CRYPTORO</h2>
+        <h2 class="sec-title">Выберите свой диктофон</h2>
         <p class="sec-sub">Два устройства — одна цель: не упустить ни слова</p>
       </div>
       <div class="p-cards">
