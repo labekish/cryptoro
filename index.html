@@ -56,10 +56,10 @@
 
     /* HERO */
     .hero{min-height:88vh;display:flex;align-items:center;justify-content:center;
-      padding:96px 24px 92px;position:relative;overflow:hidden;
-      background:linear-gradient(180deg,#ffffff 0%,#f8f9fc 100%)}
+      padding:104px 24px 98px;position:relative;overflow:hidden;
+      background:#fff}
     .hero::before{content:'';position:absolute;inset:0;z-index:0;
-      background:linear-gradient(120deg,rgba(232,134,53,.07) 0%,transparent 48%)}
+      background:transparent}
     .orb,.orb1,.orb2,.orb3{display:none}
     .hero-inner{position:relative;z-index:1;max-width:1200px;width:100%;
       display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:48px}
@@ -91,12 +91,12 @@
     }
     .hero-proof span{display:inline-flex;align-items:center;gap:6px}
     .hero-visual{display:flex;justify-content:flex-end}
-    .hero-product{position:relative;width:min(100%,640px);padding:0;background:transparent;
+    .hero-product{position:relative;width:min(100%,760px);padding:0;background:transparent;
       border:none;box-shadow:none}
     .hero-product-image{display:flex;align-items:center;justify-content:center;min-height:500px}
     .hero-product-image img{
-      width:100%;
-      max-width:470px;
+      width:82%;
+      max-width:620px;
       height:auto;
       object-fit:contain;
       filter:drop-shadow(0 26px 30px rgba(15,23,42,.22));
@@ -110,6 +110,9 @@
 
     /* SECTION SHARED */
     .sec{padding:100px 24px}
+    /* Добавляем воздух между hero и следующими блоками */
+    .sec-products{padding-top:112px}
+    .sec-features{padding-top:118px}
     .sec-head{text-align:center;margin-bottom:56px}
     .sec-title{font-family:'Unbounded',sans-serif;
       font-size:clamp(30px,4.5vw,50px);font-weight:700;
@@ -666,9 +669,9 @@
       .btn-blue,.btn-ghost{width:100%;max-width:320px}
       .hero-proof{font-size:13px;gap:10px}
       .hero-visual{justify-content:center}
-      .hero-product{width:min(100%,420px)}
+      .hero-product{width:min(100%,520px)}
       .hero-product-image{min-height:320px;justify-content:center}
-      .hero-product-image img{max-width:320px}
+      .hero-product-image img{width:86%;max-width:360px}
       .fcard{padding:22px}
       .fvisual{min-height:150px}
       .feat-grid{grid-template-columns:1fr}
@@ -699,7 +702,7 @@
     @media(max-width:480px){
       .hero-label{font-size:10px}
       .hero-product-image{min-height:250px}
-      .hero-product-image img{max-width:260px}
+      .hero-product-image img{width:88%;max-width:300px}
       .products-grid{
         display:flex;
         gap:12px;
@@ -778,7 +781,7 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
 
 /* Hero style (premium light) */
 .hero{background:linear-gradient(180deg,#ffffff 0%,#f8f9fc 100%)!important}
-.hero::before{background:linear-gradient(120deg,rgba(232,134,53,.07) 0%,transparent 48%)!important}
+.hero::before{background:transparent!important}
 .hero-title{color:#111!important}
 .hero-sub,.hero-label,.hero-proof{color:#6e6e73!important}
 .hero-product{background:transparent!important;border:none!important}
@@ -867,6 +870,8 @@ img{max-width:100%;height:auto}
 /* Final micro-pass: spacing/contrast rhythm */
 .hero{min-height:86vh!important;padding-top:112px!important;padding-bottom:56px!important}
 .sec{padding:88px 24px!important}
+.sec-products{padding-top:102px!important}
+.sec-features{padding-top:112px!important}
 .sec-head{margin-bottom:44px!important}
 .sec-products,.sec-pricing,.sec-faq{background:#f5f5f7!important}
 .sec-features,.sec-how,.sec-usecases,.sec-reviews,.sec-lead{background:#fff!important}
