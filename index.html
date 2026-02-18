@@ -290,7 +290,9 @@
     .uc-grid{
       display:grid;
       grid-template-columns:repeat(4,minmax(0,1fr));
-      grid-auto-rows:minmax(180px,auto);
+      grid-template-areas:
+        "ceo ceo b2b med"
+        "law edu crea crea";
       gap:16px;
     }
     .uccard{
@@ -310,8 +312,12 @@
       box-shadow:0 18px 32px rgba(15,23,42,.10);
       border-color:rgba(17,17,17,.14);
     }
-    .uc-wide{grid-column:span 2}
-    .uc-tall{grid-row:span 2}
+    .uc-a-ceo{grid-area:ceo}
+    .uc-a-b2b{grid-area:b2b}
+    .uc-a-med{grid-area:med}
+    .uc-a-law{grid-area:law}
+    .uc-a-edu{grid-area:edu}
+    .uc-a-crea{grid-area:crea}
     .uc-code{
       font-size:clamp(46px,4.8vw,60px);
       line-height:.95;
@@ -630,9 +636,15 @@
       .step-line{flex-direction:row;align-items:center}
       .sconn{display:none}
       .products-grid{grid-template-columns:repeat(2,1fr)}
-      .uc-grid{grid-template-columns:repeat(2,1fr)}
+      .uc-grid{
+        grid-template-columns:repeat(2,1fr);
+        grid-template-areas:
+          "ceo ceo"
+          "b2b med"
+          "law edu"
+          "crea crea";
+      }
       .uccard{min-height:170px;padding:18px}
-      .uc-wide,.uc-tall{grid-column:auto;grid-row:auto}
       .uclabel{font-size:18px}
       .rv-grid{grid-template-columns:1fr}
       .p-cards{grid-template-columns:1fr}
@@ -657,9 +669,17 @@
         scroll-snap-align:start;
         flex:0 0 auto;
       }
-      .uc-grid{grid-template-columns:1fr}
+      .uc-grid{
+        grid-template-columns:1fr;
+        grid-template-areas:
+          "ceo"
+          "b2b"
+          "med"
+          "law"
+          "edu"
+          "crea";
+      }
       .uccard{min-height:auto}
-      .uc-wide,.uc-tall{grid-column:auto;grid-row:auto}
     }
   </style>
 <style id="unified-theme-override">
@@ -822,8 +842,14 @@ img{max-width:100%;height:auto}
   .step{flex-direction:column!important;gap:14px!important}
   .step-line{flex-direction:row!important;align-items:center!important}
   .sconn{display:none!important}
-  .uc-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .uc-wide,.uc-tall{grid-column:auto!important;grid-row:auto!important}
+  .uc-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-areas:
+      "ceo ceo"
+      "b2b med"
+      "law edu"
+      "crea crea" !important;
+  }
   .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .foot-grid{grid-template-columns:1fr!important;gap:24px!important}
   .foot-bot{flex-direction:column!important;align-items:flex-start!important}
@@ -850,8 +876,16 @@ img{max-width:100%;height:auto}
     scroll-snap-align:start!important;
   }
   .feat-grid,.uc-grid,.rv-grid,.p-cards{gap:14px!important}
-  .uc-grid{grid-template-columns:1fr!important}
-  .uc-wide,.uc-tall{grid-column:auto!important;grid-row:auto!important}
+  .uc-grid{
+    grid-template-columns:1fr!important;
+    grid-template-areas:
+      "ceo"
+      "b2b"
+      "med"
+      "law"
+      "edu"
+      "crea" !important;
+  }
   .pcard,.fcard,.uccard,.rvcard,.pricingcard{border-radius:16px!important}
 }
 </style>
@@ -1185,7 +1219,7 @@ img{max-width:100%;height:auto}
       <p class="uc-topnote">Экономия до 260 часов в год при ежедневной расшифровке</p>
     </div>
     <div class="uc-grid">
-      <div class="uccard uc-ceo uc-wide reveal d1">
+      <div class="uccard uc-ceo uc-a-ceo reveal d1">
         <div class="uc-code">CEO</div>
         <div class="uclabel">Руководители</div>
         <div class="ucdesc">Фиксируйте договорённости на встречах и сразу получайте итог с задачами и сроками.</div>
@@ -1195,7 +1229,7 @@ img{max-width:100%;height:auto}
         </div>
       </div>
 
-      <div class="uccard uc-b2b reveal d2">
+      <div class="uccard uc-b2b uc-a-b2b reveal d2">
         <div class="uc-code">B2B</div>
         <div class="uclabel">Отдел продаж</div>
         <div class="ucdesc">Сохраняйте детали звонков с клиентами и формируйте follow-up за минуты.</div>
@@ -1204,7 +1238,7 @@ img{max-width:100%;height:auto}
         </div>
       </div>
 
-      <div class="uccard uc-med uc-tall reveal d3">
+      <div class="uccard uc-med uc-a-med reveal d3">
         <div class="uc-code">MED</div>
         <div class="uclabel">Врачи и клиники</div>
         <div class="ucdesc">Быстро оформляйте консультации и сохраняйте ключевые рекомендации без ручной расшифровки.</div>
@@ -1214,7 +1248,7 @@ img{max-width:100%;height:auto}
         </div>
       </div>
 
-      <div class="uccard uc-law reveal d1">
+      <div class="uccard uc-law uc-a-law reveal d1">
         <div class="uc-code">LAW</div>
         <div class="uclabel">Юристы</div>
         <div class="ucdesc">Ведите протоколы переговоров и интервью, быстро находите цитаты и факты по таймкодам.</div>
@@ -1223,7 +1257,7 @@ img{max-width:100%;height:auto}
         </div>
       </div>
 
-      <div class="uccard uc-edu reveal d2">
+      <div class="uccard uc-edu uc-a-edu reveal d2">
         <div class="uc-code">EDU</div>
         <div class="uclabel">Преподаватели</div>
         <div class="ucdesc">Превращайте лекции и семинары в понятные конспекты и материалы для студентов.</div>
@@ -1232,7 +1266,7 @@ img{max-width:100%;height:auto}
         </div>
       </div>
 
-      <div class="uccard uc-crea uc-wide reveal d3">
+      <div class="uccard uc-crea uc-a-crea reveal d3">
         <div class="uc-code">CREA</div>
         <div class="uclabel">Контент-команды</div>
         <div class="ucdesc">Собирайте идеи из интервью и брейнштормов, получайте структуру для сценариев и постов.</div>
