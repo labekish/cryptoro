@@ -349,30 +349,45 @@
 
     /* PRICING */
     .sec-pricing{background:#f5f5f7}
-    .pricing-wrap{background:linear-gradient(180deg,#ffffff 0%,#f7faff 100%);
+    .pricing-wrap{background:#fff;
       border-radius:24px;padding:40px;border:1px solid rgba(29,29,31,.08)}
-    .p-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px}
-    .pricingcard{border-radius:16px;padding:28px;
-      border:1px solid rgba(29,29,31,.08);
+    /* Сравнение продуктов: акцентная карточка слева чуть шире */
+    .p-cards{display:grid;grid-template-columns:1.22fr .98fr;gap:18px;margin-top:40px;align-items:stretch}
+    .pricingcard{border-radius:20px;padding:40px;
+      border:1px solid rgba(29,29,31,.10);
       display:flex;flex-direction:column;height:100%}
     .pricingcard.reg{background:#fff}
-    .pricingcard.feat{background:linear-gradient(180deg,#ffffff 0%,#f3f8ff 100%);
-      border-color:rgba(232,134,53,.35);box-shadow:0 12px 28px rgba(232,134,53,.10)}
+    /* Левая карточка-бестселлер с усиленной рамкой и тенью */
+    .pricingcard.feat{
+      background:#fff;
+      border:2px solid rgba(232,134,53,.55);
+      box-shadow:0 18px 36px rgba(232,134,53,.16),0 8px 20px rgba(15,23,42,.08);
+      transform:translateY(-2px);
+    }
     .pbadge2{display:inline-block;font-size:10px;font-weight:600;
       letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;
       border-radius:980px;margin-bottom:16px}
-    .pbadge2.gr{background:rgba(29,29,31,.06);color:#6e6e73}
-    .pbadge2.bl{background:rgba(232,134,53,.12);color:#e88635}
+    .pbadge2.gr{background:#f0f1f4;color:#6e6e73}
+    .pbadge2.bl{background:#111;color:#fff}
     .pname2{font-size:34px;font-weight:700;color:#1d1d1f;margin-bottom:8px;line-height:1}
     .ptag{font-size:14px;color:#6e6e73;margin-bottom:16px}
-    .pmedia{display:flex;align-items:center;justify-content:center;min-height:170px;margin:4px 0 10px}
+    .pmedia{display:flex;align-items:center;justify-content:center;min-height:190px;margin:6px 0 14px}
     .pmedia img{width:100%;max-width:200px;height:auto;object-fit:contain;
       filter:drop-shadow(0 12px 20px rgba(0,0,0,.16))}
-    .pmedia.multi{gap:8px;justify-content:flex-start}
-    .pmedia.multi img{max-width:114px}
-    .ptags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-    .ptags span{background:#edf4ff;color:#1f5fab;border:1px solid #d5e6ff;
-      font-size:11px;font-weight:600;padding:4px 10px;border-radius:980px}
+    .pricingcard.feat .pmedia img{max-width:270px}
+    .pmedia.multi{gap:10px;justify-content:space-between}
+    .pmedia.multi img{max-width:120px}
+    /* Подписи под тремя моделями линейки */
+    .plineup-labels{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+      margin:-2px 0 16px;
+      font-size:12px;
+      color:#6e6e73;
+      text-align:center;
+      font-weight:600;
+    }
     .pprice2{font-size:34px;font-weight:700;color:#1d1d1f;margin-bottom:4px}
     .pper{font-size:12px;color:#6e6e73;margin-bottom:24px}
     .pdiv{height:1px;background:rgba(29,29,31,.1);margin-bottom:20px}
@@ -381,7 +396,7 @@
     .pfeat .c{color:#e88635;flex-shrink:0;margin-top:1px}
     .pfeat .c.bl{color:#e88635}
     .pfeat span{color:#4b4b54;line-height:1.4}
-    .pbtn2{display:block;width:100%;padding:13px;border-radius:10px;
+    .pbtn2{display:block;width:100%;padding:13px;border-radius:12px;
       font-size:14px;font-weight:500;text-align:center;cursor:pointer;
       text-decoration:none;transition:background .2s,transform .15s;border:none;
       font-family:'Inter',sans-serif;margin-top:auto}
@@ -389,14 +404,14 @@
     .pbtn2.out:hover{border-color:rgba(29,29,31,.55)}
     .pbtn2.fil{background:#e88635;color:#fff}
     .pbtn2.fil:hover{background:#d97b2f;transform:scale(1.01)}
-    .p-bottom{margin-top:20px;padding-top:20px;
+    .p-bottom{margin-top:24px;padding-top:20px;
       border-top:1px solid rgba(29,29,31,.08);
       display:flex;align-items:center;justify-content:space-between}
     .p-bottom span{font-size:14px;color:#6e6e73}
-    .p-bottom a{font-size:13px;color:#e88635;text-decoration:none;
-      padding:8px 16px;border:1px solid rgba(232,134,53,.25);
+    .p-bottom a{font-size:13px;color:#111;text-decoration:none;
+      padding:8px 16px;border:1px solid rgba(29,29,31,.25);
       border-radius:980px;transition:border-color .2s}
-    .p-bottom a:hover{border-color:#e88635}
+    .p-bottom a:hover{border-color:#111}
 
     /* REVIEWS */
     .sec-reviews{background:#fff}
@@ -1317,7 +1332,7 @@ img{max-width:100%;height:auto}
             <img src="/images/products/plaud-note-silver.webp" alt="Plaud Note Pro"/>
             <img src="/images/products/plaud-notepin.webp" alt="Plaud NotePin"/>
           </div>
-          <div class="ptags">
+          <div class="plineup-labels">
             <span>Note</span>
             <span>Note Pro</span>
             <span>NotePin</span>
