@@ -90,7 +90,7 @@ const msFetch = async (url: string, token: string) => {
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
-      Accept: 'application/json'
+      Accept: 'application/json;charset=utf-8'
     }
   });
   if (!response.ok) {
