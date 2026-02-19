@@ -60,10 +60,14 @@ const readStock = (row: MsAssortmentRow): number => {
   return Number.isFinite(stock) ? stock : 0;
 };
 
-const buildAssortmentUrl = (sku: string, warehouseId?: string): string => {
+const buildAssortmentUrl = (sku: string, warehouseId?: string, mode: 'article' | 'code' | 'search' = 'article'): string => {
   const url = new URL(`${API_BASE}/entity/assortment`);
-  url.searchParams.set('limit', '1');
-  url.searchParams.set('filter', `article=${sku}`);
+  url.searchParams.set('limit', mode === 'search' ? '25' : '1');
+  if (mode === 'search') {
+    url.searchParams.set('search', sku);
+  } else {
+    url.searchParams.set('filter', `${mode}=${sku}`);
+  }
   if (warehouseId) {
     url.searchParams.set('stockStore', `${API_BASE}/entity/store/${warehouseId}`);
   }
@@ -81,6 +85,23 @@ const msFetch = async (url: string, token: string) => {
     throw new Error(`MoySklad API ${response.status}`);
   }
   return response.json();
+};
+
+const findRowBySku = async (sku: string, token: string, warehouseId?: string): Promise<MsAssortmentRow | undefined> => {
+  const directByArticle = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'article'), token)) as { rows?: MsAssortmentRow[] };
+  if (directByArticle.rows?.length) return directByArticle.rows[0];
+
+  const directByCode = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'code'), token)) as { rows?: MsAssortmentRow[] };
+  if (directByCode.rows?.length) return directByCode.rows[0];
+
+  const bySearch = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'search'), token)) as { rows?: MsAssortmentRow[] };
+  if (!bySearch.rows?.length) return undefined;
+
+  return (
+    bySearch.rows.find((row) => row.article === sku) ??
+    bySearch.rows.find((row) => row.code === sku) ??
+    bySearch.rows[0]
+  );
 };
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
@@ -111,8 +132,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       requestedSlugs.map(async (slug) => {
         const sku = skuMap[slug];
         if (!sku) return;
-        const payload = (await msFetch(buildAssortmentUrl(sku, warehouseId), token)) as { rows?: MsAssortmentRow[] };
-        const row = payload.rows?.[0];
+        const row = await findRowBySku(sku, token, warehouseId);
         if (!row) return;
 
         const stock = readStock(row);
