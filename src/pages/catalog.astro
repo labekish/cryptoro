@@ -55,6 +55,12 @@ Object.entries(skus).forEach(([slug, sku]) => {
       /(<span class="text-2xl font-bold")(?![^>]*data-ms-price)([^>]*>)/i,
       `$1 data-ms-price="${slug}"$2`
     );
+    if (!new RegExp(`data-ms-stock="${slug}"`, 'i').test(next)) {
+      next = next.replace(
+        /(<div class="mt-auto pt-5">)/i,
+        `$1<div data-ms-stock="${slug}" class="ms-stock-badge"></div>`
+      );
+    }
     return next;
   });
 });

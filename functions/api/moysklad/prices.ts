@@ -142,7 +142,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const priceTypeId = context.env.MS_PRICE_TYPE_ID;
     const stockZeroMode = context.env.MS_STOCK_ZERO_MODE === 'hide' ? 'hide' : 'preorder';
 
-    const resultItems: Record<string, { sku: string; price: number; stock: number; status: 'in_stock' | 'preorder' }> = {};
+    type StockStatus = 'in_stock' | 'low_stock' | 'preorder' | 'hidden';
+    const resultItems: Record<string, { sku: string; price: number; stock: number; status: StockStatus }> = {};
 
     await Promise.all(
       requestedSlugs.map(async (slug) => {
@@ -152,7 +153,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         if (!row) return;
 
         const stock = readStock(row);
-        const status: 'in_stock' | 'preorder' = stock > 0 || stockZeroMode === 'hide' ? 'in_stock' : 'preorder';
+        let status: StockStatus = 'in_stock';
+        if (stock <= 0) {
+          status = stockZeroMode === 'hide' ? 'hidden' : 'preorder';
+        } else if (stock <= 5) {
+          status = 'low_stock';
+        }
         resultItems[slug] = {
           sku,
           price: readPrice(row, priceTypeId),

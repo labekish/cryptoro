@@ -177,6 +177,43 @@ const ogUrl = Astro.url?.toString() || '';
       [data-ms-price].ms-price-pending{
         visibility:hidden!important;
       }
+      [data-ms-stock]{
+        display:none;
+      }
+      .ms-stock-badge{
+        display:inline-flex!important;
+        align-items:center;
+        gap:6px;
+        margin:8px 0 0;
+        padding:6px 11px;
+        border-radius:999px;
+        font-size:12px;
+        font-weight:600;
+        line-height:1;
+        border:1px solid transparent;
+        white-space:nowrap;
+      }
+      .ms-stock-badge.ms-in-stock{
+        color:#166534;
+        background:#ecfdf3;
+        border-color:#86efac;
+      }
+      .ms-stock-badge.ms-low-stock{
+        color:#b45309;
+        background:#fff7ed;
+        border-color:#fdba74;
+      }
+      .ms-stock-badge.ms-preorder{
+        color:#9a3412;
+        background:#ffedd5;
+        border-color:#fdba74;
+      }
+      .buy-btn.is-disabled,[data-ms-buy-btn].is-disabled{
+        opacity:.58!important;
+        cursor:not-allowed!important;
+        box-shadow:none!important;
+        transform:none!important;
+      }
       .section-divider,.foot-div,hr{border-color:rgba(0,0,0,.12)!important}
       .reveal,.pcard,.rcard,.fcard,.dcard,.wcard,.paycard,.mstat,.faqitem{
         transition:all .3s ease-out!important;
@@ -646,17 +683,46 @@ const ogUrl = Astro.url?.toString() || '';
               });
 
               document.querySelectorAll(`[data-ms-stock="${slug}"]`).forEach((node) => {
+                const qty = Math.max(0, Number(item.stock || 0));
+                node.classList.remove('ms-stock-badge', 'ms-in-stock', 'ms-low-stock', 'ms-preorder');
+                node.style.display = 'none';
+                node.textContent = '';
+
+                if (item.status === 'hidden') return;
+
+                node.classList.add('ms-stock-badge');
                 if (item.status === 'preorder') {
+                  node.classList.add('ms-preorder');
                   node.textContent = 'Предзаказ';
-                  node.style.display = 'inline-flex';
+                } else if (item.status === 'low_stock') {
+                  node.classList.add('ms-low-stock');
+                  node.textContent = `Мало: ${qty} шт`;
                 } else {
-                  node.textContent = '';
-                  node.style.display = 'none';
+                  node.classList.add('ms-in-stock');
+                  node.textContent = `В наличии: ${qty} шт`;
                 }
+                node.style.display = 'inline-flex';
               });
 
               document.querySelectorAll(`[data-ms-buy-btn="${slug}"]`).forEach((node) => {
-                node.textContent = item.status === 'preorder' ? 'Предзаказ' : 'Купить сейчас';
+                if (item.status === 'preorder') {
+                  node.textContent = 'Предзаказ';
+                  node.classList.remove('is-disabled');
+                  node.removeAttribute('disabled');
+                  node.setAttribute('aria-disabled', 'false');
+                  return;
+                }
+                if (item.status === 'hidden') {
+                  node.textContent = 'Нет в наличии';
+                  node.classList.add('is-disabled');
+                  node.setAttribute('disabled', 'disabled');
+                  node.setAttribute('aria-disabled', 'true');
+                  return;
+                }
+                node.textContent = 'Купить сейчас';
+                node.classList.remove('is-disabled');
+                node.removeAttribute('disabled');
+                node.setAttribute('aria-disabled', 'false');
               });
             });
           };
