@@ -21,39 +21,42 @@ const formatPrice = (value: number) => `${Math.round(Number(value || 0)).toLocal
 let syncedBody = page.body;
 const cardSlugs = ['vspomnit', 'plaud-note', 'plaud-note-pro', 'notepin', 'accessories'];
 
+function patchCard(slug: string, patcher: (cardHtml: string) => string) {
+  const cardRegex = new RegExp(`(<a[^>]*href="/products/${slug}"[^>]*>[\\s\\S]*?<\\/a>)`, 'i');
+  syncedBody = syncedBody.replace(cardRegex, (cardHtml) => patcher(cardHtml));
+}
+
 cardSlugs.forEach((slug) => {
   const price = prices[slug];
   if (price == null) return;
 
-  syncedBody = syncedBody.replace(
-    new RegExp(`(<a[^>]*href="/products/${slug}"[^>]*data-price=")([^"]*)(")`, 'i'),
-    `$1${Math.round(price)}$3`
-  );
-
-  syncedBody = syncedBody.replace(
-    new RegExp(`(<a[^>]*href="/products/${slug}"[\\s\\S]*?<div class="text-2xl font-bold">)([^<]*)(</div>)`, 'i'),
-    `$1${formatPrice(price)}$3`
-  );
-
-  syncedBody = syncedBody.replace(
-    new RegExp(`(<a[^>]*href="/products/${slug}"[\\s\\S]*?<span class="text-2xl font-bold">)([^<]*)(</span>)`, 'i'),
-    `$1${formatPrice(price)}$3`
-  );
+  patchCard(slug, (cardHtml) => {
+    let next = cardHtml;
+    next = next.replace(/(data-price=")([^"]*)(")/i, `$1${Math.round(price)}$3`);
+    next = next.replace(/(<div class="text-2xl font-bold">)([^<]*)(<\/div>)/i, `$1${formatPrice(price)}$3`);
+    next = next.replace(/(<span class="text-2xl font-bold">)([^<]*)(<\/span>)/i, `$1${formatPrice(price)}$3`);
+    return next;
+  });
 });
 
 Object.entries(skus).forEach(([slug, sku]) => {
-  syncedBody = syncedBody.replace(
-    new RegExp(`(<a[^>]*href="/products/${slug}"[^>]*)(>)`, 'i'),
-    `$1 data-ms-sku="${sku}"$2`
-  );
-  syncedBody = syncedBody.replace(
-    new RegExp(`(<a[^>]*href="/products/${slug}"[\\s\\S]*?<div class="text-2xl font-bold")(>)`, 'i'),
-    `$1 data-ms-price="${slug}"$2`
-  );
-  syncedBody = syncedBody.replace(
-    new RegExp(`(<a[^>]*href="/products/${slug}"[\\s\\S]*?<span class="text-2xl font-bold")(>)`, 'i'),
-    `$1 data-ms-price="${slug}"$2`
-  );
+  patchCard(slug, (cardHtml) => {
+    let next = cardHtml;
+
+    if (!/data-ms-sku=/i.test(next)) {
+      next = next.replace(/<a([^>]*?)>/i, `<a$1 data-ms-sku="${sku}">`);
+    }
+
+    next = next.replace(
+      /(<div class="text-2xl font-bold")(?![^>]*data-ms-price)([^>]*>)/i,
+      `$1 data-ms-price="${slug}"$2`
+    );
+    next = next.replace(
+      /(<span class="text-2xl font-bold")(?![^>]*data-ms-price)([^>]*>)/i,
+      `$1 data-ms-price="${slug}"$2`
+    );
+    return next;
+  });
 });
 ---
 <Layout
