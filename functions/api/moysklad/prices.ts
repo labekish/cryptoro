@@ -4,6 +4,8 @@ type Env = {
   MS_PRICE_TYPE_ID?: string;
   MS_SKU_MAP_JSON?: string;
   MS_STOCK_ZERO_MODE?: string;
+  MS_PRICE_RULE?: string;
+  MS_STOCK_RULE?: string;
 };
 
 type MsAssortmentRow = {
@@ -18,30 +20,62 @@ type MsAssortmentRow = {
 };
 
 const API_BASE = 'https://api.moysklad.ru/api/remap/1.2';
-const DEFAULT_SKU_MAP: Record<string, string> = {
-  vspomnit: 'FR-277',
-  'plaud-note': 'FR-143'
+const DEFAULT_SKU_MAP: Record<string, string[]> = {
+  vspomnit: ['FR-277'],
+  'plaud-note': ['FR-143']
 };
 
-const parseSkuMap = (raw?: string): Record<string, string> => {
+const normalizeSkuList = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item || '').trim())
+      .filter(Boolean);
+  }
+  const single = String(value || '').trim();
+  return single ? [single] : [];
+};
+
+const parseSkuMap = (raw?: string): Record<string, string[]> => {
   if (!raw) return DEFAULT_SKU_MAP;
   try {
-    const parsed = JSON.parse(raw) as Record<string, string>;
-    return { ...DEFAULT_SKU_MAP, ...parsed };
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const normalized = Object.entries(parsed).reduce<Record<string, string[]>>((acc, [slug, value]) => {
+      const skus = normalizeSkuList(value);
+      if (skus.length) acc[slug] = skus;
+      return acc;
+    }, {});
+    return { ...DEFAULT_SKU_MAP, ...normalized };
   } catch {
     return DEFAULT_SKU_MAP;
   }
 };
 
-const parseSkuPairs = (raw?: string | null): Record<string, string> => {
+const parseSkuPairs = (raw?: string | null): Record<string, string[]> => {
   if (!raw) return {};
-  return raw.split(',').reduce<Record<string, string>>((acc, pair) => {
+  return raw.split(',').reduce<Record<string, string[]>>((acc, pair) => {
     const [slugRaw, skuRaw] = pair.split(':');
     const slug = (slugRaw || '').trim();
-    const sku = (skuRaw || '').trim();
-    if (slug && sku) acc[slug] = sku;
+    const skuCandidates = (skuRaw || '')
+      .split('|')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    if (slug && skuCandidates.length) {
+      acc[slug] = Array.from(new Set([...(acc[slug] || []), ...skuCandidates]));
+    }
     return acc;
   }, {});
+};
+
+const mergeSkuMaps = (
+  envMap: Record<string, string[]>,
+  requestMap: Record<string, string[]>
+): Record<string, string[]> => {
+  const merged: Record<string, string[]> = { ...requestMap };
+  // Приоритет у маппинга из переменных Cloudflare, чтобы фронт не перезатирал slug одним SKU.
+  Object.entries(envMap).forEach(([slug, skus]) => {
+    if (skus.length) merged[slug] = skus;
+  });
+  return merged;
 };
 
 const parseWarehouseId = (value?: string): string | undefined => {
@@ -70,6 +104,22 @@ const readPrice = (row: MsAssortmentRow, priceTypeId?: string): number => {
 const readStock = (row: MsAssortmentRow): number => {
   const stock = Number(row.stock ?? row.quantity ?? 0);
   return Number.isFinite(stock) ? stock : 0;
+};
+
+const aggregatePrice = (values: number[], rule: 'min' | 'max' | 'first'): number => {
+  const prices = values.filter((value) => Number.isFinite(value) && value > 0);
+  if (!prices.length) return 0;
+  if (rule === 'max') return Math.max(...prices);
+  if (rule === 'first') return prices[0];
+  return Math.min(...prices);
+};
+
+const aggregateStock = (values: number[], rule: 'sum' | 'max' | 'first'): number => {
+  const stocks = values.map((value) => (Number.isFinite(value) ? value : 0));
+  if (!stocks.length) return 0;
+  if (rule === 'max') return Math.max(...stocks);
+  if (rule === 'first') return stocks[0];
+  return stocks.reduce((acc, value) => acc + value, 0);
 };
 
 const buildAssortmentUrl = (sku: string, warehouseId?: string, mode: 'article' | 'code' | 'search' = 'article'): string => {
@@ -130,7 +180,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const url = new URL(context.request.url);
     const envSkuMap = parseSkuMap(context.env.MS_SKU_MAP_JSON);
     const requestSkuMap = parseSkuPairs(url.searchParams.get('skuMap'));
-    const skuMap = { ...envSkuMap, ...requestSkuMap };
+    const skuMap = mergeSkuMaps(envSkuMap, requestSkuMap);
     const requested = url.searchParams.get('slugs');
     const requestedSlugs = requested
       ? requested
@@ -141,18 +191,32 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const warehouseId = parseWarehouseId(context.env.MS_WAREHOUSE_ID);
     const priceTypeId = context.env.MS_PRICE_TYPE_ID;
     const stockZeroMode = context.env.MS_STOCK_ZERO_MODE === 'hide' ? 'hide' : 'preorder';
+    const priceRule = context.env.MS_PRICE_RULE === 'max' ? 'max' : context.env.MS_PRICE_RULE === 'first' ? 'first' : 'min';
+    const stockRule = context.env.MS_STOCK_RULE === 'max' ? 'max' : context.env.MS_STOCK_RULE === 'first' ? 'first' : 'sum';
 
     type StockStatus = 'in_stock' | 'low_stock' | 'preorder' | 'hidden';
-    const resultItems: Record<string, { sku: string; price: number; stock: number; status: StockStatus }> = {};
+    const resultItems: Record<string, { sku: string; skus: string[]; price: number; stock: number; status: StockStatus }> = {};
 
     await Promise.all(
       requestedSlugs.map(async (slug) => {
-        const sku = skuMap[slug];
-        if (!sku) return;
-        const row = await findRowBySku(sku, token, warehouseId);
-        if (!row) return;
+        const skus = skuMap[slug] || [];
+        if (!skus.length) return;
 
-        const stock = readStock(row);
+        const rows = (
+          await Promise.all(
+            skus.map((sku) => findRowBySku(sku, token, warehouseId))
+          )
+        ).filter((row): row is MsAssortmentRow => Boolean(row));
+        if (!rows.length) return;
+
+        const stock = aggregateStock(
+          rows.map((row) => readStock(row)),
+          stockRule
+        );
+        const price = aggregatePrice(
+          rows.map((row) => readPrice(row, priceTypeId)),
+          priceRule
+        );
         let status: StockStatus = 'in_stock';
         if (stock <= 0) {
           status = stockZeroMode === 'hide' ? 'hidden' : 'preorder';
@@ -160,8 +224,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
           status = 'low_stock';
         }
         resultItems[slug] = {
-          sku,
-          price: readPrice(row, priceTypeId),
+          sku: skus[0],
+          skus,
+          price,
           stock,
           status
         };
