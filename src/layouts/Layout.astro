@@ -660,17 +660,34 @@ const ogUrl = Astro.url?.toString() || '';
 
           if (!slugs.length) return;
 
-          const slugToSku = {};
+          const slugToSkus = {};
           slugs.forEach((slug) => {
-            const exact = document.querySelector(`[data-ms-price="${slug}"][data-ms-sku], [data-ms-stock="${slug}"][data-ms-sku], [data-ms-buy-btn="${slug}"][data-ms-sku]`);
+            const exact = document.querySelector(
+              `[data-ms-price="${slug}"][data-ms-skus], [data-ms-stock="${slug}"][data-ms-skus], [data-ms-buy-btn="${slug}"][data-ms-skus]`
+            );
+            const fallbackExact = document.querySelector(
+              `[data-ms-price="${slug}"][data-ms-sku], [data-ms-stock="${slug}"][data-ms-sku], [data-ms-buy-btn="${slug}"][data-ms-sku]`
+            );
             const scoped = document.querySelector(`[data-ms-price="${slug}"], [data-ms-stock="${slug}"], [data-ms-buy-btn="${slug}"]`);
-            const source = exact || (scoped && scoped.closest && scoped.closest('[data-ms-sku]'));
-            const sku = source ? source.getAttribute('data-ms-sku') : null;
-            if (sku) slugToSku[slug] = sku;
+            const source =
+              exact ||
+              fallbackExact ||
+              (scoped && scoped.closest && (scoped.closest('[data-ms-skus]') || scoped.closest('[data-ms-sku]')));
+
+            const fromList = source
+              ? String(source.getAttribute('data-ms-skus') || '')
+                  .split(',')
+                  .map((item) => item.trim())
+                  .filter(Boolean)
+              : [];
+            const fromSingle = source ? String(source.getAttribute('data-ms-sku') || '').trim() : '';
+            const skus = Array.from(new Set([...fromList, ...(fromSingle ? [fromSingle] : [])]));
+
+            if (skus.length) slugToSkus[slug] = skus;
           });
 
-          const skuPairs = Object.entries(slugToSku)
-            .map(([slug, sku]) => `${slug}:${sku}`)
+          const skuPairs = Object.entries(slugToSkus)
+            .map(([slug, skuList]) => `${slug}:${skuList.join('|')}`)
             .join(',');
 
           const formatRub = (value) => `${Math.round(Number(value || 0)).toLocaleString('ru-RU')} ₽`;

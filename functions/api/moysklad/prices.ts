@@ -21,11 +21,19 @@ type MsAssortmentRow = {
 
 const API_BASE = 'https://api.moysklad.ru/api/remap/1.2';
 const DEFAULT_SKU_MAP: Record<string, string[]> = {
-  vspomnit: ['FR-277'],
-  'plaud-note': ['FR-143']
+  vspomnit: ['CR-228'],
+  'plaud-note': ['CR-191', 'CR-400', 'CR-197', 'CR-209'],
+  'plaud-note-pro': ['CR-327'],
+  notepin: ['CR-217', 'CR-256', 'CR-258'],
+  accessories: ['AC-40']
 };
 
 const normalizeSkuList = (value: unknown): string[] => {
+  if (value && typeof value === 'object') {
+    const candidate = value as { skus?: unknown; sku?: unknown };
+    if (candidate.skus) return normalizeSkuList(candidate.skus);
+    if (candidate.sku) return normalizeSkuList(candidate.sku);
+  }
   if (Array.isArray(value)) {
     return value
       .map((item) => String(item || '').trim())
@@ -70,9 +78,9 @@ const mergeSkuMaps = (
   envMap: Record<string, string[]>,
   requestMap: Record<string, string[]>
 ): Record<string, string[]> => {
-  const merged: Record<string, string[]> = { ...requestMap };
-  // Приоритет у маппинга из переменных Cloudflare, чтобы фронт не перезатирал slug одним SKU.
-  Object.entries(envMap).forEach(([slug, skus]) => {
+  const merged: Record<string, string[]> = { ...envMap };
+  // skuMap из запроса может целенаправленно переопределять slug (например выбранный цвет в карточке товара).
+  Object.entries(requestMap).forEach(([slug, skus]) => {
     if (skus.length) merged[slug] = skus;
   });
   return merged;
@@ -136,35 +144,63 @@ const buildAssortmentUrl = (sku: string, warehouseId?: string, mode: 'article' |
   return url.toString();
 };
 
+const equalsSku = (value: string | undefined, sku: string): boolean => {
+  return String(value || '').trim().toUpperCase() === String(sku || '').trim().toUpperCase();
+};
+
 const msFetch = async (url: string, token: string) => {
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json;charset=utf-8'
+  const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const maxRetries = 3;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json;charset=utf-8'
+        }
+      });
+      if (!response.ok) {
+        const body = await response.text().catch(() => '');
+        const retryable = response.status === 429 || response.status >= 500;
+        if (retryable && attempt < maxRetries) {
+          const backoffMs = 250 * Math.pow(2, attempt) + Math.floor(Math.random() * 120);
+          await wait(backoffMs);
+          continue;
+        }
+        throw new Error(`MoySklad API ${response.status}${body ? `: ${body.slice(0, 280)}` : ''}`);
+      }
+      return response.json();
+    } catch (error) {
+      if (attempt >= maxRetries) {
+        throw error;
+      }
+      const backoffMs = 250 * Math.pow(2, attempt) + Math.floor(Math.random() * 120);
+      await wait(backoffMs);
     }
-  });
-  if (!response.ok) {
-    const body = await response.text().catch(() => '');
-    throw new Error(`MoySklad API ${response.status}${body ? `: ${body.slice(0, 280)}` : ''}`);
   }
-  return response.json();
+
+  throw new Error('MoySklad fetch failed');
 };
 
 const findRowBySku = async (sku: string, token: string, warehouseId?: string): Promise<MsAssortmentRow | undefined> => {
   const directByArticle = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'article'), token)) as { rows?: MsAssortmentRow[] };
-  if (directByArticle.rows?.length) return directByArticle.rows[0];
+  if (directByArticle.rows?.length) {
+    const exactArticle = directByArticle.rows.find((row) => equalsSku(row.article, sku) || equalsSku(row.code, sku));
+    if (exactArticle) return exactArticle;
+  }
 
   const directByCode = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'code'), token)) as { rows?: MsAssortmentRow[] };
-  if (directByCode.rows?.length) return directByCode.rows[0];
+  if (directByCode.rows?.length) {
+    const exactCode = directByCode.rows.find((row) => equalsSku(row.code, sku) || equalsSku(row.article, sku));
+    if (exactCode) return exactCode;
+  }
 
   const bySearch = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'search'), token)) as { rows?: MsAssortmentRow[] };
   if (!bySearch.rows?.length) return undefined;
 
-  return (
-    bySearch.rows.find((row) => row.article === sku) ??
-    bySearch.rows.find((row) => row.code === sku) ??
-    bySearch.rows[0]
-  );
+  // Без «наугад» фолбэка: берем только точное совпадение SKU.
+  return bySearch.rows.find((row) => equalsSku(row.article, sku) || equalsSku(row.code, sku));
 };
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
@@ -197,41 +233,39 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     type StockStatus = 'in_stock' | 'low_stock' | 'preorder' | 'hidden';
     const resultItems: Record<string, { sku: string; skus: string[]; price: number; stock: number; status: StockStatus }> = {};
 
-    await Promise.all(
-      requestedSlugs.map(async (slug) => {
-        const skus = skuMap[slug] || [];
-        if (!skus.length) return;
+    for (const slug of requestedSlugs) {
+      const skus = skuMap[slug] || [];
+      if (!skus.length) continue;
 
-        const rows = (
-          await Promise.all(
-            skus.map((sku) => findRowBySku(sku, token, warehouseId))
-          )
-        ).filter((row): row is MsAssortmentRow => Boolean(row));
-        if (!rows.length) return;
+      const rows: MsAssortmentRow[] = [];
+      for (const sku of skus) {
+        const row = await findRowBySku(sku, token, warehouseId);
+        if (row) rows.push(row);
+      }
+      if (!rows.length) continue;
 
-        const stock = aggregateStock(
-          rows.map((row) => readStock(row)),
-          stockRule
-        );
-        const price = aggregatePrice(
-          rows.map((row) => readPrice(row, priceTypeId)),
-          priceRule
-        );
-        let status: StockStatus = 'in_stock';
-        if (stock <= 0) {
-          status = stockZeroMode === 'hide' ? 'hidden' : 'preorder';
-        } else if (stock <= 5) {
-          status = 'low_stock';
-        }
-        resultItems[slug] = {
-          sku: skus[0],
-          skus,
-          price,
-          stock,
-          status
-        };
-      })
-    );
+      const stock = aggregateStock(
+        rows.map((row) => readStock(row)),
+        stockRule
+      );
+      const price = aggregatePrice(
+        rows.map((row) => readPrice(row, priceTypeId)),
+        priceRule
+      );
+      let status: StockStatus = 'in_stock';
+      if (stock <= 0) {
+        status = stockZeroMode === 'hide' ? 'hidden' : 'preorder';
+      } else if (stock <= 5) {
+        status = 'low_stock';
+      }
+      resultItems[slug] = {
+        sku: skus[0],
+        skus,
+        price,
+        stock,
+        status
+      };
+    }
 
     return new Response(
       JSON.stringify({

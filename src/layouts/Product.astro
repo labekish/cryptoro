@@ -5,6 +5,7 @@ interface ProductData {
   title: string;
   slug: string;
   sku?: string;
+  skus?: string[];
   price: number;
   badge?: string;
   image: string;
@@ -42,6 +43,9 @@ interface Props {
 const { product, related = [] } = Astro.props;
 const price = new Intl.NumberFormat('ru-RU').format(product.price);
 const stockLabel = product.inStock === false ? 'Предзаказ' : 'Купить сейчас';
+const allSkus = Array.from(new Set([...(Array.isArray(product.skus) ? product.skus : []), ...(product.sku ? [product.sku] : [])]));
+const primarySku = allSkus[0] ?? '';
+const allSkusCsv = allSkus.join(',');
 const galleryFallbackBySlug: Record<string, string[]> = {
   vspomnit: ['/images/products/vspomnit-vse-cutout.png', '/images/products/vspomnit-vse-cutout.png'],
   'plaud-note': ['/images/products/plaud-note-black.webp', '/images/products/plaud-note-silver.webp'],
@@ -149,8 +153,8 @@ const heroHighlights = isVspomnit
               <a class="rating-reviews" href="#reviews">отзывы покупателей</a>
             </div>
           )}
-          <div class="price-main" data-ms-price={product.slug} data-ms-sku={product.sku}>{price} ₽</div>
-          <div class="stock-pill" data-ms-stock={product.slug} data-ms-sku={product.sku}></div>
+          <div class="price-main" data-ms-price={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}>{price} ₽</div>
+          <div class="stock-pill" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
           {isVspomnit && <p class="price-note">Бесплатный год подписки в комплекте</p>}
           {isVspomnit && (
             <div class="param-chips">
@@ -172,7 +176,7 @@ const heroHighlights = isVspomnit
           </div>
           <div class="actions-row">
             <button class="buy-btn" id="addBtn" aria-label={`Добавить в корзину ${product.title}`}>Добавить в корзину</button>
-            <button class="buy-btn" id="buyBtn" data-ms-buy-btn={product.slug} data-ms-sku={product.sku} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
+            <button class="buy-btn" id="buyBtn" data-ms-buy-btn={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
           </div>
           {!isVspomnit && <a href="/catalog" class="secondary-btn">Смотреть все модели</a>}
         </aside>

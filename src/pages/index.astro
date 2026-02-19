@@ -5,7 +5,7 @@ import { getCollection } from 'astro:content';
 
 const page = loadLegacyPage('index.html');
 const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? '';
-type ProductFM = { slug: string; price: number; sku?: string };
+type ProductFM = { slug: string; price: number; sku?: string; skus?: string[] };
 const modules = import.meta.glob('../content/products/*.{md,mdx}', { eager: true }) as Record<
   string,
   { frontmatter: ProductFM }
@@ -14,8 +14,13 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
   if (mod.frontmatter?.slug) acc[mod.frontmatter.slug] = Number(mod.frontmatter.price || 0);
   return acc;
 }, {});
-const skus = Object.values(modules).reduce<Record<string, string>>((acc, mod) => {
-  if (mod.frontmatter?.slug && mod.frontmatter?.sku) acc[mod.frontmatter.slug] = mod.frontmatter.sku;
+const skus = Object.values(modules).reduce<Record<string, string[]>>((acc, mod) => {
+  if (!mod.frontmatter?.slug) return acc;
+  const nextSkus = [
+    ...(Array.isArray(mod.frontmatter?.skus) ? mod.frontmatter.skus : []),
+    ...(mod.frontmatter?.sku ? [mod.frontmatter.sku] : [])
+  ].filter(Boolean);
+  if (nextSkus.length) acc[mod.frontmatter.slug] = Array.from(new Set(nextSkus));
   return acc;
 }, {});
 const pageEntries = await getCollection('pages');
@@ -56,10 +61,13 @@ Object.entries(prices).forEach(([slug, price]) => {
   syncedBody = replaceInProductCard(slug, 'pprice', syncedBody, formatPrice(price));
 });
 
-Object.entries(skus).forEach(([slug, sku]) => {
+Object.entries(skus).forEach(([slug, skuList]) => {
+  const primarySku = skuList[0];
+  if (!primarySku) return;
+  const skuListCsv = skuList.join(',');
   syncedBody = syncedBody.replace(
     new RegExp(`(<a[^>]*href="/products/${slug}"[^>]*)(>)`, 'i'),
-    `$1 data-ms-sku="${sku}"$2`
+    `$1 data-ms-sku="${primarySku}" data-ms-skus="${skuListCsv}"$2`
   );
   syncedBody = syncedBody.replace(
     new RegExp(`(<a[^>]*href="/products/${slug}"[\\s\\S]*?<div class="pprice")(>)`, 'i'),

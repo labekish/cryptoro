@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { loadLegacyPage } from '../lib/legacy';
 
 const page = loadLegacyPage('catalog.html');
-type ProductFM = { slug: string; price: number; sku?: string };
+type ProductFM = { slug: string; price: number; sku?: string; skus?: string[] };
 const modules = import.meta.glob('../content/products/*.{md,mdx}', { eager: true }) as Record<
   string,
   { frontmatter: ProductFM }
@@ -12,8 +12,13 @@ const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) 
   if (mod.frontmatter?.slug) acc[mod.frontmatter.slug] = Number(mod.frontmatter.price || 0);
   return acc;
 }, {});
-const skus = Object.values(modules).reduce<Record<string, string>>((acc, mod) => {
-  if (mod.frontmatter?.slug && mod.frontmatter?.sku) acc[mod.frontmatter.slug] = mod.frontmatter.sku;
+const skus = Object.values(modules).reduce<Record<string, string[]>>((acc, mod) => {
+  if (!mod.frontmatter?.slug) return acc;
+  const nextSkus = [
+    ...(Array.isArray(mod.frontmatter?.skus) ? mod.frontmatter.skus : []),
+    ...(mod.frontmatter?.sku ? [mod.frontmatter.sku] : [])
+  ].filter(Boolean);
+  if (nextSkus.length) acc[mod.frontmatter.slug] = Array.from(new Set(nextSkus));
   return acc;
 }, {});
 const formatPrice = (value: number) => `${Math.round(Number(value || 0)).toLocaleString('ru-RU')} ₽`;
@@ -39,12 +44,17 @@ cardSlugs.forEach((slug) => {
   });
 });
 
-Object.entries(skus).forEach(([slug, sku]) => {
+Object.entries(skus).forEach(([slug, skuList]) => {
+  const primarySku = skuList[0];
+  if (!primarySku) return;
+  const skuListCsv = skuList.join(',');
   patchCard(slug, (cardHtml) => {
     let next = cardHtml;
 
     if (!/data-ms-sku=/i.test(next)) {
-      next = next.replace(/<a([^>]*?)>/i, `<a$1 data-ms-sku="${sku}">`);
+      next = next.replace(/<a([^>]*?)>/i, `<a$1 data-ms-sku="${primarySku}" data-ms-skus="${skuListCsv}">`);
+    } else if (!/data-ms-skus=/i.test(next)) {
+      next = next.replace(/<a([^>]*?)data-ms-sku="[^"]*"([^>]*?)>/i, `<a$1data-ms-sku="${primarySku}" data-ms-skus="${skuListCsv}"$2>`);
     }
 
     next = next.replace(
