@@ -47,7 +47,8 @@ const parseSkuPairs = (raw?: string | null): Record<string, string> => {
 const parseWarehouseId = (value?: string): string | undefined => {
   if (!value) return undefined;
   const match = value.match(/[0-9a-f-]{36}/i);
-  return match ? match[0] : value;
+  // Если UUID не распознан, не передаем stockStore вовсе, чтобы не ломать запрос в МойСклад.
+  return match ? match[0] : undefined;
 };
 
 const toRub = (value?: number): number => {
@@ -93,7 +94,8 @@ const msFetch = async (url: string, token: string) => {
     }
   });
   if (!response.ok) {
-    throw new Error(`MoySklad API ${response.status}`);
+    const body = await response.text().catch(() => '');
+    throw new Error(`MoySklad API ${response.status}${body ? `: ${body.slice(0, 280)}` : ''}`);
   }
   return response.json();
 };
