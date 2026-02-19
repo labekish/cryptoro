@@ -173,6 +173,10 @@ const ogUrl = Astro.url?.toString() || '';
       .faqarr{background:rgba(0,0,0,.06)!important;color:#111!important}
       .faqitem.open .faqarr{background:linear-gradient(90deg,var(--accent-a),var(--accent-b))!important;color:#111!important}
       .faqa{padding-left:1rem!important;overflow:hidden!important}
+      /* Прячем динамические цены до первой синхронизации с МойСклад, чтобы не мигала старая цена */
+      [data-ms-price].ms-price-pending{
+        visibility:hidden!important;
+      }
       .section-divider,.foot-div,hr{border-color:rgba(0,0,0,.12)!important}
       .reveal,.pcard,.rcard,.fcard,.dcard,.wcard,.paycard,.mstat,.faqitem{
         transition:all .3s ease-out!important;
@@ -596,6 +600,18 @@ const ogUrl = Astro.url?.toString() || '';
         function syncMoysklad() {
           const targets = Array.from(document.querySelectorAll('[data-ms-price], [data-ms-stock], [data-ms-buy-btn]'));
           if (!targets.length) return;
+          const priceNodes = targets.filter((node) => node.hasAttribute('data-ms-price'));
+          let firstSyncResolved = false;
+
+          const hidePendingPrices = () => {
+            if (firstSyncResolved) return;
+            priceNodes.forEach((node) => node.classList.add('ms-price-pending'));
+          };
+
+          const revealPrices = () => {
+            firstSyncResolved = true;
+            priceNodes.forEach((node) => node.classList.remove('ms-price-pending'));
+          };
 
           const slugs = Array.from(
             new Set(
@@ -626,6 +642,7 @@ const ogUrl = Astro.url?.toString() || '';
             Object.entries(items || {}).forEach(([slug, item]) => {
               document.querySelectorAll(`[data-ms-price="${slug}"]`).forEach((node) => {
                 node.textContent = formatRub(item.price);
+                node.classList.remove('ms-price-pending');
               });
 
               document.querySelectorAll(`[data-ms-stock="${slug}"]`).forEach((node) => {
@@ -658,9 +675,14 @@ const ogUrl = Astro.url?.toString() || '';
               applyItems(payload.items);
             } catch {
               // Фолбэк на цены из контента, если API временно недоступен.
+            } finally {
+              revealPrices();
             }
           };
 
+          hidePendingPrices();
+          // Фолбэк на случай долгого ответа API: не держим пустые цены бесконечно.
+          window.setTimeout(() => revealPrices(), 1800);
           request();
           window.setInterval(request, 15 * 60 * 1000);
         }
