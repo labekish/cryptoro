@@ -149,8 +149,8 @@ const heroHighlights = isVspomnit
               <a class="rating-reviews" href="#reviews">отзывы покупателей</a>
             </div>
           )}
-          <div class="price-main" data-ms-price={product.slug}>{price} ₽</div>
-          <div class="stock-pill" data-ms-stock={product.slug}></div>
+          <div class="price-main" data-ms-price={product.slug} data-ms-sku={product.sku}>{price} ₽</div>
+          <div class="stock-pill" data-ms-stock={product.slug} data-ms-sku={product.sku}></div>
           {isVspomnit && <p class="price-note">Бесплатный год подписки в комплекте</p>}
           {isVspomnit && (
             <div class="param-chips">
@@ -172,7 +172,7 @@ const heroHighlights = isVspomnit
           </div>
           <div class="actions-row">
             <button class="buy-btn" id="addBtn" aria-label={`Добавить в корзину ${product.title}`}>Добавить в корзину</button>
-            <button class="buy-btn" id="buyBtn" data-ms-buy-btn={product.slug} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
+            <button class="buy-btn" id="buyBtn" data-ms-buy-btn={product.slug} data-ms-sku={product.sku} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
           </div>
           {!isVspomnit && <a href="/catalog" class="secondary-btn">Смотреть все модели</a>}
         </aside>

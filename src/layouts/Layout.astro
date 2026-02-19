@@ -607,6 +607,19 @@ const ogUrl = Astro.url?.toString() || '';
 
           if (!slugs.length) return;
 
+          const slugToSku = {};
+          slugs.forEach((slug) => {
+            const exact = document.querySelector(`[data-ms-price="${slug}"][data-ms-sku], [data-ms-stock="${slug}"][data-ms-sku], [data-ms-buy-btn="${slug}"][data-ms-sku]`);
+            const scoped = document.querySelector(`[data-ms-price="${slug}"], [data-ms-stock="${slug}"], [data-ms-buy-btn="${slug}"]`);
+            const source = exact || (scoped && scoped.closest && scoped.closest('[data-ms-sku]'));
+            const sku = source ? source.getAttribute('data-ms-sku') : null;
+            if (sku) slugToSku[slug] = sku;
+          });
+
+          const skuPairs = Object.entries(slugToSku)
+            .map(([slug, sku]) => `${slug}:${sku}`)
+            .join(',');
+
           const formatRub = (value) => `${Math.round(Number(value || 0)).toLocaleString('ru-RU')} ₽`;
 
           const applyItems = (items) => {
@@ -633,7 +646,10 @@ const ogUrl = Astro.url?.toString() || '';
 
           const request = async () => {
             try {
-              const response = await fetch(`/api/moysklad/prices?slugs=${encodeURIComponent(slugs.join(','))}`, {
+              const query = new URLSearchParams();
+              query.set('slugs', slugs.join(','));
+              if (skuPairs) query.set('skuMap', skuPairs);
+              const response = await fetch(`/api/moysklad/prices?${query.toString()}`, {
                 headers: { Accept: 'application/json' }
               });
               if (!response.ok) return;

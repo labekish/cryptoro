@@ -33,6 +33,17 @@ const parseSkuMap = (raw?: string): Record<string, string> => {
   }
 };
 
+const parseSkuPairs = (raw?: string | null): Record<string, string> => {
+  if (!raw) return {};
+  return raw.split(',').reduce<Record<string, string>>((acc, pair) => {
+    const [slugRaw, skuRaw] = pair.split(':');
+    const slug = (slugRaw || '').trim();
+    const sku = (skuRaw || '').trim();
+    if (slug && sku) acc[slug] = sku;
+    return acc;
+  }, {});
+};
+
 const parseWarehouseId = (value?: string): string | undefined => {
   if (!value) return undefined;
   const match = value.match(/[0-9a-f-]{36}/i);
@@ -114,8 +125,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    const skuMap = parseSkuMap(context.env.MS_SKU_MAP_JSON);
-    const requested = new URL(context.request.url).searchParams.get('slugs');
+    const url = new URL(context.request.url);
+    const envSkuMap = parseSkuMap(context.env.MS_SKU_MAP_JSON);
+    const requestSkuMap = parseSkuPairs(url.searchParams.get('skuMap'));
+    const skuMap = { ...envSkuMap, ...requestSkuMap };
+    const requested = url.searchParams.get('slugs');
     const requestedSlugs = requested
       ? requested
           .split(',')
