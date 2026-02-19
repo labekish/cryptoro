@@ -437,6 +437,12 @@ const ogUrl = Astro.url?.toString() || '';
           const isMobile = window.matchMedia('(max-width: 768px)').matches;
           document.querySelectorAll('header').forEach((header) => {
             if (header.dataset.mobileNavReady === '1') return;
+            // На legacy-страницах уже есть собственное мобильное меню.
+            // Не дублируем его, чтобы избежать конфликтов кликов/состояний.
+            if (header.querySelector('#menuToggle') || document.getElementById('mobileNav')) {
+              header.dataset.mobileNavReady = '1';
+              return;
+            }
             const nav = header.querySelector('nav');
             if (!nav) return;
             const navParent = nav.parentElement;
@@ -570,6 +576,17 @@ const ogUrl = Astro.url?.toString() || '';
           });
         }
 
+        function normalizeExternalLinks() {
+          // Гарантируем безопасные rel-атрибуты у внешних ссылок с target=_blank.
+          document.querySelectorAll('a[target="_blank"]').forEach((link) => {
+            const rel = (link.getAttribute('rel') || '').toLowerCase();
+            const tokens = new Set(rel.split(/\s+/).filter(Boolean));
+            tokens.add('noopener');
+            tokens.add('noreferrer');
+            link.setAttribute('rel', Array.from(tokens).join(' '));
+          });
+        }
+
         function dedupeCatalogTabs() {
           if (window.location.pathname.indexOf('/catalog') !== 0) return;
           const rows = Array.from(document.querySelectorAll('.catalog-chips'));
@@ -583,6 +600,7 @@ const ogUrl = Astro.url?.toString() || '';
           setupConsultModal();
           setupFadeIn();
           setupAccessibilityLabels();
+          normalizeExternalLinks();
           dedupeCatalogTabs();
         });
       })();
