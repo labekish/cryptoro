@@ -5,13 +5,17 @@ import { getCollection } from 'astro:content';
 
 const page = loadLegacyPage('index.html');
 const formspreeId = import.meta.env.PUBLIC_FORMSPREE_ID ?? '';
-type ProductFM = { slug: string; price: number };
+type ProductFM = { slug: string; price: number; sku?: string };
 const modules = import.meta.glob('../content/products/*.{md,mdx}', { eager: true }) as Record<
   string,
   { frontmatter: ProductFM }
 >;
 const prices = Object.values(modules).reduce<Record<string, number>>((acc, mod) => {
   if (mod.frontmatter?.slug) acc[mod.frontmatter.slug] = Number(mod.frontmatter.price || 0);
+  return acc;
+}, {});
+const skus = Object.values(modules).reduce<Record<string, string>>((acc, mod) => {
+  if (mod.frontmatter?.slug && mod.frontmatter?.sku) acc[mod.frontmatter.slug] = mod.frontmatter.sku;
   return acc;
 }, {});
 const pageEntries = await getCollection('pages');
@@ -50,6 +54,17 @@ const replaceInProductCard = (slug: string, className: string, html: string, val
 
 Object.entries(prices).forEach(([slug, price]) => {
   syncedBody = replaceInProductCard(slug, 'pprice', syncedBody, formatPrice(price));
+});
+
+Object.entries(skus).forEach(([slug, sku]) => {
+  syncedBody = syncedBody.replace(
+    new RegExp(`(<a[^>]*href="/products/${slug}"[^>]*)(>)`, 'i'),
+    `$1 data-ms-sku="${sku}"$2`
+  );
+  syncedBody = syncedBody.replace(
+    new RegExp(`(<a[^>]*href="/products/${slug}"[\\s\\S]*?<div class="pprice")(>)`, 'i'),
+    `$1 data-ms-price="${slug}"$2`
+  );
 });
 
 if (prices.vspomnit != null) {

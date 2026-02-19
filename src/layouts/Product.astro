@@ -4,6 +4,7 @@ import Layout from './Layout.astro';
 interface ProductData {
   title: string;
   slug: string;
+  sku?: string;
   price: number;
   badge?: string;
   image: string;
@@ -148,7 +149,8 @@ const heroHighlights = isVspomnit
               <a class="rating-reviews" href="#reviews">отзывы покупателей</a>
             </div>
           )}
-          <div class="price-main">{price} ₽</div>
+          <div class="price-main" data-ms-price={product.slug}>{price} ₽</div>
+          <div class="stock-pill" data-ms-stock={product.slug}></div>
           {isVspomnit && <p class="price-note">Бесплатный год подписки в комплекте</p>}
           {isVspomnit && (
             <div class="param-chips">
@@ -170,7 +172,7 @@ const heroHighlights = isVspomnit
           </div>
           <div class="actions-row">
             <button class="buy-btn" id="addBtn" aria-label={`Добавить в корзину ${product.title}`}>Добавить в корзину</button>
-            <button class="buy-btn" id="buyBtn" aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
+            <button class="buy-btn" id="buyBtn" data-ms-buy-btn={product.slug} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
           </div>
           {!isVspomnit && <a href="/catalog" class="secondary-btn">Смотреть все модели</a>}
         </aside>
@@ -215,7 +217,7 @@ const heroHighlights = isVspomnit
               <a class="rcard" href={`/products/${item.slug}`}>
                 <img src={item.image} alt={`AI-диктофон ${item.title}`} />
                 <div class="rname">{item.title}</div>
-                <div class="rprice">{new Intl.NumberFormat('ru-RU').format(item.price)} ₽</div>
+                <div class="rprice" data-ms-price={item.slug}>{new Intl.NumberFormat('ru-RU').format(item.price)} ₽</div>
               </a>
             ))}
           </div>
@@ -390,6 +392,22 @@ const heroHighlights = isVspomnit
     .rating-reviews{font-size:14px;color:#6b7280;text-decoration:none}
     .rating-reviews:hover{color:#111}
     .price-main{font-family:'Unbounded',sans-serif;font-size:clamp(38px,4.8vw,48px);letter-spacing:-.02em;margin:18px 0 10px}
+    .stock-pill{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      margin:-2px 0 10px;
+      padding:6px 10px;
+      width:max-content;
+      font-size:12px;
+      font-weight:700;
+      color:#b45309;
+      background:#fff7ed;
+      border:1px solid #fdba74;
+      border-radius:999px;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
     .price-note{margin:-4px 0 12px;color:#6b7280;font-size:14px}
     .param-chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
     .param-chip{display:inline-flex;align-items:center;border:1px solid rgba(17,24,39,.1);background:#e8e8e8;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:#374151}

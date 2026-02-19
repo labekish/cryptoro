@@ -6,6 +6,7 @@ const products = defineCollection({
   schema: z.object({
     title: z.string(),
     slug: z.string(),
+    sku: z.string().optional(),
     price: z.union([z.string(), z.number()]),
     image: z.string().optional(),
     description: z.any().optional(),
