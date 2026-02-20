@@ -282,8 +282,9 @@ const fetchAssortmentRows = async (
   token: string,
   warehouseId?: string,
   groupMatcher?: { id?: string; name?: string }
-): Promise<MsAssortmentRow[]> => {
+): Promise<{ rows: MsAssortmentRow[]; groupFilterApplied: boolean }> => {
   const allRows: MsAssortmentRow[] = [];
+  const filteredRows: MsAssortmentRow[] = [];
   let offset = 0;
 
   while (true) {
@@ -292,10 +293,9 @@ const fetchAssortmentRows = async (
       meta?: { size?: number };
     };
     const rows = Array.isArray(page?.rows) ? page.rows : [];
+    allRows.push(...rows);
     if (groupMatcher?.id || groupMatcher?.name) {
-      allRows.push(...rows.filter((row) => rowMatchesGroup(row, groupMatcher)));
-    } else {
-      allRows.push(...rows);
+      filteredRows.push(...rows.filter((row) => rowMatchesGroup(row, groupMatcher)));
     }
 
     if (!rows.length || rows.length < 1000) break;
@@ -303,7 +303,15 @@ const fetchAssortmentRows = async (
     if (offset > 10000) break;
   }
 
-  return allRows;
+  if (groupMatcher?.id || groupMatcher?.name) {
+    if (filteredRows.length > 0) {
+      return { rows: filteredRows, groupFilterApplied: true };
+    }
+    // Fallback: если фильтр группы не сработал/не совпал, не ломаем синхронизацию цен и остатков.
+    return { rows: allRows, groupFilterApplied: false };
+  }
+
+  return { rows: allRows, groupFilterApplied: false };
 };
 
 const findRowBySkuFallback = async (
@@ -376,7 +384,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       }
     > = {};
 
-    const allRows = await fetchAssortmentRows(token, warehouseId, groupMatcher);
+    const { rows: allRows, groupFilterApplied } = await fetchAssortmentRows(token, warehouseId, groupMatcher);
     const rowBySku = new Map<string, MsAssortmentRow>();
     allRows.forEach((row) => {
       const article = String(row.article || '').trim();
@@ -456,6 +464,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         warehouseId: warehouseId ?? null,
         warehouseParam: toWarehouseHref(warehouseId) ?? null,
         groupFilter: groupMatcher.id || groupMatcher.name || null,
+        groupFilterApplied,
         stockSource: 'stock_then_quantity_minus_reserve',
         rowsFetched: allRows.length,
         items: resultItems
