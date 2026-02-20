@@ -281,7 +281,8 @@ const msFetch = async (url: string, token: string) => {
 const fetchAssortmentRows = async (
   token: string,
   warehouseId?: string,
-  groupMatcher?: { id?: string; name?: string }
+  groupMatcher?: { id?: string; name?: string },
+  expectedSkus?: string[]
 ): Promise<{ rows: MsAssortmentRow[]; groupFilterApplied: boolean }> => {
   const allRows: MsAssortmentRow[] = [];
   const filteredRows: MsAssortmentRow[] = [];
@@ -305,6 +306,19 @@ const fetchAssortmentRows = async (
 
   if (groupMatcher?.id || groupMatcher?.name) {
     if (filteredRows.length > 0) {
+      // Если фильтр группы вернул строки, но среди них нет нужных SKU для витрины,
+      // откатываемся на полный список, чтобы не отдавать пустой items.
+      const expectedSet = new Set((expectedSkus || []).map((sku) => String(sku || '').trim().toUpperCase()).filter(Boolean));
+      if (expectedSet.size > 0) {
+        const hasAnyExpectedSku = filteredRows.some((row) => {
+          const article = String(row.article || '').trim().toUpperCase();
+          const code = String(row.code || '').trim().toUpperCase();
+          return expectedSet.has(article) || expectedSet.has(code);
+        });
+        if (!hasAnyExpectedSku) {
+          return { rows: allRows, groupFilterApplied: false };
+        }
+      }
       return { rows: filteredRows, groupFilterApplied: true };
     }
     // Fallback: если фильтр группы не сработал/не совпал, не ломаем синхронизацию цен и остатков.
@@ -384,7 +398,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       }
     > = {};
 
-    const { rows: allRows, groupFilterApplied } = await fetchAssortmentRows(token, warehouseId, groupMatcher);
+    const expectedSkus = requestedSlugs.flatMap((slug) => skuMap[slug] || []);
+    const { rows: allRows, groupFilterApplied } = await fetchAssortmentRows(
+      token,
+      warehouseId,
+      groupMatcher,
+      expectedSkus
+    );
     const rowBySku = new Map<string, MsAssortmentRow>();
     allRows.forEach((row) => {
       const article = String(row.article || '').trim();
@@ -403,6 +423,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         let row = rowBySku.get(normalizedSku);
         if (!row) {
           row = await findRowBySkuFallback(sku, token, warehouseId, groupMatcher);
+          // Fallback: если по фильтру группы SKU не найден, пробуем глобальный поиск.
+          if (!row && (groupMatcher.id || groupMatcher.name)) {
+            row = await findRowBySkuFallback(sku, token, warehouseId);
+          }
           if (row) {
             const article = String(row.article || '').trim();
             const code = String(row.code || '').trim();
