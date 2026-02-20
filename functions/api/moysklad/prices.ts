@@ -186,6 +186,17 @@ const buildAssortmentPageUrl = (offset: number, warehouseId?: string): string =>
   return url.toString();
 };
 
+const buildAssortmentLookupUrl = (sku: string, warehouseId?: string, mode: 'article' | 'code' = 'article'): string => {
+  const url = new URL(`${API_BASE}/entity/assortment`);
+  url.searchParams.set('limit', '1');
+  url.searchParams.set('expand', 'salePrices');
+  url.searchParams.set('filter', `${mode}=${sku}`);
+  if (warehouseId) {
+    url.searchParams.set('stockStore', warehouseId);
+  }
+  return url.toString();
+};
+
 const msFetch = async (url: string, token: string) => {
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   const maxRetries = 3;
@@ -239,6 +250,27 @@ const fetchAssortmentRows = async (token: string, warehouseId?: string): Promise
   }
 
   return allRows;
+};
+
+const findRowBySkuFallback = async (sku: string, token: string, warehouseId?: string): Promise<MsAssortmentRow | undefined> => {
+  const normalized = String(sku || '').trim();
+  if (!normalized) return undefined;
+
+  const byArticle = (await msFetch(buildAssortmentLookupUrl(normalized, warehouseId, 'article'), token)) as {
+    rows?: MsAssortmentRow[];
+  };
+  if (Array.isArray(byArticle?.rows) && byArticle.rows.length) {
+    return byArticle.rows[0];
+  }
+
+  const byCode = (await msFetch(buildAssortmentLookupUrl(normalized, warehouseId, 'code'), token)) as {
+    rows?: MsAssortmentRow[];
+  };
+  if (Array.isArray(byCode?.rows) && byCode.rows.length) {
+    return byCode.rows[0];
+  }
+
+  return undefined;
 };
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
@@ -297,7 +329,17 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
       const rowsWithSku: Array<{ sku: string; row: MsAssortmentRow }> = [];
       for (const sku of skus) {
-        const row = rowBySku.get(String(sku || '').trim().toUpperCase());
+        const normalizedSku = String(sku || '').trim().toUpperCase();
+        let row = rowBySku.get(normalizedSku);
+        if (!row) {
+          row = await findRowBySkuFallback(sku, token, warehouseId);
+          if (row) {
+            const article = String(row.article || '').trim();
+            const code = String(row.code || '').trim();
+            if (article) rowBySku.set(article.toUpperCase(), row);
+            if (code) rowBySku.set(code.toUpperCase(), row);
+          }
+        }
         if (row) rowsWithSku.push({ sku, row });
       }
       if (!rowsWithSku.length) continue;
