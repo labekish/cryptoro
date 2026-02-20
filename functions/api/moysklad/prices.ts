@@ -3,6 +3,7 @@ type Env = {
   MS_WAREHOUSE_ID?: string;
   MS_PRICE_TYPE_ID?: string;
   MS_SKU_MAP_JSON?: string;
+  MS_SKU_META_JSON?: string;
   MS_STOCK_ZERO_MODE?: string;
   MS_PRICE_RULE?: string;
   MS_STOCK_RULE?: string;
@@ -13,6 +14,7 @@ type MsAssortmentRow = {
   code?: string;
   stock?: number;
   quantity?: number;
+  reserve?: number;
   salePrices?: Array<{
     value?: number;
     priceType?: { id?: string };
@@ -26,6 +28,19 @@ const DEFAULT_SKU_MAP: Record<string, string[]> = {
   'plaud-note-pro': ['CR-327'],
   notepin: ['CR-217', 'CR-256', 'CR-258'],
   accessories: ['AC-40']
+};
+
+const DEFAULT_SKU_META: Record<string, { color?: string; title?: string }> = {
+  'CR-228': { color: 'Graphite', title: 'Вспомни всё' },
+  'CR-191': { color: 'Black', title: 'Plaud Note' },
+  'CR-400': { color: 'Navy Blue', title: 'Plaud Note' },
+  'CR-197': { color: 'Silver', title: 'Plaud Note' },
+  'CR-209': { color: 'Starlight', title: 'Plaud Note' },
+  'CR-327': { color: 'Black', title: 'Plaud Note Pro' },
+  'CR-217': { color: 'Cosmic Gray', title: 'Plaud NotePin' },
+  'CR-256': { color: 'Lunar Silver', title: 'Plaud NotePin' },
+  'CR-258': { color: 'Sunset Purple', title: 'Plaud NotePin' },
+  'AC-40': { title: 'Набор аксессуаров' }
 };
 
 const normalizeSkuList = (value: unknown): string[] => {
@@ -55,6 +70,26 @@ const parseSkuMap = (raw?: string): Record<string, string[]> => {
     return { ...DEFAULT_SKU_MAP, ...normalized };
   } catch {
     return DEFAULT_SKU_MAP;
+  }
+};
+
+const parseSkuMetaMap = (raw?: string): Record<string, { color?: string; title?: string }> => {
+  if (!raw) return DEFAULT_SKU_META;
+  try {
+    const parsed = JSON.parse(raw) as Record<string, { color?: unknown; title?: unknown }>;
+    const normalized = Object.entries(parsed).reduce<Record<string, { color?: string; title?: string }>>((acc, [sku, meta]) => {
+      if (!sku) return acc;
+      const color = String(meta?.color || '').trim();
+      const title = String(meta?.title || '').trim();
+      acc[sku] = {
+        ...(color ? { color } : {}),
+        ...(title ? { title } : {})
+      };
+      return acc;
+    }, {});
+    return { ...DEFAULT_SKU_META, ...normalized };
+  } catch {
+    return DEFAULT_SKU_META;
   }
 };
 
@@ -110,8 +145,17 @@ const readPrice = (row: MsAssortmentRow, priceTypeId?: string): number => {
 };
 
 const readStock = (row: MsAssortmentRow): number => {
-  const stock = Number(row.stock ?? row.quantity ?? 0);
-  return Number.isFinite(stock) ? stock : 0;
+  const quantity = Number(row.quantity);
+  const reserve = Number(row.reserve ?? 0);
+  if (Number.isFinite(quantity)) {
+    const available = Math.max(0, quantity - (Number.isFinite(reserve) ? reserve : 0));
+    return Math.round(available);
+  }
+  const stock = Number(row.stock);
+  if (Number.isFinite(stock)) {
+    return Math.max(0, Math.round(stock));
+  }
+  return 0;
 };
 
 const aggregatePrice = (values: number[], rule: 'min' | 'max' | 'first'): number => {
@@ -130,22 +174,16 @@ const aggregateStock = (values: number[], rule: 'sum' | 'max' | 'first'): number
   return stocks.reduce((acc, value) => acc + value, 0);
 };
 
-const buildAssortmentUrl = (sku: string, warehouseId?: string, mode: 'article' | 'code' | 'search' = 'article'): string => {
+const buildAssortmentPageUrl = (offset: number, warehouseId?: string): string => {
   const url = new URL(`${API_BASE}/entity/assortment`);
-  url.searchParams.set('limit', mode === 'search' ? '25' : '1');
-  if (mode === 'search') {
-    url.searchParams.set('search', sku);
-  } else {
-    url.searchParams.set('filter', `${mode}=${sku}`);
-  }
+  url.searchParams.set('limit', '1000');
+  url.searchParams.set('offset', String(offset));
+  url.searchParams.set('expand', 'salePrices');
   if (warehouseId) {
-    url.searchParams.set('stockStore', `${API_BASE}/entity/store/${warehouseId}`);
+    // Для remap API передаем UUID склада (так МойСклад корректно считает "Доступно" по складу).
+    url.searchParams.set('stockStore', warehouseId);
   }
   return url.toString();
-};
-
-const equalsSku = (value: string | undefined, sku: string): boolean => {
-  return String(value || '').trim().toUpperCase() === String(sku || '').trim().toUpperCase();
 };
 
 const msFetch = async (url: string, token: string) => {
@@ -183,24 +221,24 @@ const msFetch = async (url: string, token: string) => {
   throw new Error('MoySklad fetch failed');
 };
 
-const findRowBySku = async (sku: string, token: string, warehouseId?: string): Promise<MsAssortmentRow | undefined> => {
-  const directByArticle = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'article'), token)) as { rows?: MsAssortmentRow[] };
-  if (directByArticle.rows?.length) {
-    const exactArticle = directByArticle.rows.find((row) => equalsSku(row.article, sku) || equalsSku(row.code, sku));
-    if (exactArticle) return exactArticle;
+const fetchAssortmentRows = async (token: string, warehouseId?: string): Promise<MsAssortmentRow[]> => {
+  const allRows: MsAssortmentRow[] = [];
+  let offset = 0;
+
+  while (true) {
+    const page = (await msFetch(buildAssortmentPageUrl(offset, warehouseId), token)) as {
+      rows?: MsAssortmentRow[];
+      meta?: { size?: number };
+    };
+    const rows = Array.isArray(page?.rows) ? page.rows : [];
+    allRows.push(...rows);
+
+    if (!rows.length || rows.length < 1000) break;
+    offset += rows.length;
+    if (offset > 10000) break;
   }
 
-  const directByCode = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'code'), token)) as { rows?: MsAssortmentRow[] };
-  if (directByCode.rows?.length) {
-    const exactCode = directByCode.rows.find((row) => equalsSku(row.code, sku) || equalsSku(row.article, sku));
-    if (exactCode) return exactCode;
-  }
-
-  const bySearch = (await msFetch(buildAssortmentUrl(sku, warehouseId, 'search'), token)) as { rows?: MsAssortmentRow[] };
-  if (!bySearch.rows?.length) return undefined;
-
-  // Без «наугад» фолбэка: берем только точное совпадение SKU.
-  return bySearch.rows.find((row) => equalsSku(row.article, sku) || equalsSku(row.code, sku));
+  return allRows;
 };
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
@@ -226,30 +264,69 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       : Object.keys(skuMap);
     const warehouseId = parseWarehouseId(context.env.MS_WAREHOUSE_ID);
     const priceTypeId = context.env.MS_PRICE_TYPE_ID;
+    const skuMetaMap = parseSkuMetaMap(context.env.MS_SKU_META_JSON);
     const stockZeroMode = context.env.MS_STOCK_ZERO_MODE === 'hide' ? 'hide' : 'preorder';
     const priceRule = context.env.MS_PRICE_RULE === 'max' ? 'max' : context.env.MS_PRICE_RULE === 'first' ? 'first' : 'min';
     const stockRule = context.env.MS_STOCK_RULE === 'max' ? 'max' : context.env.MS_STOCK_RULE === 'first' ? 'first' : 'sum';
 
     type StockStatus = 'in_stock' | 'low_stock' | 'preorder' | 'hidden';
-    const resultItems: Record<string, { sku: string; skus: string[]; price: number; stock: number; status: StockStatus }> = {};
+    const resultItems: Record<
+      string,
+      {
+        sku: string;
+        skus: string[];
+        price: number;
+        stock: number;
+        status: StockStatus;
+        variants: Array<{ sku: string; stock: number; price: number; status: StockStatus; color?: string; title?: string }>;
+      }
+    > = {};
+
+    const allRows = await fetchAssortmentRows(token, warehouseId);
+    const rowBySku = new Map<string, MsAssortmentRow>();
+    allRows.forEach((row) => {
+      const article = String(row.article || '').trim();
+      const code = String(row.code || '').trim();
+      if (article) rowBySku.set(article.toUpperCase(), row);
+      if (code) rowBySku.set(code.toUpperCase(), row);
+    });
 
     for (const slug of requestedSlugs) {
       const skus = skuMap[slug] || [];
       if (!skus.length) continue;
 
-      const rows: MsAssortmentRow[] = [];
+      const rowsWithSku: Array<{ sku: string; row: MsAssortmentRow }> = [];
       for (const sku of skus) {
-        const row = await findRowBySku(sku, token, warehouseId);
-        if (row) rows.push(row);
+        const row = rowBySku.get(String(sku || '').trim().toUpperCase());
+        if (row) rowsWithSku.push({ sku, row });
       }
-      if (!rows.length) continue;
+      if (!rowsWithSku.length) continue;
+
+      const variants = rowsWithSku.map(({ sku, row }) => {
+        const stock = readStock(row);
+        const price = readPrice(row, priceTypeId);
+        let status: StockStatus = 'in_stock';
+        if (stock <= 0) {
+          status = stockZeroMode === 'hide' ? 'hidden' : 'preorder';
+        } else if (stock <= 5) {
+          status = 'low_stock';
+        }
+        return {
+          sku,
+          stock,
+          price,
+          status,
+          color: skuMetaMap[sku]?.color,
+          title: skuMetaMap[sku]?.title
+        };
+      });
 
       const stock = aggregateStock(
-        rows.map((row) => readStock(row)),
+        variants.map((variant) => variant.stock),
         stockRule
       );
       const price = aggregatePrice(
-        rows.map((row) => readPrice(row, priceTypeId)),
+        variants.map((variant) => variant.price),
         priceRule
       );
       let status: StockStatus = 'in_stock';
@@ -263,7 +340,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         skus,
         price,
         stock,
-        status
+        status,
+        variants
       };
     }
 
@@ -271,6 +349,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       JSON.stringify({
         ok: true,
         updatedAt: new Date().toISOString(),
+        warehouseId: warehouseId ?? null,
+        stockSource: 'quantity_minus_reserve_then_stock',
+        rowsFetched: allRows.length,
         items: resultItems
       }),
       {

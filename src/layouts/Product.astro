@@ -155,6 +155,7 @@ const heroHighlights = isVspomnit
           )}
           <div class="price-main" data-ms-price={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}>{price} ₽</div>
           <div class="stock-pill" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
+          <div class="variant-pill-list" data-ms-variants={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
           {isVspomnit && <p class="price-note">Бесплатный год подписки в комплекте</p>}
           {isVspomnit && (
             <div class="param-chips">
