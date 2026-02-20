@@ -317,13 +317,44 @@ const readStockFromReport = (row: MsStockReportRow): number => {
 const fetchStockBySku = async (
   token: string,
   warehouseId?: string
-): Promise<{ bySku: Map<string, number>; rowsCount: number; source: string }> => {
+): Promise<{
+  bySku: Map<string, number>;
+  rowsCount: number;
+  source: string;
+  debugRowsBySku: Map<
+    string,
+    Array<{
+      stock: number;
+      article?: string;
+      code?: string;
+      assortmentArticle?: string;
+      assortmentCode?: string;
+      assortmentName?: string;
+    }>
+  >;
+}> => {
   const warehouseHref = toWarehouseHref(warehouseId);
   if (!warehouseHref) {
-    return { bySku: new Map(), rowsCount: 0, source: 'assortment_fallback_no_warehouse' };
+    return {
+      bySku: new Map(),
+      rowsCount: 0,
+      source: 'assortment_fallback_no_warehouse',
+      debugRowsBySku: new Map()
+    };
   }
 
   const bySku = new Map<string, number>();
+  const debugRowsBySku = new Map<
+    string,
+    Array<{
+      stock: number;
+      article?: string;
+      code?: string;
+      assortmentArticle?: string;
+      assortmentCode?: string;
+      assortmentName?: string;
+    }>
+  >();
   let offset = 0;
   let rowsCount = 0;
 
@@ -345,6 +376,16 @@ const fetchStockBySku = async (
 
       candidates.forEach((key) => {
         bySku.set(key, stock);
+        const prev = debugRowsBySku.get(key) || [];
+        prev.push({
+          stock,
+          article: row.article,
+          code: row.code,
+          assortmentArticle: row.assortment?.article,
+          assortmentCode: row.assortment?.code,
+          assortmentName: row.assortment?.name
+        });
+        debugRowsBySku.set(key, prev);
       });
     });
 
@@ -353,7 +394,7 @@ const fetchStockBySku = async (
     if (offset > 100000) break;
   }
 
-  return { bySku, rowsCount, source: 'report_stock_all_store_filter' };
+  return { bySku, rowsCount, source: 'report_stock_all_store_filter', debugRowsBySku };
 };
 
 const fetchAssortmentRows = async (
@@ -445,6 +486,17 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   try {
     const url = new URL(context.request.url);
+    const debugEnabled = ['1', 'true', 'yes', 'on'].includes(
+      String(url.searchParams.get('debug') || '')
+        .trim()
+        .toLowerCase()
+    );
+    const debugSkuSet = new Set(
+      String(url.searchParams.get('debugSku') || '')
+        .split(',')
+        .map((item) => item.trim().toUpperCase())
+        .filter(Boolean)
+    );
     const envSkuMap = parseSkuMap(context.env.MS_SKU_MAP_JSON);
     const requestSkuMap = parseSkuPairs(url.searchParams.get('skuMap'));
     const skuMap = mergeSkuMaps(envSkuMap, requestSkuMap);
@@ -473,6 +525,25 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         stock: number;
         status: StockStatus;
         variants: Array<{ sku: string; stock: number; price: number; status: StockStatus; color?: string; title?: string }>;
+      }
+    > = {};
+    const debugSkuChecks: Record<
+      string,
+      {
+        inStockReport: boolean;
+        reportStock: number;
+        reportRows: Array<{
+          stock: number;
+          article?: string;
+          code?: string;
+          assortmentArticle?: string;
+          assortmentCode?: string;
+          assortmentName?: string;
+        }>;
+        assortmentMatched: boolean;
+        assortmentArticle?: string;
+        assortmentCode?: string;
+        assortmentName?: string;
       }
     > = {};
 
@@ -541,6 +612,19 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
           color: skuMetaMap[sku]?.color,
           title: skuMetaMap[sku]?.title
         });
+
+        if (debugEnabled && (!debugSkuSet.size || debugSkuSet.has(normalizedSku))) {
+          const reportRows = stockData.debugRowsBySku.get(normalizedSku) || [];
+          debugSkuChecks[normalizedSku] = {
+            inStockReport: stockData.bySku.has(normalizedSku),
+            reportStock: stock,
+            reportRows,
+            assortmentMatched: Boolean(row),
+            assortmentArticle: row?.article,
+            assortmentCode: row?.code,
+            assortmentName: row?.name
+          };
+        }
       }
 
       const stock = aggregateStock(
@@ -578,7 +662,17 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         stockSource: stockData.source,
         stockRowsFetched: stockData.rowsCount,
         rowsFetched: allRows.length,
-        items: resultItems
+        items: resultItems,
+        ...(debugEnabled
+          ? {
+              debug: {
+                requestedSlugs,
+                requestedSkus: expectedSkus,
+                filterDebugSku: Array.from(debugSkuSet),
+                skuChecks: debugSkuChecks
+              }
+            }
+          : {})
       }),
       {
         headers: {
