@@ -4,6 +4,9 @@ type Env = {
   MS_PRICE_TYPE_ID?: string;
   MS_SKU_MAP_JSON?: string;
   MS_SKU_META_JSON?: string;
+  MS_GROUP_ID_OR_NAME?: string;
+  MS_GROUP_ID?: string;
+  MS_GROUP_NAME?: string;
   MS_STOCK_ZERO_MODE?: string;
   MS_PRICE_RULE?: string;
   MS_STOCK_RULE?: string;
@@ -12,6 +15,12 @@ type Env = {
 type MsAssortmentRow = {
   article?: string;
   code?: string;
+  name?: string;
+  pathName?: string;
+  productFolder?: {
+    meta?: { href?: string };
+    name?: string;
+  };
   stock?: number;
   quantity?: number;
   reserve?: number;
@@ -128,6 +137,28 @@ const parseWarehouseId = (value?: string): string | undefined => {
   return match ? match[0] : undefined;
 };
 
+const parseGroupMatcher = (env: Env): { id?: string; name?: string } => {
+  const raw = String(env.MS_GROUP_ID_OR_NAME || env.MS_GROUP_ID || env.MS_GROUP_NAME || '').trim();
+  if (!raw) return {};
+  const id = raw.match(/[0-9a-f-]{36}/i)?.[0];
+  if (id) return { id };
+  return { name: raw.toLowerCase() };
+};
+
+const rowMatchesGroup = (row: MsAssortmentRow, matcher: { id?: string; name?: string }): boolean => {
+  if (!matcher.id && !matcher.name) return true;
+
+  if (matcher.id) {
+    const href = String(row.productFolder?.meta?.href || '').toLowerCase();
+    return href.includes(matcher.id.toLowerCase());
+  }
+
+  const target = matcher.name || '';
+  const path = String(row.pathName || '').toLowerCase();
+  const folderName = String(row.productFolder?.name || '').toLowerCase();
+  return path.includes(target) || folderName.includes(target);
+};
+
 const toRub = (value?: number): number => {
   if (!value || Number.isNaN(value)) return 0;
   return Math.round(value / 100);
@@ -145,15 +176,18 @@ const readPrice = (row: MsAssortmentRow, priceTypeId?: string): number => {
 };
 
 const readStock = (row: MsAssortmentRow): number => {
+  // Для сайта используем "Доступно" из МойСклад (поле stock) в приоритете.
+  // Если stock отсутствует, откатываемся к quantity - reserve.
+  const stock = Number(row.stock);
+  if (Number.isFinite(stock)) {
+    return Math.max(0, Math.round(stock));
+  }
+
   const quantity = Number(row.quantity);
   const reserve = Number(row.reserve ?? 0);
   if (Number.isFinite(quantity)) {
     const available = Math.max(0, quantity - (Number.isFinite(reserve) ? reserve : 0));
     return Math.round(available);
-  }
-  const stock = Number(row.stock);
-  if (Number.isFinite(stock)) {
-    return Math.max(0, Math.round(stock));
   }
   return 0;
 };
@@ -232,7 +266,11 @@ const msFetch = async (url: string, token: string) => {
   throw new Error('MoySklad fetch failed');
 };
 
-const fetchAssortmentRows = async (token: string, warehouseId?: string): Promise<MsAssortmentRow[]> => {
+const fetchAssortmentRows = async (
+  token: string,
+  warehouseId?: string,
+  groupMatcher?: { id?: string; name?: string }
+): Promise<MsAssortmentRow[]> => {
   const allRows: MsAssortmentRow[] = [];
   let offset = 0;
 
@@ -242,7 +280,11 @@ const fetchAssortmentRows = async (token: string, warehouseId?: string): Promise
       meta?: { size?: number };
     };
     const rows = Array.isArray(page?.rows) ? page.rows : [];
-    allRows.push(...rows);
+    if (groupMatcher?.id || groupMatcher?.name) {
+      allRows.push(...rows.filter((row) => rowMatchesGroup(row, groupMatcher)));
+    } else {
+      allRows.push(...rows);
+    }
 
     if (!rows.length || rows.length < 1000) break;
     offset += rows.length;
@@ -252,7 +294,12 @@ const fetchAssortmentRows = async (token: string, warehouseId?: string): Promise
   return allRows;
 };
 
-const findRowBySkuFallback = async (sku: string, token: string, warehouseId?: string): Promise<MsAssortmentRow | undefined> => {
+const findRowBySkuFallback = async (
+  sku: string,
+  token: string,
+  warehouseId?: string,
+  groupMatcher?: { id?: string; name?: string }
+): Promise<MsAssortmentRow | undefined> => {
   const normalized = String(sku || '').trim();
   if (!normalized) return undefined;
 
@@ -260,14 +307,16 @@ const findRowBySkuFallback = async (sku: string, token: string, warehouseId?: st
     rows?: MsAssortmentRow[];
   };
   if (Array.isArray(byArticle?.rows) && byArticle.rows.length) {
-    return byArticle.rows[0];
+    const matched = byArticle.rows.find((row) => rowMatchesGroup(row, groupMatcher || {}));
+    if (matched) return matched;
   }
 
   const byCode = (await msFetch(buildAssortmentLookupUrl(normalized, warehouseId, 'code'), token)) as {
     rows?: MsAssortmentRow[];
   };
   if (Array.isArray(byCode?.rows) && byCode.rows.length) {
-    return byCode.rows[0];
+    const matched = byCode.rows.find((row) => rowMatchesGroup(row, groupMatcher || {}));
+    if (matched) return matched;
   }
 
   return undefined;
@@ -295,6 +344,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
           .filter(Boolean)
       : Object.keys(skuMap);
     const warehouseId = parseWarehouseId(context.env.MS_WAREHOUSE_ID);
+    const groupMatcher = parseGroupMatcher(context.env);
     const priceTypeId = context.env.MS_PRICE_TYPE_ID;
     const skuMetaMap = parseSkuMetaMap(context.env.MS_SKU_META_JSON);
     const stockZeroMode = context.env.MS_STOCK_ZERO_MODE === 'hide' ? 'hide' : 'preorder';
@@ -314,13 +364,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       }
     > = {};
 
-    const allRows = await fetchAssortmentRows(token, warehouseId);
+    const allRows = await fetchAssortmentRows(token, warehouseId, groupMatcher);
     const rowBySku = new Map<string, MsAssortmentRow>();
     allRows.forEach((row) => {
       const article = String(row.article || '').trim();
       const code = String(row.code || '').trim();
-      if (article) rowBySku.set(article.toUpperCase(), row);
-      if (code) rowBySku.set(code.toUpperCase(), row);
+      if (article && !rowBySku.has(article.toUpperCase())) rowBySku.set(article.toUpperCase(), row);
+      if (code && !rowBySku.has(code.toUpperCase())) rowBySku.set(code.toUpperCase(), row);
     });
 
     for (const slug of requestedSlugs) {
@@ -332,7 +382,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         const normalizedSku = String(sku || '').trim().toUpperCase();
         let row = rowBySku.get(normalizedSku);
         if (!row) {
-          row = await findRowBySkuFallback(sku, token, warehouseId);
+          row = await findRowBySkuFallback(sku, token, warehouseId, groupMatcher);
           if (row) {
             const article = String(row.article || '').trim();
             const code = String(row.code || '').trim();
@@ -392,7 +442,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         ok: true,
         updatedAt: new Date().toISOString(),
         warehouseId: warehouseId ?? null,
-        stockSource: 'quantity_minus_reserve_then_stock',
+        stockSource: 'stock_then_quantity_minus_reserve',
         rowsFetched: allRows.length,
         items: resultItems
       }),
