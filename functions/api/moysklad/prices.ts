@@ -30,6 +30,20 @@ type MsAssortmentRow = {
   }>;
 };
 
+type MsStockReportRow = {
+  stock?: number;
+  quantity?: number;
+  reserve?: number;
+  article?: string;
+  code?: string;
+  assortment?: {
+    article?: string;
+    code?: string;
+    name?: string;
+    meta?: { href?: string };
+  };
+};
+
 const API_BASE = 'https://api.moysklad.ru/api/remap/1.2';
 const DEFAULT_SKU_MAP: Record<string, string[]> = {
   vspomnit: ['CR-228'],
@@ -243,6 +257,15 @@ const buildAssortmentLookupUrl = (sku: string, warehouseId?: string, mode: 'arti
   return url.toString();
 };
 
+const buildStockReportPageUrl = (offset: number, warehouseHref: string): string => {
+  const url = new URL(`${API_BASE}/report/stock/all`);
+  url.searchParams.set('limit', '1000');
+  url.searchParams.set('offset', String(offset));
+  // Критично: фильтр по конкретному складу, чтобы не суммировать остатки со всех складов.
+  url.searchParams.set('filter', `store=${warehouseHref}`);
+  return url.toString();
+};
+
 const msFetch = async (url: string, token: string) => {
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   const maxRetries = 3;
@@ -276,6 +299,61 @@ const msFetch = async (url: string, token: string) => {
   }
 
   throw new Error('MoySklad fetch failed');
+};
+
+const readStockFromReport = (row: MsStockReportRow): number => {
+  const stock = Number(row.stock);
+  if (Number.isFinite(stock)) {
+    return Math.max(0, Math.round(stock));
+  }
+  const quantity = Number(row.quantity);
+  const reserve = Number(row.reserve ?? 0);
+  if (Number.isFinite(quantity)) {
+    return Math.max(0, Math.round(quantity - (Number.isFinite(reserve) ? reserve : 0)));
+  }
+  return 0;
+};
+
+const fetchStockBySku = async (
+  token: string,
+  warehouseId?: string
+): Promise<{ bySku: Map<string, number>; rowsCount: number; source: string }> => {
+  const warehouseHref = toWarehouseHref(warehouseId);
+  if (!warehouseHref) {
+    return { bySku: new Map(), rowsCount: 0, source: 'assortment_fallback_no_warehouse' };
+  }
+
+  const bySku = new Map<string, number>();
+  let offset = 0;
+  let rowsCount = 0;
+
+  while (true) {
+    const page = (await msFetch(buildStockReportPageUrl(offset, warehouseHref), token)) as {
+      rows?: MsStockReportRow[];
+    };
+    const rows = Array.isArray(page?.rows) ? page.rows : [];
+    rowsCount += rows.length;
+
+    rows.forEach((row) => {
+      const stock = readStockFromReport(row);
+      const candidates = [
+        String(row.article || '').trim().toUpperCase(),
+        String(row.code || '').trim().toUpperCase(),
+        String(row.assortment?.article || '').trim().toUpperCase(),
+        String(row.assortment?.code || '').trim().toUpperCase()
+      ].filter(Boolean);
+
+      candidates.forEach((key) => {
+        bySku.set(key, stock);
+      });
+    });
+
+    if (!rows.length || rows.length < 1000) break;
+    offset += rows.length;
+    if (offset > 100000) break;
+  }
+
+  return { bySku, rowsCount, source: 'report_stock_all_store_filter' };
 };
 
 const fetchAssortmentRows = async (
@@ -405,6 +483,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       groupMatcher,
       expectedSkus
     );
+    const stockData = await fetchStockBySku(token, warehouseId);
     const rowBySku = new Map<string, MsAssortmentRow>();
     allRows.forEach((row) => {
       const article = String(row.article || '').trim();
@@ -439,7 +518,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       if (!rowsWithSku.length) continue;
 
       const variants = rowsWithSku.map(({ sku, row }) => {
-        const stock = readStock(row);
+        const stock =
+          stockData.bySku.get(String(sku || '').trim().toUpperCase()) ?? readStock(row);
         const price = readPrice(row, priceTypeId);
         let status: StockStatus = 'in_stock';
         if (stock <= 0) {
@@ -489,7 +569,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         warehouseParam: toWarehouseHref(warehouseId) ?? null,
         groupFilter: groupMatcher.id || groupMatcher.name || null,
         groupFilterApplied,
-        stockSource: 'stock_then_quantity_minus_reserve',
+        stockSource: stockData.source,
+        stockRowsFetched: stockData.rowsCount,
         rowsFetched: allRows.length,
         items: resultItems
       }),
