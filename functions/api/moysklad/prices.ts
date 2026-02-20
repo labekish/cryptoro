@@ -208,14 +208,20 @@ const aggregateStock = (values: number[], rule: 'sum' | 'max' | 'first'): number
   return stocks.reduce((acc, value) => acc + value, 0);
 };
 
+const toWarehouseHref = (warehouseId?: string): string | undefined => {
+  if (!warehouseId) return undefined;
+  return `${API_BASE}/entity/store/${warehouseId}`;
+};
+
 const buildAssortmentPageUrl = (offset: number, warehouseId?: string): string => {
   const url = new URL(`${API_BASE}/entity/assortment`);
   url.searchParams.set('limit', '1000');
   url.searchParams.set('offset', String(offset));
   url.searchParams.set('expand', 'salePrices');
-  if (warehouseId) {
-    // Для remap API передаем UUID склада (так МойСклад корректно считает "Доступно" по складу).
-    url.searchParams.set('stockStore', warehouseId);
+  const warehouseHref = toWarehouseHref(warehouseId);
+  if (warehouseHref) {
+    // В remap API stockStore должен быть ссылкой на склад, а не просто UUID.
+    url.searchParams.set('stockStore', warehouseHref);
   }
   return url.toString();
 };
@@ -225,8 +231,9 @@ const buildAssortmentLookupUrl = (sku: string, warehouseId?: string, mode: 'arti
   url.searchParams.set('limit', '1');
   url.searchParams.set('expand', 'salePrices');
   url.searchParams.set('filter', `${mode}=${sku}`);
-  if (warehouseId) {
-    url.searchParams.set('stockStore', warehouseId);
+  const warehouseHref = toWarehouseHref(warehouseId);
+  if (warehouseHref) {
+    url.searchParams.set('stockStore', warehouseHref);
   }
   return url.toString();
 };
@@ -442,6 +449,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         ok: true,
         updatedAt: new Date().toISOString(),
         warehouseId: warehouseId ?? null,
+        warehouseParam: toWarehouseHref(warehouseId) ?? null,
         stockSource: 'stock_then_quantity_minus_reserve',
         rowsFetched: allRows.length,
         items: resultItems
