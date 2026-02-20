@@ -776,20 +776,49 @@ const ogUrl = Astro.url?.toString() || '';
 
               document.querySelectorAll(`[data-ms-variants="${slug}"]`).forEach((node) => {
                 const variants = Array.isArray(item.variants) ? item.variants : [];
-                const normalized = variants.filter((variant) => variant && variant.sku);
+                const skuOrder = (slugToSkus[slug] || []).map((sku) => String(sku).trim());
+                const orderMap = new Map(skuOrder.map((sku, idx) => [sku, idx]));
+
+                const colorMap = {
+                  Black: 'Черный',
+                  'Navy Blue': 'Синий',
+                  Silver: 'Серебристый',
+                  Starlight: 'Золотистый',
+                  Graphite: 'Графит',
+                  'Cosmic Gray': 'Космический серый',
+                  'Lunar Silver': 'Лунное серебро',
+                  'Sunset Purple': 'Сиреневый'
+                };
+
+                const normalized = variants
+                  .filter((variant) => variant && variant.sku && String(variant.status || '') !== 'hidden')
+                  .sort((a, b) => {
+                    const aOrder = orderMap.has(String(a.sku)) ? orderMap.get(String(a.sku)) : Number.MAX_SAFE_INTEGER;
+                    const bOrder = orderMap.has(String(b.sku)) ? orderMap.get(String(b.sku)) : Number.MAX_SAFE_INTEGER;
+                    if (aOrder !== bOrder) return aOrder - bOrder;
+                    return String(a.color || a.sku).localeCompare(String(b.color || b.sku), 'ru');
+                  });
+
                 if (!normalized.length) {
                   node.innerHTML = '';
                   node.style.display = 'none';
                   return;
                 }
+
                 const html = normalized
                   .map((variant) => {
-                    const label = variant.color || variant.sku;
                     const qty = Math.max(0, Number(variant.stock || 0));
-                    const isEmpty = qty <= 0;
-                    return `<div class="ms-variant-item"><b>${label}</b><span class="ms-variant-value${isEmpty ? ' is-empty' : ''}">${isEmpty ? 'нет' : `${qty} шт`}</span></div>`;
+                    const status = String(variant.status || '');
+                    const isPreorder = status === 'preorder' || qty <= 0;
+                    const isLow = status === 'low_stock' && !isPreorder;
+                    const statusClass = isPreorder ? ' is-preorder' : isLow ? ' is-low' : '';
+                    const statusText = isPreorder ? 'предзаказ' : isLow ? `мало: ${qty} шт` : `${qty} шт`;
+                    const rawLabel = String(variant.color || variant.sku || '').trim();
+                    const label = colorMap[rawLabel] || rawLabel;
+                    return `<div class="ms-variant-item"><b>${label}</b><span class="ms-variant-value${statusClass}">${statusText}</span></div>`;
                   })
                   .join('');
+
                 node.classList.add('ms-variant-list');
                 node.innerHTML = html;
                 node.style.display = 'grid';
