@@ -39,6 +39,9 @@ const DEFAULT_SKU_MAP: Record<string, string[]> = {
   accessories: ['AC-40']
 };
 
+// Дефолтная группа для витрины CRYPTORO (используется, если переменная MS_GROUP_* не задана в Cloudflare).
+const DEFAULT_GROUP_NAME = 'Товары для самовыкупов';
+
 const DEFAULT_SKU_META: Record<string, { color?: string; title?: string }> = {
   'CR-228': { color: 'Graphite', title: 'Вспомни всё' },
   'CR-191': { color: 'Black', title: 'Plaud Note' },
@@ -138,7 +141,9 @@ const parseWarehouseId = (value?: string): string | undefined => {
 };
 
 const parseGroupMatcher = (env: Env): { id?: string; name?: string } => {
-  const raw = String(env.MS_GROUP_ID_OR_NAME || env.MS_GROUP_ID || env.MS_GROUP_NAME || '').trim();
+  const raw = String(
+    env.MS_GROUP_ID_OR_NAME || env.MS_GROUP_ID || env.MS_GROUP_NAME || DEFAULT_GROUP_NAME
+  ).trim();
   if (!raw) return {};
   const id = raw.match(/[0-9a-f-]{36}/i)?.[0];
   if (id) return { id };
@@ -450,6 +455,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         updatedAt: new Date().toISOString(),
         warehouseId: warehouseId ?? null,
         warehouseParam: toWarehouseHref(warehouseId) ?? null,
+        groupFilter: groupMatcher.id || groupMatcher.name || null,
         stockSource: 'stock_then_quantity_minus_reserve',
         rowsFetched: allRows.length,
         items: resultItems
