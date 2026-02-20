@@ -302,14 +302,17 @@ const msFetch = async (url: string, token: string) => {
 };
 
 const readStockFromReport = (row: MsStockReportRow): number => {
+  // В отчёте МойСклад учитываем "доступно": остаток минус резерв.
+  const reserve = Number(row.reserve ?? 0);
+  const safeReserve = Number.isFinite(reserve) ? reserve : 0;
+
   const stock = Number(row.stock);
   if (Number.isFinite(stock)) {
-    return Math.max(0, Math.round(stock));
+    return Math.max(0, Math.round(stock - safeReserve));
   }
   const quantity = Number(row.quantity);
-  const reserve = Number(row.reserve ?? 0);
   if (Number.isFinite(quantity)) {
-    return Math.max(0, Math.round(quantity - (Number.isFinite(reserve) ? reserve : 0)));
+    return Math.max(0, Math.round(quantity - safeReserve));
   }
   return 0;
 };
@@ -355,6 +358,7 @@ const fetchStockBySku = async (
       assortmentName?: string;
     }>
   >();
+  const debugSeenBySku = new Map<string, Set<string>>();
   let offset = 0;
   let rowsCount = 0;
 
@@ -367,15 +371,35 @@ const fetchStockBySku = async (
 
     rows.forEach((row) => {
       const stock = readStockFromReport(row);
-      const candidates = [
-        String(row.article || '').trim().toUpperCase(),
-        String(row.code || '').trim().toUpperCase(),
-        String(row.assortment?.article || '').trim().toUpperCase(),
-        String(row.assortment?.code || '').trim().toUpperCase()
-      ].filter(Boolean);
+      const candidates = Array.from(
+        new Set(
+          [
+            String(row.article || '').trim().toUpperCase(),
+            String(row.code || '').trim().toUpperCase(),
+            String(row.assortment?.article || '').trim().toUpperCase(),
+            String(row.assortment?.code || '').trim().toUpperCase()
+          ].filter(Boolean)
+        )
+      );
 
       candidates.forEach((key) => {
-        bySku.set(key, stock);
+        // Суммируем по SKU, если в отчете есть несколько строк для одного артикула.
+        bySku.set(key, (bySku.get(key) ?? 0) + stock);
+
+        // В debug исключаем дубли одной и той же строки по одному SKU.
+        const debugSignature = [
+          stock,
+          row.article || '',
+          row.code || '',
+          row.assortment?.article || '',
+          row.assortment?.code || '',
+          row.assortment?.name || ''
+        ].join('|');
+        const seen = debugSeenBySku.get(key) || new Set<string>();
+        if (seen.has(debugSignature)) return;
+        seen.add(debugSignature);
+        debugSeenBySku.set(key, seen);
+
         const prev = debugRowsBySku.get(key) || [];
         prev.push({
           stock,
