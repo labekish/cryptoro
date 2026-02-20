@@ -496,7 +496,15 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       const skus = skuMap[slug] || [];
       if (!skus.length) continue;
 
-      const rowsWithSku: Array<{ sku: string; row: MsAssortmentRow }> = [];
+      const variants: Array<{
+        sku: string;
+        stock: number;
+        price: number;
+        status: StockStatus;
+        color?: string;
+        title?: string;
+      }> = [];
+
       for (const sku of skus) {
         const normalizedSku = String(sku || '').trim().toUpperCase();
         let row = rowBySku.get(normalizedSku);
@@ -513,29 +521,27 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
             if (code) rowBySku.set(code.toUpperCase(), row);
           }
         }
-        if (row) rowsWithSku.push({ sku, row });
-      }
-      if (!rowsWithSku.length) continue;
 
-      const variants = rowsWithSku.map(({ sku, row }) => {
-        const stock =
-          stockData.bySku.get(String(sku || '').trim().toUpperCase()) ?? readStock(row);
-        const price = readPrice(row, priceTypeId);
+        // Критично: остатки считаем ТОЛЬКО из отчета по конкретному складу.
+        // Если SKU отсутствует в report/stock/all (store=...), считаем 0 и ставим preorder/hidden.
+        const stock = stockData.bySku.get(normalizedSku) ?? 0;
+        const price = row ? readPrice(row, priceTypeId) : 0;
         let status: StockStatus = 'in_stock';
         if (stock <= 0) {
           status = stockZeroMode === 'hide' ? 'hidden' : 'preorder';
         } else if (stock <= 5) {
           status = 'low_stock';
         }
-        return {
+
+        variants.push({
           sku,
           stock,
           price,
           status,
           color: skuMetaMap[sku]?.color,
           title: skuMetaMap[sku]?.title
-        };
-      });
+        });
+      }
 
       const stock = aggregateStock(
         variants.map((variant) => variant.stock),
