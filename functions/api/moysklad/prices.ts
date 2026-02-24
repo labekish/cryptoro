@@ -572,13 +572,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     > = {};
 
     const expectedSkus = requestedSlugs.flatMap((slug) => skuMap[slug] || []);
-    const { rows: allRows, groupFilterApplied } = await fetchAssortmentRows(
-      token,
-      warehouseId,
-      groupMatcher,
-      expectedSkus
-    );
-    const stockData = await fetchStockBySku(token, warehouseId);
+    const [{ rows: allRows, groupFilterApplied }, stockData] = await Promise.all([
+      fetchAssortmentRows(token, warehouseId, groupMatcher, expectedSkus),
+      fetchStockBySku(token, warehouseId)
+    ]);
     const rowBySku = new Map<string, MsAssortmentRow>();
     allRows.forEach((row) => {
       const article = String(row.article || '').trim();
