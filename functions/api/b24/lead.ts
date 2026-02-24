@@ -24,7 +24,8 @@ interface OrderPayload {
 
 type LeadPayload = ConsultPayload | OrderPayload;
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
+  const { request, env } = context;
   const headers = { 'Content-Type': 'application/json' };
 
   const webhookUrl = (env.B24_WEBHOOK_URL || '').trim().replace(/\/$/, '');
@@ -67,23 +68,26 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     TITLE: title,
     NAME: name,
     PHONE: [{ VALUE: phone, VALUE_TYPE: 'WORK' }],
-    EMAIL: email ? [{ VALUE: email, VALUE_TYPE: 'WORK' }] : undefined,
     SOURCE_ID: 'WEB',
     SOURCE_DESCRIPTION: isOrder ? 'Корзина' : 'Консультация по диктофонам',
-    CATEGORY_ID: 0,
   };
+  if (email) fields.EMAIL = [{ VALUE: email, VALUE_TYPE: 'WORK' }];
   if (comments) fields.COMMENTS = comments;
 
   const b24Res = await fetch(`${webhookUrl}/crm.lead.add.json`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fields, params: {} }),
+    body: JSON.stringify({ fields }),
   });
 
-  if (!b24Res.ok) {
-    return new Response(JSON.stringify({ ok: false, error: 'b24_error' }), { status: 502, headers });
+  const data: { result?: number; error?: string; error_description?: string } = await b24Res.json();
+
+  if (!b24Res.ok || data.error) {
+    return new Response(
+      JSON.stringify({ ok: false, error: data.error || 'b24_error', detail: data.error_description }),
+      { status: 502, headers }
+    );
   }
 
-  const data: { result?: number } = await b24Res.json();
   return new Response(JSON.stringify({ ok: true, id: data.result }), { headers });
 };
