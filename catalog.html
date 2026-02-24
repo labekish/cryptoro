@@ -75,7 +75,17 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
 
 /* Sticky/header micro-pass */
 header{background:rgba(255,255,255,.92)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(18px)!important}
-section.sticky{background:rgba(255,255,255,.94)!important;border-bottom:1px solid var(--line)!important;box-shadow:none!important}
+section.sticky{
+  background:rgba(255,255,255,.94)!important;
+  border-bottom:1px solid var(--line)!important;
+  box-shadow:none!important;
+  /* Track smart-header clearance so filter bar never hides behind the pill */
+  top:var(--sh-h,68px)!important;
+  transition:top 220ms ease;
+}
+@media(prefers-reduced-motion:reduce){
+  section.sticky{transition:none!important}
+}
 
 /* Alternating section rhythm (index) */
 .sec-products,.sec-usecases,.sec-reviews{background:var(--c-bg)!important}

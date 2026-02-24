@@ -86,7 +86,8 @@ const ogUrl = Astro.url?.toString() || '';
       @media (min-width:1024px){
         .wrap,.hero-inner,.nav-inner,.foot-grid,.foot-bot,.catalog-controls,.mx-auto.max-w-7xl,.hero-grid,.tabs-wrap,.related-wrap{padding-left:3rem!important;padding-right:3rem!important}
       }
-      header{
+      /* Legacy headers only — smart pill (#smart-header[data-state]) manages itself */
+      header:not(#smart-header){
         background:rgba(255,255,255,.85)!important;
         border:1px solid rgba(0,0,0,.08)!important;
         backdrop-filter:blur(24px)!important;
