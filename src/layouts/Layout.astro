@@ -826,6 +826,27 @@ const ogUrl = Astro.url?.toString() || '';
             });
           };
 
+          // --- localStorage price cache ---
+          const MS_CACHE_KEY = 'cryptoro_ms_prices_v1';
+          const MS_CACHE_TTL = 5 * 60 * 1000; // 5 минут
+
+          function loadPriceCache() {
+            try {
+              const raw = window.localStorage.getItem(MS_CACHE_KEY);
+              if (!raw) return null;
+              const parsed = JSON.parse(raw);
+              if (!parsed || typeof parsed.ts !== 'number') return null;
+              if (Date.now() - parsed.ts > MS_CACHE_TTL) return null;
+              return parsed.items || null;
+            } catch { return null; }
+          }
+
+          function savePriceCache(items) {
+            try {
+              window.localStorage.setItem(MS_CACHE_KEY, JSON.stringify({ ts: Date.now(), items: items }));
+            } catch {}
+          }
+
           const request = async () => {
             try {
               const query = new URLSearchParams();
@@ -838,6 +859,7 @@ const ogUrl = Astro.url?.toString() || '';
               const payload = await response.json();
               if (!payload?.ok || !payload?.items) return;
               applyItems(payload.items);
+              savePriceCache(payload.items);
             } catch {
               // Фолбэк на цены из контента, если API временно недоступен.
             } finally {
@@ -845,10 +867,17 @@ const ogUrl = Astro.url?.toString() || '';
             }
           };
 
-          hidePendingPrices();
-          // Фолбэк на случай долгого ответа API: не держим пустые цены бесконечно.
-          window.setTimeout(() => revealPrices(), 1800);
-          request();
+          // Если есть свежий кэш — показываем цены мгновенно, фоново обновляем.
+          const cachedPrices = loadPriceCache();
+          if (cachedPrices) {
+            applyItems(cachedPrices);
+            revealPrices();
+            request(); // тихое фоновое обновление
+          } else {
+            hidePendingPrices();
+            window.setTimeout(() => revealPrices(), 1800);
+            request();
+          }
           window.setInterval(request, 15 * 60 * 1000);
         }
 
