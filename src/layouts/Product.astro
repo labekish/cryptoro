@@ -429,8 +429,12 @@ const colors = product.colors ?? [];
     .color-picker-label span{font-weight:400;color:#4b5563}
     .color-btns{display:flex;flex-wrap:wrap;gap:8px}
     .color-btn{height:36px;padding:0 14px;border-radius:20px;border:1.5px solid rgba(17,24,39,.15);background:#fff;color:#374151;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s ease;line-height:1}
-    .color-btn:hover{border-color:rgba(17,24,39,.4);color:#111}
+    .color-btn:hover:not([disabled]){border-color:rgba(17,24,39,.4);color:#111}
     .color-btn.active{border-color:#111;background:#111;color:#fff}
+    .color-btn[disabled]{opacity:.38;cursor:not-allowed;text-decoration:line-through}
+    .color-btn.is-preorder{opacity:.7;border-style:dashed}
+    .color-btn.is-low{border-color:#f59e0b}
+    .color-stock{font-size:10px;margin-left:5px;opacity:.65;font-weight:400}
     .prod-desc{margin:0 0 16px;color:#4b5563;line-height:1.65;font-size:16px}
     .trust-badges{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;margin-bottom:20px;padding-bottom:2px}
     .tbadge{display:inline;background:none;border:none;padding:0;margin:0;color:#4b5563;font-size:13px;font-weight:500}
