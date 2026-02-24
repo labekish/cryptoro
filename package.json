@@ -39,5 +39,8 @@
     "tinacms": "^3.4.1",
     "typescript": "^5.9.3",
     "w3c-keyname": "^2.2.8"
+  },
+  "devDependencies": {
+    "wrangler": "^4.68.0"
   }
 }
