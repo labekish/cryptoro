@@ -4,6 +4,7 @@ export type CartProduct = {
   price: number;
   image: string;
   qty?: number;
+  color?: string;
 };
 
 const CART_KEY = 'cryptoro_cart';
@@ -28,7 +29,8 @@ export function getCart(): CartProduct[] {
         name: String(item.name),
         price: Number(item.price) || 0,
         image: String(item.image || ''),
-        qty: Math.max(1, Number(item.qty) || 1)
+        qty: Math.max(1, Number(item.qty) || 1),
+        ...(item.color ? { color: String(item.color) } : {})
       }));
   } catch {
     return [];

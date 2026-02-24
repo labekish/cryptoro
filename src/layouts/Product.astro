@@ -30,6 +30,7 @@ interface ProductData {
   };
   boxContents?: string[];
   gallery?: string[];
+  colors?: string[];
 }
 
 interface RelatedItem {
@@ -69,6 +70,7 @@ const subtitle = product.subtitle ?? 'AI-устройство CRYPTORO';
 const priceNote = product.priceNote ?? '';
 const paramChips = product.paramChips ?? [];
 const heroHighlights = product.features ?? [];
+const colors = product.colors ?? [];
 ---
 <Layout title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
   <main class="product-page">
@@ -126,6 +128,16 @@ const heroHighlights = product.features ?? [];
           <div class="param-chips">
             {paramChips.map((chip) => <span class="param-chip">{chip}</span>)}
           </div>
+          {colors.length > 1 && (
+            <div class="color-picker">
+              <p class="color-picker-label">Цвет: <span id="selectedColorName">{colors[0]}</span></p>
+              <div class="color-btns" id="colorBtns">
+                {colors.map((c, i) => (
+                  <button class={`color-btn${i === 0 ? ' active' : ''}`} type="button" data-color={c}>{c}</button>
+                ))}
+              </div>
+            </div>
+          )}
           <p class="prod-desc">{product.seoDescription}</p>
           <div class="trust-badges">
             <span class="tbadge">Гарантия 1 год</span>
@@ -200,7 +212,7 @@ const heroHighlights = product.features ?? [];
   </div>
   <div class="cart-toast" id="cartToast" role="status" aria-live="polite">Товар добавлен в корзину</div>
 
-  <script define:vars={{ cartItem: { id: product.slug, name: product.title, price: product.price, image: product.image, qty: 1 } }} is:inline>
+  <script define:vars={{ baseProduct: { id: product.slug, name: product.title, price: product.price, image: product.image }, hasColors: colors.length > 1 }} is:inline>
     function showToast() {
       const toast = document.getElementById('cartToast');
       if (!toast) return;
@@ -216,9 +228,27 @@ const heroHighlights = product.features ?? [];
       return 0;
     }
 
+    function getSelectedColor() {
+      if (!hasColors) return '';
+      const btn = document.querySelector('#colorBtns .color-btn.active');
+      return btn ? (btn.dataset.color || '') : '';
+    }
+
+    function buildCartItem() {
+      const color = getSelectedColor();
+      return {
+        id: color ? baseProduct.id + '::' + color : baseProduct.id,
+        name: baseProduct.name,
+        price: baseProduct.price,
+        image: baseProduct.image,
+        qty: 1,
+        color: color || undefined
+      };
+    }
+
     function addToCartItem() {
       if (window.cryptoroCart && typeof window.cryptoroCart.add === 'function') {
-        window.cryptoroCart.add(cartItem);
+        window.cryptoroCart.add(buildCartItem());
       }
       const nextCount = getCartCountSafe();
       const c = document.querySelector('#cartCount, .cart-n');
@@ -234,6 +264,7 @@ const heroHighlights = product.features ?? [];
       btn.textContent = '✓ Добавлено';
       setTimeout(() => { btn.textContent = original ?? 'В корзину'; }, 2000);
     }
+
     function buyNowItem() {
       addToCartItem();
       window.location.href = '/cart';
@@ -244,6 +275,18 @@ const heroHighlights = product.features ?? [];
       const buyBtn = document.getElementById('buyBtn');
       if (addBtn) addBtn.addEventListener('click', addToCartItem);
       if (buyBtn) buyBtn.addEventListener('click', buyNowItem);
+
+      const colorBtns = document.getElementById('colorBtns');
+      if (colorBtns) {
+        colorBtns.addEventListener('click', (event) => {
+          const btn = event.target.closest('.color-btn');
+          if (!btn) return;
+          colorBtns.querySelectorAll('.color-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          const label = document.getElementById('selectedColorName');
+          if (label) label.textContent = btn.dataset.color || '';
+        });
+      }
     });
   </script>
 
@@ -381,6 +424,13 @@ const heroHighlights = product.features ?? [];
     .price-note{margin:-2px 0 12px;color:#6b7280;font-size:14px;line-height:1.45}
     .param-chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
     .param-chip{display:inline-flex;align-items:center;border:1px solid rgba(17,24,39,.1);background:#e8e8e8;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:#374151}
+    .color-picker{margin:0 0 16px}
+    .color-picker-label{font-size:14px;font-weight:600;color:#111;margin:0 0 10px}
+    .color-picker-label span{font-weight:400;color:#4b5563}
+    .color-btns{display:flex;flex-wrap:wrap;gap:8px}
+    .color-btn{height:36px;padding:0 14px;border-radius:20px;border:1.5px solid rgba(17,24,39,.15);background:#fff;color:#374151;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s ease;line-height:1}
+    .color-btn:hover{border-color:rgba(17,24,39,.4);color:#111}
+    .color-btn.active{border-color:#111;background:#111;color:#fff}
     .prod-desc{margin:0 0 16px;color:#4b5563;line-height:1.65;font-size:16px}
     .trust-badges{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;margin-bottom:20px;padding-bottom:2px}
     .tbadge{display:inline;background:none;border:none;padding:0;margin:0;color:#4b5563;font-size:13px;font-weight:500}
