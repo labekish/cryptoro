@@ -1732,7 +1732,11 @@ img{max-width:100%;height:auto}
     <h2 class="lead-title">Не знаете какой выбрать?</h2>
     <p class="lead-sub">Оставьте контакт. Подберём модель под ваши задачи и бюджет.</p>
     <form class="lead-form" id="leadConsultForm" name="consult">
-      <input class="linput" id="leadContactInput" type="tel" name="contact" placeholder="Ваш телефон или email" aria-label="Ваш телефон или email" minlength="5" required/>
+      <input class="linput" id="leadNameInput" type="text" name="name" placeholder="Ваше имя" aria-label="Ваше имя" required/>
+      <div class="lead-row">
+        <input class="linput" id="leadPhoneInput" type="tel" name="phone" placeholder="Телефон" aria-label="Телефон" required/>
+        <input class="linput" id="leadEmailInput" type="email" name="email" placeholder="Email" aria-label="Email"/>
+      </div>
       <button type="submit" class="lsubmit">Получить консультацию</button>
     </form>
     <p class="lead-status" id="leadStatus" role="status" aria-live="polite" hidden></p>
@@ -2021,12 +2025,12 @@ img{max-width:100%;height:auto}
 
     const status = document.getElementById('leadStatus');
     const success = document.getElementById('leadSuccess');
-    const contactInput = document.getElementById('leadContactInput');
+    const nameInput = document.getElementById('leadNameInput');
+    const phoneInput = document.getElementById('leadPhoneInput');
+    const emailInput = document.getElementById('leadEmailInput');
     const submitBtn = form.querySelector('.lsubmit');
-    if (!submitBtn || !contactInput) return;
+    if (!submitBtn || !nameInput || !phoneInput) return;
 
-    const formspreeId = (window.CRYPTORO_FORMSPREE_ID || '').trim();
-    const endpoint = formspreeId ? `https://formspree.io/f/${formspreeId}` : '';
     const defaultBtnText = submitBtn.textContent || 'Получить консультацию';
 
     function setStatus(message, isError) {
@@ -2043,54 +2047,33 @@ img{max-width:100%;height:auto}
       status.classList.remove('error');
     }
 
-    function isValidContact(value) {
-      const v = value.trim();
-      if (v.length < 5) return false;
-      if (v.includes('@')) return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-      const digits = v.replace(/\D/g, '');
-      return digits.length >= 10;
-    }
-
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       clearStatus();
       if (success) success.hidden = true;
 
-      const contactValue = (contactInput.value || '').trim();
-      if (!isValidContact(contactValue)) {
-        setStatus('Введите корректный телефон или email.', true);
-        contactInput.focus();
-        return;
-      }
+      const name = (nameInput.value || '').trim();
+      const phone = (phoneInput.value || '').trim();
+      const email = emailInput ? (emailInput.value || '').trim() : '';
 
-      if (!endpoint) {
-        setStatus('Не настроен Formspree ID. Добавьте PUBLIC_FORMSPREE_ID в .env.', true);
-        return;
-      }
+      if (!name) { setStatus('Введите ваше имя.', true); nameInput.focus(); return; }
+      if (phone.replace(/\D/g, '').length < 10) { setStatus('Введите корректный телефон.', true); phoneInput.focus(); return; }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Отправляем...';
 
       try {
-        const response = await fetch(endpoint, {
+        const response = await fetch('/api/b24/lead', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
-          },
-          body: JSON.stringify({
-            contact: contactValue,
-            source: 'index-lead'
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'consult', name, phone, email })
         });
 
-        if (!response.ok) {
-          throw new Error('Request failed');
-        }
+        if (!response.ok) throw new Error('request_failed');
 
         form.style.display = 'none';
         if (success) success.hidden = false;
-      } catch (error) {
+      } catch {
         setStatus('Ошибка отправки. Попробуйте ещё раз.', true);
         submitBtn.disabled = false;
         submitBtn.textContent = defaultBtnText;

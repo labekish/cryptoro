@@ -190,7 +190,8 @@ import Layout from '../layouts/Layout.astro';
 
         const formData = new FormData(checkoutForm);
         const payload = {
-          fullName: String(formData.get('fullName') || ''),
+          type: 'order',
+          name: String(formData.get('fullName') || ''),
           phone: String(formData.get('phone') || ''),
           email: String(formData.get('email') || ''),
           city: String(formData.get('city') || ''),
@@ -201,19 +202,15 @@ import Layout from '../layouts/Layout.astro';
           total: cartTotal?.textContent || ''
         };
 
-        const requiredOk = payload.fullName && payload.phone && payload.email && payload.city && payload.street && payload.zip;
+        const requiredOk = payload.name && payload.phone && payload.city && payload.street && payload.zip;
         if (!requiredOk) return;
 
         submitBtn.disabled = true;
         submitBtn.textContent = 'Отправляем...';
         try {
-          // Отправка заявки в Formspree без бэкенда.
-          const response = await fetch('https://formspree.io/f/mnjbvkjq', {
+          const response = await fetch('/api/b24/lead', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
 
