@@ -122,8 +122,8 @@
     .sec-head{text-align:center;margin-bottom:60px}
     .sec-title{font-family:'Unbounded',sans-serif;
       font-size:clamp(42px,4.2vw,48px);font-weight:700;
-      letter-spacing:-.02em;color:#1d1d1f;margin-bottom:12px}
-    .sec-sub{font-size:19px;line-height:1.6;color:#666;font-weight:400}
+      letter-spacing:-.02em;color:#1d1d1f;margin-bottom:12px;text-wrap:balance}
+    .sec-sub{font-size:18px;line-height:1.6;color:#666;font-weight:400}
     .wrap{max-width:1200px;margin:0 auto}
 
     /* PRODUCTS */
@@ -138,7 +138,7 @@
       padding:4px 10px;border-radius:980px}
     .pimg-wrap{width:100%;height:220px;display:flex;align-items:center;
       justify-content:center;margin-bottom:16px;overflow:hidden;border-radius:10px;
-      background:#f5f5f7}
+      background:#ffffff}
     .pimg-wrap img{width:100%;height:100%;object-fit:contain;
       transition:transform .4s ease}
     .pcard:hover .pimg-wrap img{transform:scale(1.05)}
@@ -147,8 +147,8 @@
     .colors{display:flex;gap:6px;margin-bottom:12px}
     .cdot{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(0,0,0,.15)}
     .pname{font-size:17px;font-weight:600;color:#1d1d1f;margin-bottom:6px}
-    .pdesc{font-size:13px;color:#888;line-height:1.5;flex:1;margin-bottom:16px}
-    .pprice{font-size:17px;font-weight:700;color:#1d1d1f;margin-bottom:14px}
+    .pdesc{font-size:14px;color:#6b7280;line-height:1.5;flex:1;margin-bottom:16px}
+    .pprice{font-size:20px;font-weight:700;color:#1d1d1f;margin-bottom:14px}
     .pbtn{display:block;width:100%;background:#1d1d1f;color:#fff;border:none;
       border-radius:14px;padding:14px 32px;font-size:14px;font-weight:500;
       text-align:center;cursor:pointer;text-decoration:none;transition:background .2s;
@@ -361,7 +361,9 @@
     .uccard:hover{
       transform:translateY(-2px);
       box-shadow:0 6px 18px rgba(0,0,0,.09);
-      border-color:rgba(17,17,17,.14);
+      border-top-color:rgba(17,17,17,.14);
+      border-right-color:rgba(17,17,17,.14);
+      border-bottom-color:rgba(17,17,17,.14);
     }
     .uc-code{
       font-size:12px;
@@ -411,8 +413,8 @@
     .pricingcard.feat{
       background:#fff;
       padding:48px;
-      border:3px solid rgba(232,134,53,.72);
-      box-shadow:0 24px 44px rgba(232,134,53,.20),0 14px 30px rgba(15,23,42,.12);
+      border:2px solid rgba(232,134,53,.5);
+      box-shadow:0 20px 36px rgba(232,134,53,.14),0 10px 24px rgba(15,23,42,.09);
       transform:translateY(-2px);
     }
     .pbadge2{
@@ -541,7 +543,7 @@
     .faq-inner{max-width:700px;margin:0 auto}
     .faqitem{border-bottom:1px solid rgba(0,0,0,.08);overflow:hidden}
     .faqq{display:flex;align-items:center;justify-content:space-between;
-      width:100%;padding:22px 0;cursor:pointer;font-size:16px;font-weight:500;
+      width:100%;padding:22px 0;cursor:pointer;font-size:16px;font-weight:600;
       color:#1d1d1f;user-select:none;background:transparent;border:0;text-align:left}
     .faqarr{width:24px;height:24px;border-radius:50%;background:#e0e0e0;
       flex-shrink:0;display:flex;align-items:center;justify-content:center;
@@ -549,8 +551,10 @@
       font-size:16px;line-height:1;color:#555}
     .faqitem.open .faqarr{background:#e88635;color:#fff;transform:rotate(180deg)}
     .faqa{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease,opacity .25s ease;
-      font-size:16px;color:#555;line-height:1.6;opacity:0;padding-bottom:0}
-    .faqitem.open .faqa{padding-bottom:16px;opacity:1}
+      font-size:16px;color:#555;line-height:1.6;opacity:0;padding-bottom:0;
+      border-top:1px solid transparent}
+    .faqitem.open .faqa{padding-top:14px;padding-bottom:24px;opacity:1;
+      border-top-color:rgba(0,0,0,.06)}
 
     /* FOOTER */
     footer{background:#1d1d1f;color:#888;padding:60px 24px 40px}
@@ -640,10 +644,10 @@
       background:transparent;
       border:1px solid rgba(29,29,31,.12);
       border-radius:14px;
-      padding:0 16px;
+      padding:0;
       overflow:hidden
     }
-    .faqq{padding:18px 0}
+    .faqq{padding:18px 20px}
     .faqarr{background:rgba(232,134,53,.08);color:var(--c-accent)}
     .faqa,.rvtext,.foot-desc,.foot-col a,.foot-bot a,.lead-sub{
       color:var(--c-muted)
@@ -889,9 +893,10 @@ img{max-width:100%;height:auto}
 .faqarr{background:#f0f0f3!important;color:#3a3a3c!important}
 .faqitem.open .faqarr{background:#111!important;color:#fff!important}
 .faqa{
-  padding-left:0!important;
+  padding:0 20px!important;
   overflow:hidden!important;
 }
+.faqitem.open .faqa{padding:14px 20px 24px!important;max-height:400px!important}
 .rvstars{color:#6e6e73!important}
 
 /* Final micro-pass: spacing/contrast rhythm */
@@ -1963,7 +1968,7 @@ img{max-width:100%;height:auto}
       item.classList.toggle('open', open);
       trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
       panel.setAttribute('aria-hidden', open ? 'false' : 'true');
-      panel.style.maxHeight = open ? panel.scrollHeight + 'px' : '0px';
+      panel.style.maxHeight = open ? '' : '0px';
       if (icon) icon.textContent = open ? '−' : '+';
     }
 
@@ -1990,11 +1995,6 @@ img{max-width:100%;height:auto}
       setFaqOpen(item, item.classList.contains('open'));
     });
 
-    window.addEventListener('resize', function () {
-      document.querySelectorAll('.faqitem.open .faqa').forEach(function (panel) {
-        panel.style.maxHeight = panel.scrollHeight + 'px';
-      });
-    });
 
     document.querySelectorAll('[onclick]').forEach(function(el){
       const tag=el.tagName.toLowerCase();
