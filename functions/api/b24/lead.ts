@@ -7,6 +7,7 @@ interface ConsultPayload {
   name: string;
   phone: string;
   email: string;
+  comment?: string;
 }
 
 interface OrderPayload {
@@ -47,6 +48,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
 
   const isOrder = type === 'order';
   const o = isOrder ? (body as OrderPayload) : null;
+  const consultComment = !isOrder ? String((body as ConsultPayload).comment || '').trim() : '';
 
   const title = isOrder
     ? `Заказ с сайта — ${name}`
@@ -62,7 +64,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         '',
         `Итого: ${o.total || '—'}`,
       ].join('\n')
-    : undefined;
+    : (consultComment ? `Комментарий клиента:\n${consultComment}` : undefined);
 
   const fields: Record<string, unknown> = {
     TITLE: title,

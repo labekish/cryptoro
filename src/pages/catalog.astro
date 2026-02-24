@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { loadLegacyPage } from '../lib/legacy';
+import { parseLegacyPage } from '../lib/legacy';
+import catalogHtml from '../../catalog.html?raw';
 
-const page = loadLegacyPage('catalog.html');
+const page = parseLegacyPage(catalogHtml);
 type ProductFM = { slug: string; price: number; sku?: string; skus?: string[] };
 const modules = import.meta.glob('../content/products/*.{md,mdx}', { eager: true }) as Record<
   string,

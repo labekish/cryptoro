@@ -1,8 +1,6 @@
 import fs from 'node:fs';
 
-export function loadLegacyPage(filename: string) {
-  const html = fs.readFileSync(filename, 'utf-8');
-
+export function parseLegacyPage(html: string) {
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/i);
   const descriptionMatch = html.match(/<meta\s+name=["']description["']\s+content=["']([\s\S]*?)["']\s*\/?\s*>/i);
   const headMatch = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
@@ -23,4 +21,8 @@ export function loadLegacyPage(filename: string) {
     headScripts,
     body: bodyMatch?.[1] ?? ''
   };
+}
+
+export function loadLegacyPage(filename: string) {
+  return parseLegacyPage(fs.readFileSync(filename, 'utf-8'));
 }

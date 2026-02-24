@@ -67,6 +67,10 @@ const ogUrl = Astro.url?.toString() || '';
         --accent-a:#ff4500;
         --accent-b:#ffd700;
         --glass-shadow:0 16px 48px rgba(0,0,0,.06);
+        --chrome-max-width:1120px;
+        --chrome-edge-gap:24px;
+        --chrome-pad-x:24px;
+        --chrome-nav-width:420px;
       }
       html,body{
         background:var(--bg)!important;
@@ -331,12 +335,22 @@ const ogUrl = Astro.url?.toString() || '';
       .consult-modal{
         position:fixed;
         inset:0;
-        display:none;
+        display:flex;
+        align-items:center;
+        justify-content:center;
         z-index:140;
         background:rgba(17,24,39,.5);
         padding:16px;
+        opacity:0;
+        visibility:hidden;
+        pointer-events:none;
+        transition:opacity .18s ease, visibility .18s ease;
       }
-      .consult-modal.open{display:flex;align-items:center;justify-content:center}
+      .consult-modal.open{
+        opacity:1;
+        visibility:visible;
+        pointer-events:auto;
+      }
       .consult-modal-card{
         width:min(560px,100%);
         background:#fff;
@@ -346,14 +360,41 @@ const ogUrl = Astro.url?.toString() || '';
         box-shadow:0 4px 30px rgba(0,0,0,.1);
         backdrop-filter:blur(20px);
         padding:20px;
+        position:relative;
+        transform:translateY(14px);
+        opacity:.98;
+        transition:transform .18s ease, opacity .18s ease;
       }
+      .consult-modal.open .consult-modal-card{transform:translateY(0);opacity:1}
+      .consult-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
       .consult-modal-title{
         font-family:'Unbounded',sans-serif;
         font-size:24px;
         line-height:1.15;
-        margin-bottom:8px;
+        margin:0;
       }
       .consult-modal-sub{color:#4b5563;font-size:14px;line-height:1.6;margin-bottom:14px}
+      .consult-close{
+        width:36px;
+        height:36px;
+        border-radius:999px;
+        border:1px solid rgba(0,0,0,.14);
+        background:rgba(255,255,255,.9);
+        color:#111;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        cursor:pointer;
+        font-size:18px;
+        line-height:1;
+        flex-shrink:0;
+        transition:box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+      }
+      .consult-close:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+      .consult-close:focus-visible{
+        outline:2px solid #111;
+        outline-offset:2px;
+      }
       .consult-grid{display:grid;gap:10px}
       .consult-input{
         width:100%;
@@ -365,6 +406,26 @@ const ogUrl = Astro.url?.toString() || '';
         color:#111;
         background:#fff;
       }
+      .consult-input:focus-visible{
+        outline:2px solid rgba(17,17,17,.9);
+        outline-offset:1px;
+        border-color:rgba(17,17,17,.28);
+      }
+      .consult-help{
+        margin:2px 0 0;
+        font-size:12px;
+        color:#6b7280;
+        line-height:1.4;
+      }
+      .consult-status{
+        min-height:20px;
+        font-size:13px;
+        line-height:1.4;
+        color:#4b5563;
+      }
+      .consult-status.is-loading{color:#374151}
+      .consult-status.is-success{color:#166534}
+      .consult-status.is-error{color:#b91c1c}
       .consult-actions{
         display:flex;
         gap:10px;
@@ -381,10 +442,19 @@ const ogUrl = Astro.url?.toString() || '';
         background:#fff;
         color:#111;
       }
+      .consult-btn:focus-visible{
+        outline:2px solid #111;
+        outline-offset:2px;
+      }
+      .consult-btn[disabled]{opacity:.7;cursor:not-allowed}
       .consult-btn.primary{
         background:#111;
         border-color:#111;
         color:#fff;
+      }
+      body.consult-open{overflow:hidden}
+      @media (prefers-reduced-motion: reduce){
+        .consult-modal,.consult-modal-card,.consult-close{transition:none!important}
       }
       .fade-in{
         opacity:0;
@@ -532,7 +602,12 @@ const ogUrl = Astro.url?.toString() || '';
             }
             const nav = header.querySelector('nav');
             if (!nav) return;
-            const navParent = nav.parentElement;
+            const navParent = (
+              isMobile && header.id === 'smart-header'
+                // Для smart-header центрируем desktop-nav, а mobile toggle/panel крепим в правую зону.
+                ? header.querySelector('.header-right')
+                : nav.parentElement
+            );
             if (!navParent) return;
             if (!isMobile) {
               header.dataset.mobileNavReady = '1';
@@ -583,31 +658,54 @@ const ogUrl = Astro.url?.toString() || '';
           modal.setAttribute('aria-hidden', 'true');
           modal.innerHTML = `
             <div class="consult-modal-card" role="dialog" aria-modal="true" aria-labelledby="consultTitle">
-              <h3 id="consultTitle" class="consult-modal-title">Получить консультацию</h3>
+              <div class="consult-modal-head">
+                <h3 id="consultTitle" class="consult-modal-title">Получить консультацию</h3>
+                <button type="button" class="consult-close" data-consult-close aria-label="Закрыть окно">×</button>
+              </div>
               <p class="consult-modal-sub">Подберем модель под ваши задачи и бюджет.</p>
-              <form name="consult" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="consult-grid">
+              <form name="consult" method="POST" class="consult-grid" novalidate>
                 <input type="hidden" name="form-name" value="consult" />
                 <input type="hidden" name="bot-field" />
-                <input class="consult-input" type="text" name="name" placeholder="Имя" required />
-                <input class="consult-input" type="email" name="email" placeholder="Email" required />
-                <input class="consult-input" type="tel" name="tel" placeholder="Телефон" required />
-                <textarea class="consult-input" name="message" rows="4" placeholder="Кратко опишите задачу"></textarea>
+                <input class="consult-input" type="text" name="name" placeholder="Имя (необязательно)" autocomplete="name" />
+                <input class="consult-input" type="text" name="contact" placeholder="Телефон или Telegram *" autocomplete="tel" required />
+                <p class="consult-help">Укажите телефон или @telegram для связи.</p>
+                <textarea class="consult-input" name="comment" rows="4" placeholder="Комментарий (необязательно)"></textarea>
+                <div class="consult-status" data-consult-status aria-live="polite"></div>
                 <div class="consult-actions">
                   <button type="button" class="consult-btn" data-consult-close>Отмена</button>
-                  <button type="submit" class="consult-btn primary">Отправить</button>
+                  <button type="submit" class="consult-btn primary" data-consult-submit>Получить консультацию</button>
                 </div>
               </form>
             </div>
           `;
           document.body.appendChild(modal);
 
+          const form = modal.querySelector('form');
+          const contactInput = modal.querySelector('input[name="contact"]');
+          const submitBtn = modal.querySelector('[data-consult-submit]');
+          const statusNode = modal.querySelector('[data-consult-status]');
+          let isSubmitting = false;
+
+          const setStatus = (text, mode = '') => {
+            if (!statusNode) return;
+            statusNode.textContent = text || '';
+            statusNode.className = `consult-status${mode ? ` ${mode}` : ''}`;
+          };
+
           const openModal = () => {
             modal.classList.add('open');
             modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('consult-open');
+            setStatus('');
+            setTimeout(() => {
+              if (contactInput instanceof HTMLElement) contactInput.focus();
+            }, 10);
           };
           const closeModal = () => {
+            if (isSubmitting) return;
             modal.classList.remove('open');
             modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('consult-open');
           };
 
           modal.addEventListener('click', (event) => {
@@ -617,6 +715,56 @@ const ogUrl = Astro.url?.toString() || '';
           document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') closeModal();
           });
+
+          if (form instanceof HTMLFormElement && submitBtn instanceof HTMLButtonElement) {
+            form.addEventListener('submit', async (event) => {
+              event.preventDefault();
+              if (isSubmitting) return;
+
+              const fd = new FormData(form);
+              const name = String(fd.get('name') || '').trim();
+              const contact = String(fd.get('contact') || '').trim();
+              const comment = String(fd.get('comment') || '').trim();
+
+              if (!contact) {
+                setStatus('Укажите телефон или Telegram для связи.', 'is-error');
+                if (contactInput instanceof HTMLElement) contactInput.focus();
+                return;
+              }
+
+              isSubmitting = true;
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Отправляем...';
+              form.setAttribute('aria-busy', 'true');
+              setStatus('Отправляем заявку...', 'is-loading');
+
+              try {
+                const response = await fetch('/api/b24/lead', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    type: 'consult',
+                    name: name || 'Без имени',
+                    phone: contact,
+                    email: '',
+                    comment
+                  })
+                });
+
+                if (!response.ok) throw new Error('request_failed');
+
+                form.reset();
+                setStatus('Спасибо! Мы свяжемся с вами в ближайшее время.', 'is-success');
+              } catch {
+                setStatus('Ошибка отправки. Попробуйте ещё раз.', 'is-error');
+              } finally {
+                isSubmitting = false;
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Получить консультацию';
+                form.removeAttribute('aria-busy');
+              }
+            });
+          }
 
           const isHome = window.location.pathname === '/';
           document.querySelectorAll('a[href="/#lead"], a[href="#lead"], [data-open-consult]').forEach((link) => {

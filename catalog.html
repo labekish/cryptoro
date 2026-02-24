@@ -74,7 +74,7 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
 .hero .btn-ghost:hover{border-color:#111!important}
 
 /* Sticky/header micro-pass */
-header{background:rgba(255,255,255,.92)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(18px)!important}
+header:not(#smart-header){background:rgba(255,255,255,.92)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(18px)!important}
 section.sticky{
   background:rgba(255,255,255,.94)!important;
   border-bottom:1px solid var(--line)!important;
@@ -294,7 +294,7 @@ img{max-width:100%;height:auto}
   #productsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media (max-width:768px){
-  header nav{display:none!important}
+  header:not(#smart-header) nav{display:none!important}
 }
 @media (max-width:640px){
   #productsGrid{grid-template-columns:1fr!important;gap:18px!important}
