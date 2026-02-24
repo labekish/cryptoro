@@ -91,6 +91,27 @@ const specsRows = [
   { label: 'Гарантия', value: product.specs?.warranty }
 ].filter((row) => row.value);
 const isVspomnit = product.slug === 'vspomnit';
+const productSubtitleBySlug: Record<string, string> = {
+  vspomnit: 'AI-диктофон с ChatGPT',
+  'plaud-note': 'AI-диктофон с ChatGPT',
+  'plaud-note-pro': 'Профессиональный AI-диктофон',
+  notepin: 'Носимый AI-диктофон',
+  accessories: 'Набор аксессуаров для PLAUD'
+};
+const productPriceNoteBySlug: Record<string, string> = {
+  vspomnit: 'Бесплатный год подписки в комплекте',
+  'plaud-note': 'Компактный металлический корпус и MagSafe крепление',
+  'plaud-note-pro': 'Магнитный кейс в комплекте',
+  notepin: 'Носимый формат для встреч, интервью и заметок',
+  accessories: 'Подходит для всех моделей линейки PLAUD'
+};
+const productParamChipsBySlug: Record<string, string[]> = {
+  vspomnit: ['81 язык', '32 часа записи', '64 ГБ'],
+  'plaud-note': ['30 часов', '4 цвета', 'MagSafe'],
+  'plaud-note-pro': ['40 часов', 'Pro', 'AI'],
+  notepin: ['20 часов', 'IP54', '3 цвета'],
+  accessories: ['4-в-1', 'Совместимо', 'PLAUD']
+};
 const heroHighlights = isVspomnit
   ? [
       '81 язык включая русский',
@@ -101,51 +122,47 @@ const heroHighlights = isVspomnit
   : (product.features ?? []);
 ---
 <Layout title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
-  <main class={isVspomnit ? 'product-page-vspomnit' : ''}>
-    <section class={`product-hero ${isVspomnit ? 'product-hero-vspomnit' : ''}`}>
-      <div class={`hero-grid ${isVspomnit ? 'product-page' : ''}`}>
-        <div class={`gallery ${isVspomnit ? 'hero-media-col product-gallery' : ''}`}>
-          <nav class={`breadcrumbs ${isVspomnit ? 'is-hidden' : ''}`} aria-label="Хлебные крошки">
+  <main class="product-page">
+    <section class="product-hero">
+      <div class="hero-grid product-layout">
+        <div class="gallery hero-media-col product-gallery">
+          <nav class="breadcrumbs is-hidden" aria-label="Хлебные крошки">
             <a href="/">Главная</a>
             <span aria-hidden="true">→</span>
             <a href="/catalog">Каталог</a>
             <span aria-hidden="true">→</span>
             <span>{product.title}</span>
           </nav>
-          <div class={`main-img ${isVspomnit ? 'hero-media' : ''}`}>
+          <div class="main-img hero-media">
             <!-- Replace <img> with <video> tag when video is ready -->
             <img id="mainImg" src={gallery[0] ?? product.image} alt={`AI-диктофон ${product.title} в фирменном корпусе`} />
           </div>
           <div class="thumbs">
             {gallery.map((image, idx) => (
-              <button class={`thumb ${idx === 0 ? 'active' : ''} ${isVspomnit && idx === 1 ? 'thumb-alt' : ''}`} type="button" data-gallery-thumb data-src={image} aria-label={`Фото ${idx + 1}: ${product.title}`}>
+              <button class={`thumb ${idx === 0 ? 'active' : ''} ${idx === 1 ? 'thumb-alt' : ''}`} type="button" data-gallery-thumb data-src={image} aria-label={`Фото ${idx + 1}: ${product.title}`}>
                 <img src={image} alt={`Фото ${idx + 1} продукта ${product.title}`} />
               </button>
             ))}
           </div>
-          {isVspomnit && (
-            <div class="gallery-meta">
-              <div class="gallery-meta-title">Вспомни всё</div>
-              <div class="gallery-meta-sub">Официальный продукт CRYPTORO</div>
-            </div>
-          )}
+          <div class="gallery-meta">
+            <div class="gallery-meta-title">{product.title}</div>
+            <div class="gallery-meta-sub">Официальный продукт CRYPTORO</div>
+          </div>
         </div>
-        <aside class={`product-aside ${isVspomnit ? 'product-aside-sticky product-sidebar' : ''}`}>
-          {isVspomnit && (
-            <nav class="breadcrumbs" aria-label="Хлебные крошки">
-              <a href="/">Главная</a>
-              <span aria-hidden="true">→</span>
-              <a href="/catalog">Каталог</a>
-              <span aria-hidden="true">→</span>
-              <span>{product.title}</span>
-            </nav>
-          )}
+        <aside class="product-aside product-aside-sticky product-sidebar">
+          <nav class="breadcrumbs" aria-label="Хлебные крошки">
+            <a href="/">Главная</a>
+            <span aria-hidden="true">→</span>
+            <a href="/catalog">Каталог</a>
+            <span aria-hidden="true">→</span>
+            <span>{product.title}</span>
+          </nav>
           <div class="badges-row">
             {product.badge && <span class="badge">{product.badge}</span>}
           </div>
           <h1 class="prod-name">{product.title}</h1>
-          <p class="prod-sub">{isVspomnit ? 'AI-диктофон с ChatGPT' : product.seoDescription}</p>
-          {isVspomnit && (
+          <p class="prod-sub">{productSubtitleBySlug[product.slug] ?? 'AI-устройство CRYPTORO'}</p>
+          {product.slug !== 'accessories' && (
             <div class="rating-row" aria-label="Рейтинг товара">
               <span class="stars">★★★★★</span>
               <span class="rating-num">4.9</span>
@@ -156,14 +173,10 @@ const heroHighlights = isVspomnit
           <div class="price-main" data-ms-price={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}>{price} ₽</div>
           <div class="stock-pill" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
           <div class="variant-pill-list" data-ms-variants={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
-          {isVspomnit && <p class="price-note">Бесплатный год подписки в комплекте</p>}
-          {isVspomnit && (
-            <div class="param-chips">
-              <span class="param-chip">81 язык</span>
-              <span class="param-chip">32 часа записи</span>
-              <span class="param-chip">64 ГБ</span>
-            </div>
-          )}
+          <p class="price-note">{productPriceNoteBySlug[product.slug] ?? ''}</p>
+          <div class="param-chips">
+            {(productParamChipsBySlug[product.slug] ?? []).map((chip) => <span class="param-chip">{chip}</span>)}
+          </div>
           <p class="prod-desc">{product.seoDescription}</p>
           <div class="trust-badges">
             <span class="tbadge">Гарантия 1 год</span>
@@ -179,7 +192,6 @@ const heroHighlights = isVspomnit
             <button class="buy-btn" id="addBtn" aria-label={`Добавить в корзину ${product.title}`}>Добавить в корзину</button>
             <button class="buy-btn" id="buyBtn" data-ms-buy-btn={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
           </div>
-          {!isVspomnit && <a href="/catalog" class="secondary-btn">Смотреть все модели</a>}
         </aside>
       </div>
     </section>
@@ -204,7 +216,7 @@ const heroHighlights = isVspomnit
           </table>
         </div>
         <div class="tab-content active">
-          <h3 class="tab-title">{isVspomnit ? 'Что в коробке' : 'Комплектация'}</h3>
+          <h3 class="tab-title">Что в коробке</h3>
           <ul class="box-list">
             {(product.boxContents ?? []).map((item) => <li>{item}</li>)}
           </ul>
@@ -366,17 +378,16 @@ const heroHighlights = isVspomnit
       --product-shadow-md:0 4px 16px rgba(0,0,0,.06);
       --product-shadow-lg:0 8px 20px rgba(0,0,0,.14);
     }
-    body{background:#fff;color:#111;font-family:'Inter',sans-serif}
+    body{background:#f5f5f5;color:#111;font-family:'Inter',sans-serif}
     main{padding-top:56px}
-    .product-page-vspomnit{background:#f5f5f5}
+    .product-page{background:#f5f5f5}
     .product-hero{padding:72px 24px 104px;background:#fff}
-    .product-page-vspomnit .product-hero{background:#f5f5f5}
-    .hero-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+    .product-page .product-hero{background:#f5f5f5}
+    .hero-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(360px,1fr);gap:32px;align-items:start}
     /* Единый ритм отступов для товарных страниц */
-    .product-page{display:flex;gap:28px;align-items:flex-start}
+    .product-layout{display:flex;gap:28px;align-items:flex-start}
     .product-gallery{flex:0 0 58%}
     .product-sidebar{flex:0 0 42%;min-width:0}
-    .product-hero-vspomnit .hero-grid{grid-template-columns:minmax(0,1.45fr) minmax(360px,1fr);gap:32px;align-items:start}
     .breadcrumbs{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;color:#6b7280;line-height:1.3;flex-wrap:wrap}
     .breadcrumbs.is-hidden{display:none}
     .breadcrumbs a{text-decoration:none;color:#374151}
@@ -440,7 +451,7 @@ const heroHighlights = isVspomnit
     .buy-btn:hover{transform:translateY(-1px);box-shadow:var(--product-shadow-lg)}
     .buy-btn:active{transform:translateY(0) scale(.995)}
     .buy-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22),0 8px 20px rgba(0,0,0,.14)}
-    .product-hero-vspomnit .buy-btn#buyBtn{background:#fff;color:#111;border:1px solid rgba(17,24,39,.16)}
+    .buy-btn#buyBtn{background:#fff;color:#111;border:1px solid rgba(17,24,39,.16)}
     .secondary-btn{display:block;width:100%;background:rgba(255,255,255,.9);color:#111;border:1.5px solid rgba(0,0,0,.2);border-radius:14px;padding:12px 15px;font-size:14px;font-weight:500;text-align:center;text-decoration:none;backdrop-filter:blur(20px);transition:all .2s ease-out}
     .secondary-btn:hover{background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.08)}
     .secondary-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22),0 6px 16px rgba(0,0,0,.08)}
@@ -448,7 +459,7 @@ const heroHighlights = isVspomnit
     .product-aside{min-width:0}
     .tabs-section{padding:96px 24px 104px;background:#f5f5f5;border-top:1px solid rgba(0,0,0,.06)}
     .tabs-wrap{max-width:1240px;margin:0 auto;display:grid;gap:18px}
-    .product-page-vspomnit .tabs-wrap{gap:72px}
+    .tabs-wrap{gap:72px}
     .tab-content{display:block;background:#fff;border:1px solid rgba(17,24,39,.08);border-radius:var(--product-radius-xl);padding:56px;box-shadow:var(--product-shadow-md)}
     .tab-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,2.2vw,24px);font-weight:700;letter-spacing:-.01em;margin:0 0 14px;color:#111}
     .md-body{font-size:16px;color:#4b5563;line-height:1.75}
@@ -481,22 +492,20 @@ const heroHighlights = isVspomnit
     .thumb:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22)}
     .breadcrumbs a:focus-visible{outline:none;border-radius:8px;box-shadow:0 0 0 3px rgba(232,134,53,.18)}
     @media(max-width:1200px){
-      .hero-grid{gap:36px}
-      .product-hero-vspomnit .hero-grid{grid-template-columns:minmax(0,1.2fr) minmax(320px,1fr);gap:24px}
+      .hero-grid{grid-template-columns:minmax(0,1.2fr) minmax(320px,1fr);gap:24px}
       .product-aside-sticky{padding:24px}
       .tab-content{padding:44px}
     }
     @media(max-width:980px){
-      .hero-grid{grid-template-columns:1fr;gap:30px}
-      .product-page{display:grid;grid-template-columns:1fr;gap:28px}
-      .product-hero-vspomnit .hero-grid{grid-template-columns:1fr;gap:28px}
-      .product-hero-vspomnit .hero-media-col{order:1}
-      .product-hero-vspomnit .product-aside-sticky{order:2;position:static;padding:0;border:none;box-shadow:none}
+      .hero-grid{grid-template-columns:1fr;gap:28px}
+      .product-layout{display:grid;grid-template-columns:1fr;gap:28px}
+      .hero-media-col{order:1}
+      .product-aside-sticky{order:2;position:static;padding:0;border:none;box-shadow:none}
       .product-gallery,.product-sidebar{flex:initial;width:100%;min-width:0}
       .hero-media{min-height:380px}
       .hero-media img{width:84%;max-width:640px;padding:0}
       .secondary-btn{padding:12px 14px}
-      .product-page-vspomnit .tabs-wrap{gap:42px}
+      .tabs-wrap{gap:42px}
       .actions-row{grid-template-columns:repeat(2,minmax(0,1fr))}
       .related-grid{grid-template-columns:1fr 1fr}
     }
