@@ -80,7 +80,8 @@ Object.entries(skus).forEach(([slug, skuList]) => {
   description="Каталог AI-диктофонов CRYPTORO: Вспомни всё, Plaud Note, Plaud Note Pro, Plaud NotePin. Цены, характеристики, доставка по России."
   globalCss={page.css}
   headScripts={page.headScripts}
-  withChrome={false}
+  withChrome={true}
+  active="catalog"
 >
   <Fragment set:html={syncedBody} />
 </Layout>

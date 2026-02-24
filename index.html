@@ -1152,45 +1152,16 @@ img{max-width:100%;height:auto}
 <body>
 
 <!-- HEADER -->
-<header>
-  <div class="nav-inner">
-    <a href="/" class="logo">CRYPTORO</a>
-    <nav>
-      <a href="/" class="active">Главная</a>
-      <a href="/catalog">Каталог</a>
-      <a href="/about">О нас</a>
-    </nav>
-    <div style="display:flex;align-items:center">
-      <button class="menu-toggle" id="menuToggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileNav">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-          <path d="M4 7h16M4 12h16M4 17h16"></path>
-        </svg>
-      </button>
-      <button class="cart" id="cartBtn" aria-label="Корзина">
-        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M4 5h2l2.1 9.2a2 2 0 0 0 2 1.6h6.8a2 2 0 0 0 2-1.6L21 8H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
-          <circle cx="10.2" cy="19" r="1.5" fill="currentColor"></circle>
-          <circle cx="17.2" cy="19" r="1.5" fill="currentColor"></circle>
-        </svg><span class="cart-n" id="cartCount">0</span>
-      </button>
-    </div>
-    <div class="mobile-nav" id="mobileNav">
-      <button type="button" class="mobile-nav-close" id="menuClose" aria-label="Закрыть меню">×</button>
-      <a href="/">Главная</a>
-      <a href="/catalog">Каталог</a>
-      <a href="/about">О нас</a>
-    </div>
-  </div>
-</header>
+
 
 <!-- HERO -->
 <section class="hero" id="top">
   <div class="hero-inner">
     <div class="hero-copy">
       <span class="hero-label">AI-ДИКТОФОН CRYPTORO</span>
-      <h1 class="hero-title">Речь в готовые<br>заметки<br>за секунды</h1>
-      <p class="hero-sub">Записывайте. ChatGPT расшифрует, выделит главное и подготовит итог — автоматически.</p>
-      <div class="btns">
+      <h1 class="hero-title reveal d1">Речь в готовые<br>заметки<br>за секунды</h1>
+      <p class="hero-sub reveal d2">Записывайте. ChatGPT расшифрует, выделит главное и подготовит итог — автоматически.</p>
+      <div class="btns reveal d3">
         <a href="#products" class="btn-blue">Смотреть модели</a>
         <a href="/catalog" class="btn-ghost">Перейти в каталог</a>
       </div>
@@ -1199,7 +1170,7 @@ img{max-width:100%;height:auto}
         <span>✓ Бесплатный год подписки</span>
       </div>
     </div>
-    <div class="hero-visual">
+    <div class="hero-visual reveal d4">
       <div class="hero-product">
         <div class="hero-product-image">
           <img src="/images/products/vspomnit-vse-cutout.png" alt="AI-диктофон Вспомни всё"/>
@@ -1209,86 +1180,12 @@ img{max-width:100%;height:auto}
   </div>
 </section>
 
-<!-- PRODUCTS -->
-<section class="sec sec-products" id="products">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <h2 class="sec-title">Выберите AI диктофон</h2>
-      <p class="sec-sub">На базе технологий Plaud Intelligence™</p>
-    </div>
-    <div class="products-grid">
-
-      <a href="/products/vspomnit" class="pcard reveal d1">
-        <span class="pbadge">НОВИНКА</span>
-        <div class="pimg-wrap">
-          <img src="/images/products/vspomnit-vse.jpg" alt="Вспомни всё"
-            onerror="this.outerHTML='<div class=pimg-placeholder>Вспомни всё</div>'"/>
-        </div>
-        <div class="colors">
-          <span class="cdot" style="background:#1d1d1f"></span>
-        </div>
-        <div class="pname">Вспомни всё</div>
-        <div class="pdesc">Идеально для встреч, звонков и лекций</div>
-        <div class="pprice">11 990 ₽</div>
-        <span class="pbtn">Выбрать</span>
-      </a>
-
-      <a href="/products/plaud-note" class="pcard reveal d2">
-        <div class="pimg-wrap">
-          <img src="/images/products/plaud-note-black.webp" alt="Plaud Note"
-            onerror="this.outerHTML='<div class=pimg-placeholder>Plaud Note</div>'"/>
-        </div>
-        <div class="colors">
-          <span class="cdot" style="background:#1d1d1f"></span>
-          <span class="cdot" style="background:#c0c0c0"></span>
-        </div>
-        <div class="pname">Plaud Note</div>
-        <div class="pdesc">Для гибридной работы — звонков и встреч везде</div>
-        <div class="pprice">17 490 ₽</div>
-        <span class="pbtn">Выбрать</span>
-      </a>
-
-      <a href="/products/plaud-note-pro" class="pcard reveal d3">
-        <div class="pimg-wrap">
-          <img src="/images/products/plaud-note-silver.webp" alt="Plaud Note Pro"
-            onerror="this.outerHTML='<div class=pimg-placeholder>Plaud Note Pro</div>'"/>
-        </div>
-        <div class="colors">
-          <span class="cdot" style="background:#c0c0c0"></span>
-          <span class="cdot" style="background:#1d1d1f"></span>
-        </div>
-        <div class="pname">Plaud Note Pro</div>
-        <div class="pdesc">Профессиональная версия для интенсивной работы</div>
-        <div class="pprice">25 990 ₽</div>
-        <span class="pbtn">Выбрать</span>
-      </a>
-
-      <a href="/products/notepin" class="pcard reveal d4">
-        <div class="pimg-wrap">
-          <img src="/images/products/plaud-notepin.webp" alt="Plaud NotePin"
-            onerror="this.outerHTML='<div class=pimg-placeholder>Plaud NotePin</div>'"/>
-        </div>
-        <div class="colors">
-          <span class="cdot" style="background:#555"></span>
-          <span class="cdot" style="background:#ccc"></span>
-          <span class="cdot" style="background:#9b7fc9"></span>
-        </div>
-        <div class="pname">Plaud NotePin</div>
-        <div class="pdesc">Носимый — для живых разговоров без рук</div>
-        <div class="pprice">20 990 ₽</div>
-        <span class="pbtn">Выбрать</span>
-      </a>
-
-    </div>
-  </div>
-</section>
-
 <!-- FEATURES -->
 <section class="sec sec-features">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2 class="sec-title">Всё что нужно для идеальных записей</h2>
-      <p class="sec-sub">CRYPTORO объединяет лучшие AI-технологии в одном устройстве</p>
+      <h2 class="sec-title">Премиальные технологии в одном корпусе</h2>
+      <p class="sec-sub">Никаких компромиссов. Инженерное качество и интеллект.</p>
     </div>
     <div class="feat-grid">
 
@@ -1366,6 +1263,75 @@ img{max-width:100%;height:auto}
         <div class="fdesc">Анализируйте темы, находите паттерны и получайте инсайты из ваших записей с AI.</div>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="sec sec-usecases" id="about">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 class="sec-title">Сценарии использования</h2>
+      <p class="sec-sub">Сценарии, где AI-диктофон экономит вам часы работы</p>
+      <p class="uc-topnote">Экономия до 260 часов в год при ежедневной расшифровке</p>
+    </div>
+    <div class="uc-grid">
+      <div class="uccard uc-ceo uc-a-ceo reveal d1">
+        <div class="uc-code">MEET</div>
+        <div class="uclabel">Фиксация встреч</div>
+        <div class="ucdesc">Никаких блокнотов. Записали разговор — получили резюме, задачи и ключевые договоренности в Notion.</div>
+        <div class="uctags">
+          <span class="uctag">Совещания и 1:1</span>
+          <span class="uctag">Статус-апдейты</span>
+        </div>
+      </div>
+
+      <div class="uccard uc-b2b uc-a-b2b reveal d2">
+        <div class="uc-code">CALLS</div>
+        <div class="uclabel">Звонки и переговоры</div>
+        <div class="ucdesc">Больше не нужно переслушивать записи. Готовый follow-up формируется за секунды.</div>
+        <div class="uctags">
+          <span class="uctag">Звонки и демо</span>
+        </div>
+      </div>
+
+      <div class="uccard uc-med uc-a-med reveal d3">
+        <div class="uc-code">INSIGHT</div>
+        <div class="uclabel">Внезапные идеи</div>
+        <div class="ucdesc">Записывайте голосовые заметки на бегу или за рулем. AI сделает из них связный текст.</div>
+        <div class="uctags">
+          <span class="uctag">Приёмы и консилиумы</span>
+          <span class="uctag">Протоколы</span>
+        </div>
+      </div>
+
+      <div class="uccard uc-law uc-a-law reveal d1">
+        <div class="uc-code">MEDIA</div>
+        <div class="uclabel">Учеба и лекции</div>
+        <div class="ucdesc">Все лекции лежат в базе знаний с таймкодами и выделенными главными мыслями.</div>
+        <div class="uctags">
+          <span class="uctag">Переговоры и разборы</span>
+        </div>
+      </div>
+
+      <div class="uccard uc-edu uc-a-edu reveal d2">
+        <div class="uc-code">EDU</div>
+        <div class="uclabel">Интервью и медиа</div>
+        <div class="ucdesc">Для журналистов и блогеров. Чистая расшифровка и выделение главного из многочасовых разговоров.</div>
+        <div class="uctags">
+          <span class="uctag">Лекции и семинары</span>
+        </div>
+      </div>
+
+      <div class="uccard uc-crea uc-a-crea reveal d3">
+        <div class="uc-code">MIND</div>
+        <div class="uclabel">Брейнштормы</div>
+        <div class="ucdesc">Один диктофон на весь стол. AI сам поймёт, кто что говорил, и соберет итоговый документ.</div>
+        <div class="uctags">
+          <span class="uctag">Интервью и продакшн</span>
+          <span class="uctag">Сценарии и посты</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1470,77 +1436,82 @@ img{max-width:100%;height:auto}
   </div>
 </section>
 
-<!-- USE CASES -->
-<section class="sec sec-usecases" id="about">
+<!-- PRODUCTS -->
+<section class="sec sec-products" id="products">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2 class="sec-title">Кому подойдёт CRYPTORO</h2>
-      <p class="sec-sub">Один AI-диктофон для встреч, интервью, лекций и командной работы</p>
-      <p class="uc-topnote">Экономия до 260 часов в год при ежедневной расшифровке</p>
+      <h2 class="sec-title">Выберите AI диктофон</h2>
+      <p class="sec-sub">На базе технологий Plaud Intelligence™</p>
     </div>
-    <div class="uc-grid">
-      <div class="uccard uc-ceo uc-a-ceo reveal d1">
-        <div class="uc-code">CEO</div>
-        <div class="uclabel">Руководители</div>
-        <div class="ucdesc">Фиксируйте договорённости на встречах и сразу получайте итог с задачами и сроками.</div>
-        <div class="uctags">
-          <span class="uctag">Совещания и 1:1</span>
-          <span class="uctag">Статус-апдейты</span>
-        </div>
-      </div>
+    <div class="products-grid">
 
-      <div class="uccard uc-b2b uc-a-b2b reveal d2">
-        <div class="uc-code">B2B</div>
-        <div class="uclabel">Отдел продаж</div>
-        <div class="ucdesc">Сохраняйте детали звонков с клиентами и формируйте follow-up за минуты.</div>
-        <div class="uctags">
-          <span class="uctag">Звонки и демо</span>
+      <a href="/products/vspomnit" class="pcard reveal d1">
+        <span class="pbadge">НОВИНКА</span>
+        <div class="pimg-wrap">
+          <img src="/images/products/vspomnit-vse.jpg" alt="Вспомни всё"
+            onerror="this.outerHTML='<div class=pimg-placeholder>Вспомни всё</div>'"/>
         </div>
-      </div>
+        <div class="colors">
+          <span class="cdot" style="background:#1d1d1f"></span>
+        </div>
+        <div class="pname">Вспомни всё</div>
+        <div class="pdesc">Идеально для встреч, звонков и лекций</div>
+        <div class="pprice">11 990 ₽</div>
+        <span class="pbtn">Выбрать</span>
+      </a>
 
-      <div class="uccard uc-med uc-a-med reveal d3">
-        <div class="uc-code">MED</div>
-        <div class="uclabel">Врачи и клиники</div>
-        <div class="ucdesc">Быстро оформляйте консультации и сохраняйте ключевые рекомендации без ручной расшифровки.</div>
-        <div class="uctags">
-          <span class="uctag">Приёмы и консилиумы</span>
-          <span class="uctag">Протоколы</span>
+      <a href="/products/plaud-note" class="pcard reveal d2">
+        <div class="pimg-wrap">
+          <img src="/images/products/plaud-note-black.webp" alt="Plaud Note"
+            onerror="this.outerHTML='<div class=pimg-placeholder>Plaud Note</div>'"/>
         </div>
-      </div>
+        <div class="colors">
+          <span class="cdot" style="background:#1d1d1f"></span>
+          <span class="cdot" style="background:#c0c0c0"></span>
+        </div>
+        <div class="pname">Plaud Note</div>
+        <div class="pdesc">Для гибридной работы — звонков и встреч везде</div>
+        <div class="pprice">17 490 ₽</div>
+        <span class="pbtn">Выбрать</span>
+      </a>
 
-      <div class="uccard uc-law uc-a-law reveal d1">
-        <div class="uc-code">LAW</div>
-        <div class="uclabel">Юристы</div>
-        <div class="ucdesc">Ведите протоколы переговоров и интервью, быстро находите цитаты и факты по таймкодам.</div>
-        <div class="uctags">
-          <span class="uctag">Переговоры и разборы</span>
+      <a href="/products/plaud-note-pro" class="pcard reveal d3">
+        <div class="pimg-wrap">
+          <img src="/images/products/plaud-note-silver.webp" alt="Plaud Note Pro"
+            onerror="this.outerHTML='<div class=pimg-placeholder>Plaud Note Pro</div>'"/>
         </div>
-      </div>
+        <div class="colors">
+          <span class="cdot" style="background:#c0c0c0"></span>
+          <span class="cdot" style="background:#1d1d1f"></span>
+        </div>
+        <div class="pname">Plaud Note Pro</div>
+        <div class="pdesc">Профессиональная версия для интенсивной работы</div>
+        <div class="pprice">25 990 ₽</div>
+        <span class="pbtn">Выбрать</span>
+      </a>
 
-      <div class="uccard uc-edu uc-a-edu reveal d2">
-        <div class="uc-code">EDU</div>
-        <div class="uclabel">Преподаватели</div>
-        <div class="ucdesc">Превращайте лекции и семинары в понятные конспекты и материалы для студентов.</div>
-        <div class="uctags">
-          <span class="uctag">Лекции и семинары</span>
+      <a href="/products/notepin" class="pcard reveal d4">
+        <div class="pimg-wrap">
+          <img src="/images/products/plaud-notepin.webp" alt="Plaud NotePin"
+            onerror="this.outerHTML='<div class=pimg-placeholder>Plaud NotePin</div>'"/>
         </div>
-      </div>
+        <div class="colors">
+          <span class="cdot" style="background:#555"></span>
+          <span class="cdot" style="background:#ccc"></span>
+          <span class="cdot" style="background:#9b7fc9"></span>
+        </div>
+        <div class="pname">Plaud NotePin</div>
+        <div class="pdesc">Носимый — для живых разговоров без рук</div>
+        <div class="pprice">20 990 ₽</div>
+        <span class="pbtn">Выбрать</span>
+      </a>
 
-      <div class="uccard uc-crea uc-a-crea reveal d3">
-        <div class="uc-code">CREA</div>
-        <div class="uclabel">Контент-команды</div>
-        <div class="ucdesc">Собирайте идеи из интервью и брейнштормов, получайте структуру для сценариев и постов.</div>
-        <div class="uctags">
-          <span class="uctag">Интервью и продакшн</span>
-          <span class="uctag">Сценарии и посты</span>
-        </div>
-      </div>
     </div>
   </div>
 </section>
 
 <!-- PRICING -->
-<section class="sec sec-pricing" id="pricing">
+<section class="sec sec-pricing" style="display:none" id="pricing">
   <div class="wrap">
     <div class="pricing-wrap">
       <div class="sec-head reveal" style="margin-bottom:0">
@@ -1798,42 +1769,7 @@ img{max-width:100%;height:auto}
 </section>
 
 <!-- FOOTER -->
-<footer>
-  <div class="foot-grid">
-    <div>
-      <a href="/" class="foot-logo">CRYPTORO</a>
-      <p class="foot-desc">Официальный дистрибьютор AI-диктофонов Plaud в России. Помогаем не упускать важные детали.</p>
-    </div>
-    <div class="foot-col">
-      <h4>Товары</h4>
-      <a href="/products/vspomnit">Вспомни всё</a>
-      <a href="/products/plaud-note">Plaud Note</a>
-      <a href="/products/plaud-note-pro">Plaud Note Pro</a>
-      <a href="/products/notepin">Plaud NotePin</a>
-    </div>
-    <div class="foot-col">
-      <h4>Компания</h4>
-      <a href="/about">О нас</a>
-      <a href="/about#delivery">Доставка</a>
-      <a href="/about#payment">Оплата</a>
-      <a href="/about#contacts">Контакты</a>
-    </div>
-    <div class="foot-col">
-      <h4>Соцсети</h4>
-      <a href="https://vk.com/cryptoro" target="_blank" rel="noopener noreferrer">ВКонтакте</a>
-      <a href="https://t.me/cryptoro_support" target="_blank" rel="noopener noreferrer">Telegram</a>
-    </div>
-  </div>
-  <hr class="foot-div"/>
-  <div class="foot-bot">
-    <span>© 2025 CRYPTORO. Все права защищены.</span>
-    <div style="display:flex;gap:16px">
-      <a href="/privacy">Политика конфиденциальности</a>
-      <a href="/terms">Условия использования</a>
-    </div>
-    <span>info@cryptoro.ru · +7 495 191-81-74</span>
-  </div>
-</footer>
+
 
 <script>
   (function () {

@@ -160,7 +160,8 @@ if (reviewEntries.length) {
   description="CRYPTORO — AI-диктофоны с ChatGPT. Записывайте встречи и лекции, получайте автоматическую расшифровку. Официальный дистрибьютор Plaud в России."
   globalCss={page.css}
   headScripts={page.headScripts}
-  withChrome={false}
+  withChrome={true}
+  active="home"
 >
   <script slot="head" define:vars={{ formspreeId }} is:inline>
     window.CRYPTORO_FORMSPREE_ID = formspreeId;

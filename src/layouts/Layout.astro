@@ -66,7 +66,7 @@ const ogUrl = Astro.url?.toString() || '';
         --line:rgba(29,29,31,.08);
         --accent-a:#ff4500;
         --accent-b:#ffd700;
-        --glass-shadow:0 4px 30px rgba(0,0,0,.1);
+        --glass-shadow:0 16px 48px rgba(0,0,0,.06);
       }
       html,body{
         background:var(--bg)!important;
@@ -87,9 +87,10 @@ const ogUrl = Astro.url?.toString() || '';
         .wrap,.hero-inner,.nav-inner,.foot-grid,.foot-bot,.catalog-controls,.mx-auto.max-w-7xl,.hero-grid,.tabs-wrap,.related-wrap{padding-left:3rem!important;padding-right:3rem!important}
       }
       header{
-        background:rgba(255,255,255,.9)!important;
-        border-bottom:1px solid rgba(0,0,0,.08)!important;
-        backdrop-filter:blur(20px)!important;
+        background:rgba(255,255,255,.85)!important;
+        border:1px solid rgba(0,0,0,.08)!important;
+        backdrop-filter:blur(24px)!important;
+        -webkit-backdrop-filter:blur(24px)!important;
       }
       header a, nav a, .logo, .foot-logo, .foot-col h4, .sec-title, .ftitle, .stitle, .pname, .pname2, .rvname, .wname, .dname, .payname, .clabel, .cval, h1, h2, h3, h4{
         color:var(--text)!important;
@@ -114,7 +115,7 @@ const ogUrl = Astro.url?.toString() || '';
         border:1px solid var(--line)!important;
         backdrop-filter:blur(20px)!important;
         box-shadow:var(--glass-shadow)!important;
-        border-radius:1rem!important;
+        border-radius:24px!important;
       }
       .pimg-wrap,.catalog-media,.rcard img{
         background:transparent!important;
@@ -123,7 +124,7 @@ const ogUrl = Astro.url?.toString() || '';
         background:#111!important;
         color:#fff!important;
         border:none!important;
-        border-radius:12px!important;
+        border-radius:16px!important;
         box-shadow:0 0 0 rgba(255,69,0,0)!important;
       }
       .pbadge,.pbadge2,.card-badge{
