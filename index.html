@@ -1252,6 +1252,94 @@ img{max-width:100%;height:auto}
 .fcard--analytics.is-visible .srow:last-child .sfill {
   animation-delay: .45s;
 }
+
+/* ─────────────────────────────────────────────────────────
+   USE CASES — premium visual enhancements
+   Используем существующую систему .reveal/.vis — без нового JS
+   ───────────────────────────────────────────────────────── */
+
+/* 1. Sequential stagger 65ms: сбрасываем d1/d2/d3, назначаем по порядку */
+.sec-usecases .uc-grid > .uccard:nth-child(1).reveal { transition-delay:   0ms !important }
+.sec-usecases .uc-grid > .uccard:nth-child(2).reveal { transition-delay:  65ms !important }
+.sec-usecases .uc-grid > .uccard:nth-child(3).reveal { transition-delay: 130ms !important }
+.sec-usecases .uc-grid > .uccard:nth-child(4).reveal { transition-delay: 195ms !important }
+.sec-usecases .uc-grid > .uccard:nth-child(5).reveal { transition-delay: 260ms !important }
+.sec-usecases .uc-grid > .uccard:nth-child(6).reveal { transition-delay: 325ms !important }
+/* translateY 16px вместо 24px — чуть сдержаннее */
+.sec-usecases .uccard.reveal     { transform: translateY(16px) }
+.sec-usecases .uccard.reveal.vis { transform: translateY(0)    }
+
+/* 2. Базовые условия для spotlight */
+.sec-usecases .uccard {
+  position: relative;
+  overflow: hidden;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease !important;
+}
+
+/* 3. Premium hover: -6px, глубокая тень, контрастнее border */
+.sec-usecases .uccard:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 20px 48px rgba(0,0,0,.13) !important;
+  border-top-color:    rgba(17,17,17,.2) !important;
+  border-right-color:  rgba(17,17,17,.2) !important;
+  border-bottom-color: rgba(17,17,17,.2) !important;
+}
+
+/* 4. Soft spotlight ::before */
+.sec-usecases .uccard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    520px circle at 50% -10%,
+    rgba(232,134,53,.09) 0%,
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity .28s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.sec-usecases .uccard:hover::before { opacity: 1 }
+/* Контент поверх spotlight */
+.sec-usecases .uccard > * { position: relative; z-index: 1 }
+
+/* 5. uc-code: dim 0.6 → full + letter-spacing +0.02em на hover */
+.sec-usecases .uc-code {
+  opacity: .6;
+  transition: opacity .22s ease, letter-spacing .22s ease;
+}
+.sec-usecases .uccard:hover .uc-code {
+  opacity: 1;
+  letter-spacing: .16em !important;
+}
+
+/* 6. Chips: stagger появление после .vis карточки */
+.sec-usecases .uccard .uctag {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .35s ease, transform .18s ease, background .18s ease;
+}
+.sec-usecases .uccard.vis .uctag            { opacity: 1; transform: translateY(0) }
+.sec-usecases .uccard.vis .uctag:nth-child(1) { transition-delay: .32s }
+.sec-usecases .uccard.vis .uctag:nth-child(2) { transition-delay: .40s }
+/* Hover: lift -2px + slightly darker; сброс stagger-задержки */
+.sec-usecases .uccard.vis .uctag:hover {
+  transform: translateY(-2px);
+  background: #e5e7eb;
+  transition-delay: 0s;
+}
+
+/* ── prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .sec-usecases .uccard.reveal,
+  .sec-usecases .uccard.reveal.vis { transform: none !important }
+  .sec-usecases .uccard:hover      { transform: none !important }
+  .sec-usecases .uccard .uctag,
+  .sec-usecases .uccard.vis .uctag { opacity: 1 !important; transform: none !important }
+  .sec-usecases .uccard.vis .uctag:hover { transform: none !important }
+}
 </style>
 
 
