@@ -797,9 +797,9 @@ const ogUrl = Astro.url?.toString() || '';
                   Silver: 'Серебристый',
                   Starlight: 'Золотистый',
                   Graphite: 'Графит',
-                  'Cosmic Gray': 'Космический серый',
-                  'Lunar Silver': 'Лунное серебро',
-                  'Sunset Purple': 'Сиреневый',
+                  'Cosmic Gray': 'Графит',
+                  'Lunar Silver': 'Серебристый',
+                  'Sunset Purple': 'Фиолетовый',
                   Violet: 'Фиолетовый'
                 };
 
@@ -849,7 +849,16 @@ const ogUrl = Astro.url?.toString() || '';
                   colorBtnsEl.querySelectorAll('.color-btn').forEach((btn) => {
                     const colorName = btn.dataset.color || '';
                     const v = variantByColor[colorName];
-                    if (!v) return;
+                    if (!v) {
+                      // Цвет есть в пикере, но нет в МойСклад — показываем как предзаказ
+                      btn.querySelector('.color-stock')?.remove();
+                      btn.classList.add('is-preorder');
+                      const span = document.createElement('span');
+                      span.className = 'color-stock';
+                      span.textContent = 'предзаказ';
+                      btn.appendChild(span);
+                      return;
+                    }
                     const qty = Math.max(0, Number(v.stock || 0));
                     const status = String(v.status || '');
                     const isHidden = status === 'hidden';
