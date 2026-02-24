@@ -9,7 +9,8 @@ const page = loadLegacyPage('about.html');
   description="О компании CRYPTORO — официальный дистрибьютор AI-диктофонов Plaud в России. Доставка, оплата, гарантия."
   globalCss={page.css}
   headScripts={page.headScripts}
-  withChrome={false}
+  withChrome={true}
+  active="about"
 >
   <Fragment set:html={page.body} />
 </Layout>

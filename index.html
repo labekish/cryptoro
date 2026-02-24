@@ -32,7 +32,7 @@
       transition:color .2s}
     nav a:hover,nav a.active{color:#1d1d1f}
     .cart{background:none;border:none;cursor:pointer;
-      position:relative;margin-left:20px;width:24px;height:24px;
+      position:relative;margin-left:20px;width:44px;height:44px;
       display:inline-flex;align-items:center;justify-content:center;color:#1d1d1f}
     .cart-n{position:absolute;top:-5px;right:-7px;background:#e88635;color:#fff;
       font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;
@@ -319,10 +319,11 @@
     /* waveform */
     .wave{display:flex;align-items:center;gap:2px;height:30px}
     .wbar{width:3px;border-radius:2px;background:#e88635;
+      height:100%;transform-origin:center;transform:scaleY(0.13);
       animation:wv 1.2s ease-in-out infinite alternate}
     .wbar:nth-child(odd){animation-delay:-.3s}
     .wbar:nth-child(3n){animation-delay:-.6s}
-    @keyframes wv{0%{height:4px}100%{height:100%}}
+    @keyframes wv{0%{transform:scaleY(0.13)}100%{transform:scaleY(1)}}
     .rec-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
     .recdot{width:8px;height:8px;border-radius:50%;background:#ff375f;
       animation:pr 1.5s ease infinite}
@@ -1114,6 +1115,12 @@ img{max-width:100%;height:auto}
   .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .foot-grid{grid-template-columns:1fr!important;gap:24px!important}
   .foot-bot{flex-direction:column!important;align-items:flex-start!important}
+  /* feat-grid: override the non-responsive !important rule at 5 columns */
+  .sec-features .feat-grid{grid-template-columns:1fr!important}
+  .sec-features .fcard--trans,
+  .sec-features .fcard--integrations,
+  .sec-features .fcard--assistant,
+  .sec-features .fcard--analytics{grid-column:auto!important;grid-row:auto!important}
 }
 @media (max-width:375px){
   .hero{min-height:auto!important;padding-top:96px!important;padding-bottom:40px!important}
@@ -1565,12 +1572,12 @@ img{max-width:100%;height:auto}
                 <span class="rect">00:24:31</span>
               </div>
               <div class="wave">
-                <div class="wbar" style="height:40%"></div><div class="wbar" style="height:70%"></div>
-                <div class="wbar" style="height:50%"></div><div class="wbar" style="height:90%"></div>
-                <div class="wbar" style="height:60%"></div><div class="wbar" style="height:80%"></div>
-                <div class="wbar" style="height:45%"></div><div class="wbar" style="height:100%"></div>
-                <div class="wbar" style="height:65%"></div><div class="wbar" style="height:75%"></div>
-                <div class="wbar" style="height:55%"></div><div class="wbar" style="height:85%"></div>
+                <div class="wbar"></div><div class="wbar"></div>
+                <div class="wbar"></div><div class="wbar"></div>
+                <div class="wbar"></div><div class="wbar"></div>
+                <div class="wbar"></div><div class="wbar"></div>
+                <div class="wbar"></div><div class="wbar"></div>
+                <div class="wbar"></div><div class="wbar"></div>
               </div>
             </div>
           </div>

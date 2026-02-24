@@ -115,7 +115,7 @@ const ogUrl = Astro.url?.toString() || '';
         border:1px solid var(--line)!important;
         backdrop-filter:blur(20px)!important;
         box-shadow:var(--glass-shadow)!important;
-        border-radius:24px!important;
+        border-radius:20px!important;
       }
       .pimg-wrap,.catalog-media,.rcard img{
         background:transparent!important;
@@ -952,7 +952,10 @@ const ogUrl = Astro.url?.toString() || '';
             window.setTimeout(() => revealPrices(), 1800);
             request();
           }
-          window.setInterval(request, 15 * 60 * 1000);
+          const _msIntervalId = window.setInterval(request, 15 * 60 * 1000);
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') window.clearInterval(_msIntervalId);
+          }, { once: true });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
