@@ -1789,19 +1789,22 @@ img{max-width:100%;height:auto}
 }
 
 /* ── LEAD: dark, dense CTA ── */
-.sec-lead { background: #111 !important; border-color: transparent !important }
+/* ID selector (1,0,0) wins over Layout's compiled .sec class rules */
+#lead, .sec-lead { background: #111 !important; border-color: transparent !important }
 .lead-title { color: #fff !important; font-size: clamp(38px, 4.5vw, 52px) !important }
 .lead-sub { color: rgba(255,255,255,.48) !important }
-.linput {
+#lead .linput, .sec-lead .linput {
   background: rgba(255,255,255,.07) !important;
   border-color: rgba(255,255,255,.13) !important;
   color: #fff !important;
 }
-.linput::placeholder { color: rgba(255,255,255,.32) !important }
-.linput:focus { border-color: rgba(255,255,255,.36) !important; background: rgba(255,255,255,.11) !important }
-.lsubmit { background: #fff !important; color: #111 !important; border-color: #fff !important }
-.lsubmit:hover { background: #f0f0f0 !important; transform: none !important; box-shadow: none !important }
-.lprivacy { color: rgba(255,255,255,.28) !important }
+#lead .linput::placeholder { color: rgba(255,255,255,.32) !important }
+#lead .linput:focus { border-color: rgba(255,255,255,.36) !important; background: rgba(255,255,255,.11) !important }
+/* .lsubmit needs high spec — Layout forces background:#111 via its global button rule */
+#lead .lsubmit { background: #fff !important; color: #111 !important; border-color: #fff !important }
+#lead .lsubmit:hover { background: #f0f0f0 !important; transform: none !important; box-shadow: none !important }
+/* .lprivacy needs high spec — Layout targets it in its global muted-text rule */
+#lead .lprivacy { color: rgba(255,255,255,.28) !important }
 .lead-status {
   background: rgba(255,255,255,.07) !important;
   border-color: rgba(255,255,255,.13) !important;
@@ -2101,14 +2104,18 @@ body .sec-how .smock { display: none !important }
     align-items: center !important;
   }
 
-  /* Step accordion layout */
+  /* Step accordion layout
+     Use #how-it-works (ID spec 1,1,0) to beat body .sec-how .step (spec 0,2,1)
+     which would otherwise force 48px padding on mobile */
+  #how-it-works.sec-how .step,
   .sec-how .step {
     flex-direction: row !important;
     align-items: flex-start !important;
     gap: 14px !important;
-    padding-bottom: 16px !important;
-    border-bottom: 1px solid rgba(17,17,17,.07) !important;
+    padding: 16px 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.1) !important;
   }
+  #how-it-works.sec-how .step:last-child,
   .sec-how .step:last-child { border-bottom: none !important }
   .sec-how .step .step-line { flex-shrink: 0 !important }
   .sec-how .step .step-icon {
