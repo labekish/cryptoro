@@ -31,6 +31,7 @@ interface ProductData {
   boxContents?: string[];
   gallery?: string[];
   colors?: string[];
+  heroKeySpecs?: boolean;
 }
 
 interface RelatedItem {
@@ -75,13 +76,22 @@ const keySpecs = [
   { label: 'Языки', value: product.specs?.languages },
 ].filter((s): s is { label: string; value: string } => !!s.value).slice(0, 4);
 
+function parseSpecDisplay(val: string): { prefix: string; num: string; unit: string } {
+  const m = val.match(/^([^\d]*)(\d+(?:[.,]\d+)?)(.*)$/);
+  if (m && m[2]) {
+    return { prefix: (m[1] ?? '').trim(), num: m[2], unit: (m[3] ?? '').trim() };
+  }
+  return { prefix: '', num: '', unit: val };
+}
+const keySpecsParsed = keySpecs.map(s => ({ ...s, parsed: parseSpecDisplay(s.value) }));
+
 const subtitle = product.subtitle ?? 'AI-устройство CRYPTORO';
 const priceNote = product.priceNote ?? '';
 const paramChips = product.paramChips ?? [];
 const colors = product.colors ?? [];
 ---
 <Layout title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
-  <main class="pdp">
+  <main class="pdp" data-slug={product.slug}>
 
     <!-- 1. Hero -->
     <section class="pdp-hero">
@@ -103,6 +113,27 @@ const colors = product.colors ?? [];
           <span class="pdp-hero__stock" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></span>
         </div>
         {priceNote && <p class="pdp-hero__price-note">{priceNote}</p>}
+
+        {product.heroKeySpecs && keySpecsParsed.length > 0 && (
+          <div class="pdp-hero__keyspecs">
+            {keySpecsParsed.map((spec) => (
+              <div class="pdp-hero__keyspec-item">
+                <div class="pdp-hero__keyspec-val">
+                  {spec.parsed.num ? (
+                    <>
+                      {spec.parsed.prefix && <span class="pdp-hero__keyspec-prefix">{spec.parsed.prefix}</span>}
+                      <span class="pdp-hero__keyspec-num">{spec.parsed.num}</span>
+                      {spec.parsed.unit && <span class="pdp-hero__keyspec-unit">{spec.parsed.unit}</span>}
+                    </>
+                  ) : (
+                    <span class="pdp-hero__keyspec-text">{spec.parsed.unit}</span>
+                  )}
+                </div>
+                <span class="pdp-hero__keyspec-label">{spec.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div class="pdp-hero__media">
           <div class="pdp-hero__main-img">
@@ -176,14 +207,24 @@ const colors = product.colors ?? [];
     </section>
 
     <!-- 4. Key Specs -->
-    {keySpecs.length > 0 && (
+    {keySpecsParsed.length > 0 && !product.heroKeySpecs && (
       <section class="pdp-key-specs">
         <div class="pdp-container">
           <h2 class="pdp-section-title reveal">Ключевые параметры</h2>
           <div class="pdp-key-specs__grid">
-            {keySpecs.map((spec, idx) => (
+            {keySpecsParsed.map((spec, idx) => (
               <div class="pdp-spec-card reveal" style={`--stagger:${idx}`}>
-                <span class="pdp-spec-card__value">{spec.value}</span>
+                <span class="pdp-spec-card__value">
+                  {spec.parsed.num ? (
+                    <>
+                      {spec.parsed.prefix && <span class="pdp-spec-card__prefix">{spec.parsed.prefix}</span>}
+                      <span class="pdp-spec-card__num">{spec.parsed.num}</span>
+                      {spec.parsed.unit && <span class="pdp-spec-card__unit">{spec.parsed.unit}</span>}
+                    </>
+                  ) : (
+                    <span class="pdp-spec-card__text">{spec.parsed.unit}</span>
+                  )}
+                </span>
                 <span class="pdp-spec-card__label">{spec.label}</span>
               </div>
             ))}
@@ -192,45 +233,48 @@ const colors = product.colors ?? [];
       </section>
     )}
 
-    <!-- 5. Full Specs (Accordion) -->
-    {specsRows.length > 0 && (
-      <section class="pdp-full-specs">
+    <!-- 5+6. Specs + Box — unified details section -->
+    {(specsRows.length > 0 || (product.boxContents ?? []).length > 0) && (
+      <section class="pdp-details">
         <div class="pdp-container">
-          <details class="pdp-accordion reveal">
-            <summary class="pdp-accordion__trigger">
-              <h2 class="pdp-section-title">Все характеристики</h2>
-              <span class="pdp-accordion__icon" aria-hidden="true">+</span>
-            </summary>
-            <div class="pdp-accordion__body">
-              <table class="pdp-specs-table">
-                <tbody>
-                  {specsRows.map((row) => (
-                    <tr>
-                      <td>{row.label}</td>
-                      <td>{row.value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </details>
-        </div>
-      </section>
-    )}
-
-    <!-- 6. What's in the Box -->
-    {(product.boxContents ?? []).length > 0 && (
-      <section class="pdp-box">
-        <div class="pdp-container">
-          <h2 class="pdp-section-title reveal">Что в комплекте</h2>
-          <div class="pdp-box__grid">
-            {(product.boxContents ?? []).map((item, idx) => (
-              <div class="pdp-box-item reveal" style={`--stagger:${idx}`}>
-                <span class="pdp-box-item__num">{String(idx + 1).padStart(2, '0')}</span>
-                <span class="pdp-box-item__name">{item}</span>
+          {specsRows.length > 0 && (
+            <details class="pdp-accordion reveal" open>
+              <summary class="pdp-accordion__trigger">
+                <h2 class="pdp-section-title">Характеристики</h2>
+                <span class="pdp-accordion__icon" aria-hidden="true">−</span>
+              </summary>
+              <div class="pdp-accordion__body">
+                <table class="pdp-specs-table">
+                  <tbody>
+                    {specsRows.map((row) => (
+                      <tr>
+                        <td>{row.label}</td>
+                        <td>{row.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </details>
+          )}
+          {(product.boxContents ?? []).length > 0 && (
+            <details class="pdp-accordion reveal">
+              <summary class="pdp-accordion__trigger">
+                <h2 class="pdp-section-title">Комплект</h2>
+                <span class="pdp-accordion__icon" aria-hidden="true">+</span>
+              </summary>
+              <div class="pdp-accordion__body">
+                <div class="pdp-box-accordion">
+                  {(product.boxContents ?? []).map((item, idx) => (
+                    <div class="pdp-box-item">
+                      <span class="pdp-box-item__num">{String(idx + 1).padStart(2, '0')}</span>
+                      <span class="pdp-box-item__name">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </details>
+          )}
         </div>
       </section>
     )}
@@ -375,6 +419,27 @@ const colors = product.colors ?? [];
           stickyBar.classList.toggle('pdp-sticky-bar--visible', !entry.isIntersecting);
         }, { threshold: 0 });
         obs.observe(heroActions);
+
+        // Hide sticky bar when footer enters viewport
+        const footer = document.querySelector('footer');
+        if (footer) {
+          const footerObs = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) stickyBar.classList.remove('pdp-sticky-bar--visible');
+          }, { threshold: 0 });
+          footerObs.observe(footer);
+        }
+      }
+
+      // Stock badge fallback: show "Нет данных" if API doesn't respond
+      const stockBadge = document.querySelector('[data-ms-stock]');
+      if (stockBadge instanceof HTMLElement) {
+        window.setTimeout(() => {
+          if (stockBadge.style.display === 'none' || !stockBadge.textContent.trim()) {
+            stockBadge.textContent = 'Нет данных';
+            stockBadge.classList.add('ms-stock-badge');
+            stockBadge.style.display = 'inline-flex';
+          }
+        }, 4500);
       }
 
       // Accordion icon
@@ -492,22 +557,38 @@ const colors = product.colors ?? [];
     .pdp-section-title{font-family:'Unbounded',sans-serif;font-size:clamp(22px,2.8vw,28px);font-weight:700;line-height:1.2;letter-spacing:-.02em;margin:0 0 28px;color:var(--pdp-text)}
 
     /* ===== 1. Hero ===== */
-    .pdp-hero{background:linear-gradient(180deg,#fafafa 0%,var(--pdp-surface) 100%);padding:88px 0 40px;text-align:center}
+    .pdp-hero{background:linear-gradient(180deg,#fafafa 0%,var(--pdp-surface) 100%);padding:92px 0 32px;text-align:center}
     .pdp-breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;font-size:13px;color:var(--pdp-muted)}
     .pdp-breadcrumbs a{text-decoration:none;color:#6e6e73;transition:color .15s}
     .pdp-breadcrumbs a:hover{color:var(--pdp-text)}
     .pdp-badge{display:inline-block;background:var(--pdp-accent);color:#fff;border-radius:20px;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-    .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:.98;letter-spacing:-.045em;margin:0 0 12px}
-    .pdp-hero__subtitle{font-size:clamp(17px,1.8vw,20px);line-height:1.45;color:var(--pdp-muted);margin:0 auto 16px;max-width:34ch}
+    .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:.98;letter-spacing:-.045em;margin:0 0 8px}
+    .pdp-hero__subtitle{font-size:clamp(17px,1.8vw,20px);line-height:1.45;color:var(--pdp-muted);margin:0 auto 10px;max-width:34ch}
     .pdp-hero__price-row{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-bottom:4px}
-    .pdp-hero__price{font-family:'Unbounded',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--pdp-text)}
-    .pdp-hero__currency{font-size:.65em;font-weight:500;color:var(--pdp-muted);letter-spacing:0}
-    .pdp-hero__stock{display:none;align-items:center;padding:5px 10px;font-size:12px;font-weight:700;color:#b45309;background:#fff7ed;border:1px solid #fdba74;border-radius:999px;letter-spacing:.02em;text-transform:uppercase}
+    .pdp-hero__price{font-family:'Unbounded',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:600;line-height:1.1;letter-spacing:-.02em;color:#222}
+    .pdp-hero__currency{font-size:.65em;font-weight:400;color:var(--pdp-muted);letter-spacing:0}
+    .pdp-hero__stock{display:none;align-items:center;padding:3px 9px;font-size:11px;font-weight:500;color:#6e6e73;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.1);border-radius:999px;letter-spacing:.01em}
     .pdp-hero__price-note{margin:0 0 6px;color:var(--pdp-muted);font-size:14px}
 
+    /* Override global MS badge colors to match premium PDP palette */
+    .pdp-hero__stock.ms-in-stock{color:#15803d;background:rgba(21,128,61,.06);border-color:rgba(21,128,61,.16)}
+    .pdp-hero__stock.ms-low-stock{color:#92400e;background:rgba(146,64,14,.06);border-color:rgba(146,64,14,.16)}
+    .pdp-hero__stock.ms-preorder{color:#6b7280;background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.12)}
+
+    /* ===== Mini Hero Key Specs (heroKeySpecs mode) ===== */
+    .pdp-hero__keyspecs{display:grid;grid-template-columns:repeat(4,1fr);max-width:500px;margin:20px auto 0;border:1px solid rgba(0,0,0,.08);border-radius:16px;overflow:hidden}
+    .pdp-hero__keyspec-item{padding:13px 10px;text-align:center;border-right:1px solid rgba(0,0,0,.08)}
+    .pdp-hero__keyspec-item:last-child{border-right:none}
+    .pdp-hero__keyspec-val{display:flex;align-items:baseline;justify-content:center;gap:.06em;white-space:nowrap;margin-bottom:4px}
+    .pdp-hero__keyspec-num{font-family:'Unbounded',sans-serif;font-size:clamp(13px,1.5vw,17px);font-weight:700;letter-spacing:-.02em;color:var(--pdp-text);line-height:1}
+    .pdp-hero__keyspec-unit{font-size:.7em;font-weight:600;color:var(--pdp-muted);margin-left:.05em}
+    .pdp-hero__keyspec-prefix{font-size:.58em;font-weight:400;color:var(--pdp-muted)}
+    .pdp-hero__keyspec-text{font-family:'Unbounded',sans-serif;font-size:clamp(9px,1.1vw,12px);font-weight:600;letter-spacing:-.01em;color:var(--pdp-text);line-height:1.2}
+    .pdp-hero__keyspec-label{display:block;font-size:9px;color:var(--pdp-muted);font-weight:500;text-transform:uppercase;letter-spacing:.07em;line-height:1.3}
+
     /* Hero Media — larger image */
-    .pdp-hero__media{margin:32px auto 0;max-width:860px}
-    .pdp-hero__main-img{aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .pdp-hero__media{margin:24px auto 0;max-width:820px}
+    .pdp-hero__main-img{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;overflow:hidden}
     .pdp-hero__main-img img{width:92%;max-width:720px;object-fit:contain;cursor:zoom-in;transition:transform .5s cubic-bezier(.25,.1,.25,1)}
     .pdp-hero__main-img:hover img{transform:scale(1.05)}
 
@@ -558,28 +639,36 @@ const colors = product.colors ?? [];
     .pdp-benefit__text{font-size:15px;font-weight:600;color:var(--pdp-text);line-height:1.4;letter-spacing:-.01em}
 
     /* ===== 3. Editorial ===== */
-    .pdp-editorial{background:var(--pdp-surface);padding:96px 0 80px}
+    .pdp-editorial{background:var(--pdp-surface);padding:88px 0 72px}
     .pdp-editorial__grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
     .pdp-editorial__lead{font-size:20px;line-height:1.65;color:#4b5563;margin:0 0 16px}
-    .pdp-editorial__body{font-size:18px;color:#4b5563;line-height:1.7}
-    .pdp-editorial__body p{margin:0 0 16px}
+    .pdp-editorial__body{font-size:18px;color:#4b5563;line-height:1.72}
+    .pdp-editorial__body p{margin:0 0 20px}
     .pdp-editorial__body p:last-child{margin-bottom:0}
     .pdp-editorial__image{border-radius:20px;overflow:hidden}
     .pdp-editorial__image img{width:100%;height:100%;object-fit:cover;display:block;border-radius:20px}
 
     /* ===== 4. Key Specs — typographic 2x2 grid, no cards ===== */
-    .pdp-key-specs{background:var(--pdp-bg);padding:96px 0}
+    .pdp-key-specs{background:var(--pdp-bg);padding:112px 0 96px}
     .pdp-key-specs__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;max-width:640px;margin:0 auto}
     .pdp-spec-card{background:none;border:none;border-radius:0;padding:36px 24px;text-align:center;box-shadow:none;transition:none;position:relative}
     /* subtle grid lines */
     .pdp-spec-card:nth-child(odd){border-right:1px solid rgba(0,0,0,.08)}
     .pdp-spec-card:nth-child(-n+2){border-bottom:1px solid rgba(0,0,0,.08)}
-    .pdp-spec-card__value{display:block;font-family:'Unbounded',sans-serif;font-size:clamp(30px,4vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.025em;margin-bottom:8px;color:var(--pdp-text);white-space:nowrap}
+    .pdp-spec-card__value{display:flex;align-items:baseline;justify-content:center;gap:.1em;flex-wrap:wrap;margin-bottom:8px;white-space:nowrap}
+    .pdp-spec-card__num{font-family:'Unbounded',sans-serif;font-size:clamp(30px,4vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.025em;color:var(--pdp-text)}
+    .pdp-spec-card__unit{font-size:.7em;font-weight:600;letter-spacing:-.01em;color:var(--pdp-muted);margin-left:.08em}
+    .pdp-spec-card__prefix{font-size:.48em;font-weight:500;color:var(--pdp-muted);margin-right:.06em;align-self:center}
+    .pdp-spec-card__text{font-family:'Unbounded',sans-serif;font-size:clamp(15px,1.9vw,20px);font-weight:600;letter-spacing:-.015em;color:var(--pdp-text);line-height:1.2}
     .pdp-spec-card__label{display:block;font-size:12px;color:var(--pdp-muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em}
 
-    /* ===== 5. Full Specs (Accordion) ===== */
-    .pdp-full-specs{background:var(--pdp-surface);padding:64px 0}
-    .pdp-accordion{border:none;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08);border-radius:0;overflow:hidden}
+    /* ===== 5+6. Details — unified specs + box section ===== */
+    .pdp-details{background:var(--pdp-surface);padding:64px 0}
+    /* Each accordion gets top border; last also gets bottom */
+    .pdp-accordion{border:none;border-top:1px solid rgba(0,0,0,.08);border-radius:0;overflow:hidden}
+    .pdp-accordion:last-child{border-bottom:1px solid rgba(0,0,0,.08)}
+    /* Legacy: single accordion pages still look correct */
+    .pdp-full-specs .pdp-accordion{border-bottom:1px solid rgba(0,0,0,.08)}
     .pdp-accordion__trigger{display:flex;align-items:center;justify-content:space-between;padding:24px 0;cursor:pointer;list-style:none;user-select:none}
     .pdp-accordion__trigger::-webkit-details-marker{display:none}
     .pdp-accordion__trigger .pdp-section-title{margin:0}
@@ -590,19 +679,17 @@ const colors = product.colors ?? [];
     .pdp-specs-table tr:last-child td{border-bottom:none}
     .pdp-specs-table td:first-child{color:var(--pdp-muted);width:40%;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
     .pdp-specs-table td:last-child{color:var(--pdp-text);font-size:15px;font-weight:500}
-
-    /* ===== 6. What's in the Box — typographic, no cards ===== */
-    .pdp-box{background:var(--pdp-surface);padding:64px 0;border-top:1px solid rgba(0,0,0,.06)}
-    .pdp-box__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0}
-    .pdp-box-item{background:none;border:none;border-radius:0;padding:20px 16px;box-shadow:none;transition:none;text-align:center}
+    /* Box contents inside accordion */
+    .pdp-box-accordion{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0;padding-bottom:8px}
+    .pdp-box-item{background:none;border:none;border-radius:0;padding:16px;box-shadow:none;transition:none;text-align:center}
     .pdp-box-item__num{display:block;font-family:'Unbounded',sans-serif;font-size:28px;font-weight:800;color:rgba(0,0,0,.06);margin-bottom:6px;line-height:1}
     .pdp-box-item__name{display:block;font-size:14px;font-weight:600;color:var(--pdp-text);line-height:1.4}
 
     /* ===== 7. Model Comparison — lighter ===== */
     .pdp-compare{background:var(--pdp-bg);padding:96px 0}
     .pdp-compare__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-    .pdp-compare-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--pdp-surface);border:none;border-radius:20px;padding:32px 20px;text-decoration:none;color:inherit;transition:transform .3s ease,box-shadow .3s ease}
-    .pdp-compare-card--current{transform:scale(1.03);box-shadow:0 8px 32px rgba(0,0,0,.08)}
+    .pdp-compare-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--pdp-surface);border:1px solid rgba(0,0,0,.07);border-radius:20px;padding:32px 20px;text-decoration:none;color:inherit;transition:transform .3s ease,box-shadow .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .pdp-compare-card--current{transform:scale(1.03);border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.1)}
     .pdp-compare-card__badge{display:inline-block;background:var(--pdp-text);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
     .pdp-compare-card img{width:100%;max-width:180px;height:160px;object-fit:contain;margin-bottom:16px}
     .pdp-compare-card h3{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
@@ -617,9 +704,11 @@ const colors = product.colors ?? [];
     .pdp-trust__sep{color:rgba(0,0,0,.15)}
 
     /* ===== Sticky Buy Bar ===== */
-    .pdp-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none}
+    .pdp-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
     .pdp-sticky-bar--visible{transform:translateY(0);pointer-events:auto}
     .pdp-sticky-bar__inner{max-width:980px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    /* Bottom padding so last content section isn't hidden under sticky bar */
+    .pdp-trust{padding-bottom:calc(48px + env(safe-area-inset-bottom,0px))!important}
     .pdp-sticky-bar__info{display:flex;flex-direction:column;gap:2px;min-width:0}
     .pdp-sticky-bar__name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pdp-sticky-bar__price{font-size:16px;font-weight:700}
@@ -655,7 +744,12 @@ const colors = product.colors ?? [];
     /* ===== Responsive: Mobile ===== */
     @media(max-width:640px){
       .pdp-container{padding:0 18px}
-      .pdp-hero{padding:76px 0 32px}
+      .pdp-hero{padding:84px 0 28px}
+      .pdp-hero__keyspecs{max-width:100%;border-radius:12px}
+      .pdp-hero__keyspec-item{padding:10px 6px}
+      .pdp-hero__keyspec-num{font-size:12px}
+      .pdp-hero__keyspec-text{font-size:9px}
+      .pdp-hero__keyspec-label{font-size:8px}
       .pdp-hero__title{font-size:clamp(38px,10vw,52px)}
       .pdp-hero__price{font-size:clamp(28px,7vw,36px)}
       .pdp-hero__media{margin-top:20px}
@@ -672,8 +766,9 @@ const colors = product.colors ?? [];
       .pdp-editorial{padding:56px 0 48px}
       .pdp-editorial__lead{font-size:17px}
       .pdp-editorial__body{font-size:16px}
-      .pdp-key-specs{padding:56px 0}
-      .pdp-spec-card__value{font-size:clamp(24px,7vw,32px)}
+      .pdp-key-specs{padding:72px 0 56px}
+      .pdp-spec-card__num{font-size:clamp(24px,7vw,32px)}
+      .pdp-spec-card__text{font-size:clamp(14px,4vw,18px)}
       .pdp-full-specs{padding:40px 0}
       .pdp-box{padding:40px 0}
       .pdp-compare{padding:56px 0}
@@ -688,7 +783,11 @@ const colors = product.colors ?? [];
     /* ===== Responsive: Small phones ===== */
     @media(max-width:390px){
       .pdp-container{padding:0 16px}
-      .pdp-hero{padding:68px 0 36px}
+      .pdp-hero{padding:76px 0 28px}
+      .pdp-hero__keyspecs{grid-template-columns:repeat(2,1fr)}
+      .pdp-hero__keyspec-item:nth-child(odd){border-right:1px solid rgba(0,0,0,.08)}
+      .pdp-hero__keyspec-item:nth-child(even){border-right:none}
+      .pdp-hero__keyspec-item:nth-child(-n+2){border-bottom:1px solid rgba(0,0,0,.08)}
       .pdp-hero__main-img img{width:94%;max-width:320px}
       .pdp-thumb img{width:44px;height:44px}
       .pdp-thumb{padding:5px}
