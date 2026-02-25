@@ -1350,6 +1350,230 @@ img{max-width:100%;height:auto}
 </style>
 
 
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   MOBILE ADAPTATION ≤480px — Home page only
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  /* ── Layout & Spacing ── */
+  .sec { padding: 56px 16px !important }
+  .sec-head { margin-bottom: 28px !important }
+  .wrap { padding-left: 0 !important; padding-right: 0 !important }
+
+  /* ── Typography scale ── */
+  .sec-title {
+    font-size: clamp(22px, 6.5vw, 26px) !important;
+    line-height: 1.18 !important;
+  }
+  .sec-sub { font-size: 15px !important; line-height: 1.6 !important }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: auto !important;
+    padding: 92px 16px 48px !important;
+  }
+  .hero-inner {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .hero-copy { text-align: center !important }
+  .hero-label {
+    display: block !important;
+    text-align: center !important;
+    margin-bottom: 12px !important;
+  }
+  .hero-title {
+    font-size: clamp(32px, 9.5vw, 40px) !important;
+    line-height: 1.08 !important;
+    margin-bottom: 12px !important;
+  }
+  .hero-sub {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    max-width: 300px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 20px !important;
+  }
+  .btns {
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 320px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    gap: 10px !important;
+  }
+  .btn-blue, .btn-ghost {
+    width: 100% !important;
+    min-height: 48px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+  .hero-proof {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-top: 16px !important;
+  }
+  .hero-visual { display: none !important }
+
+  /* ── Features: already 1-col at 768px, tighten padding ── */
+  .fcard { padding: 20px !important; border-radius: 18px !important }
+  .sec-features .feat-grid { gap: 10px !important }
+
+  /* ── Products grid → swipe carousel ── */
+  .sec-products .products-grid {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 12px !important;
+    scroll-snap-type: x mandatory !important;
+    padding-bottom: 12px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .sec-products .products-grid .pcard {
+    min-width: 82% !important;
+    flex: 0 0 auto !important;
+    scroll-snap-align: start !important;
+    border-radius: 18px !important;
+  }
+  .sec-products .products-grid .pcard img {
+    aspect-ratio: 1 !important;
+    width: 100% !important;
+    object-fit: contain !important;
+  }
+
+  /* ── Use cases → swipe carousel ── */
+  .uc-grid {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 12px !important;
+    scroll-snap-type: x mandatory !important;
+    padding-bottom: 12px !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* reset grid areas */
+    grid-template-areas: none !important;
+    grid-template-columns: unset !important;
+  }
+  .sec-usecases .uccard {
+    min-width: 82% !important;
+    flex: 0 0 auto !important;
+    scroll-snap-align: start !important;
+    min-height: auto !important;
+    padding: 20px !important;
+    border-radius: 18px !important;
+  }
+  .sec-usecases .uclabel {
+    font-size: clamp(20px, 5.5vw, 24px) !important;
+    min-height: auto !important;
+    line-height: 1.2 !important;
+    margin-bottom: 10px !important;
+  }
+  .sec-usecases .ucdesc { font-size: 14px !important; line-height: 1.55 !important }
+
+  /* ── How it works → compact layout + accordion per step ── */
+  .sec-how .how-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .sec-how .how-left { text-align: center !important }
+  .sec-how .how-title {
+    font-size: clamp(22px, 6vw, 26px) !important;
+    line-height: 1.18 !important;
+  }
+  .sec-how .how-sub { font-size: 15px !important; line-height: 1.6 !important }
+  .sec-how .btn-woutline {
+    display: inline-flex !important;
+    min-height: 44px !important;
+    align-items: center !important;
+  }
+
+  /* Step accordion layout */
+  .sec-how .step {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 14px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 1px solid rgba(17,17,17,.07) !important;
+  }
+  .sec-how .step:last-child { border-bottom: none !important }
+  .sec-how .step .step-line { flex-shrink: 0 !important }
+  .sec-how .step .step-icon {
+    width: 36px !important;
+    height: 36px !important;
+    flex-shrink: 0 !important;
+  }
+  .sec-how .step .step-icon svg { width: 28px !important; height: 28px !important }
+  .sec-how .step .sconn { display: none !important }
+  /* Default: hide body of each step; JS will open the first */
+  .sec-how .step .sdesc,
+  .sec-how .step .smock { display: none !important }
+  /* Expanded state */
+  .sec-how .step.step--open .sdesc,
+  .sec-how .step.step--open .smock { display: block !important }
+  /* Clickable title */
+  .sec-how .step .stitle {
+    cursor: pointer !important;
+    user-select: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    font-size: 15px !important;
+    padding: 4px 0 !important;
+    min-height: 44px !important;
+  }
+  .sec-how .step .stitle::after {
+    content: '+';
+    font-size: 20px;
+    font-weight: 300;
+    color: rgba(17,17,17,.36);
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .sec-how .step.step--open .stitle::after { content: '−' }
+  .sec-how .step .snum { font-size: 11px !important }
+
+  /* ── Reviews: already 1-per-row at 768px ── */
+  .rv-nav { display: none !important }
+
+  /* ── Lead form ── */
+  .sec-lead { padding: 48px 16px !important }
+  .lead-inner { padding: 36px 20px !important; border-radius: 20px !important }
+  .lead-title { font-size: clamp(22px, 6vw, 26px) !important; line-height: 1.18 !important }
+  .lead-sub { font-size: 15px !important; line-height: 1.55 !important }
+  .lead-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .linput { min-height: 48px !important; font-size: 16px !important }
+  .lsubmit {
+    min-height: 48px !important;
+    width: 100% !important;
+    font-size: 15px !important;
+  }
+
+  /* ── FAQ: ensure 44px tap targets ── */
+  .faqq {
+    min-height: 52px !important;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    padding: 14px 0 !important;
+    align-items: flex-start !important;
+  }
+  .faqa { font-size: 14px !important; line-height: 1.6 !important }
+
+  /* ── Footer ── */
+  .foot-wrap,
+  footer .wrap { padding-left: 16px !important; padding-right: 16px !important }
+}
+</style>
+
 </head>
 <body>
 
@@ -2285,6 +2509,49 @@ img{max-width:100%;height:auto}
     });
   }, { threshold: 0.15 });
   cards.forEach(function(el){ io.observe(el); });
+})();
+</script>
+
+<script>
+/* ── Mobile: "Как работает" steps → accordion (≤480px only) ── */
+(function () {
+  if (window.innerWidth > 480) return;
+  var steps = Array.from(document.querySelectorAll('.sec-how .step'));
+  if (!steps.length) return;
+
+  // Open first step by default
+  steps[0].classList.add('step--open');
+
+  steps.forEach(function (step) {
+    var title = step.querySelector('.stitle');
+    if (!title) return;
+    title.setAttribute('role', 'button');
+    title.setAttribute('tabindex', '0');
+
+    title.addEventListener('click', function () {
+      var isOpen = step.classList.contains('step--open');
+      steps.forEach(function (s) { s.classList.remove('step--open'); });
+      if (!isOpen) step.classList.add('step--open');
+    });
+
+    title.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        title.click();
+      }
+    });
+  });
+})();
+
+/* ── Lazy-load below-fold images ── */
+(function () {
+  if (!('loading' in HTMLImageElement.prototype)) return;
+  var fold = window.innerHeight;
+  document.querySelectorAll('img[src]:not([loading])').forEach(function (img) {
+    if (img.getBoundingClientRect().top > fold) {
+      img.setAttribute('loading', 'lazy');
+    }
+  });
 })();
 </script>
 </body>
