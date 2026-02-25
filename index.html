@@ -828,8 +828,7 @@ section.sticky{background:rgba(255,255,255,.94)!important;border-bottom:1px soli
 /* Section separation and alternation (index) */
 .sec{border-top:1px solid var(--line)!important}
 .sec-products,.sec-pricing,.sec-faq{background:var(--c-bg-alt)!important}
-.sec-features,.sec-how,.sec-usecases,.sec-reviews,.sec-lead{background:var(--c-surface)!important}
-.sec-how{color:var(--c-text)!important}
+.sec-features,.sec-usecases,.sec-reviews,.sec-lead{background:var(--c-surface)!important}
 
 /* Alternating section rhythm (about) */
 .about-hero{background:#fff!important;border-bottom:1px solid var(--line)!important}
@@ -907,7 +906,7 @@ img{max-width:100%;height:auto}
     .sec-features{padding-top:64px!important;padding-bottom:64px!important}
 .sec-head{margin-bottom:56px!important}
 .sec-products,.sec-pricing,.sec-faq{background:#f5f5f7!important}
-.sec-features,.sec-how,.sec-usecases,.sec-reviews,.sec-lead{background:#fff!important}
+.sec-features,.sec-usecases,.sec-reviews,.sec-lead{background:#fff!important}
 .pcard,.fcard,.uccard,.rvcard,.pricingcard{border-radius:16px!important;box-shadow:0 2px 8px rgba(0,0,0,.06)!important}
 .sec-title{font-size:clamp(42px,4.2vw,48px)!important;line-height:1.08!important}
 .sec-sub{font-size:19px!important;line-height:1.6!important;font-weight:400!important}
@@ -1353,6 +1352,616 @@ img{max-width:100%;height:auto}
 
 <style>
 /* ═══════════════════════════════════════════════════════════
+   PREMIUM SIMPLIFICATION — scale upgrade + section rebuilds
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Global scale upgrade ── */
+.sec-title {
+  font-size: clamp(48px, 4.8vw, 58px) !important;
+  line-height: 1.05 !important;
+}
+.hero-title {
+  font-size: clamp(64px, 7.2vw, 86px) !important;
+  line-height: .98 !important;
+}
+.sec { padding: 120px 24px !important }
+.sec-products { padding-top: 112px !important }
+.sec-features { padding: 80px 24px 100px !important }
+.sec-usecases { padding: 100px 24px 112px !important }
+.sec-how { padding: 100px 24px 112px !important }
+
+/* ── PRIMARY FEATURE BLOCK ── */
+.feat-primary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  background: #111;
+  color: #fff;
+  border-radius: 28px;
+  padding: 64px;
+  margin-bottom: 3px;
+}
+.feat-primary__kicker {
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.38);
+  margin-bottom: 20px;
+}
+.feat-primary__stat {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(72px, 8.5vw, 104px);
+  font-weight: 900;
+  line-height: .85;
+  letter-spacing: -.04em;
+  margin-bottom: 22px;
+}
+.feat-primary__title {
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 700;
+  line-height: 1.22;
+  color: #fff;
+  margin-bottom: 18px;
+}
+.feat-primary__desc {
+  font-size: 17px;
+  line-height: 1.65;
+  color: rgba(255,255,255,.5);
+  max-width: 38ch;
+}
+.feat-primary__visual {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  padding: 32px;
+}
+.feat-primary__visual .trans-lines { width: 100% }
+.feat-primary__visual .trans-line {
+  background: linear-gradient(90deg, rgba(255,255,255,.14), rgba(255,255,255,.04)) !important;
+}
+.feat-primary__visual .accent-icon {
+  animation: none !important;
+}
+.feat-primary__visual .trans-chip {
+  background: rgba(255,255,255,.1) !important;
+  color: rgba(255,255,255,.7) !important;
+}
+
+/* ── SECONDARY FEATURES ROW ── */
+.feat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid rgba(17,17,17,.09);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+.feat-item {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-right: 1px solid rgba(17,17,17,.09);
+  transition: background .2s ease;
+}
+.feat-item:last-child { border-right: none }
+.feat-item:hover { background: #fafafa }
+.feat-item__icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(17,17,17,.32);
+  margin-bottom: 4px;
+}
+.feat-item__title {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #111;
+}
+.feat-item__desc {
+  font-size: 15px;
+  line-height: 1.62;
+  color: #6e6e73;
+}
+
+/* ── USE CASE BLOCKS ── */
+.uc-blocks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid rgba(17,17,17,.09);
+  border-radius: 24px;
+  overflow: hidden;
+}
+.uc-block {
+  padding: 52px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-right: 1px solid rgba(17,17,17,.09);
+}
+.uc-block:last-child { border-right: none }
+.uc-block__kicker {
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(17,17,17,.32);
+  font-weight: 600;
+}
+.uc-block__title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(20px, 2vw, 25px);
+  font-weight: 700;
+  line-height: 1.16;
+  color: #111;
+  letter-spacing: -.02em;
+}
+.uc-block__desc {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #6e6e73;
+  flex: 1;
+}
+.uc-block__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ── HOW IT WORKS: dark + clean ── */
+.sec-how { background: #111 !important; color: #fff !important }
+.sec-how .step { border-bottom-color: rgba(255,255,255,.07) !important; padding: 44px 0 !important }
+.sec-how .step:last-child { border-bottom: none !important }
+.sec-how .sdot { color: rgba(255,255,255,.2) !important }
+.sec-how .sconn { background: rgba(255,255,255,.08) !important }
+.sec-how .snum {
+  font-size: 11px !important;
+  letter-spacing: .14em !important;
+  font-weight: 600 !important;
+  color: rgba(255,255,255,.36) !important;
+  margin-bottom: 12px !important;
+}
+.sec-how .stitle {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.01em !important;
+  color: #fff !important;
+  margin-bottom: 12px !important;
+  line-height: 1.14 !important;
+}
+.sec-how .sdesc {
+  font-size: 16px !important;
+  line-height: 1.65 !important;
+  color: rgba(255,255,255,.5) !important;
+  margin-bottom: 0 !important;
+}
+.sec-how .smock { display: none !important }
+.sec-how .proc-label { color: rgba(255,255,255,.36) !important }
+.sec-how .how-title { color: #fff !important }
+.sec-how .how-sub { color: rgba(255,255,255,.5) !important }
+.sec-how .btn-woutline {
+  color: #fff !important;
+  border-color: rgba(255,255,255,.25) !important;
+}
+.sec-how .btn-woutline:hover { border-color: rgba(255,255,255,.6) !important }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .feat-primary { grid-template-columns: 1fr; gap: 32px; padding: 44px }
+  .feat-primary__visual { padding: 24px }
+  .feat-row { grid-template-columns: 1fr; border-radius: 16px }
+  .feat-item { border-right: none; border-bottom: 1px solid rgba(17,17,17,.09) }
+  .feat-item:last-child { border-bottom: none }
+  .uc-blocks { grid-template-columns: 1fr; border-radius: 18px }
+  .uc-block { border-right: none; border-bottom: 1px solid rgba(17,17,17,.09); padding: 40px }
+  .uc-block:last-child { border-bottom: none }
+}
+@media (max-width: 768px) {
+  .feat-primary { padding: 32px; border-radius: 20px }
+  .feat-primary__stat { font-size: clamp(52px, 13vw, 72px) }
+  .feat-item { padding: 28px; gap: 10px }
+  .feat-item__title { font-size: 17px }
+  .uc-block { padding: 32px 24px; gap: 14px }
+  .uc-block__title { font-size: 20px }
+}
+@media (max-width: 480px) {
+  .sec-title { font-size: clamp(26px, 7vw, 34px) !important }
+  .hero-title { font-size: clamp(36px, 10.5vw, 48px) !important }
+  .feat-primary { padding: 24px; border-radius: 18px; gap: 24px }
+  .feat-primary__stat { font-size: 52px }
+  .feat-primary__title { font-size: 20px }
+  .feat-primary__desc { font-size: 14px }
+  .feat-primary__visual { padding: 18px }
+  .feat-item { padding: 22px; gap: 8px }
+  .feat-item__title { font-size: 16px }
+  .uc-block { padding: 24px 20px; gap: 12px }
+  .uc-block__title { font-size: 18px }
+  .uc-block__desc { font-size: 14px }
+}
+</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════
+   ART DIRECTION — cinematic flagship feel
+   ══════════════════════════════════════════════════════════ */
+
+/* ── HERO: bold, dramatic, asymmetric ── */
+.hero {
+  padding: 0 24px !important;
+  background: #fff !important;
+}
+.hero-inner {
+  max-width: 1320px !important;
+  grid-template-columns: 54% 46% !important;
+  gap: 0 !important;
+  min-height: 100vh !important;
+  padding: 0 !important;
+  align-items: center !important;
+}
+.hero-copy {
+  padding: 160px 56px 80px 0 !important;
+  max-width: none !important;
+}
+.hero-label {
+  font-size: 10px !important;
+  letter-spacing: .2em !important;
+  margin-bottom: 36px !important;
+  color: rgba(17,17,17,.38) !important;
+}
+.hero-title {
+  font-size: clamp(68px, 7.8vw, 96px) !important;
+  line-height: .93 !important;
+  max-width: none !important;
+  margin-bottom: 24px !important;
+  letter-spacing: -.04em !important;
+}
+.hero-sub {
+  font-size: 18px !important;
+  max-width: 380px !important;
+  line-height: 1.58 !important;
+  margin-bottom: 32px !important;
+  color: #6e6e73 !important;
+}
+.hero-proof { display: none !important }
+.hero .btns { gap: 20px !important; align-items: center !important; flex-wrap: nowrap !important }
+/* Secondary CTA → underline text link */
+.hero .btn-ghost {
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  color: #6e6e73 !important;
+  text-decoration: underline !important;
+  text-decoration-color: rgba(17,17,17,.22) !important;
+  text-underline-offset: 3px !important;
+}
+.hero .btn-ghost:hover {
+  color: #111 !important;
+  text-decoration-color: #111 !important;
+  transform: none !important;
+  border: none !important;
+}
+/* Product: slightly off-center to the right */
+.hero-visual {
+  align-items: center !important;
+  justify-content: center !important;
+  transform: translateX(4%) !important;
+  overflow: visible !important;
+}
+
+/* ── FEATURES: full-bleed primary, 2 secondary ── */
+.sec-features { padding: 0 !important; background: #fff !important }
+.sec-features .sec-head { display: none !important }
+/* Override feat-primary: block, no radius, no padding (inner handles it) */
+.feat-primary {
+  display: block !important;
+  background: linear-gradient(150deg, #0b0b0b 0%, #181818 55%, #111 100%) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+}
+.feat-primary__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 104px 24px 108px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.feat-primary__stat {
+  font-size: clamp(88px, 11vw, 130px) !important;
+  margin-bottom: 28px !important;
+}
+.feat-primary__title { font-size: clamp(22px, 2.5vw, 30px) !important; margin-bottom: 18px !important }
+.feat-primary__desc { font-size: 17px !important }
+/* Secondary features: no outer box, 2 cols, full border-top only */
+.sec-features .wrap { padding-top: 0 !important; padding-bottom: 0 !important }
+.feat-row {
+  grid-template-columns: repeat(2, 1fr) !important;
+  border: none !important;
+  border-top: 1px solid rgba(17,17,17,.07) !important;
+  border-radius: 0 !important;
+  margin-top: 0 !important;
+  overflow: visible !important;
+}
+.feat-item {
+  padding: 52px !important;
+  border-right-color: rgba(17,17,17,.07) !important;
+}
+.feat-item:hover { background: transparent !important }
+.feat-item__title { font-size: 20px !important }
+.feat-item__desc { font-size: 16px !important }
+
+/* ── USE CASES: asymmetric 1 large + 2 small ── */
+.sec-usecases { background: #f5f5f7 !important }
+.uc-blocks {
+  display: grid !important;
+  grid-template-columns: 3fr 2fr !important;
+  grid-template-rows: 1fr 1fr !important;
+  border: 1px solid rgba(17,17,17,.08) !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  background: rgba(17,17,17,.08) !important;
+  gap: 1px !important;
+}
+.uc-block {
+  background: #f5f5f7 !important;
+  border-right: none !important;
+}
+.uc-block:first-child {
+  grid-column: 1 !important;
+  grid-row: 1 / span 2 !important;
+  padding: 64px 52px !important;
+  background: #fff !important;
+}
+.uc-block:nth-child(2) {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  padding: 44px 40px !important;
+}
+.uc-block:nth-child(3) {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  padding: 44px 40px !important;
+}
+.uc-block:first-child .uc-block__title {
+  font-size: clamp(28px, 3.2vw, 38px) !important;
+  letter-spacing: -.03em !important;
+}
+.uc-block:first-child .uc-block__desc { font-size: 17px !important }
+
+/* ── PRODUCTS: flagship dominant ── */
+.sec-products { background: #fff !important }
+.products-grid {
+  grid-template-columns: 2fr 1fr 1fr 1fr !important;
+  gap: 16px !important;
+  align-items: start !important;
+}
+/* Flagship: dark, large */
+.products-grid .pcard:first-child {
+  background: #111 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  padding: 32px 28px 28px !important;
+}
+.products-grid .pcard:first-child .pimg-wrap {
+  height: 300px !important;
+  background: rgba(255,255,255,.06) !important;
+}
+.products-grid .pcard:first-child .cdot { border-color: rgba(255,255,255,.2) !important }
+.products-grid .pcard:first-child .pname { color: #fff !important; font-size: 20px !important }
+.products-grid .pcard:first-child .pdesc { color: rgba(255,255,255,.5) !important }
+.products-grid .pcard:first-child .pprice { color: #fff !important; font-size: 26px !important }
+.products-grid .pcard:first-child .pbtn { background: #fff !important; color: #111 !important; border: none !important }
+.products-grid .pcard:first-child .pbtn:hover { background: #efefef !important; filter: none !important }
+.products-grid .pcard:first-child:hover { box-shadow: none !important; transform: none !important }
+/* Secondary: muted */
+.products-grid .pcard:not(:first-child) {
+  background: #f5f5f7 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.products-grid .pcard:not(:first-child) .pimg-wrap { height: 140px !important; background: #fff !important }
+.products-grid .pcard:not(:first-child) .pname { font-size: 15px !important }
+.products-grid .pcard:not(:first-child) .pprice { font-size: 16px !important; font-weight: 600 !important; margin-bottom: 10px !important }
+.products-grid .pcard:not(:first-child) .pbtn {
+  background: transparent !important;
+  color: #111 !important;
+  border: 1px solid rgba(17,17,17,.2) !important;
+  padding: 10px 20px !important;
+  font-size: 13px !important;
+  border-radius: 12px !important;
+}
+.products-grid .pcard:not(:first-child):hover {
+  box-shadow: none !important;
+  transform: translateY(-2px) !important;
+  border-color: rgba(17,17,17,.18) !important;
+}
+
+/* ── LEAD: dark, dense CTA ── */
+.sec-lead { background: #111 !important; border-color: transparent !important }
+.lead-title { color: #fff !important; font-size: clamp(38px, 4.5vw, 52px) !important }
+.lead-sub { color: rgba(255,255,255,.48) !important }
+.linput {
+  background: rgba(255,255,255,.07) !important;
+  border-color: rgba(255,255,255,.13) !important;
+  color: #fff !important;
+}
+.linput::placeholder { color: rgba(255,255,255,.32) !important }
+.linput:focus { border-color: rgba(255,255,255,.36) !important; background: rgba(255,255,255,.11) !important }
+.lsubmit { background: #fff !important; color: #111 !important; border-color: #fff !important }
+.lsubmit:hover { background: #f0f0f0 !important; transform: none !important; box-shadow: none !important }
+.lprivacy { color: rgba(255,255,255,.28) !important }
+.lead-status {
+  background: rgba(255,255,255,.07) !important;
+  border-color: rgba(255,255,255,.13) !important;
+  color: rgba(255,255,255,.8) !important;
+}
+.lead-status.error {
+  background: rgba(220,0,0,.15) !important;
+  border-color: rgba(220,0,0,.25) !important;
+  color: #ff9a9a !important;
+}
+
+/* ── FAQ: minimal, line dividers only ── */
+.sec-faq { background: #fff !important }
+.faq-inner { gap: 0 !important }
+.faqitem {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  border-bottom: 1px solid rgba(17,17,17,.07) !important;
+}
+.faq-inner .faqitem:first-child { border-top: 1px solid rgba(17,17,17,.07) !important }
+.faqq { padding: 22px 0 !important; font-size: 17px !important }
+.faqa { padding: 0 !important }
+.faqitem.open .faqa { padding: 0 0 22px !important; max-height: 300px !important }
+.faqarr {
+  background: transparent !important;
+  color: rgba(17,17,17,.38) !important;
+  border: 1px solid rgba(17,17,17,.12) !important;
+  font-size: 14px !important;
+}
+.faqitem.open .faqarr { background: #111 !important; color: #fff !important; border-color: #111 !important }
+.faqitem.open { border-color: rgba(17,17,17,.1) !important }
+
+/* ── Responsive art-direction fixes ── */
+@media (max-width: 1024px) {
+  .hero-inner { grid-template-columns: 1fr 1fr !important }
+  .hero-copy { padding: 140px 32px 80px 0 !important }
+  .feat-primary__inner { grid-template-columns: 1fr; gap: 40px; padding: 72px 24px }
+  .feat-row { grid-template-columns: 1fr !important }
+  .feat-item { border-right: none !important; border-bottom: 1px solid rgba(17,17,17,.07) !important }
+  .feat-item:last-child { border-bottom: none !important }
+  .uc-blocks {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+    background: transparent !important;
+    gap: 0 !important;
+    border-radius: 16px !important;
+  }
+  .uc-block:first-child { grid-column: 1 !important; grid-row: auto !important; padding: 40px !important }
+  .uc-block:nth-child(2), .uc-block:nth-child(3) { grid-column: 1 !important; grid-row: auto !important; padding: 32px 40px !important }
+  .uc-block { border-bottom: 1px solid rgba(17,17,17,.08) !important }
+  .uc-block:last-child { border-bottom: none !important }
+  .products-grid { grid-template-columns: 1fr 1fr !important }
+  .products-grid .pcard:first-child .pimg-wrap { height: 240px !important }
+}
+@media (max-width: 768px) {
+  .hero { padding: 0 20px !important }
+  .hero-inner { grid-template-columns: 1fr !important; gap: 0 !important; min-height: auto !important }
+  .hero-copy { padding: 120px 0 32px !important; order: 1 }
+  .hero-visual { order: 2; transform: none !important; padding-bottom: 48px !important }
+  .hero-title { font-size: clamp(48px, 12vw, 64px) !important }
+  .hero .btn-ghost { display: none !important }
+  .feat-primary__inner { padding: 56px 24px !important }
+  .feat-primary__stat { font-size: clamp(64px, 16vw, 80px) !important }
+  .feat-item { padding: 36px 28px !important }
+  .uc-block:first-child { padding: 32px 28px !important }
+  .uc-block:nth-child(2), .uc-block:nth-child(3) { padding: 24px 28px !important }
+  .products-grid {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 12px !important;
+    scroll-snap-type: x mandatory !important;
+  }
+  .products-grid .pcard { flex: 0 0 82% !important; scroll-snap-align: start !important }
+  .products-grid .pcard:first-child .pimg-wrap { height: 200px !important }
+}
+</style>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   HOW IT WORKS — large step numbers, high contrast
+   ═══════════════════════════════════════════════════════════ */
+
+/* Section shell — ID rule wins over any class cascade */
+#how-it-works,
+body .sec-how {
+  background: #111 !important;
+  color: #fff !important;
+  padding: 100px 24px 112px !important;
+}
+
+/* Section headline */
+body .sec-how .how-title {
+  color: #fff !important;
+  font-size: clamp(38px, 4vw, 48px) !important;
+  font-weight: 800 !important;
+  line-height: 1.08 !important;
+}
+body .sec-how .how-sub {
+  color: rgba(255,255,255,.52) !important;
+  font-size: 17px !important;
+}
+body .sec-how .proc-label {
+  color: rgba(232,134,53,.7) !important;
+  letter-spacing: .14em !important;
+}
+body .sec-how .btn-woutline {
+  color: #fff !important;
+  border-color: rgba(255,255,255,.25) !important;
+}
+body .sec-how .btn-woutline:hover {
+  border-color: rgba(255,255,255,.55) !important;
+}
+
+/* Step rows */
+body .sec-how .step {
+  border-bottom: 1px solid rgba(255,255,255,.07) !important;
+  padding: 48px 0 !important;
+  display: flex !important;
+  gap: 36px !important;
+  align-items: flex-start !important;
+}
+body .sec-how .step:last-child { border-bottom: none !important }
+
+/* Hide the icon column — numbers replace it */
+body .sec-how .step-line { display: none !important }
+
+/* Large step number */
+body .sec-how .snum {
+  font-family: 'Unbounded', sans-serif !important;
+  font-size: clamp(52px, 6vw, 72px) !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -.02em !important;
+  color: rgba(232,134,53,.72) !important;
+  margin-bottom: 20px !important;
+  display: block !important;
+}
+
+/* Step body */
+body .sec-how .scont { padding-top: 0 !important }
+body .sec-how .stitle {
+  font-size: clamp(22px, 2.4vw, 28px) !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  line-height: 1.14 !important;
+  margin-bottom: 12px !important;
+}
+body .sec-how .sdesc {
+  font-size: 16px !important;
+  line-height: 1.65 !important;
+  color: rgba(255,255,255,.60) !important;
+  margin-bottom: 0 !important;
+}
+body .sec-how .smock { display: none !important }
+</style>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
    MOBILE ADAPTATION ≤480px — Home page only
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
@@ -1586,14 +2195,10 @@ img{max-width:100%;height:auto}
     <div class="hero-copy">
       <span class="hero-label">AI-ДИКТОФОН CRYPTORO</span>
       <h1 class="hero-title reveal d1">Речь в готовые<br>заметки<br>за секунды</h1>
-      <p class="hero-sub reveal d2">Записывайте. ChatGPT расшифрует, выделит главное и подготовит итог — автоматически.</p>
+      <p class="hero-sub reveal d2">Записывайте. ChatGPT расшифрует и подготовит итог — автоматически.</p>
       <div class="btns reveal d3">
         <a href="#products" class="btn-blue">Смотреть модели</a>
         <a href="/catalog" class="btn-ghost">Перейти в каталог</a>
-      </div>
-      <div class="hero-proof">
-        <span>✓ 98% точность на русском</span>
-        <span>✓ Бесплатный год подписки</span>
       </div>
     </div>
     <div class="hero-visual reveal d4">
@@ -1608,89 +2213,63 @@ img{max-width:100%;height:auto}
 
 <!-- FEATURES -->
 <section class="sec sec-features">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <h2 class="sec-title">Премиальные технологии в одном корпусе</h2>
-      <p class="sec-sub">Никаких компромиссов. Инженерное качество и интеллект.</p>
+
+  <!-- PRIMARY: full-bleed dark block -->
+  <div class="feat-primary reveal d1 animate-on-view">
+    <div class="feat-primary__inner">
+      <div class="feat-primary__body">
+        <div class="feat-primary__kicker">Точность транскрипции</div>
+        <div class="feat-primary__stat">98%</div>
+        <h3 class="feat-primary__title">Расшифровка речи<br>на 81 языке</h3>
+        <p class="feat-primary__desc">Автоматическое определение спикеров. Русский, английский и ещё 79 языков — одна нейросеть.</p>
+      </div>
+      <div class="feat-primary__visual">
+        <span class="accent-icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
+            <path d="M19 11v1a7 7 0 0 1-14 0v-1"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+          </svg>
+        </span>
+        <div class="trans-lines feat-primary__lines">
+          <div class="trans-line"></div>
+          <div class="trans-line"></div>
+          <div class="trans-line"></div>
+          <div class="trans-line"></div>
+        </div>
+        <span class="trans-chip">AI транскрипция 81 язык</span>
+      </div>
     </div>
-    <div class="feat-grid">
+  </div>
 
-      <div class="fcard fcard--trans reveal d1 animate-on-view">
-        <div class="fvisual">
-          <span class="accent-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
-              <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
-              <path d="M19 11v1a7 7 0 0 1-14 0v-1"/>
-              <line x1="12" y1="19" x2="12" y2="22"/>
-            </svg>
-          </span>
-          <div class="trans-lines">
-            <div class="trans-line"></div>
-            <div class="trans-line"></div>
-            <div class="trans-line"></div>
-            <div class="trans-line"></div>
-          </div>
-          <span class="trans-chip">AI транскрипция 81 язык</span>
+  <!-- SECONDARY: 2 features, no box -->
+  <div class="wrap">
+    <div class="feat-row">
+
+      <div class="feat-item reveal d2 animate-on-view">
+        <div class="feat-item__icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="3" width="18" height="18" rx="4"/>
+            <path d="M9 9h6M9 12h4"/>
+          </svg>
         </div>
-        <div class="ftitle">Точная транскрипция</div>
-        <div class="fdesc">98% точность распознавания на 81 языке включая русский. Автоматическое определение спикеров.</div>
+        <h3 class="feat-item__title">Интеграции с вашими инструментами</h3>
+        <p class="feat-item__desc">Notion, Google Docs, Telegram, Slack — записи попадают туда, где нужно, автоматически.</p>
       </div>
 
-      <div class="fcard fcard--integrations reveal d2 animate-on-view">
-        <div class="fvisual">
-          <div class="integration-map">
-            <svg viewBox="0 0 360 170" fill="none" aria-hidden="true">
-              <path d="M98 38 C136 54, 155 64, 178 85" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
-              <path d="M262 38 C224 54, 205 64, 182 85" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
-              <path d="M98 130 C134 114, 155 104, 178 84" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
-              <path d="M262 130 C226 114, 205 104, 182 84" stroke="rgba(232,134,53,.38)" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <div class="int-center">CRYPTORO</div>
-            <div class="int-node n1">Notion</div>
-            <div class="int-node n2">Slack</div>
-            <div class="int-node n3">Docs</div>
-            <div class="int-node n4">Telegram</div>
-          </div>
+      <div class="feat-item reveal d3 animate-on-view">
+        <div class="feat-item__icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/>
+          </svg>
         </div>
-        <div class="ftitle">Интеграции с вашими инструментами</div>
-        <div class="fdesc">Notion, Google Docs, Telegram, Slack. Записи попадают туда где нужно — автоматически.</div>
-      </div>
-
-      <div class="fcard fcard--assistant reveal d3 animate-on-view">
-        <div class="fvisual">
-          <div class="assist-actions">
-            <span class="assist-pill"><span class="dot"></span>Создать резюме</span>
-            <span class="assist-pill"><span class="dot"></span>Выделить задачи</span>
-            <span class="assist-pill"><span class="dot"></span>Отправить команде</span>
-          </div>
-        </div>
-        <div class="ftitle">AI-ассистент на каждой встрече</div>
-        <div class="fdesc">Краткое резюме, список задач и ключевые решения — автоматически после каждой встречи.</div>
-      </div>
-
-      <div class="fcard fcard--analytics reveal d4 animate-on-view">
-        <div class="fvisual">
-          <div class="stat-card">
-            <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-              <span style="font-size:12px;font-weight:600;color:#1d1d1f">Статистика</span>
-              <span style="font-size:16px;color:#e88635">◔</span>
-            </div>
-            <div class="srow">
-              <div class="srow-h"><span>Деловые встречи</span><span class="sup">▲ 12%</span></div>
-              <div class="sbar"><div class="sfill" style="width:65%"></div></div>
-            </div>
-            <div class="srow">
-              <div class="srow-h"><span>Лекции</span><span class="sdown">▼ 3%</span></div>
-              <div class="sbar"><div class="sfill" style="width:40%;background:#9b59b6"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="ftitle">Умная аналитика разговоров</div>
-        <div class="fdesc">Анализируйте темы, находите паттерны и получайте инсайты из ваших записей с AI.</div>
+        <h3 class="feat-item__title">AI-ассистент на каждой встрече</h3>
+        <p class="feat-item__desc">Краткое резюме, список задач и ключевые решения — автоматически после каждого разговора.</p>
       </div>
 
     </div>
   </div>
+
 </section>
 
 <!-- USE CASES -->
@@ -1698,72 +2277,47 @@ img{max-width:100%;height:auto}
   <div class="wrap">
     <div class="sec-head reveal">
       <h2 class="sec-title">Сценарии использования</h2>
-      <p class="sec-sub">Сценарии, где AI-диктофон экономит вам часы работы</p>
-      <p class="uc-topnote">Экономия до 260 часов в год при ежедневной расшифровке</p>
+      <p class="sec-sub">Где AI-диктофон экономит вам часы работы</p>
     </div>
-    <div class="uc-grid">
-      <div class="uccard uc-ceo uc-a-ceo reveal d1">
-        <div class="uc-code">MEET</div>
-        <div class="uclabel">Фиксация встреч</div>
-        <div class="ucdesc">Никаких блокнотов. Записали разговор — получили резюме, задачи и ключевые договоренности в Notion.</div>
-        <div class="uctags">
+    <div class="uc-blocks">
+
+      <div class="uc-block reveal d1">
+        <div class="uc-block__kicker">Деловые переговоры</div>
+        <h3 class="uc-block__title">Фиксация встреч<br>и звонков</h3>
+        <p class="uc-block__desc">Никаких блокнотов. Записали разговор — получили резюме, задачи и ключевые договорённости в Notion. Для follow-up звонков готовый документ формируется за секунды.</p>
+        <div class="uc-block__tags">
           <span class="uctag">Совещания и 1:1</span>
           <span class="uctag">Статус-апдейты</span>
-        </div>
-      </div>
-
-      <div class="uccard uc-b2b uc-a-b2b reveal d2">
-        <div class="uc-code">CALLS</div>
-        <div class="uclabel">Звонки и переговоры</div>
-        <div class="ucdesc">Больше не нужно переслушивать записи. Готовый follow-up формируется за секунды.</div>
-        <div class="uctags">
           <span class="uctag">Звонки и демо</span>
         </div>
       </div>
 
-      <div class="uccard uc-med uc-a-med reveal d3">
-        <div class="uc-code">INSIGHT</div>
-        <div class="uclabel">Внезапные идеи</div>
-        <div class="ucdesc">Записывайте голосовые заметки на бегу или за рулем. AI сделает из них связный текст.</div>
-        <div class="uctags">
-          <span class="uctag">Приёмы и консилиумы</span>
-          <span class="uctag">Протоколы</span>
-        </div>
-      </div>
-
-      <div class="uccard uc-law uc-a-law reveal d1">
-        <div class="uc-code">MEDIA</div>
-        <div class="uclabel">Учеба и лекции</div>
-        <div class="ucdesc">Все лекции лежат в базе знаний с таймкодами и выделенными главными мыслями.</div>
-        <div class="uctags">
-          <span class="uctag">Переговоры и разборы</span>
-        </div>
-      </div>
-
-      <div class="uccard uc-edu uc-a-edu reveal d2">
-        <div class="uc-code">EDU</div>
-        <div class="uclabel">Интервью и медиа</div>
-        <div class="ucdesc">Для журналистов и блогеров. Чистая расшифровка и выделение главного из многочасовых разговоров.</div>
-        <div class="uctags">
+      <div class="uc-block reveal d2">
+        <div class="uc-block__kicker">Учёба и идеи</div>
+        <h3 class="uc-block__title">Лекции, конспекты<br>и заметки на бегу</h3>
+        <p class="uc-block__desc">Все лекции в базе знаний с таймкодами и выделенными главными мыслями. Голосовые заметки за рулём — AI превращает их в связный текст.</p>
+        <div class="uc-block__tags">
           <span class="uctag">Лекции и семинары</span>
+          <span class="uctag">Голосовые заметки</span>
         </div>
       </div>
 
-      <div class="uccard uc-crea uc-a-crea reveal d3">
-        <div class="uc-code">MIND</div>
-        <div class="uclabel">Брейнштормы</div>
-        <div class="ucdesc">Один диктофон на весь стол. AI сам поймёт, кто что говорил, и соберет итоговый документ.</div>
-        <div class="uctags">
+      <div class="uc-block reveal d3">
+        <div class="uc-block__kicker">Медиа и творчество</div>
+        <h3 class="uc-block__title">Интервью,<br>брейнштормы, продакшн</h3>
+        <p class="uc-block__desc">Чистая расшифровка из многочасовых разговоров. Один диктофон на весь стол — AI сам поймёт, кто что говорил, и соберёт итоговый документ.</p>
+        <div class="uc-block__tags">
           <span class="uctag">Интервью и продакшн</span>
-          <span class="uctag">Сценарии и посты</span>
+          <span class="uctag">Брейнштормы</span>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
 <!-- HOW IT WORKS -->
-<section class="sec sec-how">
+<section class="sec sec-how" id="how-it-works">
   <div class="wrap">
     <div class="how-grid">
       <div class="how-left reveal">
@@ -1786,7 +2340,7 @@ img{max-width:100%;height:auto}
             <div class="sconn"></div>
           </div>
           <div class="scont">
-            <div class="snum">ШАГ 01</div>
+            <div class="snum">01</div>
             <div class="stitle">Записываете разговор</div>
             <div class="sdesc">Нажмите кнопку и записывайте встречу, лекцию или интервью без потерь по качеству.</div>
             <div class="smock">
@@ -1818,7 +2372,7 @@ img{max-width:100%;height:auto}
             <div class="sconn"></div>
           </div>
           <div class="scont">
-            <div class="snum">ШАГ 02</div>
+            <div class="snum">02</div>
             <div class="stitle">AI анализирует и расшифровывает</div>
             <div class="sdesc">ChatGPT расшифровывает запись, определяет спикеров и собирает структурированный текст.</div>
             <div class="smock">
@@ -1844,7 +2398,7 @@ img{max-width:100%;height:auto}
             </div>
           </div>
           <div class="scont">
-            <div class="snum">ШАГ 03</div>
+            <div class="snum">03</div>
             <div class="stitle">Получаете готовый результат</div>
             <div class="sdesc">Получаете текст, краткое резюме и список задач сразу в рабочем приложении.</div>
             <div class="smock">
