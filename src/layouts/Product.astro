@@ -66,152 +66,240 @@ const specsRows = [
   { label: 'Гарантия', value: product.specs?.warranty }
 ].filter((row) => row.value);
 
+const keySpecs = [
+  { label: 'Память', value: product.specs?.memory },
+  { label: 'Автономность', value: product.specs?.battery },
+  { label: 'Вес', value: product.specs?.weight },
+  { label: 'Подключение', value: product.specs?.connection },
+  { label: 'Размеры', value: product.specs?.dimensions },
+  { label: 'Языки', value: product.specs?.languages },
+].filter((s): s is { label: string; value: string } => !!s.value).slice(0, 4);
+
 const subtitle = product.subtitle ?? 'AI-устройство CRYPTORO';
 const priceNote = product.priceNote ?? '';
 const paramChips = product.paramChips ?? [];
-const heroHighlights = product.features ?? [];
 const colors = product.colors ?? [];
 ---
 <Layout title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
-  <main class="product-page">
-    <section class="product-hero">
-      <div class="hero-grid product-layout">
-        <div class="gallery hero-media-col product-gallery">
-          <nav class="breadcrumbs is-hidden" aria-label="Хлебные крошки">
-            <a href="/">Главная</a>
-            <span aria-hidden="true">→</span>
-            <a href="/catalog">Каталог</a>
-            <span aria-hidden="true">→</span>
-            <span>{product.title}</span>
-          </nav>
-          <div class="main-img hero-media">
-            <!-- Replace <img> with <video> tag when video is ready -->
-            <img id="mainImg" src={gallery[0] ?? product.image} alt={`AI-диктофон ${product.title} в фирменном корпусе`} />
+  <main class="pdp">
+
+    <!-- 1. Hero -->
+    <section class="pdp-hero">
+      <div class="pdp-container">
+        <nav class="pdp-breadcrumbs" aria-label="Хлебные крошки">
+          <a href="/">Главная</a>
+          <span aria-hidden="true">/</span>
+          <a href="/catalog">Каталог</a>
+          <span aria-hidden="true">/</span>
+          <span>{product.title}</span>
+        </nav>
+
+        {product.badge && <span class="pdp-badge">{product.badge}</span>}
+        <h1 class="pdp-hero__title">{product.title}</h1>
+        <p class="pdp-hero__subtitle">{subtitle}</p>
+
+        <div class="pdp-hero__price-row">
+          <span class="pdp-hero__price" data-ms-price={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}>{price}<span class="pdp-hero__currency">&nbsp;₽</span></span>
+          <span class="pdp-hero__stock" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></span>
+        </div>
+        {priceNote && <p class="pdp-hero__price-note">{priceNote}</p>}
+
+        <div class="pdp-hero__media">
+          <div class="pdp-hero__main-img">
+            <img id="mainImg" src={gallery[0] ?? product.image} alt={`AI-диктофон ${product.title}`} />
           </div>
-          <div class="thumbs">
+        </div>
+
+        {gallery.length > 1 && (
+          <div class="pdp-hero__thumbs">
             {gallery.map((image, idx) => (
-              <button class={`thumb ${idx === 0 ? 'active' : ''} ${idx === 1 ? 'thumb-alt' : ''}`} type="button" data-gallery-thumb data-src={image} aria-label={`Фото ${idx + 1}: ${product.title}`}>
-                <img src={image} alt={`Фото ${idx + 1} продукта ${product.title}`} />
+              <button class={`pdp-thumb ${idx === 0 ? 'active' : ''}`} type="button" data-gallery-thumb data-src={image} aria-label={`Фото ${idx + 1}: ${product.title}`}>
+                <img src={image} alt="" />
               </button>
             ))}
           </div>
-          <div class="gallery-meta">
-            <div class="gallery-meta-title">{product.title}</div>
-            <div class="gallery-meta-sub">Официальный продукт CRYPTORO</div>
+        )}
+
+        {colors.length > 1 && (
+          <div class="pdp-hero__colors">
+            <p class="pdp-hero__color-label">Цвет: <span id="selectedColorName">{colors[0]}</span></p>
+            <div class="pdp-hero__color-btns" id="colorBtns">
+              {colors.map((c, i) => (
+                <button class={`color-btn${i === 0 ? ' active' : ''}`} type="button" data-color={c}>{c}</button>
+              ))}
+            </div>
           </div>
+        )}
+
+        <div class="pdp-hero__variants" data-ms-variants={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
+
+        <div class="pdp-hero__actions" id="heroActions">
+          <button class="pdp-btn pdp-btn--primary" id="buyBtn" data-ms-buy-btn={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
+          <button class="pdp-btn pdp-btn--secondary" id="addBtn" aria-label={`Добавить в корзину ${product.title}`}>В корзину</button>
         </div>
-        <aside class="product-aside product-aside-sticky product-sidebar">
-          <nav class="breadcrumbs" aria-label="Хлебные крошки">
-            <a href="/">Главная</a>
-            <span aria-hidden="true">→</span>
-            <a href="/catalog">Каталог</a>
-            <span aria-hidden="true">→</span>
-            <span>{product.title}</span>
-          </nav>
-          <div class="badges-row">
-            {product.badge && <span class="badge">{product.badge}</span>}
-          </div>
-          <h1 class="prod-name">{product.title}</h1>
-          <p class="prod-sub">{subtitle}</p>
-          {product.slug !== 'accessories' && (
-            <div class="rating-row" aria-label="Рейтинг товара">
-              <span class="stars">★★★★★</span>
-              <span class="rating-num">4.9</span>
-              <span class="rating-sep">•</span>
-              <a class="rating-reviews" href="#reviews">отзывы покупателей</a>
-            </div>
-          )}
-          <div class="price-main" data-ms-price={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}>{price} ₽</div>
-          <div class="stock-pill" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
-          <div class="variant-pill-list" data-ms-variants={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></div>
-          <p class="price-note">{priceNote}</p>
-          <div class="param-chips">
-            {paramChips.map((chip) => <span class="param-chip">{chip}</span>)}
-          </div>
-          {colors.length > 1 && (
-            <div class="color-picker">
-              <p class="color-picker-label">Цвет: <span id="selectedColorName">{colors[0]}</span></p>
-              <div class="color-btns" id="colorBtns">
-                {colors.map((c, i) => (
-                  <button class={`color-btn${i === 0 ? ' active' : ''}`} type="button" data-color={c}>{c}</button>
-                ))}
-              </div>
-            </div>
-          )}
-          <p class="prod-desc">{product.seoDescription}</p>
-          <div class="trust-badges">
-            <span class="tbadge">Гарантия 1 год</span>
-            <span class="tbadge">Доставка по РФ</span>
-            <span class="tbadge">Возврат 14 дней</span>
-          </div>
-          <div class="features-list">
-            {heroHighlights.map((item, idx) => (
-              <div class="feat-item" data-fade data-delay={String(idx)}>
-                <span class="feat-check">✓</span><span>{item}</span>
+      </div>
+    </section>
+
+    <!-- 2. Key Benefits -->
+    {paramChips.length > 0 && (
+      <section class="pdp-benefits">
+        <div class="pdp-container">
+          <div class="pdp-benefits__grid">
+            {paramChips.map((chip, idx) => (
+              <div class="pdp-benefit reveal" style={`--stagger:${idx}`}>
+                <span class="pdp-benefit__text">{chip}</span>
               </div>
             ))}
           </div>
-          <div class="actions-row">
-            <button class="buy-btn buy-btn-primary" id="buyBtn" data-ms-buy-btn={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv} aria-label={`Купить сейчас ${product.title}`}>{stockLabel}</button>
-            <button class="buy-btn buy-btn-secondary" id="addBtn" aria-label={`Добавить в корзину ${product.title}`}>В корзину</button>
+        </div>
+      </section>
+    )}
+
+    <!-- 3. Editorial Description -->
+    <section class="pdp-editorial">
+      <div class="pdp-container">
+        <div class="pdp-editorial__grid">
+          <div class="pdp-editorial__copy reveal">
+            <h2 class="pdp-section-title">О продукте</h2>
+            {product.seoDescription && <p class="pdp-editorial__lead">{product.seoDescription}</p>}
+            <div class="pdp-editorial__body">
+              <slot />
+            </div>
           </div>
-        </aside>
-      </div>
-    </section>
-
-    <section class="tabs-section">
-      <div class="tabs-wrap">
-        <div class="tab-content active reveal">
-          <h3 class="tab-title">Описание</h3>
-          <article class="md-body"><slot /></article>
-        </div>
-        <div class="tab-content active reveal">
-          <h3 class="tab-title">Характеристики</h3>
-          <table class="specs-table">
-            <tbody>
-              {specsRows.filter((row) => row.value).map((row) => (
-                <tr>
-                  <td>{row.label}</td>
-                  <td>{row.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div class="tab-content active reveal">
-          <h3 class="tab-title">Что в коробке</h3>
-          <ul class="box-list">
-            {(product.boxContents ?? []).map((item) => <li>{item}</li>)}
-          </ul>
+          {gallery.length > 1 && (
+            <div class="pdp-editorial__image reveal">
+              <img src={gallery[1]} alt={product.title} />
+            </div>
+          )}
         </div>
       </div>
     </section>
-    <div id="reviews"></div>
 
+    <!-- 4. Key Specs -->
+    {keySpecs.length > 0 && (
+      <section class="pdp-key-specs">
+        <div class="pdp-container">
+          <h2 class="pdp-section-title reveal">Ключевые параметры</h2>
+          <div class="pdp-key-specs__grid">
+            {keySpecs.map((spec, idx) => (
+              <div class="pdp-spec-card reveal" style={`--stagger:${idx}`}>
+                <span class="pdp-spec-card__value">{spec.value}</span>
+                <span class="pdp-spec-card__label">{spec.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- 5. Full Specs (Accordion) -->
+    {specsRows.length > 0 && (
+      <section class="pdp-full-specs">
+        <div class="pdp-container">
+          <details class="pdp-accordion reveal">
+            <summary class="pdp-accordion__trigger">
+              <h2 class="pdp-section-title">Все характеристики</h2>
+              <span class="pdp-accordion__icon" aria-hidden="true">+</span>
+            </summary>
+            <div class="pdp-accordion__body">
+              <table class="pdp-specs-table">
+                <tbody>
+                  {specsRows.map((row) => (
+                    <tr>
+                      <td>{row.label}</td>
+                      <td>{row.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      </section>
+    )}
+
+    <!-- 6. What's in the Box -->
+    {(product.boxContents ?? []).length > 0 && (
+      <section class="pdp-box">
+        <div class="pdp-container">
+          <h2 class="pdp-section-title reveal">Что в комплекте</h2>
+          <div class="pdp-box__grid">
+            {(product.boxContents ?? []).map((item, idx) => (
+              <div class="pdp-box-item reveal" style={`--stagger:${idx}`}>
+                <span class="pdp-box-item__num">{String(idx + 1).padStart(2, '0')}</span>
+                <span class="pdp-box-item__name">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- 7. Model Comparison -->
     {!!related.length && (
-      <section class="related-section">
-        <div class="related-wrap">
-          <h2 class="reveal">Похожие товары</h2>
-          <div class="related-grid">
+      <section class="pdp-compare">
+        <div class="pdp-container">
+          <h2 class="pdp-section-title reveal">Сравните модели</h2>
+          <div class="pdp-compare__grid">
+            <div class="pdp-compare-card pdp-compare-card--current reveal">
+              <span class="pdp-compare-card__badge">Вы смотрите</span>
+              <img src={product.image} alt={product.title} />
+              <h3>{product.title}</h3>
+              <span class="pdp-compare-card__price" data-ms-price={product.slug}>{price}&nbsp;₽</span>
+              {keySpecs.length > 0 && (
+                <ul class="pdp-compare-card__specs">
+                  {keySpecs.slice(0, 3).map((s) => <li><strong>{s.value}</strong> {s.label}</li>)}
+                </ul>
+              )}
+            </div>
             {related.map((item, idx) => (
-              <a class="rcard reveal" style={`--stagger:${idx}`} href={`/products/${item.slug}`}>
-                <img src={item.image} alt={`AI-диктофон ${item.title}`} />
-                <div class="rname">{item.title}</div>
-                <div class="rprice" data-ms-price={item.slug}>{new Intl.NumberFormat('ru-RU').format(item.price)} ₽</div>
+              <a class="pdp-compare-card reveal" style={`--stagger:${idx + 1}`} href={`/products/${item.slug}`}>
+                <img src={item.image} alt={item.title} />
+                <h3>{item.title}</h3>
+                <span class="pdp-compare-card__price" data-ms-price={item.slug}>{new Intl.NumberFormat('ru-RU').format(item.price)}&nbsp;₽</span>
+                <span class="pdp-compare-card__cta">Подробнее</span>
               </a>
             ))}
           </div>
         </div>
       </section>
     )}
+
+    <!-- 8. Trust Bar -->
+    <section class="pdp-trust">
+      <div class="pdp-container">
+        <div class="pdp-trust__row reveal">
+          <span>Гарантия 1 год</span>
+          <span class="pdp-trust__sep" aria-hidden="true">&middot;</span>
+          <span>Доставка по РФ</span>
+          <span class="pdp-trust__sep" aria-hidden="true">&middot;</span>
+          <span>Возврат 14 дней</span>
+        </div>
+      </div>
+    </section>
   </main>
 
+  <!-- Sticky Mobile Buy Bar -->
+  <div class="pdp-sticky-bar" id="stickyBar">
+    <div class="pdp-sticky-bar__inner">
+      <div class="pdp-sticky-bar__info">
+        <span class="pdp-sticky-bar__name">{product.title}</span>
+        <span class="pdp-sticky-bar__price" data-ms-price={product.slug}>{price}&nbsp;₽</span>
+      </div>
+      <button class="pdp-btn pdp-btn--primary pdp-btn--sm" id="stickyBuyBtn">Купить</button>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
   <div class="lightbox" id="productLightbox" aria-hidden="true">
-    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Закрыть просмотр">×</button>
+    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Закрыть просмотр">&times;</button>
     <img id="lightboxImg" src={gallery[0] ?? product.image} alt={`Увеличенное фото ${product.title}`} />
   </div>
+
+  <!-- Cart Toast -->
   <div class="cart-toast" id="cartToast" role="status" aria-live="polite">Товар добавлен в корзину</div>
 
+  <!-- Cart & Color JS (preserved) -->
   <script define:vars={{ baseProduct: { id: product.slug, name: product.title, price: product.price, image: product.image }, hasColors: colors.length > 1 }} is:inline>
     function showToast() {
       const toast = document.getElementById('cartToast');
@@ -261,7 +349,7 @@ const colors = product.colors ?? [];
       const btn = document.getElementById('addBtn');
       if (!btn) return;
       const original = btn.textContent;
-      btn.textContent = '✓ Добавлено';
+      btn.textContent = '\u2713 Добавлено';
       setTimeout(() => { btn.textContent = original ?? 'В корзину'; }, 2000);
     }
 
@@ -276,6 +364,28 @@ const colors = product.colors ?? [];
       if (addBtn) addBtn.addEventListener('click', addToCartItem);
       if (buyBtn) buyBtn.addEventListener('click', buyNowItem);
 
+      // Sticky buy bar
+      const stickyBuyBtn = document.getElementById('stickyBuyBtn');
+      if (stickyBuyBtn) stickyBuyBtn.addEventListener('click', buyNowItem);
+
+      const heroActions = document.getElementById('heroActions');
+      const stickyBar = document.getElementById('stickyBar');
+      if (heroActions && stickyBar) {
+        const obs = new IntersectionObserver(([entry]) => {
+          stickyBar.classList.toggle('pdp-sticky-bar--visible', !entry.isIntersecting);
+        }, { threshold: 0 });
+        obs.observe(heroActions);
+      }
+
+      // Accordion icon
+      document.querySelectorAll('.pdp-accordion').forEach((el) => {
+        el.addEventListener('toggle', () => {
+          const icon = el.querySelector('.pdp-accordion__icon');
+          if (icon) icon.textContent = el.open ? '\u2212' : '+';
+        });
+      });
+
+      // Color picker
       const colorBtns = document.getElementById('colorBtns');
       if (colorBtns) {
         colorBtns.addEventListener('click', (event) => {
@@ -290,6 +400,7 @@ const colors = product.colors ?? [];
     });
   </script>
 
+  <!-- Gallery & Lightbox JS -->
   <script>
     (function () {
       const mainImg = document.getElementById('mainImg');
@@ -320,7 +431,6 @@ const colors = product.colors ?? [];
           mainImg.src = src;
           document.querySelectorAll('[data-gallery-thumb]').forEach((el) => el.classList.remove('active'));
           thumb.classList.add('active');
-          openLightbox(src);
         });
       });
 
@@ -335,6 +445,7 @@ const colors = product.colors ?? [];
     })();
   </script>
 
+  <!-- JSON-LD: Product -->
   <script type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -349,6 +460,8 @@ const colors = product.colors ?? [];
       availability: product.inStock === false ? 'https://schema.org/PreOrder' : 'https://schema.org/InStock'
     }
   })} />
+
+  <!-- JSON-LD: Breadcrumbs -->
   <script type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -360,215 +473,233 @@ const colors = product.colors ?? [];
   })} />
 
   <style is:global>
+    /* ===== PDP Design Tokens ===== */
     :root{
-      --product-radius-lg:24px;
-      --product-radius-xl:28px;
-      --product-radius-2xl:32px;
-      --product-shadow-sm:0 8px 24px rgba(0,0,0,.04);
-      --product-shadow-md:0 12px 32px rgba(0,0,0,.06);
-      --product-shadow-lg:0 24px 64px rgba(0,0,0,.08);
+      --pdp-bg:#f5f5f7;
+      --pdp-surface:#ffffff;
+      --pdp-text:#111;
+      --pdp-muted:#86868b;
+      --pdp-accent:#e88635;
+      --pdp-radius:24px;
+      --pdp-shadow:none;
     }
-    body{background:#f5f5f5;color:#111;font-family:'Inter',sans-serif}
-    main{padding-top:56px}
-    .product-page{background:#f5f5f5}
-    .product-hero{padding:72px 24px 104px;background:#fff}
-    .product-page .product-hero{background:#f5f5f5}
-    .hero-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(360px,1fr);gap:32px;align-items:start}
-    .product-layout{display:flex;gap:28px;align-items:flex-start}
-    .product-gallery{flex:0 0 58%}
-    .product-sidebar{flex:0 0 42%;min-width:0}
-    .breadcrumbs{display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:13px;color:#6b7280;line-height:1.3;flex-wrap:wrap}
-    .breadcrumbs.is-hidden{display:none}
-    .breadcrumbs a{text-decoration:none;color:#374151}
-    .breadcrumbs a:hover{color:#111}
-    .main-img{width:100%;aspect-ratio:1;background:radial-gradient(circle at center, #ffffff 0%, #f6f6f6 100%);border-radius:var(--product-radius-xl);overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px solid rgba(17,24,39,.06);box-shadow:var(--product-shadow-sm);position:relative}
-    .main-img img{width:100%;height:100%;object-fit:contain;padding:16px;cursor:zoom-in}
-    .hero-media{aspect-ratio:1/1;min-height:680px}
-    .hero-media img{width:78%;max-width:780px;padding:0;transition:transform .45s ease}
-    .hero-media:hover img{transform:scale(1.04)}
-    .thumbs{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;align-items:center}
-    .thumb{border:1px solid rgba(0,0,0,.12);border-radius:12px;background:#fff;padding:8px;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;justify-content:center}
-    .thumb.active{border:2px solid #e88635;box-shadow:0 4px 14px rgba(0,0,0,.08)}
-    .thumb img{width:60px;height:60px;object-fit:contain;display:block}
-    .thumb-alt img{transform:scaleX(-1) rotate(-7deg)}
-    .gallery-meta{margin-top:16px;border:1px solid rgba(17,24,39,.1);border-radius:var(--product-radius-lg);padding:14px 16px;background:#fff;box-shadow:var(--product-shadow-sm)}
-    .gallery-meta-title{font-size:24px;font-family:'Unbounded',sans-serif;letter-spacing:-.02em;margin-bottom:4px}
-    .gallery-meta-sub{font-size:14px;color:#6b7280}
-    .badges-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-    .badge{background:#e88635;color:#fff;border:1px solid #d57728;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-    .prod-name{font-family:'Unbounded',sans-serif;font-size:clamp(36px,4.5vw,46px);line-height:1.06;letter-spacing:-.03em;margin:0 0 12px;word-break:break-word}
-    .prod-sub{font-size:clamp(17px,1.8vw,22px);line-height:1.5;color:#4b5563;max-width:34ch;margin:0 0 12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .rating-row{display:flex;align-items:center;gap:8px;margin:8px 0 6px}
-    .stars{font-size:14px;letter-spacing:.06em;color:#f59e0b}
-    .rating-num{font-size:14px;font-weight:700;color:#111}
-    .rating-sep{font-size:13px;color:#9ca3af}
-    .rating-reviews{font-size:14px;color:#6b7280;text-decoration:none}
-    .rating-reviews:hover{color:#111}
-    .price-main{font-family:'Unbounded',sans-serif;font-size:clamp(38px,4.8vw,48px);line-height:1.08;letter-spacing:-.02em;margin:14px 0 6px}
-    .stock-pill{
-      display:none;
-      align-items:center;
-      justify-content:center;
-      margin:-2px 0 10px;
-      padding:6px 10px;
-      width:max-content;
-      font-size:12px;
-      font-weight:700;
-      color:#b45309;
-      background:#fff7ed;
-      border:1px solid #fdba74;
-      border-radius:999px;
-      letter-spacing:.02em;
-      text-transform:uppercase;
-    }
-    .price-note{margin:-2px 0 12px;color:#6b7280;font-size:14px;line-height:1.45}
-    .param-chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
-    .param-chip{display:inline-flex;align-items:center;border:1px solid rgba(17,24,39,.1);background:#e8e8e8;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;color:#374151}
-    .color-picker{margin:0 0 16px}
-    .color-picker-label{font-size:14px;font-weight:600;color:#111;margin:0 0 10px}
-    .color-picker-label span{font-weight:400;color:#4b5563}
-    .color-btns{display:flex;flex-wrap:wrap;gap:8px}
-    .color-btn{height:36px;padding:0 14px;border-radius:20px;border:1.5px solid rgba(17,24,39,.15);background:#fff;color:#374151;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s ease;line-height:1}
-    .color-btn:hover:not([disabled]){border-color:rgba(17,24,39,.4);color:#111}
+
+    /* ===== Base ===== */
+    .pdp{background:var(--pdp-surface);color:var(--pdp-text);font-family:'Inter',sans-serif}
+    .pdp-container{max-width:980px;margin:0 auto;padding:0 24px}
+
+    /* ===== Section Title ===== */
+    .pdp-section-title{font-family:'Unbounded',sans-serif;font-size:clamp(22px,2.8vw,28px);font-weight:700;line-height:1.2;letter-spacing:-.02em;margin:0 0 28px;color:var(--pdp-text)}
+
+    /* ===== 1. Hero ===== */
+    .pdp-hero{background:linear-gradient(180deg,#fafafa 0%,var(--pdp-surface) 100%);padding:88px 0 40px;text-align:center}
+    .pdp-breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;font-size:13px;color:var(--pdp-muted)}
+    .pdp-breadcrumbs a{text-decoration:none;color:#6e6e73;transition:color .15s}
+    .pdp-breadcrumbs a:hover{color:var(--pdp-text)}
+    .pdp-badge{display:inline-block;background:var(--pdp-accent);color:#fff;border-radius:20px;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+    .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:.98;letter-spacing:-.045em;margin:0 0 12px}
+    .pdp-hero__subtitle{font-size:clamp(17px,1.8vw,20px);line-height:1.45;color:var(--pdp-muted);margin:0 auto 16px;max-width:34ch}
+    .pdp-hero__price-row{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-bottom:4px}
+    .pdp-hero__price{font-family:'Unbounded',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--pdp-text)}
+    .pdp-hero__currency{font-size:.65em;font-weight:500;color:var(--pdp-muted);letter-spacing:0}
+    .pdp-hero__stock{display:none;align-items:center;padding:5px 10px;font-size:12px;font-weight:700;color:#b45309;background:#fff7ed;border:1px solid #fdba74;border-radius:999px;letter-spacing:.02em;text-transform:uppercase}
+    .pdp-hero__price-note{margin:0 0 6px;color:var(--pdp-muted);font-size:14px}
+
+    /* Hero Media — larger image */
+    .pdp-hero__media{margin:32px auto 0;max-width:860px}
+    .pdp-hero__main-img{aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .pdp-hero__main-img img{width:92%;max-width:720px;object-fit:contain;cursor:zoom-in;transition:transform .5s cubic-bezier(.25,.1,.25,1)}
+    .pdp-hero__main-img:hover img{transform:scale(1.05)}
+
+    /* Thumbs */
+    .pdp-hero__thumbs{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+    .pdp-thumb{border:1.5px solid transparent;border-radius:12px;background:var(--pdp-bg);padding:6px;cursor:pointer;transition:all .2s ease;display:flex;align-items:center;justify-content:center}
+    .pdp-thumb.active{border-color:var(--pdp-text);background:var(--pdp-surface)}
+    .pdp-thumb img{width:52px;height:52px;object-fit:contain;display:block}
+    .pdp-thumb:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22)}
+
+    /* Colors */
+    .pdp-hero__colors{margin-top:20px}
+    .pdp-hero__color-label{font-size:14px;font-weight:600;color:var(--pdp-text);margin:0 0 10px}
+    .pdp-hero__color-label span{font-weight:400;color:var(--pdp-muted)}
+    .pdp-hero__color-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .color-btn{height:36px;padding:0 14px;border-radius:20px;border:1.5px solid rgba(0,0,0,.12);background:#fff;color:#374151;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s ease;line-height:1}
+    .color-btn:hover:not([disabled]){border-color:rgba(0,0,0,.35);color:#111}
     .color-btn.active{border-color:#111;background:#111;color:#fff}
     .color-btn[disabled]{opacity:.38;cursor:not-allowed;text-decoration:line-through}
     .color-btn.is-preorder{opacity:.7;border-style:dashed}
     .color-btn.is-low{border-color:#f59e0b}
     .color-stock{font-size:10px;margin-left:5px;opacity:.65;font-weight:400}
     .color-btn.active .color-stock{opacity:.85;color:#fff}
-    .variant-pill-list{display:none!important}
-    .prod-desc{margin:0 0 16px;color:#4b5563;line-height:1.65;font-size:16px}
-    .trust-badges{display:block;white-space:nowrap;overflow-x:auto;overflow-y:hidden;margin-bottom:20px;padding-bottom:2px}
-    .tbadge{display:inline;background:none;border:none;padding:0;margin:0;color:#4b5563;font-size:13px;font-weight:500}
-    .tbadge::after{content:' · ';color:#9ca3af}
-    .tbadge:last-child::after{content:''}
-    .features-list{margin:18px 0 18px}
-    .feat-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.12);font-size:15px;line-height:1.45;align-items:flex-start}
-    .feat-item:last-child{border-bottom:none}
-    .feat-check{color:#111}
 
-    /* Stagger delays for feature items */
-    .feat-item[data-delay="0"].fade-in{transition-delay:0s}
-    .feat-item[data-delay="1"].fade-in{transition-delay:.08s}
-    .feat-item[data-delay="2"].fade-in{transition-delay:.16s}
-    .feat-item[data-delay="3"].fade-in{transition-delay:.24s}
-    .feat-item[data-delay="4"].fade-in{transition-delay:.32s}
+    /* Variants (populated by Moysklad) */
+    .pdp-hero__variants{display:none!important}
 
-    /* Stagger delays for related cards */
-    .rcard[style*="--stagger:0"].fade-in{transition-delay:0s}
-    .rcard[style*="--stagger:1"].fade-in{transition-delay:.1s}
-    .rcard[style*="--stagger:2"].fade-in{transition-delay:.2s}
+    /* Actions */
+    .pdp-hero__actions{display:flex;gap:12px;justify-content:center;margin-top:28px;max-width:400px;margin-left:auto;margin-right:auto}
 
-    .actions-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px}
+    /* ===== Button System ===== */
+    .pdp-btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:14px;padding:14px 32px;min-height:52px;font:600 15px/1.2 'Inter',sans-serif;cursor:pointer;transition:all .2s ease-out;text-align:center;white-space:nowrap;flex:1}
+    .pdp-btn--primary{background:#111;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .pdp-btn--primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+    .pdp-btn--primary:active{transform:translateY(0) scale(.995);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .pdp-btn--primary:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(17,17,17,.18),0 8px 20px rgba(0,0,0,.14)}
+    .pdp-btn--secondary{background:var(--pdp-surface);color:#111;border:1.5px solid rgba(0,0,0,.12)}
+    .pdp-btn--secondary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.06);border-color:rgba(0,0,0,.3)}
+    .pdp-btn--secondary:active{transform:translateY(0) scale(.995)}
+    .pdp-btn--secondary:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22)}
+    .pdp-btn--sm{padding:10px 20px;min-height:42px;font-size:14px;flex:0 0 auto}
+    .pdp-btn.is-disabled,[data-ms-buy-btn].is-disabled{opacity:.55!important;cursor:not-allowed!important;box-shadow:none!important;transform:none!important}
 
-    /* Primary CTA: Купить сейчас */
-    .buy-btn{display:flex;align-items:center;justify-content:center;width:100%;border:none;border-radius:16px;padding:12px 16px;min-height:52px;font-size:15px;font-weight:600;line-height:1.2;white-space:nowrap;cursor:pointer;margin-bottom:0;transition:all .2s ease-out;text-align:center}
-    .buy-btn-primary{background:#111;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.12)}
-    .buy-btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.2)}
-    .buy-btn-primary:active{transform:translateY(0) scale(.995);box-shadow:0 4px 12px rgba(0,0,0,.12)}
-    .buy-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(17,17,17,.18),0 8px 20px rgba(0,0,0,.14)}
+    /* ===== 2. Key Benefits — typographic, no cards ===== */
+    .pdp-benefits{background:var(--pdp-surface);padding:40px 0 0;border-top:1px solid rgba(0,0,0,.06)}
+    .pdp-benefits__grid{display:flex;justify-content:center;gap:48px;max-width:700px;margin:0 auto}
+    .pdp-benefit{background:none;border:none;border-radius:0;padding:0;text-align:center;box-shadow:none;transition:none;white-space:nowrap}
+    .pdp-benefit__text{font-size:15px;font-weight:600;color:var(--pdp-text);line-height:1.4;letter-spacing:-.01em}
 
-    /* Secondary: В корзину */
-    .buy-btn-secondary{background:#fff;color:#111;border:1.5px solid rgba(17,24,39,.15)}
-    .buy-btn-secondary:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.08);border-color:rgba(17,24,39,.4)}
-    .buy-btn-secondary:active{transform:translateY(0) scale(.995)}
-    .buy-btn-secondary:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22)}
+    /* ===== 3. Editorial ===== */
+    .pdp-editorial{background:var(--pdp-surface);padding:96px 0 80px}
+    .pdp-editorial__grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+    .pdp-editorial__lead{font-size:20px;line-height:1.65;color:#4b5563;margin:0 0 16px}
+    .pdp-editorial__body{font-size:18px;color:#4b5563;line-height:1.7}
+    .pdp-editorial__body p{margin:0 0 16px}
+    .pdp-editorial__body p:last-child{margin-bottom:0}
+    .pdp-editorial__image{border-radius:20px;overflow:hidden}
+    .pdp-editorial__image img{width:100%;height:100%;object-fit:cover;display:block;border-radius:20px}
 
-    .buy-btn.is-disabled,[data-ms-buy-btn].is-disabled{opacity:.55!important;cursor:not-allowed!important;box-shadow:none!important;transform:none!important}
+    /* ===== 4. Key Specs — typographic 2x2 grid, no cards ===== */
+    .pdp-key-specs{background:var(--pdp-bg);padding:96px 0}
+    .pdp-key-specs__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;max-width:640px;margin:0 auto}
+    .pdp-spec-card{background:none;border:none;border-radius:0;padding:36px 24px;text-align:center;box-shadow:none;transition:none;position:relative}
+    /* subtle grid lines */
+    .pdp-spec-card:nth-child(odd){border-right:1px solid rgba(0,0,0,.08)}
+    .pdp-spec-card:nth-child(-n+2){border-bottom:1px solid rgba(0,0,0,.08)}
+    .pdp-spec-card__value{display:block;font-family:'Unbounded',sans-serif;font-size:clamp(30px,4vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.025em;margin-bottom:8px;color:var(--pdp-text);white-space:nowrap}
+    .pdp-spec-card__label{display:block;font-size:12px;color:var(--pdp-muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em}
 
-    .secondary-btn{display:flex;align-items:center;justify-content:center;width:100%;background:rgba(255,255,255,.9);color:#111;border:1.5px solid rgba(0,0,0,.15);border-radius:16px;padding:12px 15px;min-height:52px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;backdrop-filter:blur(20px);transition:all .2s ease-out}
-    .secondary-btn:hover{background:#fff;box-shadow:0 8px 20px rgba(0,0,0,.08)}
-    .secondary-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22),0 8px 20px rgba(0,0,0,.08)}
+    /* ===== 5. Full Specs (Accordion) ===== */
+    .pdp-full-specs{background:var(--pdp-surface);padding:64px 0}
+    .pdp-accordion{border:none;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08);border-radius:0;overflow:hidden}
+    .pdp-accordion__trigger{display:flex;align-items:center;justify-content:space-between;padding:24px 0;cursor:pointer;list-style:none;user-select:none}
+    .pdp-accordion__trigger::-webkit-details-marker{display:none}
+    .pdp-accordion__trigger .pdp-section-title{margin:0}
+    .pdp-accordion__icon{font-size:24px;font-weight:300;color:var(--pdp-muted);transition:transform .2s ease;flex-shrink:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:none}
+    .pdp-accordion__body{padding:0 0 24px}
+    .pdp-specs-table{width:100%;border-collapse:collapse;border-spacing:0;overflow:hidden;border-radius:0;border:none}
+    .pdp-specs-table td{border-bottom:1px solid rgba(0,0,0,.06);padding:16px 0;overflow-wrap:anywhere;background:none!important}
+    .pdp-specs-table tr:last-child td{border-bottom:none}
+    .pdp-specs-table td:first-child{color:var(--pdp-muted);width:40%;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+    .pdp-specs-table td:last-child{color:var(--pdp-text);font-size:15px;font-weight:500}
 
-    .product-aside-sticky{position:sticky;top:88px;padding:28px;border-radius:var(--product-radius-xl);border:1px solid rgba(17,24,39,.1);background:#fff;box-shadow:var(--product-shadow-md)}
-    .product-aside{min-width:0}
-    .tabs-section{padding:96px 24px 104px;background:#f5f5f5;border-top:1px solid rgba(0,0,0,.06)}
-    .tabs-wrap{max-width:1240px;margin:0 auto;display:grid;gap:72px}
-    .tab-content{display:block;background:#fff;border:1px solid rgba(17,24,39,.08);border-radius:var(--product-radius-xl);padding:56px;box-shadow:var(--product-shadow-md)}
-    .tab-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,2.2vw,24px);font-weight:700;letter-spacing:-.01em;margin:0 0 14px;color:#111}
-    .md-body{font-size:16px;color:#4b5563;line-height:1.75}
-    .md-body p{margin:0 0 14px}
-    .md-body p:last-child{margin-bottom:0}
-    .specs-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:16px;border:1px solid rgba(17,24,39,.08)}
-    .specs-table td{border-bottom:1px solid rgba(0,0,0,.08);padding:18px 20px;overflow-wrap:anywhere;background:#fff}
-    .specs-table tr:nth-child(odd) td{background:#fafafa}
-    .specs-table tr:nth-child(even) td{background:#fff}
-    .specs-table tr:last-child td{border-bottom:none}
-    .specs-table td:first-child{color:#6b7280;width:40%;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-    .specs-table td:last-child{color:#111;font-size:15px;font-weight:500}
-    .box-list{padding-left:20px;color:#4b5563;line-height:1.7}
-    .related-section{background:#f5f5f5;border-top:1px solid rgba(0,0,0,.08);padding:96px 24px 120px}
-    .related-wrap{max-width:1240px;margin:0 auto}
-    .related-wrap h2{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3vw,36px);margin-bottom:22px}
-    .related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .rcard{display:flex;flex-direction:column;gap:0;background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(20px);border-radius:var(--product-radius-lg);padding:16px;text-decoration:none;color:inherit;transition:all .3s ease-out}
-    .rcard:hover{transform:scale(1.03);box-shadow:0 12px 26px rgba(0,0,0,.12)}
-    .rcard:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.2),0 12px 26px rgba(0,0,0,.12)}
-    .rcard img{width:100%;height:180px;object-fit:contain;background:transparent;border-radius:12px;margin-bottom:12px}
-    .rname{font-size:18px;font-weight:600;margin-bottom:8px}
-    .rprice{font-size:20px;font-weight:700;margin-bottom:10px}
-    .rcard::after{content:'Выбрать';display:inline-flex;align-items:center;justify-content:center;height:42px;margin-top:auto;border-radius:12px;background:#111;color:#fff;font-size:14px;font-weight:600;letter-spacing:.01em}
+    /* ===== 6. What's in the Box — typographic, no cards ===== */
+    .pdp-box{background:var(--pdp-surface);padding:64px 0;border-top:1px solid rgba(0,0,0,.06)}
+    .pdp-box__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0}
+    .pdp-box-item{background:none;border:none;border-radius:0;padding:20px 16px;box-shadow:none;transition:none;text-align:center}
+    .pdp-box-item__num{display:block;font-family:'Unbounded',sans-serif;font-size:28px;font-weight:800;color:rgba(0,0,0,.06);margin-bottom:6px;line-height:1}
+    .pdp-box-item__name{display:block;font-size:14px;font-weight:600;color:var(--pdp-text);line-height:1.4}
+
+    /* ===== 7. Model Comparison — lighter ===== */
+    .pdp-compare{background:var(--pdp-bg);padding:96px 0}
+    .pdp-compare__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .pdp-compare-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--pdp-surface);border:none;border-radius:20px;padding:32px 20px;text-decoration:none;color:inherit;transition:transform .3s ease,box-shadow .3s ease}
+    .pdp-compare-card--current{transform:scale(1.03);box-shadow:0 8px 32px rgba(0,0,0,.08)}
+    .pdp-compare-card__badge{display:inline-block;background:var(--pdp-text);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
+    .pdp-compare-card img{width:100%;max-width:180px;height:160px;object-fit:contain;margin-bottom:16px}
+    .pdp-compare-card h3{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
+    .pdp-compare-card__price{font-size:19px;font-weight:700;margin-bottom:12px;display:block}
+    .pdp-compare-card__specs{list-style:none;padding:0;margin:0;font-size:13px;color:var(--pdp-muted);line-height:1.8}
+    .pdp-compare-card__specs strong{color:var(--pdp-text);font-weight:600}
+    .pdp-compare-card__cta{display:inline-flex;align-items:center;justify-content:center;margin-top:auto;padding:10px 24px;background:#111;color:#fff;border-radius:12px;font-size:14px;font-weight:600;transition:all .2s ease}
+
+    /* ===== 8. Trust Bar ===== */
+    .pdp-trust{background:var(--pdp-surface);padding:32px 0 48px;border-top:1px solid rgba(0,0,0,.06)}
+    .pdp-trust__row{display:flex;align-items:center;justify-content:center;gap:16px;font-size:13px;color:var(--pdp-muted);font-weight:500}
+    .pdp-trust__sep{color:rgba(0,0,0,.15)}
+
+    /* ===== Sticky Buy Bar ===== */
+    .pdp-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none}
+    .pdp-sticky-bar--visible{transform:translateY(0);pointer-events:auto}
+    .pdp-sticky-bar__inner{max-width:980px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .pdp-sticky-bar__info{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .pdp-sticky-bar__name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pdp-sticky-bar__price{font-size:16px;font-weight:700}
+
+    /* ===== Lightbox ===== */
     .lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;transition:opacity .2s ease}
     .lightbox.visible{opacity:1}
     .lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:16px;background:#fff;padding:10px}
     .lightbox-close{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.35);color:#fff;font-size:30px;line-height:1;cursor:pointer}
+
+    /* ===== Cart Toast ===== */
     .cart-toast{position:fixed;right:18px;bottom:22px;background:#111;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 10px 24px rgba(0,0,0,.22);opacity:0;transform:translateY(10px);pointer-events:none;transition:all .24s ease;z-index:310}
     .cart-toast.show{opacity:1;transform:translateY(0)}
-    .thumb:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22)}
-    .breadcrumbs a:focus-visible{outline:none;border-radius:8px;box-shadow:0 0 0 3px rgba(232,134,53,.18)}
-    @media(max-width:1200px){
-      .hero-grid{grid-template-columns:minmax(0,1.2fr) minmax(320px,1fr);gap:24px}
-      .product-aside-sticky{padding:24px}
-      .tab-content{padding:44px}
+
+    /* ===== Stagger Animations ===== */
+    .pdp-benefit[style*="--stagger"]{transition-delay:calc(var(--stagger) * 60ms)}
+    .pdp-spec-card[style*="--stagger"]{transition-delay:calc(var(--stagger) * 60ms)}
+    .pdp-box-item[style*="--stagger"]{transition-delay:calc(var(--stagger) * 60ms)}
+    .pdp-compare-card[style*="--stagger"]{transition-delay:calc(var(--stagger) * 80ms)}
+
+    /* ===== Hover (desktop only) ===== */
+    @media(hover:hover){
+      .pdp-compare-card:not(.pdp-compare-card--current):hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
     }
+
+    /* ===== Responsive: Tablet ===== */
     @media(max-width:980px){
-      .hero-grid{grid-template-columns:1fr;gap:28px}
-      .product-layout{display:grid;grid-template-columns:1fr;gap:28px}
-      .hero-media-col{order:1}
-      .product-aside-sticky{order:2;position:static;padding:0;border:none;box-shadow:none}
-      .product-gallery,.product-sidebar{flex:initial;width:100%;min-width:0}
-      .hero-media{min-height:380px}
-      .hero-media img{width:84%;max-width:640px;padding:0}
-      .secondary-btn{padding:12px 14px}
-      .tabs-wrap{gap:42px}
-      .actions-row{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .related-grid{grid-template-columns:1fr 1fr}
+      .pdp-editorial__grid{grid-template-columns:1fr;gap:32px}
+      .pdp-editorial__image{max-height:400px}
+      .pdp-compare__grid{grid-template-columns:repeat(2,1fr)}
     }
+
+    /* ===== Responsive: Mobile ===== */
     @media(max-width:640px){
-      .product-hero{padding:38px 18px 64px}
-      .hero-grid{gap:22px}
-      .main-img{border-radius:var(--product-radius-lg)}
-      .prod-name{font-size:clamp(28px,9vw,34px)}
-      .prod-sub{font-size:16px;line-height:1.45}
-      .price-main{font-size:clamp(32px,10vw,40px)}
-      .param-chip{padding:7px 12px;font-size:12px}
-      .thumbs{gap:10px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;margin-right:-2px}
-      .thumbs::-webkit-scrollbar{height:6px}
-      .thumbs::-webkit-scrollbar-thumb{background:rgba(17,24,39,.16);border-radius:999px}
-      .thumb{flex:0 0 auto}
-      .product-aside-sticky{padding:20px}
-      .buy-btn,.secondary-btn{min-height:46px}
-      .actions-row{grid-template-columns:1fr}
-      .trust-badges{margin-bottom:16px}
-      .tab-content{padding:28px}
-      .tab-title{margin-bottom:12px}
-      .features-list{margin:18px 0 16px}
-      .feat-item{font-size:14px}
-      .specs-table td{padding:14px 14px;font-size:14px}
+      .pdp-container{padding:0 18px}
+      .pdp-hero{padding:76px 0 32px}
+      .pdp-hero__title{font-size:clamp(38px,10vw,52px)}
+      .pdp-hero__price{font-size:clamp(28px,7vw,36px)}
+      .pdp-hero__media{margin-top:20px}
+      .pdp-hero__main-img img{width:92%;max-width:440px}
+      .pdp-hero__thumbs{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:0 18px 4px}
+      .pdp-hero__thumbs::-webkit-scrollbar{height:6px}
+      .pdp-hero__thumbs::-webkit-scrollbar-thumb{background:rgba(17,24,39,.16);border-radius:999px}
+      .pdp-thumb{flex:0 0 auto}
+      .pdp-hero__actions{flex-direction:column;max-width:100%;padding:0 18px}
+      .pdp-btn{width:100%;flex:initial}
+      .pdp-section-title{font-size:clamp(20px,5vw,24px);margin-bottom:20px}
+      .pdp-benefits__grid{gap:24px}
+      .pdp-key-specs__grid{max-width:100%}
+      .pdp-editorial{padding:56px 0 48px}
+      .pdp-editorial__lead{font-size:17px}
+      .pdp-editorial__body{font-size:16px}
+      .pdp-key-specs{padding:56px 0}
+      .pdp-spec-card__value{font-size:clamp(24px,7vw,32px)}
+      .pdp-full-specs{padding:40px 0}
+      .pdp-box{padding:40px 0}
+      .pdp-compare{padding:56px 0}
+      .pdp-compare__grid{grid-template-columns:1fr}
+      .pdp-compare-card--current{transform:none}
+      .pdp-accordion__trigger{padding:20px 0}
+      .pdp-accordion__body{padding:0 0 20px}
+      .pdp-trust__row{flex-direction:column;gap:8px}
+      .pdp-trust__sep{display:none}
     }
+
+    /* ===== Responsive: Small phones ===== */
     @media(max-width:390px){
-      .product-hero{padding:32px 18px 58px}
-      .hero-media{min-height:300px}
-      .hero-media img{width:86%;max-width:360px}
-      .rating-row{flex-wrap:wrap}
-      .tabs-section{padding:42px 18px}
-      .related-section{padding:42px 18px 70px}
-      .related-grid{grid-template-columns:1fr}
-      .tab-content{padding:24px;border-radius:14px}
-      .thumb img{width:52px;height:52px}
-      .thumb{padding:6px}
-      .buy-btn,.secondary-btn{font-size:13px}
-      .prod-sub{-webkit-line-clamp:3}
+      .pdp-container{padding:0 16px}
+      .pdp-hero{padding:68px 0 36px}
+      .pdp-hero__main-img img{width:94%;max-width:320px}
+      .pdp-thumb img{width:44px;height:44px}
+      .pdp-thumb{padding:5px}
+      .pdp-benefits__grid{flex-direction:column;gap:16px}
+      .pdp-spec-card{padding:24px 16px}
+      .pdp-spec-card:nth-child(odd){border-right:none}
+      .pdp-key-specs__grid{grid-template-columns:1fr}
+      .pdp-spec-card:nth-child(-n+2){border-bottom:none}
+      .pdp-spec-card{border-bottom:1px solid rgba(0,0,0,.08)}
+      .pdp-spec-card:last-child{border-bottom:none}
+      .pdp-box__grid{grid-template-columns:repeat(2,1fr)}
     }
   </style>
 </Layout>
