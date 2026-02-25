@@ -800,5 +800,31 @@ const colors = product.colors ?? [];
       .pdp-spec-card:last-child{border-bottom:none}
       .pdp-box__grid{grid-template-columns:repeat(2,1fr)}
     }
+
+    /* ── PDP Fixes ── */
+
+    /* 1. Hero: remove fixed aspect-ratio container — image sets its own height */
+    .pdp-hero__media { margin: 8px auto 0 !important }
+    .pdp-hero__main-img { aspect-ratio: auto !important }
+    .pdp-hero__main-img img { object-position: center center }
+
+    /* 2. CTA buttons: wider */
+    .pdp-hero__actions { max-width: 500px !important }
+
+    /* 3. Thumbnails: larger */
+    .pdp-thumb img { width: 64px !important; height: 64px !important }
+
+    /* 4. Spec card labels: remove ALL CAPS */
+    .pdp-spec-card__label { text-transform: none !important; letter-spacing: .01em !important }
+
+    /* 5. Compare cards: hide specs list for visual balance (all cards same height) */
+    .pdp-compare-card__specs { display: none !important }
+
+    /* 6. Fix Layout.astro global `span { color: muted }` overriding PDP spans */
+    .pdp-hero__price { color: #1d1d1f !important }
+    .pdp-benefit__text { color: var(--pdp-text) !important }
+    .pdp-spec-card__num { color: var(--pdp-text) !important }
+    .pdp-compare-card__price { color: var(--pdp-text) !important }
+    .pdp-sticky-bar__price { color: var(--pdp-text) !important }
   </style>
 </Layout>
