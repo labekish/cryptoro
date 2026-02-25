@@ -1401,13 +1401,13 @@ img{max-width:100%;height:auto}
   font-size: clamp(22px, 2.4vw, 28px);
   font-weight: 700;
   line-height: 1.22;
-  color: #fff;
+  color: #fff !important;
   margin-bottom: 18px;
 }
 .feat-primary__desc {
   font-size: 17px;
   line-height: 1.65;
-  color: rgba(255,255,255,.5);
+  color: rgba(255,255,255,.5) !important;
   max-width: 38ch;
 }
 .feat-primary__visual {
@@ -1723,6 +1723,21 @@ img{max-width:100%;height:auto}
   grid-row: 1 / span 2 !important;
   padding: 64px 52px !important;
   background: #fff !important;
+  position: relative !important;
+}
+.uc-block:first-child::after {
+  content: '01';
+  position: absolute;
+  right: 44px;
+  bottom: 52px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 104px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: rgba(17,17,17,.05);
+  pointer-events: none;
+  user-select: none;
 }
 .uc-block:nth-child(2) {
   grid-column: 2 !important;
@@ -1758,7 +1773,7 @@ img{max-width:100%;height:auto}
   height: 300px !important;
   background: rgba(255,255,255,.06) !important;
 }
-.products-grid .pcard:first-child .cdot { border-color: rgba(255,255,255,.2) !important }
+.products-grid .pcard:first-child .colors { display: none !important }
 .products-grid .pcard:first-child .pname { color: #fff !important; font-size: 20px !important }
 .products-grid .pcard:first-child .pdesc { color: rgba(255,255,255,.5) !important }
 .products-grid .pcard:first-child .pprice { color: #fff !important; font-size: 26px !important }
@@ -1773,6 +1788,13 @@ img{max-width:100%;height:auto}
 }
 .products-grid .pcard:not(:first-child) .pimg-wrap { height: 140px !important; background: #fff !important }
 .products-grid .pcard:not(:first-child) .pname { font-size: 15px !important }
+.products-grid .pcard:not(:first-child) .pdesc {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+  flex: none !important;
+}
 .products-grid .pcard:not(:first-child) .pprice { font-size: 16px !important; font-weight: 600 !important; margin-bottom: 10px !important }
 .products-grid .pcard:not(:first-child) .pbtn {
   background: transparent !important;
@@ -1914,6 +1936,7 @@ body .sec-how .proc-label {
 }
 body .sec-how .btn-woutline {
   color: #fff !important;
+  background: transparent !important;
   border-color: rgba(255,255,255,.25) !important;
 }
 body .sec-how .btn-woutline:hover {
