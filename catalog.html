@@ -75,17 +75,6 @@ html,body{background:var(--c-bg)!important;color:var(--c-text)!important}
 
 /* Sticky/header micro-pass */
 header:not(#smart-header){background:rgba(255,255,255,.92)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(18px)!important}
-section.sticky{
-  background:rgba(255,255,255,.94)!important;
-  border-bottom:1px solid var(--line)!important;
-  box-shadow:none!important;
-  /* Track smart-header clearance so filter bar never hides behind the pill */
-  top:var(--sh-h,68px)!important;
-  transition:top 220ms ease;
-}
-@media(prefers-reduced-motion:reduce){
-  section.sticky{transition:none!important}
-}
 
 /* Alternating section rhythm (index) */
 .sec-products,.sec-usecases,.sec-reviews{background:var(--c-bg)!important}
@@ -311,7 +300,7 @@ main{padding-top:40px!important}
 #productsCount{margin-bottom:12px!important}
 
 @media (min-width:1440px){
-  .catalog-controls,.catalog-hero + .sticky .mx-auto,.mx-auto.max-w-7xl{max-width:1280px!important}
+  .catalog-controls,.mx-auto.max-w-7xl{max-width:1280px!important}
   .catalog-hero{padding-top:140px!important;padding-bottom:84px!important}
   main{padding-bottom:120px!important}
   #productsGrid{gap:26px!important}
@@ -320,7 +309,6 @@ main{padding-top:40px!important}
   .catalog-hero{padding-top:100px!important;padding-bottom:42px!important}
   .catalog-hero h1{font-size:clamp(42px,14vw,56px)!important}
   .catalog-hero p{font-size:16px!important;line-height:1.5!important}
-  section.sticky{padding-left:18px!important;padding-right:18px!important}
   .catalog-controls{gap:10px!important;min-height:0!important}
   .catalog-chips{padding:3px!important}
   .filter-btn{padding:8px 14px!important;font-size:13px!important;min-height:44px!important}
@@ -343,7 +331,7 @@ main{padding-top:40px!important}
     <p class="mx-auto mt-4 max-w-2xl text-lg text-zinc-600">AI-диктофоны для встреч, лекций и звонков</p>
   </section>
 
-  <section class="sticky top-14 z-40 border-b border-zinc-200/80 bg-white/95 px-6 backdrop-blur">
+  <section class="border-b border-zinc-200/80 bg-white/95 px-6">
     <div class="catalog-controls mx-auto max-w-7xl py-3">
       <div class="catalog-chips">
       <button class="filter-btn shrink-0 rounded-full border border-zinc-300 bg-zinc-900 px-4 py-2 text-xs font-medium text-white" onclick="filterProducts('all', this)">Все модели</button>
