@@ -1848,9 +1848,9 @@ img{max-width:100%;height:auto}
   border-bottom: 1px solid rgba(17,17,17,.07) !important;
 }
 .faq-inner .faqitem:first-child { border-top: 1px solid rgba(17,17,17,.07) !important }
-.faqq { padding: 22px 0 !important; font-size: 17px !important }
-.faqa { padding: 0 !important }
-.faqitem.open .faqa { padding: 0 0 22px !important; max-height: 300px !important }
+.faqq { padding: 20px 24px !important; font-size: 17px !important }
+.faqa { padding: 0 24px !important }
+.faqitem.open .faqa { padding: 0 24px 20px !important; max-height: 300px !important }
 .faqarr {
   background: transparent !important;
   color: rgba(17,17,17,.38) !important;
@@ -1859,6 +1859,8 @@ img{max-width:100%;height:auto}
 }
 .faqitem.open .faqarr { background: #111 !important; color: #fff !important; border-color: #111 !important }
 .faqitem.open { border-color: rgba(17,17,17,.1) !important }
+/* Fix: Layout.astro global `span { color: muted }` kills question text — override with higher specificity */
+.faqq > span:first-child { color: #1d1d1f !important }
 
 /* ── Responsive art-direction fixes ── */
 @media (max-width: 1024px) {
