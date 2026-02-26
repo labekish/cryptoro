@@ -90,11 +90,11 @@ const paramChips = product.paramChips ?? [];
 const colors = product.colors ?? [];
 
 const BOX_ICONS = [
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.5"/></svg>`,
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/></svg>`,
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2v5m0 10v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 5h6M9 19h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="8" y="7" width="8" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>`,
-  `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5"/><line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="2"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+  `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>`,
+  `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/></svg>`,
+  `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2v5m0 10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 5h6M9 19h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="8" y="7" width="8" height="10" rx="2" stroke="currentColor" stroke-width="2"/></svg>`,
+  `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2"/><polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2"/><line x1="8" y1="13" x2="16" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="17" x2="13" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
 ];
 ---
 <Layout title={product.seoTitle ?? `${product.title} | CRYPTORO`} description={product.seoDescription ?? ''} withChrome={true} active="catalog">
@@ -264,14 +264,21 @@ const BOX_ICONS = [
                 <span class="pdp-accordion__icon" aria-hidden="true">+</span>
               </summary>
               <div class="pdp-accordion__body">
-                <div class="pdp-box-accordion">
-                  {(product.boxContents ?? []).map((item, idx) => (
-                    <div class="pdp-box-item">
-                      <span class="pdp-box-item__icon" set:html={BOX_ICONS[idx] ?? BOX_ICONS[0]} />
-                      <span class="pdp-box-item__num">{String(idx + 1).padStart(2, '0')}</span>
-                      <span class="pdp-box-item__name">{item}</span>
+                <div class="pdp-box-wrap">
+                  <div class="pdp-box-item pdp-box-item--hero">
+                    <span class="pdp-box-item__icon" set:html={BOX_ICONS[0]} />
+                    <span class="pdp-box-item__name">{(product.boxContents ?? [])[0]}</span>
+                  </div>
+                  {(product.boxContents ?? []).length > 1 && (
+                    <div class="pdp-box-accessories">
+                      {(product.boxContents ?? []).slice(1).map((item, idx) => (
+                        <div class="pdp-box-item pdp-box-item--acc">
+                          <span class="pdp-box-item__icon" set:html={BOX_ICONS[idx + 1] ?? BOX_ICONS[0]} />
+                          <span class="pdp-box-item__name">{item}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </details>
@@ -695,8 +702,7 @@ const BOX_ICONS = [
     .pdp-key-specs{background:var(--pdp-bg)!important;padding:80px 0 72px}
     .pdp-key-specs__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;max-width:780px;margin:0 auto}
     .pdp-spec-card{background:none;border:none;border-radius:0;padding:36px 24px;text-align:center;box-shadow:none;transition:none;position:relative}
-    /* vertical dividers between columns */
-    .pdp-spec-card:not(:last-child){border-right:1px solid rgba(0,0,0,.08)}
+    /* no vertical dividers — spacing only */
     .pdp-spec-card__value{display:flex;align-items:baseline;justify-content:center;gap:.1em;flex-wrap:wrap;margin-bottom:8px;white-space:nowrap}
     .pdp-spec-card__num{font-family:'Unbounded',sans-serif;font-size:clamp(30px,4vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.025em;color:var(--pdp-text)}
     .pdp-spec-card__unit{font-size:.7em;font-weight:600;letter-spacing:-.01em;color:var(--pdp-muted);margin-left:.08em}
@@ -706,26 +712,34 @@ const BOX_ICONS = [
 
     /* ===== 5+6. Details — unified specs + box section ===== */
     .pdp-details{background:var(--pdp-surface);padding:64px 0}
-    /* Each accordion gets top border; last also gets bottom */
-    .pdp-accordion{border:none;border-top:1px solid rgba(0,0,0,.08);border-radius:0;overflow:hidden}
-    .pdp-accordion:last-child{border-bottom:1px solid rgba(0,0,0,.08)}
-    /* Legacy: single accordion pages still look correct */
-    .pdp-full-specs .pdp-accordion{border-bottom:1px solid rgba(0,0,0,.08)}
+    /* Accordion — spacing only, no borders */
+    .pdp-accordion{border:none;border-radius:0;overflow:hidden}
     .pdp-accordion__trigger{display:flex;align-items:center;justify-content:space-between;padding:24px 0;cursor:pointer;list-style:none;user-select:none}
     .pdp-accordion__trigger::-webkit-details-marker{display:none}
     .pdp-accordion__trigger .pdp-section-title{margin:0}
     .pdp-accordion__icon{font-size:24px;font-weight:300;color:var(--pdp-muted);transition:transform .2s ease;flex-shrink:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:none}
     .pdp-accordion__body{padding:0 0 24px}
     .pdp-specs-table{width:100%;border-collapse:collapse;border-spacing:0;overflow:hidden;border-radius:0;border:none}
-    .pdp-specs-table td{border-bottom:1px solid rgba(0,0,0,.06);padding:16px 0;overflow-wrap:anywhere;background:none!important}
+    .pdp-specs-table td{border-bottom:1px solid rgba(0,0,0,.04);padding:16px 0;overflow-wrap:anywhere;background:none!important}
     .pdp-specs-table tr:last-child td{border-bottom:none}
     .pdp-specs-table td:first-child{color:var(--pdp-muted);width:40%;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
     .pdp-specs-table td:last-child{color:var(--pdp-text);font-size:15px;font-weight:500}
     /* Box contents inside accordion */
-    .pdp-box-accordion{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0;padding-bottom:8px}
-    .pdp-box-item{background:none;border:none;border-radius:0;padding:16px;box-shadow:none;transition:none;text-align:center}
-    .pdp-box-item__num{display:block;font-family:'Unbounded',sans-serif;font-size:28px;font-weight:800;color:rgba(0,0,0,.06);margin-bottom:6px;line-height:1}
-    .pdp-box-item__name{display:block;font-size:14px;font-weight:600;color:var(--pdp-text);line-height:1.4}
+    /* Box / Комплект */
+    .pdp-box-wrap{padding-bottom:12px}
+    .pdp-box-item{background:none;border:none;border-radius:0;padding:0;box-shadow:none;transition:none;text-align:center}
+    .pdp-box-item__icon{display:block;margin:0 auto 10px}
+    .pdp-box-item__icon svg{display:block;margin:auto}
+    .pdp-box-item__name{display:block;line-height:1.4}
+    /* Hero — main product */
+    .pdp-box-item--hero{padding:8px 0 32px;max-width:180px;margin:0 auto}
+    .pdp-box-item--hero .pdp-box-item__icon{color:rgba(0,0,0,.62);margin-bottom:14px}
+    .pdp-box-item--hero .pdp-box-item__name{font-size:15px;font-weight:500;color:var(--pdp-text)}
+    /* Accessories row */
+    .pdp-box-accessories{display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+    .pdp-box-item--acc{padding:0}
+    .pdp-box-item--acc .pdp-box-item__icon{color:rgba(0,0,0,.38);margin-bottom:8px}
+    .pdp-box-item--acc .pdp-box-item__name{font-size:12px;font-weight:400;color:var(--pdp-muted)}
 
     /* ===== 7. Model Comparison — lighter ===== */
     .pdp-compare{background:var(--pdp-bg)!important;padding:96px 0}
@@ -750,8 +764,8 @@ const BOX_ICONS = [
     .pdp-ai-dark .pdp-container{max-width:720px;text-align:center}
     .pdp-ai-dark__kicker{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);margin:0 0 20px;font-family:'Inter',sans-serif}
     .pdp-ai-dark__headline{font-family:'Unbounded',sans-serif;font-size:clamp(28px,3.8vw,48px);font-weight:800;line-height:1.12;letter-spacing:-.035em;color:#fff;margin:0 0 48px}
-    .pdp-ai-dark__list{list-style:none;padding:0;margin:0;border-top:1px solid rgba(255,255,255,.1)}
-    .pdp-ai-dark__item{padding:22px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:clamp(16px,1.8vw,19px);font-weight:500;color:rgba(255,255,255,.72);line-height:1.5;letter-spacing:-.01em}
+    .pdp-ai-dark__list{list-style:none;padding:0;margin:0}
+    .pdp-ai-dark__item{padding:28px 0;font-size:clamp(16px,1.8vw,19px);font-weight:500;color:rgba(255,255,255,.72);line-height:1.5;letter-spacing:-.01em}
 
     /* ===== Sticky Buy Bar ===== */
     .pdp-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -847,9 +861,8 @@ const BOX_ICONS = [
       .pdp-thumb{padding:5px}
       .pdp-benefits__grid{flex-direction:column;gap:16px}
       .pdp-key-specs__grid{grid-template-columns:1fr!important}
-      .pdp-spec-card{padding:20px 16px!important;border-right:none!important;border-bottom:1px solid rgba(0,0,0,.08)!important}
-      .pdp-spec-card:last-child{border-bottom:none!important}
-      .pdp-box__grid{grid-template-columns:repeat(2,1fr)}
+      .pdp-spec-card{padding:20px 16px!important;border-right:none!important;border-bottom:none!important}
+      .pdp-box-accessories{gap:24px}
     }
 
     /* ── PDP Fixes ── */
@@ -899,7 +912,6 @@ const BOX_ICONS = [
       flex-direction: column !important;
       justify-content: center !important;
     }
-    .pdp-spec-card:not(:last-child) { border-right: 1px solid rgba(0,0,0,.08) !important }
     .pdp-spec-card__label { text-transform: none !important; letter-spacing: .01em !important; font-size: 13px !important }
 
     /* ── 2. Editorial: text-only, single column, generous width ── */
@@ -910,7 +922,7 @@ const BOX_ICONS = [
 
     /* ── 3. Specs table: editorial feel, not spec-sheet ── */
     .pdp-details { padding: 40px 0 48px !important }
-    .pdp-specs-table td { padding: 18px 0 !important; border-bottom: 1px solid rgba(0,0,0,.04) !important }
+    .pdp-specs-table td { padding: 18px 0 !important; border-bottom: 1px solid rgba(0,0,0,.03) !important }
     .pdp-specs-table td:first-child {
       color: rgba(0,0,0,.38) !important;
       font-size: 12px !important;
@@ -919,12 +931,11 @@ const BOX_ICONS = [
       letter-spacing: .01em !important;
     }
     .pdp-specs-table td:last-child { font-size: 15px !important; font-weight: 500 !important; color: #111 !important }
-    .pdp-accordion { border-top: 1px solid rgba(0,0,0,.06) !important }
-    .pdp-accordion:last-child { border-bottom: 1px solid rgba(0,0,0,.06) !important }
+    .pdp-accordion { border: none !important }
 
     /* ── 4. Box item icons ── */
-    .pdp-box-item__icon { display: block; margin: 0 auto 10px; color: rgba(0,0,0,.4) }
-    .pdp-box-item__icon svg { display: block; margin: auto }
+    .pdp-box-item--hero .pdp-box-item__icon { color: rgba(0,0,0,.62) !important }
+    .pdp-box-item--acc .pdp-box-item__icon { color: rgba(0,0,0,.38) !important }
     .pdp-compare-card__specs { display: none !important }
 
     /* ── 5. Compare: current dominant, secondary muted ── */
