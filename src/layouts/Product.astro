@@ -180,6 +180,21 @@ const BOX_ICONS = [
       </div>
     </section>
 
+    <!-- 2. AI Capability Dark Section -->
+    {product.features && product.features.length > 0 && (
+      <section class="pdp-ai-dark">
+        <div class="pdp-container">
+          <p class="pdp-ai-dark__kicker">Plaud Intelligence™</p>
+          <h2 class="pdp-ai-dark__headline">{subtitle}</h2>
+          <ul class="pdp-ai-dark__list">
+            {product.features.map((feat) => (
+              <li class="pdp-ai-dark__item">{feat}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
     <!-- 3. Editorial Description -->
     <section class="pdp-editorial">
       <div class="pdp-container">
@@ -529,7 +544,7 @@ const BOX_ICONS = [
     .pdp-container{max-width:980px;margin:0 auto;padding:0 24px}
 
     /* ===== Section Title ===== */
-    .pdp-section-title{font-family:'Unbounded',sans-serif;font-size:clamp(22px,2.8vw,28px);font-weight:700;line-height:1.2;letter-spacing:-.02em;margin:0 0 28px;color:var(--pdp-text)}
+    .pdp-section-title{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.2vw,34px);font-weight:700;line-height:1.2;letter-spacing:-.02em;margin:0 0 28px;color:var(--pdp-text)}
 
     /* ===== 1. Hero ===== */
     .pdp-hero{background:linear-gradient(180deg,#fafafa 0%,var(--pdp-surface) 100%);padding:92px 0 32px;text-align:center}
@@ -678,6 +693,14 @@ const BOX_ICONS = [
     .pdp-trust__row{display:flex;align-items:center;justify-content:center;gap:16px;font-size:13px;color:var(--pdp-muted);font-weight:500}
     .pdp-trust__sep{color:rgba(0,0,0,.15)}
 
+    /* ===== AI Capability Dark Section ===== */
+    .pdp-ai-dark{background:#111;padding:96px 0}
+    .pdp-ai-dark .pdp-container{max-width:720px;text-align:center}
+    .pdp-ai-dark__kicker{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);margin:0 0 20px;font-family:'Inter',sans-serif}
+    .pdp-ai-dark__headline{font-family:'Unbounded',sans-serif;font-size:clamp(28px,3.8vw,48px);font-weight:800;line-height:1.12;letter-spacing:-.035em;color:#fff;margin:0 0 48px}
+    .pdp-ai-dark__list{list-style:none;padding:0;margin:0;border-top:1px solid rgba(255,255,255,.1)}
+    .pdp-ai-dark__item{padding:22px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:clamp(16px,1.8vw,19px);font-weight:500;color:rgba(255,255,255,.72);line-height:1.5;letter-spacing:-.01em}
+
     /* ===== Sticky Buy Bar ===== */
     .pdp-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
     .pdp-sticky-bar--visible{transform:translateY(0);pointer-events:auto}
@@ -735,7 +758,10 @@ const BOX_ICONS = [
       .pdp-thumb{flex:0 0 auto}
       .pdp-hero__actions{flex-direction:column;max-width:100%;padding:0 18px}
       .pdp-btn{width:100%;flex:initial}
-      .pdp-section-title{font-size:clamp(20px,5vw,24px);margin-bottom:20px}
+      .pdp-section-title{font-size:clamp(22px,5.5vw,26px);margin-bottom:20px}
+      .pdp-ai-dark{padding:64px 0}
+      .pdp-ai-dark__headline{font-size:clamp(24px,7vw,34px);margin-bottom:32px}
+      .pdp-ai-dark__item{font-size:15px;padding:18px 0}
       .pdp-benefits__grid{gap:24px}
       .pdp-key-specs__grid{max-width:100%}
       .pdp-editorial{padding:56px 0 48px}
@@ -804,6 +830,10 @@ const BOX_ICONS = [
     .pdp-spec-card__num { color: var(--pdp-text) !important }
     .pdp-compare-card__price { color: var(--pdp-text) !important }
     .pdp-sticky-bar__price { color: var(--pdp-text) !important }
+    /* Dark section: override global h2/p/li colour rules */
+    .pdp-ai-dark__kicker { color: rgba(255,255,255,.35) !important }
+    .pdp-ai-dark__headline { color: #fff !important }
+    .pdp-ai-dark__item { color: rgba(255,255,255,.72) !important }
 
     /* F. Spec card unit: allow multi-word units to wrap, cap width */
     .pdp-spec-card__value { flex-wrap: wrap !important; gap: .06em .16em !important }
