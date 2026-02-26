@@ -103,9 +103,40 @@ const paramChips = product.paramChips ?? [];
 const colors = product.colors ?? [];
 const editorialHighlights = product.editorialHighlights ?? [];
 const editorialUseCases = product.editorialUseCases ?? [];
-const editorialHeadline = product.editorialHeadline ?? product.editorialLead ?? product.title;
-const editorialSupportline = product.editorialSupportline ?? '';
-const editorialCinematicHeadline = product.editorialCinematicHeadline ?? '';
+
+function cleanLine(value: string): string {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[.!?…]+$/g, '');
+}
+
+function truncateLine(value: string, max = 110): string {
+  const line = String(value || '').replace(/\s+/g, ' ').trim();
+  if (line.length <= max) return line;
+  return `${line.slice(0, max - 1).trimEnd()}…`;
+}
+
+const featureTitles = (product.features ?? []).map((item) => cleanLine(item)).filter(Boolean);
+const headlineFeature = featureTitles[0] ?? '';
+const cinematicFeatureA = featureTitles[0] ?? '';
+const cinematicFeatureB = featureTitles[1] ?? '';
+const fallbackEditorialHeadline = headlineFeature
+  ? `${product.title}.\n${headlineFeature}.`
+  : product.title;
+const fallbackEditorialSupportline = truncateLine(
+  product.seoDescription || subtitle || product.editorialLead || '',
+  120
+);
+const fallbackCinematicHeadline = cinematicFeatureA && cinematicFeatureB
+  ? `${cinematicFeatureA}.\n${cinematicFeatureB}.`
+  : cinematicFeatureA
+    ? `${product.title}.\n${cinematicFeatureA}.`
+    : `${product.title}.\n${cleanLine(subtitle) || 'Для повседневного использования'}.`;
+
+const editorialHeadline = product.editorialHeadline ?? product.editorialLead ?? fallbackEditorialHeadline;
+const editorialSupportline = product.editorialSupportline ?? fallbackEditorialSupportline;
+const editorialCinematicHeadline = product.editorialCinematicHeadline ?? fallbackCinematicHeadline;
 const editorialCinematicImage = product.editorialCinematicImage ?? product.editorialSecondaryImage ?? product.editorialImage ?? gallery[0] ?? product.image;
 const editorialCinematicImageAlt = product.editorialCinematicImageAlt ?? product.editorialSecondaryImageAlt ?? product.editorialImageAlt ?? `Фото ${product.title}`;
 const editorialProofLabels = (
@@ -116,14 +147,11 @@ const editorialProofLabels = (
       : editorialUseCases.map((item) => item.title)
 ).slice(0, 3);
 const hasEnhancedEditorial = Boolean(
-  product.editorialHeadline ||
-  product.editorialSupportline ||
-  product.editorialLead ||
-  product.editorialImage ||
-  editorialHighlights.length ||
-  editorialUseCases.length
+  editorialHeadline ||
+  editorialSupportline ||
+  editorialProofLabels.length
 );
-const hasCinematicSection = Boolean(editorialCinematicHeadline);
+const hasCinematicSection = Boolean(editorialCinematicHeadline && editorialCinematicImage);
 
 function getColorToneKey(colorName: string): string {
   const name = colorName.toLowerCase();
