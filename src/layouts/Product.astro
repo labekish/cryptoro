@@ -264,22 +264,16 @@ const BOX_ICONS = [
                 <span class="pdp-accordion__icon" aria-hidden="true">+</span>
               </summary>
               <div class="pdp-accordion__body">
-                <div class="pdp-box-wrap">
-                  <div class="pdp-box-item pdp-box-item--hero">
-                    <span class="pdp-box-item__icon" set:html={BOX_ICONS[0]} />
-                    <span class="pdp-box-item__name">{(product.boxContents ?? [])[0]}</span>
-                  </div>
-                  {(product.boxContents ?? []).length > 1 && (
-                    <div class="pdp-box-accessories">
-                      {(product.boxContents ?? []).slice(1).map((item, idx) => (
-                        <div class="pdp-box-item pdp-box-item--acc">
-                          <span class="pdp-box-item__icon" set:html={BOX_ICONS[idx + 1] ?? BOX_ICONS[0]} />
-                          <span class="pdp-box-item__name">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <table class="pdp-box-table">
+                  <tbody>
+                    {(product.boxContents ?? []).map((item, idx) => (
+                      <tr>
+                        <td><span set:html={BOX_ICONS[idx] ?? BOX_ICONS[0]} /></td>
+                        <td>{item}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </details>
           )}
@@ -725,21 +719,12 @@ const BOX_ICONS = [
     .pdp-specs-table td:first-child{color:var(--pdp-muted);width:40%;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
     .pdp-specs-table td:last-child{color:var(--pdp-text);font-size:15px;font-weight:500}
     /* Box contents inside accordion */
-    /* Box / Комплект */
-    .pdp-box-wrap{padding-bottom:12px}
-    .pdp-box-item{background:none;border:none;border-radius:0;padding:0;box-shadow:none;transition:none;text-align:center}
-    .pdp-box-item__icon{display:block;margin:0 auto 10px}
-    .pdp-box-item__icon svg{display:block;margin:auto}
-    .pdp-box-item__name{display:block;line-height:1.4}
-    /* Hero — main product */
-    .pdp-box-item--hero{padding:8px 0 32px;max-width:180px;margin:0 auto}
-    .pdp-box-item--hero .pdp-box-item__icon{color:rgba(0,0,0,.62);margin-bottom:14px}
-    .pdp-box-item--hero .pdp-box-item__name{font-size:15px;font-weight:500;color:var(--pdp-text)}
-    /* Accessories row */
-    .pdp-box-accessories{display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
-    .pdp-box-item--acc{padding:0}
-    .pdp-box-item--acc .pdp-box-item__icon{color:rgba(0,0,0,.38);margin-bottom:8px}
-    .pdp-box-item--acc .pdp-box-item__name{font-size:12px;font-weight:400;color:var(--pdp-muted)}
+    /* Box / Комплект — таблица как у спек */
+    .pdp-box-table{width:100%;border-collapse:collapse;border-spacing:0}
+    .pdp-box-table td{border-bottom:1px solid rgba(0,0,0,.04);padding:16px 0;background:none!important;vertical-align:middle}
+    .pdp-box-table tr:last-child td{border-bottom:none}
+    .pdp-box-table td:first-child{width:32px;color:var(--pdp-muted)}
+    .pdp-box-table td:last-child{padding-left:14px;font-size:15px;font-weight:400;color:var(--pdp-text)}
 
     /* ===== 7. Model Comparison — lighter ===== */
     .pdp-compare{background:var(--pdp-bg)!important;padding:96px 0}
@@ -862,7 +847,6 @@ const BOX_ICONS = [
       .pdp-benefits__grid{flex-direction:column;gap:16px}
       .pdp-key-specs__grid{grid-template-columns:1fr!important}
       .pdp-spec-card{padding:20px 16px!important;border-right:none!important;border-bottom:none!important}
-      .pdp-box-accessories{gap:24px}
     }
 
     /* ── PDP Fixes ── */
@@ -934,8 +918,9 @@ const BOX_ICONS = [
     .pdp-accordion { border: none !important }
 
     /* ── 4. Box item icons ── */
-    .pdp-box-item--hero .pdp-box-item__icon { color: rgba(0,0,0,.62) !important }
-    .pdp-box-item--acc .pdp-box-item__icon { color: rgba(0,0,0,.38) !important }
+    .pdp-box-table td { padding: 18px 0 !important; border-bottom: 1px solid rgba(0,0,0,.03) !important }
+    .pdp-box-table tr:last-child td { border-bottom: none !important }
+    .pdp-box-table td:last-child { font-size: 15px !important; font-weight: 400 !important }
     .pdp-compare-card__specs { display: none !important }
 
     /* ── 5. Compare: current dominant, secondary muted ── */
