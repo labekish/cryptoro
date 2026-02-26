@@ -185,7 +185,6 @@ const BOX_ICONS = [
       <div class="pdp-container">
         <div class="pdp-editorial__copy reveal">
           <h2 class="pdp-section-title">О продукте</h2>
-          {product.seoDescription && <p class="pdp-editorial__lead">{product.seoDescription}</p>}
           <div class="pdp-editorial__body">
             <slot />
           </div>
@@ -297,18 +296,6 @@ const BOX_ICONS = [
       </section>
     )}
 
-    <!-- 8. Trust Bar -->
-    <section class="pdp-trust">
-      <div class="pdp-container">
-        <div class="pdp-trust__row reveal">
-          <span>Гарантия 1 год</span>
-          <span class="pdp-trust__sep" aria-hidden="true">&middot;</span>
-          <span>Доставка по РФ</span>
-          <span class="pdp-trust__sep" aria-hidden="true">&middot;</span>
-          <span>Возврат 14 дней</span>
-        </div>
-      </div>
-    </section>
   </main>
 
   <!-- Sticky Mobile Buy Bar -->
@@ -695,8 +682,8 @@ const BOX_ICONS = [
     .pdp-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
     .pdp-sticky-bar--visible{transform:translateY(0);pointer-events:auto}
     .pdp-sticky-bar__inner{max-width:980px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    /* Bottom padding so last content section isn't hidden under sticky bar */
-    .pdp-trust{padding-bottom:calc(48px + env(safe-area-inset-bottom,0px))!important}
+    /* Bottom padding so last section isn't hidden under sticky bar */
+    .pdp { padding-bottom: calc(64px + env(safe-area-inset-bottom,0px)) }
     .pdp-sticky-bar__info{display:flex;flex-direction:column;gap:2px;min-width:0}
     .pdp-sticky-bar__name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pdp-sticky-bar__price{font-size:16px;font-weight:700}
@@ -803,7 +790,7 @@ const BOX_ICONS = [
     .pdp-hero__trust {
       margin: 14px auto 0;
       font-size: 12px;
-      color: var(--pdp-muted);
+      color: var(--pdp-muted) !important;
       font-weight: 400;
       letter-spacing: .01em;
     }
@@ -813,9 +800,14 @@ const BOX_ICONS = [
 
     /* E. Fix Layout.astro global colour overrides */
     .pdp-hero__price { color: #1d1d1f !important }
+    .pdp-hero__currency { color: var(--pdp-muted) !important }
     .pdp-spec-card__num { color: var(--pdp-text) !important }
     .pdp-compare-card__price { color: var(--pdp-text) !important }
     .pdp-sticky-bar__price { color: var(--pdp-text) !important }
+
+    /* F. Spec card unit: allow multi-word units to wrap, cap width */
+    .pdp-spec-card__value { flex-wrap: wrap !important; gap: .06em .16em !important }
+    .pdp-spec-card__unit { white-space: normal !important; max-width: 18ch; line-height: 1.3; text-align: center }
 
     /* ── 1. Key specs: whitespace-only separation, no divider lines ── */
     .pdp-key-specs { padding: 80px 0 64px !important }
