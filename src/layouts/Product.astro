@@ -90,6 +90,16 @@ const priceNote = product.priceNote ?? '';
 const paramChips = product.paramChips ?? [];
 const colors = product.colors ?? [];
 
+function getColorToneKey(colorName: string): string {
+  const name = colorName.toLowerCase();
+  if (name.includes('чер')) return 'black';
+  if (name.includes('сереб')) return 'silver';
+  if (name.includes('золот')) return 'gold';
+  if (name.includes('син')) return 'blue';
+  if (name.includes('бел')) return 'white';
+  return 'neutral';
+}
+
 const BOX_ICONS = [
   `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="2"/><path d="M5 10a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 6V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>`,
@@ -112,13 +122,15 @@ const BOX_ICONS = [
           <span>{product.title}</span>
         </nav>
 
-        {product.badge && <span class="pdp-badge">{product.badge}</span>}
+        <div class={`pdp-hero__badges-row${product.badge ? ' has-badge' : ''}`}>
+          {product.badge && <span class="pdp-badge">{product.badge}</span>}
+          <span class="pdp-hero__stock" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></span>
+        </div>
         <h1 class="pdp-hero__title">{product.title}</h1>
         <p class="pdp-hero__subtitle">{subtitle}</p>
 
         <div class="pdp-hero__price-row">
           <span class="pdp-hero__price" data-ms-price={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}>{price}<span class="pdp-hero__currency">&nbsp;₽</span></span>
-          <span class="pdp-hero__stock" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></span>
         </div>
         {priceNote && <p class="pdp-hero__price-note">{priceNote}</p>}
 
@@ -149,13 +161,21 @@ const BOX_ICONS = [
           </div>
         </div>
 
-
         {colors.length > 1 && (
           <div class="pdp-hero__colors">
-            <p class="pdp-hero__color-label">Цвет: <span id="selectedColorName">{colors[0]}</span></p>
             <div class="pdp-hero__color-btns" id="colorBtns">
               {colors.map((c, i) => (
-                <button class={`color-btn${i === 0 ? ' active' : ''}`} type="button" data-color={c} data-color-img={product.colorImages?.[c] ?? ''}>{c}</button>
+                <button
+                  class={`color-btn${i === 0 ? ' active' : ''}`}
+                  type="button"
+                  data-color={c}
+                  data-color-key={getColorToneKey(c)}
+                  data-color-img={product.colorImages?.[c] ?? ''}
+                  aria-pressed={i === 0 ? 'true' : 'false'}
+                >
+                  <span class={`color-btn__swatch color-btn__swatch--${getColorToneKey(c)}`} aria-hidden="true"></span>
+                  <span class="color-btn__text">{c}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -307,12 +327,13 @@ const BOX_ICONS = [
 
   <!-- Sticky Mobile Buy Bar -->
   <div class="pdp-sticky-bar" id="stickyBar">
-    <div class="pdp-sticky-bar__inner">
-      <div class="pdp-sticky-bar__info">
-        <span class="pdp-sticky-bar__name">{product.title}</span>
-        <span class="pdp-sticky-bar__price" data-ms-price={product.slug}>{price}&nbsp;₽</span>
-      </div>
-      <button class="pdp-btn pdp-btn--primary pdp-btn--sm" id="stickyBuyBtn">Купить</button>
+      <div class="pdp-sticky-bar__inner">
+        <div class="pdp-sticky-bar__info">
+          <span class="pdp-sticky-bar__name">{product.title}</span>
+          {colors.length > 1 && <span class="pdp-sticky-bar__meta" id="stickySelectedColor">Цвет: {colors[0]}</span>}
+          <span class="pdp-sticky-bar__price" data-ms-price={product.slug}>{price}&nbsp;₽</span>
+        </div>
+        <button class="pdp-btn pdp-btn--primary pdp-btn--sm" id="stickyBuyBtn">Купить</button>
     </div>
   </div>
 
@@ -385,6 +406,19 @@ const BOX_ICONS = [
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      function swapMainImage(nextSrc) {
+        if (!nextSrc) return;
+        const mainImg = document.getElementById('mainImg');
+        if (!(mainImg instanceof HTMLImageElement) || mainImg.src === nextSrc) return;
+
+        // Плавная смена фото при выборе цвета без изменения логики товара.
+        mainImg.classList.add('is-swapping');
+        const clearSwapState = () => mainImg.classList.remove('is-swapping');
+        mainImg.addEventListener('load', clearSwapState, { once: true });
+        mainImg.addEventListener('error', clearSwapState, { once: true });
+        mainImg.src = nextSrc;
+      }
+
       const addBtn = document.getElementById('addBtn');
       const buyBtn = document.getElementById('buyBtn');
       if (addBtn) addBtn.addEventListener('click', addToCartItem);
@@ -444,16 +478,17 @@ const BOX_ICONS = [
         colorBtns.addEventListener('click', (event) => {
           const btn = event.target.closest('.color-btn');
           if (!btn) return;
-          colorBtns.querySelectorAll('.color-btn').forEach((b) => b.classList.remove('active'));
+          colorBtns.querySelectorAll('.color-btn').forEach((b) => {
+            b.classList.remove('active');
+            b.setAttribute('aria-pressed', 'false');
+          });
           btn.classList.add('active');
-          const label = document.getElementById('selectedColorName');
-          if (label) label.textContent = btn.dataset.color || '';
+          btn.setAttribute('aria-pressed', 'true');
+          const stickyColor = document.getElementById('stickySelectedColor');
+          if (stickyColor) stickyColor.textContent = `Цвет: ${btn.dataset.color || ''}`;
           // Swap main image if color has a dedicated photo
           const colorImg = btn.dataset.colorImg;
-          if (colorImg) {
-            const mainImg = document.getElementById('mainImg');
-            if (mainImg) mainImg.src = colorImg;
-          }
+          if (colorImg) swapMainImage(colorImg);
         });
       }
     });
@@ -609,19 +644,29 @@ const BOX_ICONS = [
     .pdp-breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;font-size:13px;color:var(--pdp-muted)}
     .pdp-breadcrumbs a{text-decoration:none;color:#6e6e73;transition:color .15s}
     .pdp-breadcrumbs a:hover{color:var(--pdp-text)}
-    .pdp-badge{display:inline-block;background:var(--pdp-accent);color:#fff;border-radius:20px;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+    .pdp-hero__badges-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:0}
+    .pdp-hero__badges-row.has-badge{margin-bottom:14px}
+    .pdp-badge{display:inline-flex;align-items:center;justify-content:center;min-height:22px;background:var(--pdp-accent);color:#fff;border-radius:20px;padding:0 14px;font-size:10px;font-weight:700;line-height:1;letter-spacing:.1em;text-transform:uppercase}
     .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin:0 0 8px;overflow:hidden}
     .pdp-hero__subtitle{font-size:clamp(17px,1.8vw,20px);line-height:1.45;color:var(--pdp-muted);margin:0 auto 10px;max-width:34ch}
     .pdp-hero__price-row{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-bottom:4px}
     .pdp-hero__price{font-family:'Unbounded',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:600;line-height:1.1;letter-spacing:-.02em;color:#222}
     .pdp-hero__currency{font-size:.65em;font-weight:400;color:var(--pdp-muted);letter-spacing:0}
-    .pdp-hero__stock{display:none;align-items:center;padding:3px 9px;font-size:11px;font-weight:500;color:#6e6e73;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.1);border-radius:999px;letter-spacing:.01em}
+    .pdp-hero__stock{display:none;align-items:center;justify-content:center;min-height:22px;padding:0 10px;font-size:11px;font-weight:600;line-height:1;color:#6e6e73;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.1);border-radius:999px;letter-spacing:.01em;white-space:nowrap}
     .pdp-hero__price-note{margin:0 0 6px;color:var(--pdp-muted);font-size:14px}
 
     /* Override global MS badge colors to match premium PDP palette */
     .pdp-hero__stock.ms-in-stock{color:#15803d;background:rgba(21,128,61,.06);border-color:rgba(21,128,61,.16)}
     .pdp-hero__stock.ms-low-stock{color:#92400e;background:rgba(146,64,14,.06);border-color:rgba(146,64,14,.16)}
     .pdp-hero__stock.ms-preorder{color:#6b7280;background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.12)}
+    /* В hero глобальный .ms-stock-badge добавляет margin-top, из-за этого плашка "падает" ниже бейджа */
+    .pdp-hero__badges-row .pdp-hero__stock.ms-stock-badge{
+      margin:0!important;
+      min-height:22px!important;
+      padding:0 10px!important;
+      font-size:11px!important;
+      line-height:1!important;
+    }
 
     /* ===== Mini Hero Key Specs (heroKeySpecs mode) ===== */
     .pdp-hero__keyspecs{display:grid;grid-template-columns:repeat(4,1fr);max-width:500px;margin:20px auto 0;border:1px solid rgba(0,0,0,.08);border-radius:16px;overflow:hidden}
@@ -635,9 +680,10 @@ const BOX_ICONS = [
     .pdp-hero__keyspec-label{display:block;font-size:9px;color:var(--pdp-muted);font-weight:500;text-transform:uppercase;letter-spacing:.07em;line-height:1.3}
 
     /* Hero Media — larger image */
-    .pdp-hero__media{margin:24px auto 0;max-width:820px}
+    .pdp-hero__media{margin:18px auto 0;max-width:820px}
     .pdp-hero__main-img{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .pdp-hero__main-img img{width:92%;max-width:720px;object-fit:contain;cursor:zoom-in;transition:transform .5s cubic-bezier(.25,.1,.25,1)}
+    .pdp-hero__main-img img{width:92%;max-width:720px;object-fit:contain;cursor:zoom-in;opacity:1;transition:transform .5s cubic-bezier(.25,.1,.25,1),opacity .18s ease}
+    .pdp-hero__main-img img.is-swapping{opacity:.45}
     .pdp-hero__main-img:hover img{transform:scale(1.05)}
 
     /* Thumbs */
@@ -648,24 +694,33 @@ const BOX_ICONS = [
     .pdp-thumb:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(232,134,53,.22)}
 
     /* Colors */
-    .pdp-hero__colors{margin-top:20px}
-    .pdp-hero__color-label{font-size:14px;font-weight:600;color:var(--pdp-text);margin:0 0 10px}
-    .pdp-hero__color-label span{font-weight:400;color:var(--pdp-muted)}
-    .pdp-hero__color-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-    .color-btn{height:36px;padding:0 14px;border-radius:20px;border:1.5px solid rgba(0,0,0,.12);background:#fff;color:#374151;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s ease;line-height:1}
-    .color-btn:hover:not([disabled]){border-color:rgba(0,0,0,.35);color:#111}
-    .color-btn.active{border-color:#111;background:#111;color:#fff}
+    .pdp-hero__colors{margin-top:18px;max-width:520px;margin-left:auto;margin-right:auto;width:100%}
+    .pdp-hero__color-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;width:100%}
+    .color-btn{min-height:44px;padding:8px 15px 8px 10px;border-radius:999px;border:1.5px solid rgba(0,0,0,.12);background:rgba(255,255,255,.86);color:#374151;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s ease;line-height:1;display:inline-flex;align-items:center;gap:9px;backdrop-filter:blur(6px)}
+    .color-btn:hover:not([disabled]){border-color:rgba(0,0,0,.28);color:#111;transform:translateY(-1px)}
+    .color-btn.active{border-color:#111;background:linear-gradient(180deg,#fff,#f8fafc);color:#111;box-shadow:0 8px 20px rgba(0,0,0,.12), inset 0 0 0 1px rgba(17,17,17,.05);transform:translateY(-1px)}
+    .color-btn.active .color-btn__swatch{box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 0 0 2px rgba(17,17,17,.08)}
+    .color-btn.active .color-btn__text{font-weight:600}
     .color-btn[disabled]{opacity:.38;cursor:not-allowed;text-decoration:line-through}
     .color-btn.is-preorder{opacity:.7;border-style:dashed}
     .color-btn.is-low{border-color:#f59e0b}
+    .color-btn__text{display:inline-flex;align-items:center}
+    .color-btn__swatch{width:18px;height:18px;border-radius:999px;display:inline-block;position:relative;flex:0 0 18px;border:1px solid rgba(0,0,0,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+    .color-btn__swatch::after{content:'';position:absolute;inset:2px auto auto 2px;width:8px;height:6px;border-radius:999px;background:rgba(255,255,255,.45);filter:blur(.2px)}
+    .color-btn__swatch--black{background:linear-gradient(135deg,#1f2937,#111827)}
+    .color-btn__swatch--silver{background:linear-gradient(135deg,#f3f4f6,#9ca3af)}
+    .color-btn__swatch--gold{background:linear-gradient(135deg,#fcd34d,#d97706)}
+    .color-btn__swatch--blue{background:linear-gradient(135deg,#93c5fd,#1d4ed8)}
+    .color-btn__swatch--white{background:linear-gradient(135deg,#fff,#e5e7eb)}
+    .color-btn__swatch--neutral{background:linear-gradient(135deg,#d1d5db,#6b7280)}
     .color-stock{font-size:10px;margin-left:5px;opacity:.65;font-weight:400}
-    .color-btn.active .color-stock{opacity:.85;color:#fff}
+    .color-btn.active .color-stock{opacity:.85;color:#111}
 
     /* Variants (populated by Moysklad) */
     .pdp-hero__variants{display:none!important}
 
     /* Actions */
-    .pdp-hero__actions{display:flex;gap:12px;justify-content:center;margin-top:28px;max-width:400px;margin-left:auto;margin-right:auto}
+    .pdp-hero__actions{display:flex;gap:12px;justify-content:center;margin-top:14px;max-width:520px;margin-left:auto;margin-right:auto}
 
     /* ===== Button System ===== */
     .pdp-btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:14px;padding:14px 32px;min-height:52px;font:600 15px/1.2 'Inter',sans-serif;cursor:pointer;transition:all .2s ease-out;text-align:center;white-space:nowrap;flex:1}
@@ -758,13 +813,14 @@ const BOX_ICONS = [
     .pdp-ai-dark__item:not(:first-child){border-left:1px solid rgba(255,255,255,.15)}
 
     /* ===== Sticky Buy Bar ===== */
-    .pdp-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
+    .pdp-sticky-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s ease;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)}
     .pdp-sticky-bar--visible{transform:translateY(0);pointer-events:auto}
     .pdp-sticky-bar__inner{max-width:980px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
     /* Bottom padding so last section isn't hidden under sticky bar */
-    .pdp { padding-bottom: calc(64px + env(safe-area-inset-bottom,0px)) }
+    .pdp { padding-bottom: 0 }
     .pdp-sticky-bar__info{display:flex;flex-direction:column;gap:2px;min-width:0}
     .pdp-sticky-bar__name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pdp-sticky-bar__meta{font-size:11px;font-weight:500;color:var(--pdp-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .pdp-sticky-bar__price{font-size:16px;font-weight:700}
 
     /* ===== Lightbox ===== */
@@ -790,6 +846,8 @@ const BOX_ICONS = [
 
     /* ===== Responsive: Tablet ===== */
     @media(max-width:980px){
+      .pdp-sticky-bar{display:block}
+      .pdp { padding-bottom: calc(64px + env(safe-area-inset-bottom,0px)) }
       .pdp-editorial__grid{grid-template-columns:1fr;gap:32px}
       .pdp-editorial__image{max-height:400px}
       .pdp-compare__grid{grid-template-columns:repeat(2,1fr)}
@@ -806,13 +864,17 @@ const BOX_ICONS = [
       .pdp-hero__keyspec-label{font-size:8px}
       .pdp-hero__title{font-size:clamp(38px,10vw,52px)}
       .pdp-hero__price{font-size:clamp(28px,7vw,36px)}
-      .pdp-hero__media{margin-top:20px}
+      .pdp-hero__colors{margin-top:10px}
+      .pdp-hero__color-btns{gap:8px}
+      .color-btn{min-height:38px;padding:6px 10px 6px 8px}
+      .color-btn__swatch{width:14px;height:14px;flex-basis:14px}
+      .pdp-hero__media{margin-top:12px}
       .pdp-hero__main-img img{width:92%;max-width:440px}
       .pdp-hero__thumbs{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:0 18px 4px}
       .pdp-hero__thumbs::-webkit-scrollbar{height:6px}
       .pdp-hero__thumbs::-webkit-scrollbar-thumb{background:rgba(17,24,39,.16);border-radius:999px}
       .pdp-thumb{flex:0 0 auto}
-      .pdp-hero__actions{flex-direction:column;max-width:100%;padding:0 18px}
+      .pdp-hero__actions{flex-direction:column;max-width:100%;padding:0 18px;margin-top:14px!important}
       .pdp-btn{width:100%;flex:initial}
       .pdp-section-title{font-size:clamp(22px,5.5vw,26px);margin-bottom:20px}
       .pdp-ai-dark{padding:64px 0}
