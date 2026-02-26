@@ -149,15 +149,6 @@ const BOX_ICONS = [
           </div>
         </div>
 
-        {gallery.length > 1 && (
-          <div class="pdp-hero__thumbs">
-            {gallery.map((image, idx) => (
-              <button class={`pdp-thumb ${idx === 0 ? 'active' : ''}`} type="button" data-gallery-thumb data-src={image} aria-label={`Фото ${idx + 1}: ${product.title}`}>
-                <img src={image} alt="" />
-              </button>
-            ))}
-          </div>
-        )}
 
         {colors.length > 1 && (
           <div class="pdp-hero__colors">
