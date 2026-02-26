@@ -71,10 +71,9 @@ const keySpecs = [
   { label: 'Память', value: product.specs?.memory },
   { label: 'Автономность', value: product.specs?.battery },
   { label: 'Вес', value: product.specs?.weight },
-  { label: 'Подключение', value: product.specs?.connection },
   { label: 'Размеры', value: product.specs?.dimensions },
   { label: 'Языки', value: product.specs?.languages },
-].filter((s): s is { label: string; value: string } => !!s.value).slice(0, 4);
+].filter((s): s is { label: string; value: string } => !!s.value).slice(0, 3);
 
 function parseSpecDisplay(val: string): { prefix: string; num: string; unit: string } {
   const m = val.match(/^([^\d]*)(\d+(?:[.,]\d+)?)(.*)$/);
@@ -219,7 +218,7 @@ const BOX_ICONS = [
                   {spec.parsed.num ? (
                     <>
                       {spec.parsed.prefix && <span class="pdp-spec-card__prefix">{spec.parsed.prefix}</span>}
-                      <span class="pdp-spec-card__num">{spec.parsed.num}</span>
+                      <span class="pdp-spec-card__num" data-count-to={spec.parsed.num}>0</span>
                       {spec.parsed.unit && <span class="pdp-spec-card__unit">{spec.parsed.unit}</span>}
                     </>
                   ) : (
@@ -500,6 +499,60 @@ const BOX_ICONS = [
     })();
   </script>
 
+  <!-- Key Specs Counter Animation -->
+  <script>
+    (function () {
+      const counters = document.querySelectorAll('.pdp-spec-card__num[data-count-to]');
+      if (!counters.length || !('IntersectionObserver' in window)) {
+        counters.forEach((el) => { el.textContent = el.getAttribute('data-count-to') || '0'; });
+        return;
+      }
+
+      let animated = false;
+
+      function easeOutExpo(t) {
+        return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+      }
+
+      function animateCounter(el, target, duration, delay) {
+        const targetNum = parseFloat(target.replace(',', '.'));
+        if (isNaN(targetNum)) { el.textContent = target; return; }
+        const isDecimal = target.includes('.');
+        setTimeout(() => {
+          const start = performance.now();
+          function tick(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = easeOutExpo(progress);
+            const current = eased * targetNum;
+            el.textContent = isDecimal ? current.toFixed(1) : String(Math.round(current));
+            if (progress < 1) {
+              requestAnimationFrame(tick);
+            } else {
+              el.textContent = target;
+            }
+          }
+          requestAnimationFrame(tick);
+        }, delay);
+      }
+
+      const section = document.querySelector('.pdp-key-specs');
+      if (!section) return;
+
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && !animated) {
+          animated = true;
+          counters.forEach((el, idx) => {
+            const target = el.getAttribute('data-count-to') || '0';
+            animateCounter(el, target, 900, idx * 120);
+          });
+          observer.disconnect();
+        }
+      }, { threshold: 0.3 });
+
+      observer.observe(section);
+    })();
+  </script>
+
   <!-- JSON-LD: Product -->
   <script type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org',
@@ -638,13 +691,12 @@ const BOX_ICONS = [
     .pdp-editorial__image{border-radius:20px;overflow:hidden}
     .pdp-editorial__image img{width:100%;height:100%;object-fit:cover;display:block;border-radius:20px}
 
-    /* ===== 4. Key Specs — typographic 2x2 grid, no cards ===== */
-    .pdp-key-specs{background:var(--pdp-bg)!important;padding:112px 0 96px}
-    .pdp-key-specs__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;max-width:640px;margin:0 auto}
+    /* ===== 4. Key Specs — typographic 3-col row ===== */
+    .pdp-key-specs{background:var(--pdp-bg)!important;padding:80px 0 72px}
+    .pdp-key-specs__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;max-width:780px;margin:0 auto}
     .pdp-spec-card{background:none;border:none;border-radius:0;padding:36px 24px;text-align:center;box-shadow:none;transition:none;position:relative}
-    /* subtle grid lines */
-    .pdp-spec-card:nth-child(odd){border-right:1px solid rgba(0,0,0,.08)}
-    .pdp-spec-card:nth-child(-n+2){border-bottom:1px solid rgba(0,0,0,.08)}
+    /* vertical dividers between columns */
+    .pdp-spec-card:not(:last-child){border-right:1px solid rgba(0,0,0,.08)}
     .pdp-spec-card__value{display:flex;align-items:baseline;justify-content:center;gap:.1em;flex-wrap:wrap;margin-bottom:8px;white-space:nowrap}
     .pdp-spec-card__num{font-family:'Unbounded',sans-serif;font-size:clamp(30px,4vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.025em;color:var(--pdp-text)}
     .pdp-spec-card__unit{font-size:.7em;font-weight:600;letter-spacing:-.01em;color:var(--pdp-muted);margin-left:.08em}
@@ -763,13 +815,14 @@ const BOX_ICONS = [
       .pdp-ai-dark__headline{font-size:clamp(24px,7vw,34px);margin-bottom:32px}
       .pdp-ai-dark__item{font-size:15px;padding:18px 0}
       .pdp-benefits__grid{gap:24px}
-      .pdp-key-specs__grid{max-width:100%}
+      .pdp-key-specs__grid{max-width:100%;grid-template-columns:repeat(3,1fr)!important}
       .pdp-editorial{padding:56px 0 48px}
       .pdp-editorial__lead{font-size:17px}
       .pdp-editorial__body{font-size:16px}
-      .pdp-key-specs{padding:72px 0 56px}
-      .pdp-spec-card__num{font-size:clamp(24px,7vw,32px)}
-      .pdp-spec-card__text{font-size:clamp(14px,4vw,18px)}
+      .pdp-key-specs{padding:56px 0 48px}
+      .pdp-spec-card{padding:28px 16px!important}
+      .pdp-spec-card__num{font-size:clamp(22px,6vw,30px)}
+      .pdp-spec-card__text{font-size:clamp(13px,3.5vw,17px)}
       .pdp-full-specs{padding:40px 0}
       .pdp-box{padding:40px 0}
       .pdp-compare{padding:56px 0}
@@ -793,12 +846,9 @@ const BOX_ICONS = [
       .pdp-thumb img{width:44px;height:44px}
       .pdp-thumb{padding:5px}
       .pdp-benefits__grid{flex-direction:column;gap:16px}
-      .pdp-spec-card{padding:24px 16px}
-      .pdp-spec-card:nth-child(odd){border-right:none}
-      .pdp-key-specs__grid{grid-template-columns:1fr}
-      .pdp-spec-card:nth-child(-n+2){border-bottom:none}
-      .pdp-spec-card{border-bottom:1px solid rgba(0,0,0,.08)}
-      .pdp-spec-card:last-child{border-bottom:none}
+      .pdp-key-specs__grid{grid-template-columns:1fr!important}
+      .pdp-spec-card{padding:20px 16px!important;border-right:none!important;border-bottom:1px solid rgba(0,0,0,.08)!important}
+      .pdp-spec-card:last-child{border-bottom:none!important}
       .pdp-box__grid{grid-template-columns:repeat(2,1fr)}
     }
 
@@ -839,9 +889,9 @@ const BOX_ICONS = [
     .pdp-spec-card__value { flex-wrap: wrap !important; gap: .06em .16em !important }
     .pdp-spec-card__unit { white-space: normal !important; max-width: 18ch; line-height: 1.3; text-align: center }
 
-    /* ── 1. Key specs: whitespace-only separation, no divider lines ── */
-    .pdp-key-specs { padding: 80px 0 64px !important }
-    .pdp-key-specs__grid { max-width: 680px !important; gap: 0 !important }
+    /* ── 1. Key specs: 3 columns in a row ── */
+    .pdp-key-specs { padding: 80px 0 72px !important }
+    .pdp-key-specs__grid { max-width: 780px !important; gap: 0 !important; grid-template-columns: repeat(3,1fr) !important }
     .pdp-spec-card {
       padding: 40px 32px !important;
       border: none !important;
@@ -849,9 +899,7 @@ const BOX_ICONS = [
       flex-direction: column !important;
       justify-content: center !important;
     }
-    /* Remove ALL divider lines */
-    .pdp-spec-card:nth-child(odd) { border-right: none !important }
-    .pdp-spec-card:nth-child(-n+2) { border-bottom: none !important }
+    .pdp-spec-card:not(:last-child) { border-right: 1px solid rgba(0,0,0,.08) !important }
     .pdp-spec-card__label { text-transform: none !important; letter-spacing: .01em !important; font-size: 13px !important }
 
     /* ── 2. Editorial: text-only, single column, generous width ── */
