@@ -432,8 +432,27 @@ const BOX_ICONS = [
 
     function getSelectedColor() {
       if (!hasColors) return '';
-      const btn = document.querySelector('#colorBtns .color-btn.active');
+      const btn = document.querySelector('#colorBtns .color-btn.active') || document.querySelector('#colorBtns .color-btn');
       return btn ? (btn.dataset.color || '') : '';
+    }
+
+    function getSelectedColorButton() {
+      if (!hasColors) return null;
+      const btn = document.querySelector('#colorBtns .color-btn.active') || document.querySelector('#colorBtns .color-btn');
+      return btn instanceof HTMLButtonElement ? btn : null;
+    }
+
+    function getSelectedColorState() {
+      const btn = getSelectedColorButton();
+      if (!btn) return { hasSelection: false, isHidden: false, isPreorder: false, color: '' };
+      const isHidden = !!btn.disabled || btn.classList.contains('is-hidden-color');
+      const isPreorder = !isHidden && btn.classList.contains('is-preorder');
+      return {
+        hasSelection: true,
+        isHidden,
+        isPreorder,
+        color: btn.dataset.color || ''
+      };
     }
 
     function buildCartItem() {
@@ -448,7 +467,12 @@ const BOX_ICONS = [
       };
     }
 
-    function addToCartItem() {
+    function addToCartItem(options = {}) {
+      const { allowPreorder = false, skipFeedback = false } = options;
+      const state = getSelectedColorState();
+      if (state.isHidden) return false;
+      if (state.isPreorder && !allowPreorder) return false;
+
       if (window.cryptoroCart && typeof window.cryptoroCart.add === 'function') {
         window.cryptoroCart.add(buildCartItem());
       }
@@ -459,16 +483,19 @@ const BOX_ICONS = [
         c.style.display = nextCount > 0 ? 'flex' : 'none';
       }
       window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count: nextCount } }));
+      if (skipFeedback) return true;
       showToast();
       const btn = document.getElementById('addBtn');
       if (!btn) return;
       const original = btn.textContent;
       btn.textContent = '\u2713 Добавлено';
       setTimeout(() => { btn.textContent = original ?? 'В корзину'; }, 2000);
+      return true;
     }
 
     function buyNowItem() {
-      addToCartItem();
+      const added = addToCartItem({ allowPreorder: true, skipFeedback: true });
+      if (!added) return;
       window.location.href = '/cart';
     }
 
@@ -484,6 +511,45 @@ const BOX_ICONS = [
         mainImg.addEventListener('load', clearSwapState, { once: true });
         mainImg.addEventListener('error', clearSwapState, { once: true });
         mainImg.src = nextSrc;
+      }
+
+      function setButtonState(btn, { text, disabled }) {
+        if (!(btn instanceof HTMLButtonElement)) return;
+        if (typeof text === 'string') btn.textContent = text;
+        btn.disabled = !!disabled;
+        btn.classList.toggle('is-disabled', !!disabled);
+        btn.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      }
+
+      function syncColorCtaState() {
+        const state = getSelectedColorState();
+        if (!state.hasSelection) return;
+
+        const addBtn = document.getElementById('addBtn');
+        const buyBtn = document.getElementById('buyBtn');
+        const stickyBuyBtn = document.getElementById('stickyBuyBtn');
+        const stickyColor = document.getElementById('stickySelectedColor');
+
+        if (stickyColor && state.color) stickyColor.textContent = `Цвет: ${state.color}`;
+
+        // Для недоступного цвета не даем добавить в корзину; для предзаказа оставляем основной CTA.
+        if (state.isHidden) {
+          setButtonState(addBtn, { text: 'В корзину', disabled: true });
+          setButtonState(buyBtn, { text: 'Нет в наличии', disabled: true });
+          setButtonState(stickyBuyBtn, { text: 'Нет в наличии', disabled: true });
+          return;
+        }
+
+        if (state.isPreorder) {
+          setButtonState(addBtn, { text: 'В корзину', disabled: true });
+          setButtonState(buyBtn, { text: 'Предзаказ', disabled: false });
+          setButtonState(stickyBuyBtn, { text: 'Предзаказ', disabled: false });
+          return;
+        }
+
+        setButtonState(addBtn, { text: 'В корзину', disabled: false });
+        setButtonState(buyBtn, { text: 'Купить сейчас', disabled: false });
+        setButtonState(stickyBuyBtn, { text: 'Купить', disabled: false });
       }
 
       const addBtn = document.getElementById('addBtn');
@@ -542,6 +608,17 @@ const BOX_ICONS = [
           const mainImg = document.getElementById('mainImg');
           if (mainImg) mainImg.src = firstActive.dataset.colorImg;
         }
+        syncColorCtaState();
+
+        // МойСклад обновляет классы/disabled у цветов асинхронно; синхронизируем CTA после этих изменений.
+        const colorStateObserver = new MutationObserver(() => syncColorCtaState());
+        colorStateObserver.observe(colorBtns, {
+          subtree: true,
+          childList: true,
+          attributes: true,
+          attributeFilter: ['class', 'disabled']
+        });
+
         colorBtns.addEventListener('click', (event) => {
           const btn = event.target.closest('.color-btn');
           if (!btn) return;
@@ -556,6 +633,7 @@ const BOX_ICONS = [
           // Swap main image if color has a dedicated photo
           const colorImg = btn.dataset.colorImg;
           if (colorImg) swapMainImage(colorImg);
+          syncColorCtaState();
         });
       }
     });
