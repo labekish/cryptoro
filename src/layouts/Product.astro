@@ -31,6 +31,7 @@ interface ProductData {
   boxContents?: string[];
   gallery?: string[];
   colors?: string[];
+  colorImages?: Record<string, string>;
   heroKeySpecs?: boolean;
 }
 
@@ -163,7 +164,7 @@ const BOX_ICONS = [
             <p class="pdp-hero__color-label">Цвет: <span id="selectedColorName">{colors[0]}</span></p>
             <div class="pdp-hero__color-btns" id="colorBtns">
               {colors.map((c, i) => (
-                <button class={`color-btn${i === 0 ? ' active' : ''}`} type="button" data-color={c}>{c}</button>
+                <button class={`color-btn${i === 0 ? ' active' : ''}`} type="button" data-color={c} data-color-img={product.colorImages?.[c] ?? ''}>{c}</button>
               ))}
             </div>
           </div>
@@ -443,6 +444,12 @@ const BOX_ICONS = [
       // Color picker
       const colorBtns = document.getElementById('colorBtns');
       if (colorBtns) {
+        // Set initial image from first active color
+        const firstActive = colorBtns.querySelector('.color-btn.active');
+        if (firstActive?.dataset.colorImg) {
+          const mainImg = document.getElementById('mainImg');
+          if (mainImg) mainImg.src = firstActive.dataset.colorImg;
+        }
         colorBtns.addEventListener('click', (event) => {
           const btn = event.target.closest('.color-btn');
           if (!btn) return;
@@ -450,6 +457,12 @@ const BOX_ICONS = [
           btn.classList.add('active');
           const label = document.getElementById('selectedColorName');
           if (label) label.textContent = btn.dataset.color || '';
+          // Swap main image if color has a dedicated photo
+          const colorImg = btn.dataset.colorImg;
+          if (colorImg) {
+            const mainImg = document.getElementById('mainImg');
+            if (mainImg) mainImg.src = colorImg;
+          }
         });
       }
     });
