@@ -769,7 +769,7 @@ const BOX_ICONS = [
     .pdp-hero__badges-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:0}
     .pdp-hero__badges-row.has-badge{margin-bottom:14px}
     .pdp-badge{display:inline-flex;align-items:center;justify-content:center;min-height:22px;background:var(--pdp-accent);color:#fff;border-radius:20px;padding:0 14px;font-size:10px;font-weight:700;line-height:1;letter-spacing:.1em;text-transform:uppercase}
-    .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin:0 0 8px;overflow:hidden}
+    .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin:0 0 8px;overflow-wrap:anywhere}
     .pdp-hero__subtitle{font-size:clamp(17px,1.8vw,20px);line-height:1.45;color:var(--pdp-muted);margin:0 auto 10px;max-width:34ch}
     .pdp-hero__price-row{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-bottom:4px}
     .pdp-hero__price{font-family:'Unbounded',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:600;line-height:1.1;letter-spacing:-.02em;color:#222}
@@ -1007,7 +1007,13 @@ const BOX_ICONS = [
       .pdp-hero__keyspec-num{font-size:12px}
       .pdp-hero__keyspec-text{font-size:9px}
       .pdp-hero__keyspec-label{font-size:8px}
-      .pdp-hero__title{font-size:clamp(38px,10vw,52px)}
+      .pdp-hero__title{
+        font-size:clamp(30px,9.6vw,42px);
+        line-height:1.06;
+        letter-spacing:-.025em;
+        overflow-wrap:anywhere;
+        word-break:break-word;
+      }
       .pdp-hero__price{font-size:clamp(28px,7vw,36px)}
       .pdp-hero__colors{margin-top:10px}
       .pdp-hero__color-btns{gap:8px}
@@ -1024,7 +1030,23 @@ const BOX_ICONS = [
       .pdp-section-title{font-size:clamp(22px,5.5vw,26px);margin-bottom:20px}
       .pdp-ai-dark{padding:64px 0}
       .pdp-ai-dark__headline{font-size:clamp(24px,7vw,34px);margin-bottom:32px}
-      .pdp-ai-dark__item{font-size:15px;padding:18px 0}
+      .pdp-ai-dark__list{
+        flex-direction:column;
+        align-items:stretch;
+        gap:0;
+        max-width:260px;
+        margin:0 auto;
+      }
+      .pdp-ai-dark__item{
+        font-size:14px;
+        padding:12px 0;
+        white-space:normal;
+        text-align:center;
+      }
+      .pdp-ai-dark__item:not(:first-child){
+        border-left:none;
+        border-top:1px solid rgba(255,255,255,.14);
+      }
       .pdp-benefits__grid{gap:24px}
       .section-parameters-wrapper{margin:20px auto 0;padding:0 24px}
       .pdp-key-specs--overlap .section-parameters-wrapper{margin:-56px auto 88px;padding:0 24px}
@@ -1035,21 +1057,21 @@ const BOX_ICONS = [
       .pdp-editorial__lead{font-size:17px}
       .pdp-editorial__body{font-size:16px}
       .section-parameters-wrapper{margin:12px auto 0;padding:0 24px}
-      .pdp-key-specs--overlap .section-parameters-wrapper{margin:-28px auto 64px;padding:0 24px}
-      .parameters-panel{padding:48px 24px;border-radius:16px}
-      .parameters-panel .pdp-section-title{margin-bottom:24px}
+      .pdp-key-specs--overlap .section-parameters-wrapper{margin:-8px auto 64px;padding:0 24px}
+      .parameters-panel{padding:56px 24px 48px;border-radius:16px}
+      .parameters-panel .pdp-section-title{margin-bottom:20px}
       .pdp-key-specs{padding:0!important}
       .pdp-key-specs__grid{grid-template-columns:1fr!important;gap:32px!important}
       .pdp-spec-card{padding:0!important}
       .pdp-spec-card__num{font-size:clamp(22px,6vw,30px)}
       .pdp-spec-card__text{font-size:clamp(13px,3.5vw,17px)}
-      .pdp-details{padding:48px 0 48px}
+      .pdp-details{padding:56px 0 48px}
       .pdp-full-specs{padding:40px 0}
       .pdp-box{padding:40px 0}
       .pdp-compare{padding:56px 0}
       .pdp-compare__grid{grid-template-columns:1fr}
       .pdp-compare-card--current{transform:none}
-      .pdp-accordion__trigger{padding:20px 0}
+      .pdp-accordion__trigger{padding:18px 0}
       .pdp-accordion__body{padding:0 0 20px}
       .pdp-trust__row{flex-direction:column;gap:8px}
       .pdp-trust__sep{display:none}
@@ -1363,23 +1385,34 @@ const BOX_ICONS = [
     }
     @media(max-width:640px){
       .section-parameters-wrapper { margin: 10px auto 0 !important; padding: 0 18px !important }
-      .pdp-key-specs--overlap .section-parameters-wrapper { margin: -28px auto 64px !important; padding: 0 18px !important }
-      .parameters-panel { padding: 48px 24px !important; border-radius: 16px !important }
-      .parameters-panel .pdp-section-title { margin-bottom: 24px !important }
+      .pdp-key-specs--overlap .section-parameters-wrapper { margin: -8px auto 64px !important; padding: 0 18px !important }
+      .parameters-panel { padding: 56px 24px 48px !important; border-radius: 16px !important }
+      .parameters-panel .pdp-section-title { margin-bottom: 20px !important }
       .pdp-key-specs__grid { grid-template-columns: 1fr !important; gap: 32px !important }
       .pdp-spec-card { padding: 0 !important }
       .pdp-spec-card__num { font-size: clamp(22px, 6vw, 30px) !important }
       .pdp-spec-card__text { font-size: clamp(13px, 3.5vw, 17px) !important }
-      .pdp-details { padding: 48px 0 44px !important }
-      .pdp-specs-table tr { gap: 14px !important; padding: 18px 0 !important }
-      .pdp-specs-table td:first-child { font-size: 12px !important }
-      .pdp-specs-table td:last-child { font-size: 14px !important }
+      .pdp-details { padding: 56px 0 44px !important }
+      .pdp-specs-table tr {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+        padding: 14px 0 !important;
+      }
+      .pdp-specs-table td:first-child {
+        font-size: 12px !important;
+        line-height: 1.25 !important;
+      }
+      .pdp-specs-table td:last-child {
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+        text-align: left !important;
+      }
 
       .pdp-editorial--enhanced { padding: 44px 0 4px !important }
       .pdp-editorial--enhanced .pdp-editorial__showcase { gap: 0 }
       .pdp-editorial--enhanced .pdp-editorial__headline {
         max-width: 100%;
-        font-size: 24px;
+        font-size: 23px;
         line-height: 1.04;
       }
       .pdp-editorial--enhanced .pdp-editorial__subline {
@@ -1401,7 +1434,7 @@ const BOX_ICONS = [
       .pdp-cinematic { padding: 0 0 48px }
       .pdp-cinematic__inner { padding: 0 18px; gap: 8px }
       .pdp-cinematic__headline {
-        font-size: 22px;
+        font-size: 21px;
         line-height: 1.08;
         max-width: 280px;
       }
