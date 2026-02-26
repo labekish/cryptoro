@@ -808,8 +808,9 @@ const BOX_ICONS = [
       letter-spacing: .01em;
     }
 
-    /* D. Thumbnails */
-    .pdp-thumb img { width: 64px !important; height: 64px !important }
+    /* D. Thumbnails — 64px on normal screens, 44px on small phones */
+    .pdp-thumb img { width: 64px; height: 64px }
+    @media(max-width:390px) { .pdp-thumb img { width: 44px; height: 44px } }
 
     /* E. Fix Layout.astro global colour overrides */
     .pdp-hero__price { color: #1d1d1f !important }
@@ -834,7 +835,7 @@ const BOX_ICONS = [
 
     /* ── 2. Editorial: text-only, single column, generous width ── */
     .pdp-editorial { padding: 64px 0 56px !important }
-    .pdp-editorial__copy { max-width: 680px }
+    .pdp-editorial__copy { max-width: 680px; margin: 0 auto }
     .pdp-editorial__lead { font-size: 19px !important; color: #4b5563 !important }
     .pdp-editorial__body { font-size: 17px !important; color: #5a5a5f !important }
 
@@ -853,8 +854,10 @@ const BOX_ICONS = [
     .pdp-accordion:last-child { border-bottom: 1px solid rgba(0,0,0,.06) !important }
 
     /* ── 4. Box item icons ── */
-    .pdp-box-item__icon { display: block; margin: 0 auto 10px; color: rgba(0,0,0,.4) }
+    .pdp-box-item__icon { display: block; margin: 0 auto 8px; color: rgba(0,0,0,.4) }
     .pdp-box-item__icon svg { display: block; margin: auto }
+    /* Hide decorative number when icon is present — icon takes that visual role */
+    .pdp-box-item__num { display: none !important }
     .pdp-compare-card__specs { display: none !important }
 
     /* ── 5. Compare: current dominant, secondary muted ── */
@@ -878,8 +881,10 @@ const BOX_ICONS = [
     .pdp-compare-card--alt .pdp-compare-card__cta { background: transparent !important; color: var(--pdp-muted) !important; border: 1px solid rgba(0,0,0,.12) !important; font-size: 13px !important }
 
     /* ── 6. Vertical rhythm ── */
-    /* Hero: breathe more */
-    .pdp-hero { padding: 100px 0 40px !important }
+    /* Hero: breathe more — but keep mobile responsive intact, no !important here */
+    .pdp-hero { padding: 100px 0 40px }
+    @media(max-width:640px) { .pdp-hero { padding: 84px 0 28px } }
+    @media(max-width:390px) { .pdp-hero { padding: 76px 0 28px } }
     /* Specs+box: tighter */
     .pdp-accordion__trigger { padding: 20px 0 !important }
     .pdp-accordion__body { padding: 0 0 20px !important }
