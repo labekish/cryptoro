@@ -547,12 +547,12 @@ const BOX_ICONS = [
     .pdp-section-title{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.2vw,34px);font-weight:700;line-height:1.2;letter-spacing:-.02em;margin:0 0 28px;color:var(--pdp-text)}
 
     /* ===== 1. Hero ===== */
-    .pdp-hero{background:linear-gradient(180deg,#fafafa 0%,var(--pdp-surface) 100%);padding:92px 0 32px;text-align:center}
+    .pdp-hero{background:linear-gradient(180deg,#fafafa 0%,var(--pdp-surface) 100%)!important;padding:92px 0 32px;text-align:center}
     .pdp-breadcrumbs{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;font-size:13px;color:var(--pdp-muted)}
     .pdp-breadcrumbs a{text-decoration:none;color:#6e6e73;transition:color .15s}
     .pdp-breadcrumbs a:hover{color:var(--pdp-text)}
     .pdp-badge{display:inline-block;background:var(--pdp-accent);color:#fff;border-radius:20px;padding:5px 14px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-    .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:.98;letter-spacing:-.045em;margin:0 0 8px}
+    .pdp-hero__title{font-family:'Unbounded',sans-serif;font-size:clamp(52px,7vw,84px);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin:0 0 8px;overflow:hidden}
     .pdp-hero__subtitle{font-size:clamp(17px,1.8vw,20px);line-height:1.45;color:var(--pdp-muted);margin:0 auto 10px;max-width:34ch}
     .pdp-hero__price-row{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-bottom:4px}
     .pdp-hero__price{font-family:'Unbounded',sans-serif;font-size:clamp(32px,4vw,44px);font-weight:600;line-height:1.1;letter-spacing:-.02em;color:#222}
@@ -639,7 +639,7 @@ const BOX_ICONS = [
     .pdp-editorial__image img{width:100%;height:100%;object-fit:cover;display:block;border-radius:20px}
 
     /* ===== 4. Key Specs — typographic 2x2 grid, no cards ===== */
-    .pdp-key-specs{background:var(--pdp-bg);padding:112px 0 96px}
+    .pdp-key-specs{background:var(--pdp-bg)!important;padding:112px 0 96px}
     .pdp-key-specs__grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;max-width:640px;margin:0 auto}
     .pdp-spec-card{background:none;border:none;border-radius:0;padding:36px 24px;text-align:center;box-shadow:none;transition:none;position:relative}
     /* subtle grid lines */
@@ -676,7 +676,7 @@ const BOX_ICONS = [
     .pdp-box-item__name{display:block;font-size:14px;font-weight:600;color:var(--pdp-text);line-height:1.4}
 
     /* ===== 7. Model Comparison — lighter ===== */
-    .pdp-compare{background:var(--pdp-bg);padding:96px 0}
+    .pdp-compare{background:var(--pdp-bg)!important;padding:96px 0}
     .pdp-compare__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
     .pdp-compare-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--pdp-surface);border:1px solid rgba(0,0,0,.07);border-radius:20px;padding:32px 20px;text-decoration:none;color:inherit;transition:transform .3s ease,box-shadow .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .pdp-compare-card--current{transform:scale(1.03);border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.1)}
@@ -694,7 +694,7 @@ const BOX_ICONS = [
     .pdp-trust__sep{color:rgba(0,0,0,.15)}
 
     /* ===== AI Capability Dark Section ===== */
-    .pdp-ai-dark{background:#111;padding:96px 0}
+    .pdp-ai-dark{background:#111!important;padding:96px 0}
     .pdp-ai-dark .pdp-container{max-width:720px;text-align:center}
     .pdp-ai-dark__kicker{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);margin:0 0 20px;font-family:'Inter',sans-serif}
     .pdp-ai-dark__headline{font-family:'Unbounded',sans-serif;font-size:clamp(28px,3.8vw,48px);font-weight:800;line-height:1.12;letter-spacing:-.035em;color:#fff;margin:0 0 48px}
@@ -880,7 +880,7 @@ const BOX_ICONS = [
     .pdp-compare-card__specs { display: none !important }
 
     /* ── 5. Compare: current dominant, secondary muted ── */
-    .pdp-compare { padding: 72px 0 !important }
+    .pdp-compare { background: var(--pdp-bg) !important; padding: 72px 0 !important }
     .pdp-compare-card--current {
       background: #fafaf8 !important;
       border: 2px solid #111 !important;
