@@ -33,6 +33,18 @@ interface ProductData {
   colors?: string[];
   colorImages?: Record<string, string>;
   heroKeySpecs?: boolean;
+  editorialLead?: string;
+  editorialHeadline?: string;
+  editorialSupportline?: string;
+  editorialImage?: string;
+  editorialImageAlt?: string;
+  editorialCinematicHeadline?: string;
+  editorialCinematicImage?: string;
+  editorialCinematicImageAlt?: string;
+  editorialSecondaryImage?: string;
+  editorialSecondaryImageAlt?: string;
+  editorialHighlights?: Array<{ title: string; text: string }>;
+  editorialUseCases?: Array<{ title: string; text: string }>;
 }
 
 interface RelatedItem {
@@ -89,6 +101,29 @@ const subtitle = product.subtitle ?? 'AI-устройство CRYPTORO';
 const priceNote = product.priceNote ?? '';
 const paramChips = product.paramChips ?? [];
 const colors = product.colors ?? [];
+const editorialHighlights = product.editorialHighlights ?? [];
+const editorialUseCases = product.editorialUseCases ?? [];
+const editorialHeadline = product.editorialHeadline ?? product.editorialLead ?? product.title;
+const editorialSupportline = product.editorialSupportline ?? '';
+const editorialCinematicHeadline = product.editorialCinematicHeadline ?? '';
+const editorialCinematicImage = product.editorialCinematicImage ?? product.editorialSecondaryImage ?? product.editorialImage ?? gallery[0] ?? product.image;
+const editorialCinematicImageAlt = product.editorialCinematicImageAlt ?? product.editorialSecondaryImageAlt ?? product.editorialImageAlt ?? `Фото ${product.title}`;
+const editorialProofLabels = (
+  editorialHighlights.length
+    ? editorialHighlights.map((item) => item.title)
+    : (product.features ?? []).length
+      ? (product.features ?? [])
+      : editorialUseCases.map((item) => item.title)
+).slice(0, 3);
+const hasEnhancedEditorial = Boolean(
+  product.editorialHeadline ||
+  product.editorialSupportline ||
+  product.editorialLead ||
+  product.editorialImage ||
+  editorialHighlights.length ||
+  editorialUseCases.length
+);
+const hasCinematicSection = Boolean(editorialCinematicHeadline);
 
 function getColorToneKey(colorName: string): string {
   const name = colorName.toLowerCase();
@@ -209,39 +244,69 @@ const BOX_ICONS = [
     )}
 
     <!-- 3. Editorial Description -->
-    <section class="pdp-editorial">
-      <div class="pdp-container">
-        <div class="pdp-editorial__copy reveal">
-          <h2 class="pdp-section-title">О продукте</h2>
-          <div class="pdp-editorial__body">
-            <slot />
+    <section class={`pdp-editorial${hasEnhancedEditorial ? ' pdp-editorial--enhanced' : ''}`}>
+      <div class={`pdp-container${hasEnhancedEditorial ? ' pdp-container--narrow' : ''}`}>
+        {hasEnhancedEditorial ? (
+          <>
+            <div class="pdp-editorial__showcase">
+              <h2 class="pdp-editorial__headline reveal">{editorialHeadline}</h2>
+              {editorialSupportline && <div class="pdp-editorial__subline reveal">{editorialSupportline}</div>}
+              {editorialProofLabels.length > 0 && (
+                <ul class="pdp-editorial__proof-row reveal" aria-label="Ключевые преимущества">
+                  {editorialProofLabels.map((label) => <li>{label}</li>)}
+                </ul>
+              )}
+              <div class="pdp-editorial__transition-divider reveal" aria-hidden="true"></div>
+            </div>
+          </>
+        ) : (
+          <div class="pdp-editorial__copy reveal">
+            <h2 class="pdp-section-title">О продукте</h2>
+            <div class="pdp-editorial__body">
+              <slot />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
 
+    {hasEnhancedEditorial && hasCinematicSection && (
+      <section class="pdp-cinematic">
+        <div class="pdp-cinematic__inner">
+          <div class="pdp-cinematic__copy reveal">
+            <h2 class="pdp-cinematic__headline">{editorialCinematicHeadline}</h2>
+          </div>
+          <div class="pdp-cinematic__media reveal">
+            <img src={editorialCinematicImage} alt={editorialCinematicImageAlt} />
+          </div>
+        </div>
+      </section>
+    )}
+
     <!-- 4. Key Specs -->
     {keySpecsParsed.length > 0 && !product.heroKeySpecs && (
-      <section class="pdp-key-specs">
-        <div class="pdp-container">
-          <h2 class="pdp-section-title reveal">Ключевые параметры</h2>
-          <div class="pdp-key-specs__grid">
-            {keySpecsParsed.map((spec, idx) => (
-              <div class="pdp-spec-card reveal" style={`--stagger:${idx}`}>
-                <span class="pdp-spec-card__value">
-                  {spec.parsed.num ? (
-                    <>
-                      {spec.parsed.prefix && <span class="pdp-spec-card__prefix">{spec.parsed.prefix}</span>}
-                      <span class="pdp-spec-card__num">{spec.parsed.num}</span>
-                      {spec.parsed.unit && <span class="pdp-spec-card__unit">{spec.parsed.unit}</span>}
-                    </>
-                  ) : (
-                    <span class="pdp-spec-card__text">{spec.parsed.unit}</span>
-                  )}
-                </span>
-                <span class="pdp-spec-card__label">{spec.label}</span>
-              </div>
-            ))}
+      <section class={`pdp-key-specs${hasEnhancedEditorial && hasCinematicSection ? ' pdp-key-specs--overlap' : ''}`}>
+        <div class="section-parameters-wrapper">
+          <div class="parameters-panel">
+            <h2 class="pdp-section-title reveal">Ключевые параметры</h2>
+            <div class="pdp-key-specs__grid">
+              {keySpecsParsed.map((spec, idx) => (
+                <div class="pdp-spec-card reveal" style={`--stagger:${idx}`}>
+                  <span class="pdp-spec-card__value">
+                    {spec.parsed.num ? (
+                      <>
+                        {spec.parsed.prefix && <span class="pdp-spec-card__prefix">{spec.parsed.prefix}</span>}
+                        <span class="pdp-spec-card__num">{spec.parsed.num}</span>
+                        {spec.parsed.unit && <span class="pdp-spec-card__unit">{spec.parsed.unit}</span>}
+                      </>
+                    ) : (
+                      <span class="pdp-spec-card__text">{spec.parsed.unit}</span>
+                    )}
+                  </span>
+                  <span class="pdp-spec-card__label">{spec.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -250,7 +315,7 @@ const BOX_ICONS = [
     <!-- 5+6. Specs + Box — unified details section -->
     {(specsRows.length > 0 || (product.boxContents ?? []).length > 0) && (
       <section class="pdp-details">
-        <div class="pdp-container">
+        <div class="pdp-container pdp-container--default">
           {specsRows.length > 0 && (
             <details class="pdp-accordion reveal" open>
               <summary class="pdp-accordion__trigger">
@@ -298,7 +363,7 @@ const BOX_ICONS = [
     <!-- 7. Model Comparison -->
     {!!related.length && (
       <section class="pdp-compare">
-        <div class="pdp-container">
+        <div class="pdp-container pdp-container--wide">
           <h2 class="pdp-section-title reveal">Сравните модели</h2>
           <div class="pdp-compare__grid">
             <div class="pdp-compare-card pdp-compare-card--current reveal">
@@ -583,6 +648,9 @@ const BOX_ICONS = [
     /* ===== Base ===== */
     .pdp{background:var(--pdp-surface);color:var(--pdp-text);font-family:'Inter',sans-serif}
     .pdp-container{max-width:980px;margin:0 auto;padding:0 24px}
+    .pdp-container--narrow{max-width:800px}
+    .pdp-container--default{max-width:1120px}
+    .pdp-container--wide{max-width:1320px}
 
     /* ===== Section Title ===== */
     .pdp-section-title{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.2vw,34px);font-weight:700;line-height:1.2;letter-spacing:-.02em;margin:0 0 28px;color:var(--pdp-text)}
@@ -702,19 +770,38 @@ const BOX_ICONS = [
     .pdp-editorial__image img{width:100%;height:100%;object-fit:cover;display:block;border-radius:20px}
 
     /* ===== 4. Key Specs — typographic 3-col row ===== */
-    .pdp-key-specs{background:var(--pdp-bg)!important;padding:80px 0 72px}
-    .pdp-key-specs__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;max-width:780px;margin:0 auto}
-    .pdp-spec-card{background:none;border:none;border-radius:0;padding:36px 24px;text-align:center;box-shadow:none;transition:none;position:relative}
+    .pdp-key-specs{background:transparent!important;padding:0!important}
+    .pdp-key-specs--overlap{position:relative;z-index:2}
+    .section-parameters-wrapper{max-width:1120px;margin:16px auto 0;padding:0 24px}
+    .pdp-key-specs--overlap .section-parameters-wrapper{margin:-80px auto 120px;padding:0 24px}
+    .parameters-panel{
+      background:#fff;
+      border-radius:18px;
+      border:1px solid rgba(0,0,0,.06);
+      padding:72px 64px;
+      box-shadow:0 6px 18px rgba(0,0,0,.025)
+    }
+    .parameters-panel .pdp-section-title{margin-bottom:36px}
+    .pdp-key-specs__grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:48px;
+      align-items:center;
+      justify-content:space-between;
+      max-width:none;
+      margin:0
+    }
+    .pdp-spec-card{background:none;border:none;border-radius:0;padding:0;text-align:center;box-shadow:none;transition:none;position:relative}
     /* no vertical dividers — spacing only */
     .pdp-spec-card__value{display:flex;align-items:flex-end;justify-content:center;gap:.08em .2em;flex-wrap:wrap;margin-bottom:8px;white-space:nowrap}
-    .pdp-spec-card__num{font-family:'Unbounded',sans-serif;font-size:clamp(30px,4vw,42px);font-weight:800;line-height:1.08;letter-spacing:-.025em;color:var(--pdp-text)}
+    .pdp-spec-card__num{font-family:'Unbounded',sans-serif;font-size:clamp(40px,4vw,56px);font-weight:700;line-height:1.02;letter-spacing:-.03em;color:var(--pdp-text)}
     .pdp-spec-card__unit{font-size:13px;font-weight:600;letter-spacing:-.01em;color:var(--pdp-muted);margin-left:0;line-height:1.15;padding-bottom:.32em}
     .pdp-spec-card__prefix{font-size:12px;font-weight:600;color:var(--pdp-muted);margin-right:0;line-height:1.05;padding-bottom:.42em}
     .pdp-spec-card__text{font-family:'Unbounded',sans-serif;font-size:clamp(15px,1.9vw,20px);font-weight:600;letter-spacing:-.015em;color:var(--pdp-text);line-height:1.2}
-    .pdp-spec-card__label{display:block;font-size:12px;color:rgba(17,17,17,.62);font-weight:600;text-transform:uppercase;letter-spacing:.04em;line-height:1.25}
+    .pdp-spec-card__label{display:block;font-size:13px;color:rgba(17,17,17,.8);font-weight:600;text-transform:none;letter-spacing:.01em;line-height:1.25;opacity:.6;margin-top:8px}
 
     /* ===== 5+6. Details — unified specs + box section ===== */
-    .pdp-details{background:var(--pdp-surface);padding:64px 0}
+    .pdp-details{background:var(--pdp-surface);padding:64px 0 56px}
     /* Accordion — spacing only, no borders */
     .pdp-accordion{border:none;border-radius:0;overflow:hidden}
     .pdp-accordion__trigger{display:flex;align-items:center;justify-content:space-between;padding:24px 0;cursor:pointer;list-style:none;user-select:none}
@@ -722,11 +809,13 @@ const BOX_ICONS = [
     .pdp-accordion__trigger .pdp-section-title{margin:0}
     .pdp-accordion__icon{font-size:24px;font-weight:300;color:var(--pdp-muted);transition:transform .2s ease;flex-shrink:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:none}
     .pdp-accordion__body{padding:0 0 24px}
-    .pdp-specs-table{width:100%;border-collapse:collapse;border-spacing:0;overflow:hidden;border-radius:0;border:none}
-    .pdp-specs-table td{border-bottom:1px solid rgba(0,0,0,.04);padding:16px 0;overflow-wrap:anywhere;background:none!important}
+    .pdp-specs-table{width:100%;border-collapse:collapse;border-spacing:0;overflow:hidden;border-radius:0;border:none;display:block}
+    .pdp-specs-table tbody{display:block}
+    .pdp-specs-table tr{display:grid;grid-template-columns:1fr auto;align-items:start;gap:20px;padding:24px 0}
+    .pdp-specs-table td{border-bottom:none;padding:0;overflow-wrap:anywhere;background:none!important;display:block}
     .pdp-specs-table tr:last-child td{border-bottom:none}
-    .pdp-specs-table td:first-child{color:var(--pdp-muted);width:40%;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-    .pdp-specs-table td:last-child{color:var(--pdp-text);font-size:15px;font-weight:500}
+    .pdp-specs-table td:first-child{color:var(--pdp-muted);width:auto;font-size:13px;font-weight:600;text-transform:none;letter-spacing:.01em;opacity:.6}
+    .pdp-specs-table td:last-child{color:var(--pdp-text);font-size:15px;font-weight:700;text-align:right}
     /* Box contents inside accordion */
     /* Box / Комплект — таблица как у спек */
     .pdp-box-table{width:100%;border-collapse:collapse;border-spacing:0}
@@ -737,11 +826,11 @@ const BOX_ICONS = [
 
     /* ===== 7. Model Comparison — lighter ===== */
     .pdp-compare{background:var(--pdp-bg)!important;padding:96px 0}
-    .pdp-compare__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-    .pdp-compare-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--pdp-surface);border:1px solid rgba(0,0,0,.07);border-radius:20px;padding:32px 20px;text-decoration:none;color:inherit;transition:transform .3s ease,box-shadow .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    .pdp-compare__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+    .pdp-compare-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--pdp-surface);border:1px solid rgba(0,0,0,.07);border-radius:20px;padding:34px 24px;text-decoration:none;color:inherit;transition:transform .3s ease,box-shadow .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .pdp-compare-card--current{transform:scale(1.03);border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.1)}
     .pdp-compare-card__badge{display:inline-block;background:var(--pdp-text);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
-    .pdp-compare-card img{width:100%;max-width:180px;height:160px;object-fit:contain;margin-bottom:16px}
+    .pdp-compare-card img{width:100%;max-width:196px;height:172px;object-fit:contain;margin-bottom:18px}
     .pdp-compare-card h3{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
     .pdp-compare-card__price{font-size:19px;font-weight:700;margin-bottom:12px;display:block}
     .pdp-compare-card__specs{list-style:none;padding:0;margin:0;font-size:13px;color:var(--pdp-muted);line-height:1.8}
@@ -831,14 +920,24 @@ const BOX_ICONS = [
       .pdp-ai-dark__headline{font-size:clamp(24px,7vw,34px);margin-bottom:32px}
       .pdp-ai-dark__item{font-size:15px;padding:18px 0}
       .pdp-benefits__grid{gap:24px}
-      .pdp-key-specs__grid{max-width:100%;grid-template-columns:repeat(3,1fr)!important}
+      .section-parameters-wrapper{margin:20px auto 0;padding:0 24px}
+      .pdp-key-specs--overlap .section-parameters-wrapper{margin:-56px auto 88px;padding:0 24px}
+      .parameters-panel{padding:56px 40px;border-radius:18px}
+      .parameters-panel .pdp-section-title{margin-bottom:30px}
+      .pdp-key-specs__grid{max-width:100%;grid-template-columns:repeat(3,1fr)!important;gap:32px!important}
       .pdp-editorial{padding:56px 0 48px}
       .pdp-editorial__lead{font-size:17px}
       .pdp-editorial__body{font-size:16px}
-      .pdp-key-specs{padding:56px 0 48px}
-      .pdp-spec-card{padding:28px 16px!important}
+      .section-parameters-wrapper{margin:12px auto 0;padding:0 24px}
+      .pdp-key-specs--overlap .section-parameters-wrapper{margin:-28px auto 64px;padding:0 24px}
+      .parameters-panel{padding:48px 24px;border-radius:16px}
+      .parameters-panel .pdp-section-title{margin-bottom:24px}
+      .pdp-key-specs{padding:0!important}
+      .pdp-key-specs__grid{grid-template-columns:1fr!important;gap:32px!important}
+      .pdp-spec-card{padding:0!important}
       .pdp-spec-card__num{font-size:clamp(22px,6vw,30px)}
       .pdp-spec-card__text{font-size:clamp(13px,3.5vw,17px)}
+      .pdp-details{padding:48px 0 48px}
       .pdp-full-specs{padding:40px 0}
       .pdp-box{padding:40px 0}
       .pdp-compare{padding:56px 0}
@@ -862,8 +961,8 @@ const BOX_ICONS = [
       .pdp-thumb img{width:44px;height:44px}
       .pdp-thumb{padding:5px}
       .pdp-benefits__grid{flex-direction:column;gap:16px}
-      .pdp-key-specs__grid{grid-template-columns:1fr!important}
-      .pdp-spec-card{padding:20px 16px!important;border-right:none!important;border-bottom:none!important}
+      .pdp-key-specs__grid{grid-template-columns:1fr!important;gap:28px!important}
+      .pdp-spec-card{padding:0!important;border-right:none!important;border-bottom:none!important}
     }
 
     /* ── PDP Fixes ── */
@@ -904,17 +1003,35 @@ const BOX_ICONS = [
     .pdp-spec-card__prefix { font-size: 12px !important; line-height: 1.05 !important; padding-bottom: .42em !important; font-weight: 600 !important }
     .pdp-spec-card__unit { font-size: 13px !important; white-space: normal !important; max-width: 18ch; line-height: 1.15 !important; text-align: center; padding-bottom: .32em !important }
 
-    /* ── 1. Key specs: 3 columns in a row ── */
-    .pdp-key-specs { padding: 80px 0 72px !important }
-    .pdp-key-specs__grid { max-width: 780px !important; gap: 0 !important; grid-template-columns: repeat(3,1fr) !important }
+    /* ── 1. Key specs: floating premium panel ── */
+    .pdp-key-specs { background: transparent !important; padding: 0 !important }
+    .pdp-key-specs--overlap { position: relative !important; z-index: 2 !important }
+    .section-parameters-wrapper { max-width: 1120px !important; margin: 16px auto 0 !important; padding: 0 24px !important }
+    .pdp-key-specs--overlap .section-parameters-wrapper { margin: -80px auto 120px !important; padding: 0 24px !important }
+    .parameters-panel {
+      background: #fff !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(0,0,0,.06) !important;
+      padding: 72px 64px !important;
+      box-shadow: 0 6px 18px rgba(0,0,0,.025) !important;
+    }
+    .parameters-panel .pdp-section-title { margin-bottom: 36px !important }
+    .pdp-key-specs__grid {
+      max-width: none !important;
+      gap: 48px !important;
+      grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
     .pdp-spec-card {
-      padding: 40px 32px !important;
+      padding: 0 !important;
       border: none !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: center !important;
     }
-    .pdp-spec-card__label { text-transform: none !important; letter-spacing: .01em !important; font-size: 13px !important; font-weight: 600 !important; color: rgba(17,17,17,.64) !important; line-height: 1.25 !important }
+    .pdp-spec-card__num { font-size: clamp(40px, 4vw, 56px) !important; font-weight: 700 !important; line-height: 1.02 !important; letter-spacing: -.03em !important }
+    .pdp-spec-card__label { text-transform: none !important; letter-spacing: .01em !important; font-size: 13px !important; font-weight: 600 !important; color: rgba(17,17,17,.8) !important; line-height: 1.25 !important; opacity: .6 !important; margin-top: 8px !important }
 
     /* ── 2. Editorial: text-only, single column, generous width ── */
     .pdp-editorial { padding: 64px 0 56px !important }
@@ -923,16 +1040,27 @@ const BOX_ICONS = [
     .pdp-editorial__body { font-size: 17px !important; color: #5a5a5f !important }
 
     /* ── 3. Specs table: editorial feel, not spec-sheet ── */
-    .pdp-details { padding: 40px 0 48px !important }
-    .pdp-specs-table td { padding: 18px 0 !important; border-bottom: 1px solid rgba(0,0,0,.03) !important }
+    .pdp-details { padding: 64px 0 56px !important }
+    .pdp-specs-table { display: block !important; border: none !important }
+    .pdp-specs-table tbody { display: block !important }
+    .pdp-specs-table tr {
+      display: grid !important;
+      grid-template-columns: 1fr auto !important;
+      align-items: start !important;
+      gap: 20px !important;
+      padding: 24px 0 !important;
+    }
+    .pdp-specs-table td { padding: 0 !important; border-bottom: none !important; display: block !important }
     .pdp-specs-table td:first-child {
       color: rgba(0,0,0,.38) !important;
-      font-size: 12px !important;
-      font-weight: 500 !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
       text-transform: none !important;
       letter-spacing: .01em !important;
+      opacity: .6 !important;
+      width: auto !important;
     }
-    .pdp-specs-table td:last-child { font-size: 15px !important; font-weight: 500 !important; color: #111 !important }
+    .pdp-specs-table td:last-child { font-size: 15px !important; font-weight: 700 !important; color: #111 !important; text-align: right !important }
     .pdp-accordion { border: none !important }
 
     /* ── 4. Box item icons ── */
@@ -943,12 +1071,18 @@ const BOX_ICONS = [
 
     /* ── 5. Compare: current dominant, secondary muted ── */
     .pdp-compare { background: var(--pdp-bg) !important; padding: 72px 0 !important }
+    .pdp-compare__grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+      gap: 20px !important;
+    }
     .pdp-compare-card--current {
       background: #fafaf8 !important;
       border: 2px solid #111 !important;
       transform: none !important;
       box-shadow: 0 8px 32px rgba(0,0,0,.1) !important;
     }
+    .pdp-compare-card { padding: 34px 24px !important }
+    .pdp-compare-card img { max-width: 196px !important; height: 172px !important; margin-bottom: 18px !important }
     .pdp-compare-card--alt {
       background: var(--pdp-surface) !important;
       border: 1px solid rgba(0,0,0,.06) !important;
@@ -967,5 +1101,212 @@ const BOX_ICONS = [
     /* Specs+box: tighter */
     .pdp-accordion__trigger { padding: 20px 0 !important }
     .pdp-accordion__body { padding: 0 0 20px !important }
+
+    /* ── 7. Enhanced editorial (Plaud Note) ── */
+    .pdp-editorial--enhanced { padding: 72px 0 8px !important }
+    .pdp-editorial--enhanced .pdp-editorial__showcase {
+      display: grid;
+      gap: 0;
+      align-content: start;
+      justify-items: center;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .pdp-editorial--enhanced .pdp-editorial__headline {
+      margin: 0 auto;
+      max-width: 720px;
+      font-size: clamp(32px, 4.4vw, 48px);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--pdp-text);
+      text-align: center;
+      text-wrap: balance;
+      white-space: pre-line;
+    }
+    .pdp-editorial--enhanced .pdp-editorial__subline {
+      margin: 16px auto 24px;
+      max-width: 420px;
+      font-size: 16px;
+      line-height: 1.45;
+      font-weight: 500;
+      color: #6a6d75;
+      text-align: center;
+      text-wrap: balance;
+      opacity: .65;
+    }
+    .pdp-editorial--enhanced .pdp-editorial__proof-row {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      width: 100%;
+      text-align: center;
+    }
+    .pdp-editorial--enhanced .pdp-editorial__proof-row li {
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 600;
+      color: var(--pdp-text);
+      opacity: .7;
+      letter-spacing: -.01em;
+    }
+    .pdp-editorial--enhanced .pdp-editorial__transition-divider {
+      width: 60px;
+      height: 1px;
+      background: rgba(0,0,0,.15);
+      margin: 16px auto 0;
+    }
+
+    /* ── 8. Cinematic product transition ── */
+    .pdp-cinematic {
+      background: #fff;
+      padding: 4px 0 112px;
+    }
+    .pdp-cinematic__inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 480px) minmax(0, 1fr);
+      gap: 18px 28px;
+      align-items: center;
+    }
+    .pdp-cinematic__copy {
+      display: grid;
+      align-content: center;
+      justify-items: start;
+      max-width: 760px;
+    }
+    .pdp-cinematic__headline {
+      margin: 0;
+      max-width: 520px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(28px, 3.8vw, 46px);
+      line-height: 1.1;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--pdp-text);
+      text-wrap: balance;
+      white-space: pre-line;
+    }
+    .pdp-cinematic__media {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 600px;
+      transform: translateY(4px);
+    }
+    .pdp-cinematic__media img {
+      width: 100%;
+      max-width: 760px;
+      max-height: 760px;
+      object-fit: contain;
+      filter: drop-shadow(0 30px 52px rgba(17,17,17,.14));
+    }
+    @media(max-width:980px){
+      .section-parameters-wrapper { margin: 16px auto 0 !important; padding: 0 24px !important }
+      .pdp-key-specs--overlap .section-parameters-wrapper { margin: -56px auto 88px !important; padding: 0 24px !important }
+      .parameters-panel { padding: 56px 40px !important; border-radius: 18px !important }
+      .parameters-panel .pdp-section-title { margin-bottom: 30px !important }
+      .pdp-key-specs__grid { grid-template-columns: repeat(3, minmax(0,1fr)) !important; gap: 32px !important }
+      .pdp-details { padding: 56px 0 56px !important }
+
+      .pdp-editorial--enhanced { padding: 60px 0 6px !important }
+      .pdp-editorial--enhanced .pdp-editorial__showcase { gap: 0 }
+      .pdp-editorial--enhanced .pdp-editorial__headline {
+        max-width: 560px;
+        font-size: clamp(28px, 5vw, 38px);
+        line-height: 1.05;
+      }
+      .pdp-editorial--enhanced .pdp-editorial__subline {
+        max-width: 380px;
+        margin: 14px auto 20px;
+        font-size: 15px;
+        line-height: 1.42;
+      }
+      .pdp-editorial--enhanced .pdp-editorial__proof-row { gap: 24px }
+      .pdp-editorial--enhanced .pdp-editorial__proof-row li { font-size: 14px }
+      .pdp-editorial--enhanced .pdp-editorial__transition-divider { margin-top: 12px }
+
+      .pdp-cinematic { padding: 2px 0 72px }
+      .pdp-cinematic__inner {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        justify-items: stretch;
+      }
+      .pdp-cinematic__copy { justify-items: start }
+      .pdp-cinematic__headline {
+        max-width: 680px;
+        text-align: left;
+        font-size: clamp(24px, 4.4vw, 32px);
+      }
+      .pdp-cinematic__media {
+        min-height: 460px;
+        transform: translateY(0);
+      }
+      .pdp-cinematic__media img {
+        max-width: 540px;
+        max-height: 540px;
+        filter: drop-shadow(0 22px 36px rgba(17,17,17,.12));
+      }
+    }
+    @media(max-width:640px){
+      .section-parameters-wrapper { margin: 10px auto 0 !important; padding: 0 18px !important }
+      .pdp-key-specs--overlap .section-parameters-wrapper { margin: -28px auto 64px !important; padding: 0 18px !important }
+      .parameters-panel { padding: 48px 24px !important; border-radius: 16px !important }
+      .parameters-panel .pdp-section-title { margin-bottom: 24px !important }
+      .pdp-key-specs__grid { grid-template-columns: 1fr !important; gap: 32px !important }
+      .pdp-spec-card { padding: 0 !important }
+      .pdp-spec-card__num { font-size: clamp(22px, 6vw, 30px) !important }
+      .pdp-spec-card__text { font-size: clamp(13px, 3.5vw, 17px) !important }
+      .pdp-details { padding: 48px 0 44px !important }
+      .pdp-specs-table tr { gap: 14px !important; padding: 18px 0 !important }
+      .pdp-specs-table td:first-child { font-size: 12px !important }
+      .pdp-specs-table td:last-child { font-size: 14px !important }
+
+      .pdp-editorial--enhanced { padding: 44px 0 4px !important }
+      .pdp-editorial--enhanced .pdp-editorial__showcase { gap: 0 }
+      .pdp-editorial--enhanced .pdp-editorial__headline {
+        max-width: 100%;
+        font-size: 24px;
+        line-height: 1.04;
+      }
+      .pdp-editorial--enhanced .pdp-editorial__subline {
+        max-width: 260px;
+        margin: 10px auto 16px;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      .pdp-editorial--enhanced .pdp-editorial__proof-row {
+        gap: 10px 18px;
+        justify-content: center;
+      }
+      .pdp-editorial--enhanced .pdp-editorial__proof-row li {
+        font-size: 13px;
+        line-height: 1.3;
+      }
+      .pdp-editorial--enhanced .pdp-editorial__transition-divider { margin-top: 10px }
+
+      .pdp-cinematic { padding: 0 0 48px }
+      .pdp-cinematic__inner { padding: 0 18px; gap: 8px }
+      .pdp-cinematic__headline {
+        font-size: 22px;
+        line-height: 1.08;
+        max-width: 280px;
+      }
+      .pdp-cinematic__media {
+        min-height: 340px;
+      }
+      .pdp-cinematic__media img {
+        max-width: 360px;
+        max-height: 360px;
+        filter: drop-shadow(0 16px 28px rgba(17,17,17,.11));
+      }
+    }
   </style>
 </Layout>

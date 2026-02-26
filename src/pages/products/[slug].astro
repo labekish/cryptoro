@@ -19,6 +19,18 @@ type MarkdownModule = {
     relatedProducts?: string[];
     colors?: string[];
     colorImages?: Record<string, string>;
+    editorialLead?: string;
+    editorialHeadline?: string;
+    editorialSupportline?: string;
+    editorialImage?: string;
+    editorialImageAlt?: string;
+    editorialCinematicHeadline?: string;
+    editorialCinematicImage?: string;
+    editorialCinematicImageAlt?: string;
+    editorialSecondaryImage?: string;
+    editorialSecondaryImageAlt?: string;
+    editorialHighlights?: Array<{ title: string; text: string }>;
+    editorialUseCases?: Array<{ title: string; text: string }>;
   };
   default: any;
 };
