@@ -94,6 +94,8 @@ function getColorToneKey(colorName: string): string {
   const name = colorName.toLowerCase();
   if (name.includes('чер')) return 'black';
   if (name.includes('сереб')) return 'silver';
+  if (name.includes('графит')) return 'graphite';
+  if (name.includes('фиолет')) return 'purple';
   if (name.includes('золот')) return 'gold';
   if (name.includes('син')) return 'blue';
   if (name.includes('бел')) return 'white';
@@ -709,6 +711,8 @@ const BOX_ICONS = [
     .color-btn__swatch::after{content:'';position:absolute;inset:2px auto auto 2px;width:8px;height:6px;border-radius:999px;background:rgba(255,255,255,.45);filter:blur(.2px)}
     .color-btn__swatch--black{background:linear-gradient(135deg,#1f2937,#111827)}
     .color-btn__swatch--silver{background:linear-gradient(135deg,#f3f4f6,#9ca3af)}
+    .color-btn__swatch--graphite{background:linear-gradient(135deg,#6b7280,#374151)}
+    .color-btn__swatch--purple{background:linear-gradient(135deg,#c4b5fd,#7c3aed)}
     .color-btn__swatch--gold{background:linear-gradient(135deg,#fcd34d,#d97706)}
     .color-btn__swatch--blue{background:linear-gradient(135deg,#93c5fd,#1d4ed8)}
     .color-btn__swatch--white{background:linear-gradient(135deg,#fff,#e5e7eb)}
