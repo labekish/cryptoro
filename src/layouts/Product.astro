@@ -101,6 +101,11 @@ const subtitle = product.subtitle ?? 'AI-устройство CRYPTORO';
 const priceNote = product.priceNote ?? '';
 const paramChips = product.paramChips ?? [];
 const colors = product.colors ?? [];
+const skus = product.skus ?? (product.sku ? [product.sku] : []);
+// Маппинг цвет → SKU по порядку индексов (colors[i] → skus[i]).
+const colorSkus: Record<string, string> = {};
+colors.forEach((c, i) => { if (skus[i]) colorSkus[c] = skus[i]; });
+const baseSku = product.sku ?? skus[0] ?? '';
 const editorialHighlights = product.editorialHighlights ?? [];
 const editorialUseCases = product.editorialUseCases ?? [];
 
@@ -442,7 +447,7 @@ const BOX_ICONS = [
   <div class="cart-toast" id="cartToast" role="status" aria-live="polite">Товар добавлен в корзину</div>
 
   <!-- Cart & Color JS (preserved) -->
-  <script define:vars={{ baseProduct: { id: product.slug, name: product.title, price: product.price, image: product.image }, hasColors: colors.length > 1 }} is:inline>
+  <script define:vars={{ baseProduct: { id: product.slug, name: product.title, price: product.price, image: product.image }, hasColors: colors.length > 1, colorSkus, baseSku }} is:inline>
     function showToast() {
       const toast = document.getElementById('cartToast');
       if (!toast) return;
@@ -485,13 +490,15 @@ const BOX_ICONS = [
 
     function buildCartItem() {
       const color = getSelectedColor();
+      const sku = (color && colorSkus[color]) ? colorSkus[color] : (baseSku || undefined);
       return {
         id: color ? baseProduct.id + '::' + color : baseProduct.id,
         name: baseProduct.name,
         price: baseProduct.price,
         image: baseProduct.image,
         qty: 1,
-        color: color || undefined
+        color: color || undefined,
+        sku: sku || undefined
       };
     }
 

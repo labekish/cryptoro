@@ -1,0 +1,99 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Заказ оформлен | CRYPTORO" description="Ваш заказ успешно оформлен" withChrome={true} active="catalog">
+  <main class="success-page">
+    <section class="success-wrap">
+      <div class="success-icon" aria-hidden="true">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <circle cx="28" cy="28" r="28" fill="#111"/>
+          <path d="M16 28l9 9 15-15" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1>Заказ оформлен!</h1>
+      <p class="order-id-line">Номер заказа: <strong id="orderIdDisplay">—</strong></p>
+      <p class="success-msg">Спасибо! Мы свяжемся с вами в течение 30 минут для подтверждения заказа и расчёта стоимости доставки.</p>
+      <div class="success-actions">
+        <a href="/catalog" class="dark-btn">Продолжить покупки</a>
+        <a href="/" class="ghost-btn">На главную</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    const el = document.getElementById('orderIdDisplay');
+    if (el && orderId) el.textContent = orderId;
+  </script>
+
+  <style is:global>
+    .success-page {
+      padding: 96px 0 80px;
+      background: #f9fafb;
+      min-height: 72vh;
+      display: flex;
+      align-items: center;
+    }
+    .success-wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .success-icon {
+      margin-bottom: 28px;
+    }
+    .success-wrap h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      color: #111;
+      margin: 0 0 16px;
+    }
+    .order-id-line {
+      font-size: 15px;
+      color: #4b5563;
+      margin: 0 0 16px;
+    }
+    .order-id-line strong {
+      color: #111;
+      font-family: monospace;
+      font-size: 16px;
+    }
+    .success-msg {
+      font-size: 16px;
+      color: #4b5563;
+      line-height: 1.6;
+      margin: 0 0 32px;
+    }
+    .success-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .dark-btn, .ghost-btn {
+      height: 46px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      line-height: 1;
+      padding: 0 24px;
+    }
+    .dark-btn { background: #111; color: #fff; border: none; }
+    .dark-btn:hover { background: #000; }
+    .ghost-btn { background: #fff; color: #111; border: 1px solid rgba(0,0,0,.18); }
+    .ghost-btn:hover { border-color: #111; }
+    @media (max-width: 768px) {
+      .success-page { padding-top: 84px; }
+      .success-actions { flex-direction: column; align-items: center; }
+    }
+  </style>
+</Layout>

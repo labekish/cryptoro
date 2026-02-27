@@ -43,8 +43,11 @@ import Layout from '../layouts/Layout.astro';
               <label>Город
                 <input name="city" type="text" required />
               </label>
-              <label>Улица
+              <label>Улица, дом
                 <input name="street" type="text" required />
+              </label>
+              <label>Квартира / офис
+                <input name="apartment" type="text" placeholder="Необязательно" />
               </label>
               <label>Индекс
                 <input name="zip" type="text" required />
@@ -174,6 +177,35 @@ import Layout from '../layouts/Layout.astro';
       renderCart();
     });
 
+    function generateOrderId() {
+      const ts = Date.now().toString(36).toUpperCase();
+      const rnd = Math.random().toString(36).slice(2, 6).toUpperCase();
+      return `CRPT-${ts}-${rnd}`;
+    }
+
+    function buildPayload(formData: FormData, items: ReturnType<typeof getCart>, orderId: string) {
+      return {
+        type: 'order' as const,
+        orderId,
+        name: String(formData.get('fullName') || ''),
+        phone: String(formData.get('phone') || ''),
+        email: String(formData.get('email') || ''),
+        city: String(formData.get('city') || ''),
+        street: String(formData.get('street') || ''),
+        apartment: String(formData.get('apartment') || '').trim() || undefined,
+        zip: String(formData.get('zip') || ''),
+        delivery: String(formData.get('delivery') || ''),
+        items: items.map((item) => ({
+          ...(item.sku ? { sku: item.sku } : {}),
+          name: item.name,
+          qty: Math.max(1, Number(item.qty) || 1),
+          price: item.price,
+          ...(item.color ? { color: item.color } : {}),
+        })),
+        total: cartTotal?.textContent || '',
+      };
+    }
+
     if (cardPayBtn) {
       cardPayBtn.addEventListener('click', () => {
         if (formMessage) {
@@ -190,18 +222,8 @@ import Layout from '../layouts/Layout.astro';
         if (!items.length) return;
 
         const formData = new FormData(checkoutForm);
-        const payload = {
-          type: 'order',
-          name: String(formData.get('fullName') || ''),
-          phone: String(formData.get('phone') || ''),
-          email: String(formData.get('email') || ''),
-          city: String(formData.get('city') || ''),
-          street: String(formData.get('street') || ''),
-          zip: String(formData.get('zip') || ''),
-          delivery: String(formData.get('delivery') || ''),
-          cart: items.map((item) => `${item.name}${item.color ? ` (${item.color})` : ''} x${Math.max(1, Number(item.qty) || 1)} — ${money(item.price)}`).join('\n'),
-          total: cartTotal?.textContent || ''
-        };
+        const orderId = generateOrderId();
+        const payload = buildPayload(formData, items, orderId);
 
         const requiredOk = payload.name && payload.phone && payload.city && payload.street && payload.zip;
         if (!requiredOk) return;
@@ -218,19 +240,12 @@ import Layout from '../layouts/Layout.astro';
           if (!response.ok) throw new Error('request_failed');
 
           clearCart();
-          // После успешной отправки очищаем корзину.
-          checkoutForm.reset();
-          renderCart();
-          if (formMessage) {
-            formMessage.textContent = 'Спасибо! Мы свяжемся с вами в течение 30 минут';
-            formMessage.className = 'form-message ok';
-          }
+          window.location.href = `/order-success?orderId=${encodeURIComponent(orderId)}`;
         } catch {
           if (formMessage) {
             formMessage.textContent = 'Ошибка отправки. Попробуйте ещё раз.';
             formMessage.className = 'form-message err';
           }
-        } finally {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Оформить заказ';
         }

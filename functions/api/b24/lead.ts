@@ -10,16 +10,26 @@ interface ConsultPayload {
   comment?: string;
 }
 
+interface OrderItem {
+  sku?: string;
+  name: string;
+  qty: number;
+  price: number;
+  color?: string;
+}
+
 interface OrderPayload {
   type: 'order';
+  orderId: string;
   name: string;
   phone: string;
   email: string;
   city: string;
   street: string;
+  apartment?: string;
   zip: string;
   delivery: string;
-  cart: string;
+  items: OrderItem[];
   total: string;
 }
 
@@ -50,17 +60,24 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const o = isOrder ? (body as OrderPayload) : null;
   const consultComment = !isOrder ? String((body as ConsultPayload).comment || '').trim() : '';
 
-  const title = isOrder
-    ? `Заказ с сайта — ${name}`
+  const title = isOrder && o
+    ? `Заказ ${o.orderId} — ${name}`
     : `Консультация по диктофонам — ${name}`;
 
   const comments = isOrder && o
     ? [
+        `№ заказа: ${o.orderId || '—'}`,
         `Доставка: ${o.delivery || '—'}`,
-        `Адрес: ${[o.city, o.street, o.zip].filter(Boolean).join(', ') || '—'}`,
+        `Адрес: ${[o.city, o.street, o.apartment, o.zip].filter(Boolean).join(', ') || '—'}`,
         '',
         'Состав заказа:',
-        o.cart || '—',
+        ...(o.items?.length
+          ? o.items.map((item) => {
+              const label = item.color ? `${item.name} (${item.color})` : item.name;
+              const sku = item.sku ? ` [${item.sku}]` : '';
+              return `${label}${sku} x${item.qty} — ${item.price} ₽`;
+            })
+          : ['—']),
         '',
         `Итого: ${o.total || '—'}`,
       ].join('\n')
