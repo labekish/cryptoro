@@ -1770,8 +1770,20 @@ img{max-width:100%;height:auto}
   padding: 32px 28px 28px !important;
 }
 .products-grid .pcard:first-child .pimg-wrap {
-  height: 300px !important;
-  background: rgba(255,255,255,.06) !important;
+  height: 350px !important;
+  padding: 4px !important;
+  background: rgba(255,255,255,.08) !important;
+  border-radius: 14px !important;
+  overflow: visible !important;
+}
+.products-grid .pcard:first-child .pimg-wrap img {
+  width: auto !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  display: block !important;
+  transform: scale(1.32) !important;
 }
 .products-grid .pcard:first-child .colors { display: none !important }
 .products-grid .pcard:first-child .pname { color: #fff !important; font-size: 20px !important }
@@ -1779,6 +1791,7 @@ img{max-width:100%;height:auto}
 .products-grid .pcard:first-child .pprice { color: #fff !important; font-size: 26px !important }
 .products-grid .pcard:first-child .pbtn { background: #fff !important; color: #111 !important; border: none !important }
 .products-grid .pcard:first-child .pbtn:hover { background: #efefef !important; filter: none !important }
+.products-grid .pcard:first-child:hover .pimg-wrap img { transform: scale(1.32) !important }
 .products-grid .pcard:first-child:hover { box-shadow: none !important; transform: none !important }
 /* Secondary: muted */
 .products-grid .pcard:not(:first-child) {
@@ -1786,7 +1799,19 @@ img{max-width:100%;height:auto}
   border-color: transparent !important;
   box-shadow: none !important;
 }
-.products-grid .pcard:not(:first-child) .pimg-wrap { height: 140px !important; background: #fff !important }
+.products-grid .pcard:not(:first-child) .pimg-wrap {
+  height: 140px !important;
+  padding: 12px !important;
+  background: #fff !important;
+}
+.products-grid .pcard:not(:first-child) .pimg-wrap img {
+  width: auto !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  display: block !important;
+}
 .products-grid .pcard:not(:first-child) .pname { font-size: 15px !important }
 .products-grid .pcard:not(:first-child) .pdesc {
   display: -webkit-box !important;
@@ -1882,7 +1907,7 @@ img{max-width:100%;height:auto}
   .uc-block { border-bottom: 1px solid rgba(17,17,17,.08) !important }
   .uc-block:last-child { border-bottom: none !important }
   .products-grid { grid-template-columns: 1fr 1fr !important }
-  .products-grid .pcard:first-child .pimg-wrap { height: 240px !important }
+  .products-grid .pcard:first-child .pimg-wrap { height: 310px !important; padding: 4px !important }
 }
 @media (max-width: 768px) {
   .hero { padding: 0 20px !important }
@@ -1904,7 +1929,7 @@ img{max-width:100%;height:auto}
     scroll-snap-type: x mandatory !important;
   }
   .products-grid .pcard { flex: 0 0 82% !important; scroll-snap-align: start !important }
-  .products-grid .pcard:first-child .pimg-wrap { height: 200px !important }
+  .products-grid .pcard:first-child .pimg-wrap { height: 270px !important; padding: 4px !important }
 }
 </style>
 
@@ -2460,7 +2485,7 @@ body .sec-how .smock { display: none !important }
       <a href="/products/vspomnit" class="pcard reveal d1">
         <span class="pbadge">НОВИНКА</span>
         <div class="pimg-wrap">
-          <img src="/images/products/vspomnit-vse.jpg" alt="Вспомни всё"
+          <img src="/images/products/vspomnit-vse-cutout.png" alt="Вспомни всё"
             onerror="this.outerHTML='<div class=pimg-placeholder>Вспомни всё</div>'"/>
         </div>
         <div class="colors">
