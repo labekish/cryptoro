@@ -64,7 +64,7 @@ import Layout from '../layouts/Layout.astro';
 
             <div class="actions">
               <button type="submit" id="submitBtn" class="dark-btn">Оформить заказ</button>
-              <button type="button" id="cardPayBtn" class="ghost-btn">Оплатить картой</button>
+              <button type="button" id="cardPayBtn" class="ghost-btn" title="Оплата картой будет доступна в ближайшее время">Оплатить картой (скоро)</button>
             </div>
           </form>
 
@@ -333,7 +333,8 @@ import Layout from '../layouts/Layout.astro';
     .checkout-form{display:grid;gap:14px}
     .field-grid{display:grid;gap:10px}
     .field-grid label{display:grid;gap:6px;font-size:14px;font-weight:600;color:#111}
-    .field-grid input{height:44px;border:1px solid rgba(0,0,0,.15);border-radius:12px;padding:0 12px;font-size:15px}
+    .field-grid input{height:44px;border:1px solid rgba(0,0,0,.15);border-radius:12px;padding:0 12px;font-size:15px;transition:border-color .2s ease,box-shadow .2s ease}
+    .field-grid input:focus{outline:none;border-color:#111;box-shadow:0 0 0 3px rgba(17,17,17,.08)}
     .delivery-group{border:1px solid rgba(0,0,0,.1);border-radius:12px;padding:12px;margin:0}
     .delivery-group legend{font-size:14px;font-weight:700;padding:0 8px}
     .delivery-group label{display:flex;gap:8px;align-items:center;font-size:14px;color:#111;margin-bottom:8px}

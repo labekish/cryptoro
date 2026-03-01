@@ -5,11 +5,12 @@
   .app-footer-desc{font-size:14px;line-height:1.6;max-width:260px}
   .app-footer-title{font-size:14px;font-weight:600;color:#111;margin-bottom:16px}
   .app-footer-link{display:block;font-size:14px;color:#4b5563;text-decoration:none;margin-bottom:12px;transition:color 0.2s}
-  .app-footer-link:hover{color:#111}
+  .app-footer-link:hover{color:#111;text-decoration:underline;text-underline-offset:3px}
   .app-footer-divider{border:none;border-top:1px solid rgba(0,0,0,.08);margin:0 auto 24px;max-width:1200px}
   .app-footer-bottom{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;font-size:12px;flex-wrap:wrap;gap:8px}
   .app-footer-bottom-links{display:flex;gap:14px;flex-wrap:wrap}
-  .app-footer-bottom-link{color:#4b5563;text-decoration:none}
+  .app-footer-bottom-link{color:#4b5563;text-decoration:none;transition:color 0.2s}
+  .app-footer-bottom-link:hover{color:#111;text-decoration:underline;text-underline-offset:3px}
   @media (max-width:768px){
     .app-footer-grid{grid-template-columns:1fr;gap:24px}
     .app-footer-bottom{flex-direction:column;align-items:flex-start}
@@ -24,6 +25,7 @@
     </div>
     <div>
       <h4 class="app-footer-title">Товары</h4>
+      <a href="/catalog" class="app-footer-link">Каталог</a>
       <a href="/products/vspomnit" class="app-footer-link">Вспомни всё</a>
       <a href="/products/plaud-note" class="app-footer-link">Plaud Note</a>
       <a href="/products/plaud-note-pro" class="app-footer-link">Plaud Note Pro</a>
@@ -44,7 +46,7 @@
   </div>
   <hr class="app-footer-divider" />
   <div class="app-footer-bottom">
-    <span>© 2025 CRYPTORO. Все права защищены.</span>
+    <span>© 2025–2026 CRYPTORO. Все права защищены.</span>
     <div class="app-footer-bottom-links">
       <a href="/privacy" class="app-footer-bottom-link">Политика конфиденциальности</a>
       <a href="/terms" class="app-footer-bottom-link">Условия использования</a>
