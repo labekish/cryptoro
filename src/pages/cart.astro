@@ -29,38 +29,67 @@ import Layout from '../layouts/Layout.astro';
           <form id="checkoutForm" class="checkout-form">
             <div class="field-grid">
               <label>Имя и фамилия
-                <input name="fullName" type="text" required />
+                <input name="fullName" type="text" placeholder="Иван Иванов" autocomplete="name" required />
               </label>
               <label>Телефон
-                <input name="phone" type="tel" required />
+                <input name="phone" type="tel" inputmode="tel" placeholder="+7 (___) ___-__-__" autocomplete="tel" data-mask="phone" required />
               </label>
               <label>Email
-                <input name="email" type="email" required />
+                <input name="email" type="email" placeholder="example@mail.ru" autocomplete="email" required />
               </label>
             </div>
 
             <div class="field-grid">
               <label>Город
-                <input name="city" type="text" required />
+                <input name="city" type="text" placeholder="Москва" autocomplete="address-level2" required />
               </label>
               <label>Улица, дом
-                <input name="street" type="text" required />
+                <input name="street" type="text" placeholder="Тверская, 10" autocomplete="street-address" required />
               </label>
               <label>Квартира / офис
                 <input name="apartment" type="text" placeholder="Необязательно" />
               </label>
               <label>Индекс
-                <input name="zip" type="text" required />
+                <input name="zip" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456" autocomplete="postal-code" data-mask="zip" required />
               </label>
             </div>
 
-            <fieldset class="delivery-group">
-              <legend>Способ доставки</legend>
-              <label><input type="radio" name="delivery" value="СДЭК (2–7 дней)" checked />СДЭК (2–7 дней)</label>
-              <label><input type="radio" name="delivery" value="Почта России (5–14 дней)" />Почта России (5–14 дней)</label>
-              <label><input type="radio" name="delivery" value="Яндекс Доставка (Москва, 1 день)" />Яндекс Доставка (только Москва, 1 день)</label>
+            <div class="delivery-group" role="radiogroup" aria-labelledby="deliveryGroupTitle">
+              <div class="delivery-group-head">
+                <h3 id="deliveryGroupTitle" class="delivery-group-title">Способ доставки</h3>
+              </div>
+              <div class="delivery-options">
+                <label class="delivery-option">
+                  <input type="radio" name="delivery" value="Ozon Доставка (расчёт на сайте)" />
+                  <span class="delivery-option-body">
+                    <span class="delivery-option-title">Ozon Доставка</span>
+                    <span class="delivery-option-sub">Расчёт на сайте после заполнения адреса</span>
+                  </span>
+                </label>
+                <label class="delivery-option">
+                  <input type="radio" name="delivery" value="СДЭК (2–7 дней)" checked />
+                  <span class="delivery-option-body">
+                    <span class="delivery-option-title">СДЭК</span>
+                    <span class="delivery-option-sub">Ориентировочно 2–7 дней</span>
+                  </span>
+                </label>
+                <label class="delivery-option">
+                  <input type="radio" name="delivery" value="Почта России (5–14 дней)" />
+                  <span class="delivery-option-body">
+                    <span class="delivery-option-title">Почта России</span>
+                    <span class="delivery-option-sub">Ориентировочно 5–14 дней</span>
+                  </span>
+                </label>
+                <label class="delivery-option">
+                  <input type="radio" name="delivery" value="Яндекс Доставка (Москва, 1 день)" />
+                  <span class="delivery-option-body">
+                    <span class="delivery-option-title">Яндекс Доставка</span>
+                    <span class="delivery-option-sub">Только Москва, обычно 1 день</span>
+                  </span>
+                </label>
+              </div>
               <p class="delivery-note">Точную стоимость доставки сообщим после оформления заказа</p>
-            </fieldset>
+            </div>
 
             <div class="actions">
               <button type="submit" id="submitBtn" class="dark-btn">Оформить заказ</button>
@@ -86,9 +115,57 @@ import Layout from '../layouts/Layout.astro';
     const submitBtn = document.getElementById('submitBtn');
     const cardPayBtn = document.getElementById('cardPayBtn');
     const formMessage = document.getElementById('formMessage');
+    const deliveryInputs = Array.from(document.querySelectorAll('input[name="delivery"]'));
+    const phoneInput = checkoutForm?.querySelector('input[data-mask="phone"]');
+    const zipInput = checkoutForm?.querySelector('input[data-mask="zip"]');
 
     function money(value) {
       return `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
+    }
+
+    function updateDeliveryOptionState() {
+      // Подсветка выбранного способа доставки, чтобы блок читался как карточки.
+      deliveryInputs.forEach((input) => {
+        const option = input.closest('.delivery-option');
+        if (!(option instanceof HTMLElement)) return;
+        option.classList.toggle('is-selected', input.checked);
+      });
+    }
+
+    function formatPhone(value) {
+      const digits = String(value || '').replace(/\D/g, '');
+      const normalized = digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
+      const base = normalized.startsWith('7') ? normalized.slice(1) : normalized;
+      const sliced = base.slice(0, 10);
+
+      let out = '+7';
+      if (sliced.length > 0) out += ` (${sliced.slice(0, 3)}`;
+      if (sliced.length >= 4) out += `) ${sliced.slice(3, 6)}`;
+      if (sliced.length >= 7) out += `-${sliced.slice(6, 8)}`;
+      if (sliced.length >= 9) out += `-${sliced.slice(8, 10)}`;
+      return out;
+    }
+
+    function setupInputMasks() {
+      // Маски только визуальные: payload отправляем как обычно, логика API не меняется.
+      if (phoneInput instanceof HTMLInputElement) {
+        phoneInput.addEventListener('focus', () => {
+          if (!phoneInput.value) phoneInput.value = '+7';
+        });
+        phoneInput.addEventListener('input', () => {
+          phoneInput.value = formatPhone(phoneInput.value);
+        });
+        phoneInput.addEventListener('blur', () => {
+          const digits = phoneInput.value.replace(/\D/g, '');
+          if (digits.length < 11) phoneInput.value = '';
+        });
+      }
+
+      if (zipInput instanceof HTMLInputElement) {
+        zipInput.addEventListener('input', () => {
+          zipInput.value = zipInput.value.replace(/\D/g, '').slice(0, 6);
+        });
+      }
     }
 
     function renderCart() {
@@ -216,6 +293,12 @@ import Layout from '../layouts/Layout.astro';
     }
 
     if (checkoutForm && submitBtn) {
+      deliveryInputs.forEach((input) => {
+        input.addEventListener('change', () => {
+          updateDeliveryOptionState();
+        });
+      });
+
       checkoutForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const items = getCart();
@@ -252,26 +335,28 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
+    setupInputMasks();
+    updateDeliveryOptionState();
     renderCart();
   </script>
 
   <style is:global>
-    .cart-page{padding:96px 0 80px;background:#f9fafb;min-height:72vh}
+    .cart-page{padding:96px 0 80px;background:#f5f5f7;min-height:72vh}
     .cart-wrap{max-width:1280px;margin:0 auto;padding:0 24px}
     .cart-head{margin-bottom:20px}
     .cart-head h1{font-family:'Unbounded',sans-serif;font-size:clamp(34px,5vw,56px);line-height:1.04;letter-spacing:-.02em;color:#111;margin:0 0 12px}
     .cart-head p{font-size:17px;color:#4b5563;line-height:1.6;margin:0}
-    .cart-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:20px}
-    .cart-panel,.checkout-panel{background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.3);border-radius:18px;box-shadow:0 4px 30px rgba(0,0,0,.1);backdrop-filter:blur(20px);padding:22px}
-    .checkout-panel h2{font-family:'Unbounded',sans-serif;font-size:24px;line-height:1.2;margin:0 0 14px}
+    .cart-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:20px;align-items:start}
+    .cart-panel,.checkout-panel{background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:20px;box-shadow:0 10px 28px rgba(17,17,17,.04);padding:26px}
+    .checkout-panel h2{font-family:'Unbounded',sans-serif;font-size:clamp(28px,2.2vw,36px);line-height:1.08;letter-spacing:-.02em;margin:0 0 16px}
     .checkout-hint{margin:12px 0 0;color:#6b7280;font-size:14px;line-height:1.5}
     .checkout-panel.is-empty .summary-row{margin-bottom:0}
     .items-list{display:grid;gap:14px}
-    .cart-item{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:14px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:#fff}
+    .cart-item{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:16px;border:1px solid rgba(0,0,0,.08);border-radius:16px;background:#fff}
     .cart-item img{width:96px;height:96px;object-fit:contain;background:#fff}
-    .cart-item-main h3{font-size:22px;line-height:1.2;margin:0 0 4px;color:#111}
+    .cart-item-main h3{font-size:20px;line-height:1.15;margin:0 0 4px;color:#111;letter-spacing:-.01em}
     .cart-item-color{font-size:13px;color:#6b7280;margin:0 0 8px;font-weight:500}
-    .cart-item-main p{font-size:18px;font-weight:700;margin:0 0 10px;color:#111}
+    .cart-item-main p{font-size:18px;font-weight:700;margin:0 0 10px;color:#111;letter-spacing:-.01em}
     .qty-row{display:inline-flex;align-items:center;gap:8px;margin-top:4px}
     .qty-btn{
       width:44px;
@@ -295,7 +380,7 @@ import Layout from '../layouts/Layout.astro';
     .remove-btn:focus-visible{outline:2px solid #ef4444;outline-offset:2px}
     .qty-row input{
       width:68px;
-      height:36px;
+      height:44px;
       border-radius:10px;
       border:1px solid rgba(0,0,0,.18);
       text-align:center;
@@ -321,26 +406,82 @@ import Layout from '../layouts/Layout.astro';
       align-items:center;
       gap:6px;
       transition:all .2s ease;
-      margin-top:8px;
+      margin-top:0;
     }
     .remove-btn:hover{
       background:#ef4444;
       color:#fff;
       border-color:#ef4444;
     }
-    .summary-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08);margin-bottom:14px;color:#111}
-    .summary-row strong{font-size:30px;line-height:1.1}
-    .checkout-form{display:grid;gap:14px}
-    .field-grid{display:grid;gap:10px}
-    .field-grid label{display:grid;gap:6px;font-size:14px;font-weight:600;color:#111}
-    .field-grid input{height:44px;border:1px solid rgba(0,0,0,.15);border-radius:12px;padding:0 12px;font-size:15px;transition:border-color .2s ease,box-shadow .2s ease}
+    .summary-row{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-top:1px solid rgba(0,0,0,.08);border-bottom:1px solid rgba(0,0,0,.08);margin-bottom:18px;color:#111}
+    .summary-row span{font-size:18px;font-weight:600;letter-spacing:-.01em}
+    .summary-row strong{font-size:30px;line-height:1.1;letter-spacing:-.02em}
+    .checkout-form{display:grid;gap:16px}
+    .field-grid{display:grid;gap:12px}
+    .field-grid label{display:grid;gap:8px;font-size:16px;font-weight:600;color:#111;letter-spacing:-.005em}
+    .field-grid input{height:50px;border:1px solid rgba(0,0,0,.14);border-radius:14px;padding:0 16px;font-size:16px;line-height:1.4;background:#fff;transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease}
+    .field-grid input::placeholder{color:#9ca3af}
     .field-grid input:focus{outline:none;border-color:#111;box-shadow:0 0 0 3px rgba(17,17,17,.08)}
-    .delivery-group{border:1px solid rgba(0,0,0,.1);border-radius:12px;padding:12px;margin:0}
-    .delivery-group legend{font-size:14px;font-weight:700;padding:0 8px}
-    .delivery-group label{display:flex;gap:8px;align-items:center;font-size:14px;color:#111;margin-bottom:8px}
-    .delivery-note{margin:8px 0 0;font-size:13px;color:#6b7280}
-    .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .dark-btn,.ghost-btn{height:46px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;line-height:1;padding:0 16px}
+    .field-grid input:invalid:not(:placeholder-shown){border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.12)}
+    .delivery-group{border:1px solid rgba(0,0,0,.1);border-radius:16px;padding:14px;margin:0;background:#fff}
+    .delivery-group-head{display:flex;align-items:center;justify-content:space-between;margin:2px 2px 12px}
+    .delivery-group-title{font-size:16px;line-height:1.2;font-weight:700;letter-spacing:-.005em;color:#111;margin:0}
+    .delivery-options{display:grid;gap:10px}
+    .delivery-option{
+      display:grid;
+      grid-template-columns:18px 1fr;
+      gap:12px;
+      align-items:flex-start;
+      border:1px solid rgba(17,17,17,.1);
+      border-radius:14px;
+      padding:12px 14px;
+      background:#fff;
+      cursor:pointer;
+      transition:border-color .2s ease,background-color .2s ease,transform .2s ease,box-shadow .2s ease;
+    }
+    .delivery-option:hover{border-color:rgba(17,17,17,.2);transform:translateY(-1px)}
+    .delivery-option input{
+      appearance:none;
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      border:1.5px solid rgba(17,17,17,.32);
+      margin:2px 0 0;
+      display:grid;
+      place-items:center;
+      background:#fff;
+      transition:border-color .2s ease,background-color .2s ease;
+    }
+    .delivery-option input::before{
+      content:'';
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      transform:scale(0);
+      transition:transform .2s ease;
+      background:#fff;
+    }
+    .delivery-option input:checked{border-color:#111;background:#111}
+    .delivery-option input:checked::before{transform:scale(1)}
+    .delivery-option.is-selected{
+      border-color:#111;
+      background:#f1f3f6;
+      box-shadow:0 8px 22px rgba(17,17,17,.1), inset 0 0 0 1px rgba(17,17,17,.05);
+    }
+    .delivery-option:focus-within{
+      border-color:#111;
+      box-shadow:0 0 0 3px rgba(17,17,17,.14), 0 8px 20px rgba(17,17,17,.08);
+    }
+    .delivery-option input:focus-visible{
+      outline:2px solid #111;
+      outline-offset:2px;
+    }
+    .delivery-option-body{display:grid;gap:2px}
+    .delivery-option-title{font-size:16px;line-height:1.2;color:#111;font-weight:600;letter-spacing:-.005em}
+    .delivery-option-sub{font-size:13px;line-height:1.45;color:#6b7280}
+    .delivery-note{margin:12px 2px 2px;font-size:13px;color:#6b7280;line-height:1.5}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+    .dark-btn,.ghost-btn{height:52px;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;line-height:1;padding:0 18px}
     .dark-btn{background:#111;color:#fff;border:none}
     .dark-btn:hover{background:#000}
     .dark-btn:disabled{opacity:.6;cursor:not-allowed}
@@ -361,8 +502,20 @@ import Layout from '../layouts/Layout.astro';
       .cart-wrap{padding:0 16px}
       .cart-item{grid-template-columns:72px 1fr;align-items:flex-start}
       .cart-item img{width:72px;height:72px}
+      .cart-item-main h3{font-size:18px}
+      .cart-item-main p{font-size:20px}
+      .checkout-panel h2{font-size:30px}
+      .summary-row span{font-size:17px}
+      .summary-row strong{font-size:34px}
+      .field-grid label{font-size:15px}
+      .field-grid input{height:48px;font-size:16px}
+      .delivery-group-title{font-size:15px}
+      .delivery-option-title{font-size:16px}
+      .delivery-option-sub,.delivery-note{font-size:14px}
+      .dark-btn,.ghost-btn{height:50px;font-size:16px}
+      .form-message{font-size:14px}
       .remove-btn{grid-column:2;justify-self:start;padding:0}
-      .actions{grid-template-columns:1fr}
+      .actions{grid-template-columns:1fr;gap:12px;margin-top:10px}
     }
   </style>
 </Layout>
