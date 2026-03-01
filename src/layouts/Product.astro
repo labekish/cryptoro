@@ -746,6 +746,121 @@ const BOX_ICONS = [
     ]
   })} />
 
+  <!-- WOW Animations JS -->
+  <script is:inline>
+  (function(){
+    /* ── HERO STAGGERED ENTRANCE ── */
+    var heroItems = [
+      { sel:'.pdp-breadcrumbs',   delay:0.05, y:16 },
+      { sel:'.pdp-hero__badges-row', delay:0.1, y:16 },
+      { sel:'.pdp-hero__title',   delay:0.2, y:40 },
+      { sel:'.pdp-hero__subtitle',delay:0.32, y:24 },
+      { sel:'.pdp-hero__price-row',delay:0.4, y:20 },
+      { sel:'.pdp-hero__media',   delay:0.35, y:32, s:0.97 },
+      { sel:'.pdp-hero__colors',  delay:0.5, y:16 },
+      { sel:'.pdp-hero__actions', delay:0.55, y:20 },
+      { sel:'.pdp-hero__trust',   delay:0.62, y:12 }
+    ];
+    var heroEls = [];
+    heroItems.forEach(function(item){
+      var el = document.querySelector(item.sel);
+      if(!el) return;
+      el.classList.remove('reveal','vis');
+      el.style.setProperty('--pdp-delay', item.delay+'s');
+      el.style.setProperty('--pdp-y', item.y+'px');
+      if(item.s) el.style.setProperty('--pdp-s', String(item.s));
+      el.classList.add('pdp-anim-init');
+      heroEls.push(el);
+    });
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        heroEls.forEach(function(el){
+          el.classList.remove('pdp-anim-init');
+          el.classList.add('pdp-anim-go');
+        });
+        setTimeout(function(){
+          heroEls.forEach(function(el){
+            el.classList.remove('pdp-anim-go');
+            el.classList.add('pdp-anim-done');
+          });
+        }, 1400);
+      });
+    });
+
+    /* ── AI DARK SECTION OBSERVER ── */
+    var aiDark = document.querySelector('.pdp-ai-dark');
+    if(aiDark && 'IntersectionObserver' in window){
+      var aiObs = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if(e.isIntersecting){
+            e.target.classList.add('pdp-section-vis');
+            aiObs.unobserve(e.target);
+          }
+        });
+      }, { threshold:0.2 });
+      aiObs.observe(aiDark);
+    }
+
+    /* ── KEY SPECS COUNT-UP ── */
+    var specNums = document.querySelectorAll('.pdp-spec-card__num');
+    if(specNums.length && 'IntersectionObserver' in window){
+      var specsDone = false;
+      var specsSection = document.querySelector('.pdp-key-specs') || document.querySelector('.parameters-panel');
+      if(specsSection){
+        var specsObs = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){
+            if(e.isIntersecting && !specsDone){
+              specsDone = true;
+              specsObs.unobserve(e.target);
+              /* Trigger spec card reveal */
+              document.querySelectorAll('.pdp-spec-card').forEach(function(card){
+                card.classList.add('pdp-spec-vis');
+              });
+              /* Count-up */
+              specNums.forEach(function(el){
+                var target = parseInt(el.textContent, 10);
+                if(isNaN(target)) return;
+                var duration = 1200;
+                var startTime = null;
+                function step(ts){
+                  if(!startTime) startTime = ts;
+                  var progress = Math.min((ts - startTime) / duration, 1);
+                  var eased = 1 - Math.pow(1 - progress, 3);
+                  el.textContent = String(Math.round(eased * target));
+                  if(progress < 1) requestAnimationFrame(step);
+                }
+                el.textContent = '0';
+                requestAnimationFrame(step);
+              });
+            }
+          });
+        }, { threshold:0.25 });
+        specsObs.observe(specsSection);
+      }
+    }
+
+    /* ── HERO PARALLAX ── */
+    var heroSection = document.querySelector('.pdp-hero');
+    var heroImg = document.querySelector('.pdp-hero__main-img img');
+    if(heroSection && heroImg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      var ticking = false;
+      window.addEventListener('scroll', function(){
+        if(!ticking){
+          ticking = true;
+          requestAnimationFrame(function(){
+            var rect = heroSection.getBoundingClientRect();
+            if(rect.bottom > 0 && rect.top < window.innerHeight){
+              var scrolled = -rect.top;
+              heroImg.style.transform = 'translateY(' + (scrolled * 0.06) + 'px)';
+            }
+            ticking = false;
+          });
+        }
+      }, { passive:true });
+    }
+  })();
+  </script>
+
   <style is:global>
     /* ===== PDP Design Tokens ===== */
     :root{
@@ -1453,6 +1568,134 @@ const BOX_ICONS = [
         max-height: 360px;
         filter: drop-shadow(0 16px 28px rgba(17,17,17,.11));
       }
+    }
+
+    /* ═══════════ WOW ANIMATIONS FOR PDP ═══════════ */
+
+    /* ── HERO STAGGERED ENTRANCE ── */
+    @keyframes pdpHeroIn {
+      from { opacity:0; transform:translateY(var(--pdp-y,28px)) scale(var(--pdp-s,1)) }
+      to   { opacity:1; transform:translateY(0) scale(1) }
+    }
+    .pdp-anim-init { opacity:0 !important; transition:none !important }
+    .pdp-anim-go { animation: pdpHeroIn .8s cubic-bezier(.16,1,.3,1) var(--pdp-delay,0s) both !important }
+    .pdp-anim-done { opacity:1 !important; transform:translateY(0) scale(1) !important; animation:none !important }
+
+    /* ── HERO GRADIENT BLOB ── */
+    .pdp-hero::after {
+      content:'' !important;
+      display:block !important;
+      position:absolute !important;
+      top:-25% !important;
+      right:-10% !important;
+      width:55vw !important;
+      height:55vw !important;
+      max-width:600px !important;
+      max-height:600px !important;
+      border-radius:50% !important;
+      background:radial-gradient(circle, rgba(232,134,53,.07) 0%, rgba(232,134,53,.02) 40%, transparent 70%) !important;
+      pointer-events:none !important;
+      z-index:0 !important;
+      animation:pdpBlobFloat 9s ease-in-out infinite !important;
+    }
+    .pdp-hero { position:relative !important; overflow:hidden !important }
+    .pdp-hero .pdp-container { position:relative !important; z-index:1 !important }
+    @keyframes pdpBlobFloat {
+      0%,100% { transform:translate(0,0) scale(1) }
+      50%     { transform:translate(-3%,4%) scale(1.05) }
+    }
+
+    /* ── BADGE PULSE ── */
+    @keyframes pdpBadgePulse {
+      0%,100% { box-shadow:0 0 0 0 rgba(232,134,53,.25) }
+      50%     { box-shadow:0 0 0 8px rgba(232,134,53,0) }
+    }
+    .pdp-badge { animation:pdpBadgePulse 2.5s ease-in-out infinite !important }
+
+    /* ── HERO IMAGE HOVER ZOOM ── */
+    .pdp-hero__main-img img { transition:transform .6s cubic-bezier(.16,1,.3,1), opacity .18s ease !important }
+
+    /* ── AI DARK SECTION REVEAL ── */
+    @keyframes pdpFadeUp {
+      from { opacity:0; transform:translateY(24px) }
+      to   { opacity:1; transform:translateY(0) }
+    }
+    .pdp-ai-dark .pdp-ai-dark__kicker,
+    .pdp-ai-dark .pdp-ai-dark__headline,
+    .pdp-ai-dark .pdp-ai-dark__item {
+      opacity:0;
+      transform:translateY(24px);
+    }
+    .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__kicker { animation:pdpFadeUp .7s cubic-bezier(.16,1,.3,1) .1s both }
+    .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__headline { animation:pdpFadeUp .7s cubic-bezier(.16,1,.3,1) .25s both }
+    .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__item:nth-child(1) { animation:pdpFadeUp .6s cubic-bezier(.16,1,.3,1) .4s both }
+    .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__item:nth-child(2) { animation:pdpFadeUp .6s cubic-bezier(.16,1,.3,1) .5s both }
+    .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__item:nth-child(3) { animation:pdpFadeUp .6s cubic-bezier(.16,1,.3,1) .6s both }
+
+    /* ── KEY SPECS COUNT-UP ── */
+    .pdp-spec-card__num { font-variant-numeric:tabular-nums !important }
+
+    /* ── SPEC CARDS STAGGER ── */
+    .pdp-spec-card.pdp-spec-vis {
+      animation:pdpFadeUp .6s cubic-bezier(.16,1,.3,1) calc(var(--stagger,0) * .12s) both !important;
+    }
+
+    /* ── CINEMATIC SLIDE-IN ── */
+    @keyframes pdpSlideLeft {
+      from { opacity:0; transform:translateX(-40px) }
+      to   { opacity:1; transform:translateX(0) }
+    }
+    @keyframes pdpSlideRight {
+      from { opacity:0; transform:translateX(40px) }
+      to   { opacity:1; transform:translateX(0) }
+    }
+    .pdp-cinematic__copy.reveal.vis { animation:pdpSlideLeft .8s cubic-bezier(.16,1,.3,1) .15s both !important }
+    .pdp-cinematic__media.reveal.vis { animation:pdpSlideRight .8s cubic-bezier(.16,1,.3,1) .3s both !important }
+
+    /* ── COMPARE CARDS ── */
+    .pdp-compare-card--alt { transition:opacity .3s ease, box-shadow .3s ease, transform .3s cubic-bezier(.16,1,.3,1) !important }
+    @media(hover:hover){
+      .pdp-compare-card--alt:hover { transform:translateY(-5px) !important; box-shadow:0 12px 28px rgba(0,0,0,.10) !important }
+      .pdp-compare-card--alt:hover img { transform:scale(1.04) }
+    }
+    .pdp-compare-card img { transition:transform .4s cubic-bezier(.16,1,.3,1) }
+
+    /* ── ACCORDION ICON ROTATION ── */
+    .pdp-accordion__icon { transition:transform .3s cubic-bezier(.16,1,.3,1) !important }
+    .pdp-accordion[open] .pdp-accordion__icon { transform:rotate(180deg) !important }
+
+    /* ── CTA BUTTON SHIMMER ── */
+    .pdp-btn--primary { position:relative !important; overflow:hidden !important }
+    .pdp-btn--primary::after {
+      content:'' !important;
+      position:absolute !important;
+      top:0 !important; left:-100% !important;
+      width:60% !important; height:100% !important;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent) !important;
+      animation:pdpShimmer 3s ease-in-out infinite !important;
+      pointer-events:none !important;
+    }
+    @keyframes pdpShimmer {
+      0%   { left:-100% }
+      40%  { left:160% }
+      100% { left:160% }
+    }
+
+    /* ── REDUCED MOTION ── */
+    @media (prefers-reduced-motion: reduce) {
+      .pdp-hero::after { animation:none !important }
+      .pdp-badge { animation:none !important }
+      .pdp-anim-go { animation:none !important; opacity:1 !important }
+      .pdp-ai-dark .pdp-ai-dark__kicker,
+      .pdp-ai-dark .pdp-ai-dark__headline,
+      .pdp-ai-dark .pdp-ai-dark__item { opacity:1 !important; transform:none !important }
+      .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__kicker,
+      .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__headline,
+      .pdp-ai-dark.pdp-section-vis .pdp-ai-dark__item { animation:none !important; opacity:1 !important; transform:none !important }
+      .pdp-spec-card.pdp-spec-vis { animation:none !important; opacity:1 !important; transform:none !important }
+      .pdp-cinematic__copy.reveal.vis,
+      .pdp-cinematic__media.reveal.vis { animation:none !important }
+      .pdp-btn--primary::after { animation:none !important; display:none !important }
     }
   </style>
 </Layout>
