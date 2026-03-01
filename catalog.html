@@ -157,19 +157,21 @@ img{max-width:100%;height:auto}
   justify-content:space-between!important;
   gap:16px!important;
   min-height:56px;
+  padding-bottom:14px;
+  border-bottom:1px solid rgba(17,17,17,.10);
 }
-.catalog-chips{
+.catalog-controls .catalog-chips{
   display:flex;
   align-items:center;
-  gap:4px;
+  gap:10px;
   flex-wrap:nowrap;
   min-width:0;
   overflow-x:auto;
   scrollbar-width:none;
-  background:#e8e8ed;
-  border:1px solid rgba(29,29,31,.08);
-  border-radius:999px;
-  padding:4px;
+  background:transparent!important;
+  border:none!important;
+  border-radius:0!important;
+  padding:0!important;
 }
 .catalog-chips::-webkit-scrollbar{display:none}
 .catalog-sort{
@@ -179,9 +181,9 @@ img{max-width:100%;height:auto}
   flex-shrink:0;
   margin-left:auto;
 }
-.filter-btn{
-  background:transparent!important;
-  border:1px solid transparent!important;
+.catalog-controls .filter-btn{
+  background:#fff!important;
+  border:1px solid rgba(29,29,31,.14)!important;
   color:#3a3a3c!important;
   border-radius:999px!important;
   padding:10px 18px!important;
@@ -190,12 +192,40 @@ img{max-width:100%;height:auto}
   line-height:1.15;
   white-space:nowrap;
   min-height:44px!important;
+  text-decoration:none!important;
+  box-shadow:none!important;
+  transform:none!important;
 }
-.filter-btn.bg-zinc-900,
-.filter-btn.active{
+.catalog-controls .filter-btn.is-selected{
   background:#111!important;
   color:#fff!important;
   border-color:#111!important;
+  box-shadow:0 8px 18px rgba(17,17,17,.18)!important;
+}
+.catalog-controls .filter-btn.is-selected.is-activating{
+  animation:filterSelectPulse .34s cubic-bezier(.16,1,.3,1) both!important;
+}
+@keyframes filterSelectPulse{
+  0%{
+    transform:translateY(0) scale(1)!important;
+    box-shadow:0 8px 18px rgba(17,17,17,.18)!important;
+  }
+  45%{
+    transform:translateY(-1px) scale(1.035)!important;
+    box-shadow:0 14px 26px rgba(17,17,17,.24), 0 0 0 6px rgba(17,17,17,.08)!important;
+  }
+  100%{
+    transform:translateY(0) scale(1)!important;
+    box-shadow:0 8px 18px rgba(17,17,17,.18)!important;
+  }
+}
+body .catalog-controls .filter-btn:hover{
+  transform:none!important;
+  border-color:rgba(29,29,31,.22)!important;
+}
+body .catalog-controls .catalog-chips .filter-btn::after{
+  content:none!important;
+  display:none!important;
 }
 #sortSelect{
   border-radius:999px!important;
@@ -443,13 +473,13 @@ main{padding-top:40px!important}
 }
 
 /* ── FILTER CHIP ACTIVE TRANSITION ── */
-.filter-btn {
+body .catalog-controls .filter-btn {
   transition:all .25s cubic-bezier(.16,1,.3,1) !important;
   position:relative !important;
+  text-decoration:none !important;
 }
-.filter-btn.active,
-.filter-btn.bg-zinc-900 {
-  transform:scale(1.04) !important;
+body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
+  transform:none !important;
 }
 
 /* ── PRODUCTS COUNT FADE ── */
@@ -481,10 +511,10 @@ main{padding-top:40px!important}
     <p class="mx-auto mt-4 max-w-2xl text-lg text-zinc-600">AI-диктофоны для встреч, лекций и звонков</p>
   </section>
 
-  <section class="bg-white/95 px-6">
+  <section class="px-6">
     <div class="catalog-controls mx-auto max-w-7xl py-3">
       <div class="catalog-chips">
-      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 bg-zinc-900 px-4 py-2 text-xs font-medium text-white" onclick="filterProducts('all', this)">Все модели</button>
+      <button class="filter-btn is-selected shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-white" onclick="filterProducts('all', this)">Все модели</button>
       <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('vspomnit', this)">Вспомни всё</button>
       <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('note', this)">Plaud Note</button>
       <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('notepro', this)">Plaud Note Pro</button>
@@ -596,11 +626,15 @@ main{padding-top:40px!important}
 
     function updateFilterButtonState(activeBtn) {
       document.querySelectorAll('.filter-btn').forEach((btn) => {
-        btn.classList.remove('bg-zinc-900', 'text-white', 'border-zinc-900');
+        btn.classList.remove('bg-zinc-900', 'text-white', 'border-zinc-900', 'active', 'is-selected', 'is-activating');
         btn.classList.add('text-zinc-600', 'border-zinc-300');
       });
-      activeBtn.classList.add('bg-zinc-900', 'text-white', 'border-zinc-900');
+      activeBtn.classList.add('is-selected', 'text-white', 'border-zinc-900');
       activeBtn.classList.remove('text-zinc-600', 'border-zinc-300');
+      // Лёгкий премиум-эффект при переключении фильтра.
+      void activeBtn.offsetWidth;
+      activeBtn.classList.add('is-activating');
+      window.setTimeout(() => activeBtn.classList.remove('is-activating'), 380);
     }
 
     function updateCount() {
@@ -693,11 +727,14 @@ main{padding-top:40px!important}
 
     /* Update filter button state */
     document.querySelectorAll('.filter-btn').forEach(function(b){
-      b.classList.remove('bg-zinc-900','text-white','border-zinc-900','active');
+      b.classList.remove('bg-zinc-900','text-white','border-zinc-900','active','is-selected','is-activating');
       b.classList.add('text-zinc-600','border-zinc-300');
     });
-    btn.classList.add('bg-zinc-900','text-white','border-zinc-900','active');
+    btn.classList.add('is-selected','text-white','border-zinc-900');
     btn.classList.remove('text-zinc-600','border-zinc-300');
+    void btn.offsetWidth;
+    btn.classList.add('is-activating');
+    setTimeout(function(){ btn.classList.remove('is-activating'); }, 380);
 
     /* Hide all first */
     var toHide = [];
