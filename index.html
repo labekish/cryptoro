@@ -2240,6 +2240,198 @@ body .sec-how .smock { display: none !important }
 }
 </style>
 
+<style>
+/* ═══════════════════════════════════════════════════════════
+   WOW ANIMATIONS — hero entrance, count-up, hover polish
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── HERO ENTRANCE: driven by JS adding .hero-animate class ── */
+@keyframes heroEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(var(--hero-y, 32px)) scale(var(--hero-s, 1));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+/* Hero elements hidden by default via .hero-anim-init (set by JS) */
+.hero-anim-init {
+  opacity: 0 !important;
+  transition: none !important;
+}
+/* Once JS triggers, run staggered keyframe animation */
+.hero-anim-go {
+  animation: heroEntrance .9s cubic-bezier(.16,1,.3,1) var(--hero-delay, 0s) both !important;
+  opacity: 0 !important;
+}
+/* After animation completes, JS adds this to lock in final state */
+.hero-anim-done {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+  animation: none !important;
+}
+
+/* ── HERO GRADIENT BLOB ── */
+.hero::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  top: -20% !important;
+  right: -10% !important;
+  width: 70vw !important;
+  height: 70vw !important;
+  max-width: 900px !important;
+  max-height: 900px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, rgba(232,134,53,.08) 0%, rgba(232,134,53,.03) 40%, transparent 70%) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  animation: blobFloat 8s ease-in-out infinite !important;
+}
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1) }
+  50% { transform: translate(-3%, 4%) scale(1.05) }
+}
+
+/* ── COUNT-UP: 98% stat ── */
+.feat-primary__stat {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── SECTION HEADERS: slide up on scroll ── */
+.sec-head.reveal {
+  transform: translateY(28px) !important;
+}
+.sec-head.reveal.vis {
+  transform: translateY(0) !important;
+}
+
+/* ── HOW IT WORKS STEPS: slide in from left ── */
+@media (min-width: 481px) {
+  body .sec-how .step.reveal {
+    opacity: 0 !important;
+    transform: translateX(-32px) !important;
+    transition: opacity .7s ease, transform .7s cubic-bezier(.16,1,.3,1) !important;
+  }
+  body .sec-how .step.reveal.vis {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+  body .sec-how .step.reveal:nth-child(1) { transition-delay: 0s !important }
+  body .sec-how .step.reveal:nth-child(2) { transition-delay: .15s !important }
+  body .sec-how .step.reveal:nth-child(3) { transition-delay: .3s !important }
+}
+
+/* ── PRODUCT CARDS: enhanced hover ── */
+.products-grid .pcard:not(:first-child):hover .pimg-wrap img {
+  transform: scale(1.08) !important;
+}
+.products-grid .pcard .pimg-wrap img {
+  transition: transform .5s cubic-bezier(.16,1,.3,1) !important;
+}
+
+/* ── USE CASE BLOCKS: hover accent ── */
+.uc-block {
+  transition: background .25s ease, box-shadow .25s ease !important;
+}
+.uc-block:hover {
+  background: #fff !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,.06) !important;
+}
+.uc-block .uc-block__title {
+  transition: color .2s ease;
+}
+
+/* ── REVIEW CARDS: accent quote marks ── */
+.sec-reviews .rvquote {
+  color: #e88635 !important;
+  opacity: .5 !important;
+}
+.sec-reviews .rvquote svg {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* ── CTA BUTTON: accent gradient + shimmer ── */
+#lead .lsubmit {
+  background: linear-gradient(135deg, #e88635 0%, #f5a623 50%, #e88635 100%) !important;
+  background-size: 200% 100% !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  letter-spacing: .01em !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: transform .2s ease, box-shadow .3s ease !important;
+}
+#lead .lsubmit:hover {
+  background: linear-gradient(135deg, #d4771e 0%, #e69a1e 50%, #d4771e 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 28px rgba(232,134,53,.35) !important;
+}
+#lead .lsubmit::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.2) 50%, transparent 100%);
+  animation: btnShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes btnShimmer {
+  0% { left: -100% }
+  40%, 100% { left: 100% }
+}
+
+/* ── FAQ: smooth chevron rotation ── */
+.faqarr {
+  transition: transform .3s ease, background .3s ease, color .3s ease, border-color .3s ease !important;
+}
+.faqitem.open .faqarr {
+  transform: rotate(45deg) !important;
+}
+
+/* ── FEATURE ROW ITEMS: stagger reveal ── */
+.feat-item.reveal {
+  opacity: 0 !important;
+  transform: translateY(24px) !important;
+  transition: opacity .6s ease, transform .6s cubic-bezier(.16,1,.3,1) !important;
+}
+.feat-item.reveal.vis {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* ── REVIEW STARS: subtle color ── */
+.sec-reviews .rvstars {
+  color: #111 !important;
+  font-size: 13px !important;
+  letter-spacing: 2px !important;
+}
+
+/* ── Subtle parallax on hero image (will be driven by JS) ── */
+.hero-product-image {
+  will-change: transform;
+  transition: transform .1s linear;
+}
+
+/* ── prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-label, .hero-title, .hero-sub, .hero .btns, .hero-visual,
+  .hero .hero-title.reveal, .hero .hero-sub.reveal, .hero .btns.reveal, .hero .hero-visual.reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .hero::after { animation: none !important }
+  #lead .lsubmit::after { animation: none !important }
+  .hero-product-image { will-change: auto; transition: none }
+}
+</style>
+
 </head>
 <body>
 
@@ -3163,6 +3355,109 @@ body .sec-how .smock { display: none !important }
       img.setAttribute('loading', 'lazy');
     }
   });
+})();
+</script>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   WOW JS — count-up, parallax, enhanced reveals
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── HERO STAGGERED ENTRANCE ── */
+(function () {
+  var items = [
+    { sel: '.hero-label', delay: 0.1, y: 24 },
+    { sel: '.hero-title', delay: 0.25, y: 48 },
+    { sel: '.hero-sub', delay: 0.45, y: 32 },
+    { sel: '.hero .btns', delay: 0.6, y: 32 },
+    { sel: '.hero-visual', delay: 0.4, y: 40, s: 0.96 }
+  ];
+  var els = [];
+  items.forEach(function (item) {
+    var el = document.querySelector(item.sel);
+    if (!el) return;
+    // Remove reveal classes so IntersectionObserver doesn't interfere
+    el.classList.remove('reveal', 'd1', 'd2', 'd3', 'd4', 'vis');
+    el.style.setProperty('--hero-delay', item.delay + 's');
+    el.style.setProperty('--hero-y', item.y + 'px');
+    if (item.s) el.style.setProperty('--hero-s', String(item.s));
+    el.classList.add('hero-anim-init');
+    els.push(el);
+  });
+  // Trigger on next frame so browser registers the initial hidden state
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      els.forEach(function (el) {
+        el.classList.remove('hero-anim-init');
+        el.classList.add('hero-anim-go');
+      });
+      // After longest animation completes, lock in final state
+      setTimeout(function () {
+        els.forEach(function (el) {
+          el.classList.remove('hero-anim-go');
+          el.classList.add('hero-anim-done');
+        });
+      }, 1600); // 0.6s delay + 0.9s anim = 1.5s, add buffer
+    });
+  });
+})();
+
+/* ── COUNT-UP: animate 98% stat ── */
+(function () {
+  var stat = document.querySelector('.feat-primary__stat');
+  if (!stat) return;
+  var target = 98;
+  var done = false;
+
+  function countUp() {
+    if (done) return;
+    done = true;
+    var start = 0;
+    var duration = 1600;
+    var startTime = null;
+
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      // ease-out cubic
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.round(eased * target);
+      stat.textContent = current + '%';
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  if (!('IntersectionObserver' in window)) { stat.textContent = target + '%'; return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { countUp(); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.3 });
+  io.observe(stat);
+})();
+
+/* ── HERO PARALLAX: subtle product float on scroll ── */
+(function () {
+  var hero = document.querySelector('.hero');
+  var img = document.querySelector('.hero-product-image');
+  if (!hero || !img || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(function () {
+        var rect = hero.getBoundingClientRect();
+        if (rect.bottom > 0 && rect.top < window.innerHeight) {
+          var scrolled = -rect.top;
+          var parallax = scrolled * 0.08;
+          img.style.transform = 'translateY(' + parallax + 'px)';
+        }
+        ticking = false;
+      });
+    }
+  }, { passive: true });
 })();
 </script>
 </body>

@@ -319,6 +319,156 @@ main{padding-top:40px!important}
 }
 /* Layout.astro observer adds .vis — ensure Tailwind opacity/translate are overridden */
 .reveal.vis{opacity:1!important;transform:translateY(0)!important}
+
+/* ═══════════ WOW ANIMATIONS FOR CATALOG ═══════════ */
+
+/* ── HERO ENTRANCE ── */
+@keyframes catalogHeroIn {
+  from { opacity:0; transform:translateY(32px) }
+  to   { opacity:1; transform:translateY(0) }
+}
+.catalog-hero-init { opacity:0 !important; }
+.catalog-hero-go {
+  animation: catalogHeroIn .8s cubic-bezier(.16,1,.3,1) var(--cat-delay,0s) both !important;
+}
+.catalog-hero-done { opacity:1 !important; transform:translateY(0) !important; }
+
+/* ── HERO GRADIENT BLOB ── */
+.catalog-hero::after {
+  content:'' !important;
+  display:block !important;
+  position:absolute !important;
+  top:-30% !important;
+  right:-15% !important;
+  width:60vw !important;
+  height:60vw !important;
+  max-width:700px !important;
+  max-height:700px !important;
+  border-radius:50% !important;
+  background:radial-gradient(circle, rgba(232,134,53,.10) 0%, rgba(232,134,53,.04) 40%, transparent 70%) !important;
+  pointer-events:none !important;
+  z-index:0 !important;
+  animation:catBlobFloat 8s ease-in-out infinite !important;
+}
+@keyframes catBlobFloat {
+  0%,100% { transform:translate(0,0) scale(1) }
+  50%     { transform:translate(-4%,5%) scale(1.06) }
+}
+
+/* ── CARD STAGGER REVEAL ── */
+@keyframes cardReveal {
+  from { opacity:0; transform:translateY(28px) scale(.97) }
+  to   { opacity:1; transform:translateY(0) scale(1) }
+}
+#productsGrid .pcard.vis {
+  animation: cardReveal .6s cubic-bezier(.16,1,.3,1) var(--card-delay,0s) both !important;
+}
+
+/* ── ENHANCED CARD HOVER ── */
+#productsGrid .pcard:hover {
+  transform:translateY(-6px) !important;
+  box-shadow:0 20px 40px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06) !important;
+}
+#productsGrid .pcard:hover .catalog-media img {
+  transform:scale(1.08) !important;
+}
+#productsGrid .pcard .catalog-media img {
+  transition:transform .4s cubic-bezier(.16,1,.3,1) !important;
+}
+
+/* ── SMOOTH FILTER TRANSITIONS ── */
+#productsGrid .pcard {
+  transition:opacity .35s ease, transform .35s cubic-bezier(.16,1,.3,1), box-shadow .2s ease !important;
+}
+#productsGrid .pcard.card-hiding {
+  opacity:0 !important;
+  transform:scale(.95) translateY(8px) !important;
+  pointer-events:none !important;
+}
+#productsGrid .pcard.card-showing {
+  animation: cardFilterIn .4s cubic-bezier(.16,1,.3,1) both !important;
+}
+@keyframes cardFilterIn {
+  from { opacity:0; transform:scale(.95) translateY(12px) }
+  to   { opacity:1; transform:scale(1) translateY(0) }
+}
+
+/* ── BADGE PULSE FOR НОВИНКА / ПРЕДЗАКАЗ ── */
+@keyframes badgePulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(17,17,17,.15) }
+  50%     { box-shadow:0 0 0 6px rgba(17,17,17,0) }
+}
+#productsGrid .pcard .card-badge {
+  animation:badgePulse 2.5s ease-in-out infinite !important;
+}
+
+/* ── CONSULTATION BANNER ACCENT ── */
+.reveal.relative.mb-10,
+.reveal.relative.mt-10 {
+  background:linear-gradient(135deg, #1a1a1a 0%, #2d2420 50%, #3a2a1a 100%) !important;
+  border:1px solid rgba(232,134,53,.18) !important;
+  box-shadow:0 4px 20px rgba(232,134,53,.08), 0 12px 32px rgba(0,0,0,.12) !important;
+  overflow:hidden !important;
+}
+.reveal.relative.mb-10::before,
+.reveal.relative.mt-10::before {
+  content:'' !important;
+  position:absolute !important;
+  top:0 !important; right:0 !important;
+  width:40% !important; height:100% !important;
+  background:radial-gradient(circle at 80% 50%, rgba(232,134,53,.12), transparent 70%) !important;
+  pointer-events:none !important;
+}
+.reveal.relative.mb-10 > div,
+.reveal.relative.mt-10 > div {
+  background:transparent !important;
+  position:relative !important;
+  z-index:1 !important;
+}
+.reveal.relative.mb-10 h3,
+.reveal.relative.mt-10 h3 { color:#fff !important; }
+.reveal.relative.mb-10 p,
+.reveal.relative.mt-10 p { color:rgba(255,255,255,.7) !important; }
+.reveal.relative.mb-10 a,
+.reveal.relative.mt-10 a {
+  background:linear-gradient(135deg, #e88635, #d4752a) !important;
+  color:#fff !important;
+  border:none !important;
+  box-shadow:0 2px 12px rgba(232,134,53,.3) !important;
+}
+.reveal.relative.mb-10 a:hover,
+.reveal.relative.mt-10 a:hover {
+  background:linear-gradient(135deg, #f09340, #e88635) !important;
+  box-shadow:0 4px 18px rgba(232,134,53,.4) !important;
+}
+
+/* ── FILTER CHIP ACTIVE TRANSITION ── */
+.filter-btn {
+  transition:all .25s cubic-bezier(.16,1,.3,1) !important;
+  position:relative !important;
+}
+.filter-btn.active,
+.filter-btn.bg-zinc-900 {
+  transform:scale(1.04) !important;
+}
+
+/* ── PRODUCTS COUNT FADE ── */
+@keyframes countFade {
+  0%   { opacity:0; transform:translateY(-4px) }
+  100% { opacity:1; transform:translateY(0) }
+}
+#productsCount.count-update {
+  animation:countFade .3s ease both !important;
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  .catalog-hero::after,
+  #productsGrid .pcard .card-badge { animation:none !important; }
+  .catalog-hero-go { animation:none !important; opacity:1 !important; }
+  #productsGrid .pcard.vis { animation:none !important; opacity:1 !important; transform:none !important; }
+  #productsGrid .pcard.card-showing { animation:none !important; opacity:1 !important; }
+}
 </style>
 
 
@@ -490,6 +640,108 @@ main{padding-top:40px!important}
       });
     });
   })();
+</script>
+<script>
+/* ═══════════ WOW: CATALOG ANIMATIONS ═══════════ */
+
+/* ── HERO STAGGERED ENTRANCE ── */
+(function(){
+  var items = [
+    { sel:'.catalog-hero h1', delay:0.1, y:40 },
+    { sel:'.catalog-hero p',  delay:0.3, y:24 }
+  ];
+  var els = [];
+  items.forEach(function(item){
+    var el = document.querySelector(item.sel);
+    if(!el) return;
+    el.classList.remove('reveal','vis');
+    el.style.setProperty('--cat-delay', item.delay+'s');
+    el.classList.add('catalog-hero-init');
+    els.push(el);
+  });
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      els.forEach(function(el){
+        el.classList.remove('catalog-hero-init');
+        el.classList.add('catalog-hero-go');
+      });
+      setTimeout(function(){
+        els.forEach(function(el){
+          el.classList.remove('catalog-hero-go');
+          el.classList.add('catalog-hero-done');
+        });
+      }, 1200);
+    });
+  });
+})();
+
+/* ── CARD STAGGER DELAYS ── */
+(function(){
+  var cards = document.querySelectorAll('#productsGrid .pcard');
+  cards.forEach(function(card, i){
+    card.style.setProperty('--card-delay', (i * 0.1) + 's');
+  });
+})();
+
+/* ── SMOOTH FILTER WITH ANIMATION ── */
+(function(){
+  var origFilter = window.filterProducts;
+  window.filterProducts = function(cat, btn){
+    var grid = document.getElementById('productsGrid');
+    var cards = grid.querySelectorAll('.pcard');
+    var countEl = document.getElementById('productsCount');
+
+    /* Update filter button state */
+    document.querySelectorAll('.filter-btn').forEach(function(b){
+      b.classList.remove('bg-zinc-900','text-white','border-zinc-900','active');
+      b.classList.add('text-zinc-600','border-zinc-300');
+    });
+    btn.classList.add('bg-zinc-900','text-white','border-zinc-900','active');
+    btn.classList.remove('text-zinc-600','border-zinc-300');
+
+    /* Hide all first */
+    var toHide = [];
+    var toShow = [];
+    cards.forEach(function(card){
+      var show = cat === 'all' || card.dataset.cat === cat;
+      if(show) toShow.push(card);
+      else toHide.push(card);
+    });
+
+    /* Animate out */
+    toHide.forEach(function(card){
+      card.classList.add('card-hiding');
+    });
+
+    setTimeout(function(){
+      toHide.forEach(function(card){
+        card.style.display = 'none';
+        card.classList.remove('card-hiding');
+      });
+
+      /* Show with stagger */
+      toShow.forEach(function(card, i){
+        card.style.display = '';
+        card.classList.remove('card-hiding');
+        card.classList.add('card-showing');
+        card.style.setProperty('--card-delay', (i * 0.08) + 's');
+      });
+
+      /* Update count with animation */
+      var visible = toShow.length;
+      var word = visible === 1 ? 'товар' : (visible < 5 ? 'товара' : 'товаров');
+      countEl.classList.remove('count-update');
+      void countEl.offsetWidth;
+      countEl.textContent = visible + ' ' + word;
+      countEl.classList.add('count-update');
+
+      /* Clean up animation classes */
+      setTimeout(function(){
+        toShow.forEach(function(card){ card.classList.remove('card-showing'); });
+      }, 600);
+    }, 250);
+  };
+})();
 </script>
 </body>
 </html>
