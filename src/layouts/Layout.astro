@@ -572,6 +572,214 @@ const ogUrl = Astro.url?.toString() || '';
           padding:10px 0!important;
         }
       }
+      /* Мобильный hotfix для legacy-главной: перебиваем конфликтующие стили из index.html */
+      @media (max-width: 768px){
+        html,body{overflow-x:hidden!important}
+
+        .hero{
+          min-height:100svh!important;
+          padding:88px 16px 48px!important;
+          overflow:hidden!important;
+        }
+        .hero-inner{
+          grid-template-columns:1fr!important;
+          gap:18px!important;
+          align-items:start!important;
+        }
+        .hero-copy{
+          padding:0!important;
+          padding-top:10px!important;
+          order:1!important;
+          text-align:left!important;
+          max-width:none!important;
+        }
+        .hero-label{
+          margin-top:8px!important;
+          margin-bottom:16px!important;
+        }
+        .hero-title{
+          font-size:clamp(32px,9.2vw,40px)!important;
+          line-height:1.06!important;
+          max-width:none!important;
+          overflow-wrap:anywhere!important;
+        }
+        .hero-sub{
+          font-size:16px!important;
+          line-height:1.55!important;
+          max-width:none!important;
+          margin-bottom:16px!important;
+        }
+        .hero .btns{
+          width:100%!important;
+          flex-direction:column!important;
+          gap:10px!important;
+          align-items:stretch!important;
+        }
+        .hero .btn-blue,
+        .hero .btn-ghost{
+          width:100%!important;
+          max-width:none!important;
+        }
+        .hero-visual{
+          order:2!important;
+          display:flex!important;
+          justify-content:center!important;
+          transform:none!important;
+          padding:0!important;
+        }
+        .hero-product{
+          width:100%!important;
+          max-width:320px!important;
+          margin:0 auto!important;
+        }
+        .hero-product-image{
+          min-height:320px!important;
+        }
+        .hero-product-image img{
+          width:100%!important;
+          max-width:320px!important;
+          animation:none!important;
+          transform:none!important;
+        }
+        .hero-chips{
+          display:flex!important;
+          flex-direction:column!important;
+          gap:12px!important;
+          margin-top:24px!important;
+        }
+        .hero-chips__arrow{display:none!important}
+
+        .sec{
+          padding:56px 16px!important;
+        }
+        .wrap{
+          padding-left:0!important;
+          padding-right:0!important;
+        }
+        .sec-head{margin-bottom:26px!important}
+        .sec-title{
+          font-size:clamp(26px,7vw,32px)!important;
+          line-height:1.15!important;
+        }
+        .sec-sub{
+          font-size:15px!important;
+          line-height:1.55!important;
+        }
+        .sec-features .feat-primary__inner{
+          padding:44px 20px!important;
+          gap:24px!important;
+        }
+        .sec-features .feat-primary__desc{margin-bottom:18px!important}
+
+        .products-grid{
+          display:grid!important;
+          grid-template-columns:1fr!important;
+          gap:12px!important;
+          overflow:visible!important;
+        }
+        .products-grid .pcard{
+          min-width:0!important;
+          flex:auto!important;
+        }
+        .products-grid .pcard:first-child .pimg-wrap{
+          height:240px!important;
+        }
+        .products-grid .pcard:first-child .pimg-wrap img,
+        .products-grid .pcard:first-child:hover .pimg-wrap img{
+          transform:none!important;
+        }
+
+        .uc-blocks,
+        .uc-grid{
+          display:grid!important;
+          grid-template-columns:1fr!important;
+          gap:12px!important;
+          overflow:visible!important;
+        }
+        .uc-block,
+        .uccard{
+          min-width:0!important;
+          min-height:auto!important;
+          padding:20px!important;
+        }
+
+        .sec-reviews .rvcard{
+          min-height:auto!important;
+          padding:20px!important;
+          flex:0 0 100%!important;
+          max-width:100%!important;
+        }
+        .sec-reviews .rv-nav{display:none!important}
+
+        .sec-how{padding-top:64px!important}
+        .sec-how .how-left{margin-bottom:12px!important}
+        .sec-how .how-sub{margin-bottom:24px!important}
+        .sec-how .steps{margin-top:20px!important}
+        .sec-how .step{
+          padding:22px 0!important;
+          gap:14px!important;
+        }
+        .sec-how .step .scont{min-width:0!important}
+        .sec-how .step .stitle{
+          display:grid!important;
+          grid-template-columns:minmax(0,1fr) auto!important;
+          align-items:start!important;
+          white-space:normal!important;
+          overflow-wrap:anywhere!important;
+          column-gap:8px!important;
+        }
+        .sec-how .step .stitle::after{margin-top:2px!important}
+        .sec-how .step .stitle::after{display:none!important}
+        .sec-how .step .stitle{
+          cursor:default!important;
+          min-height:auto!important;
+          padding:0!important;
+        }
+        .sec-how .step .sdesc,
+        .sec-how .step .smock{
+          display:block!important;
+        }
+        .sec-how .step .sdesc{margin-top:8px!important}
+        .sec-how .step .smock{margin-top:14px!important}
+
+        .sec-lead{padding:48px 16px!important}
+        .lead-inner{
+          padding:32px 16px!important;
+          border-radius:16px!important;
+        }
+        .lead-row{
+          display:flex!important;
+          flex-direction:column!important;
+          gap:10px!important;
+        }
+        .linput,.lsubmit{
+          min-height:48px!important;
+          width:100%!important;
+        }
+
+        .faqq{
+          padding:14px 14px!important;
+          font-size:15px!important;
+          line-height:1.4!important;
+        }
+        .faqa{
+          font-size:14px!important;
+          line-height:1.55!important;
+        }
+        .faqarr{margin-left:12px!important}
+        .faq-inner{gap:8px!important}
+        .faqitem{border-radius:16px!important}
+        .faqitem.open .faqa{
+          padding-top:12px!important;
+          padding-bottom:18px!important;
+        }
+      }
+      @media (max-width: 480px){
+        .hero{padding-top:84px!important}
+        .hero-title{font-size:clamp(30px,8.8vw,36px)!important}
+        .hero-product-image{min-height:300px!important}
+        .products-grid .pcard:first-child .pimg-wrap{height:210px!important}
+      }
     </style>
     <slot name="head" />
   </head>

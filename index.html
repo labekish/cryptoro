@@ -320,6 +320,7 @@
     .sdesc{font-size:16px;color:#6e6e73;line-height:1.6;margin-bottom:18px}
     .smock{background:#2a2a2a;border-radius:12px;padding:16px;
       border:1px solid rgba(255,255,255,.08)}
+    .sec-how .smock{margin-top:14px}
     /* waveform */
     .wave{display:flex;align-items:center;gap:2px;height:30px}
     .wbar{width:3px;border-radius:2px;background:#e88635;
@@ -337,10 +338,110 @@
     /* text lines */
     .tlines{display:flex;flex-direction:column;gap:6px}
     .tl{height:8px;border-radius:4px;background:rgba(255,255,255,.15)}
+    .tl.full{width:100%}
+    .tl.medium{width:82%}
+    .tl.short{width:66%}
+    .smock-status{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:10px;
+      font-size:11px;
+      color:#9bbcff;
+      letter-spacing:.02em;
+    }
+    .smock-status .dot{
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      background:#4da3ff;
+      animation:smockDot 1.35s ease-in-out infinite;
+    }
+    .smock-status .pct{
+      margin-left:auto;
+      color:#8ea0b7;
+      font-variant-numeric:tabular-nums;
+    }
+    .smock--analyze .tl{
+      position:relative;
+      overflow:hidden;
+      animation:lineBreathe 1.9s ease-in-out infinite;
+    }
+    .smock--analyze .tl::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(77,163,255,.5) 50%,transparent 100%);
+      transform:translateX(-120%);
+      animation:lineScan 2.4s linear infinite;
+    }
+    .smock--analyze .tl:nth-child(2){animation-delay:.25s}
+    .smock--analyze .tl:nth-child(3){animation-delay:.45s}
+    .smock--analyze .tl:nth-child(4){animation-delay:.65s}
+    .smock--analyze .tl:nth-child(2)::after{animation-delay:.2s}
+    .smock--analyze .tl:nth-child(3)::after{animation-delay:.4s}
+    .smock--analyze .tl:nth-child(4)::after{animation-delay:.6s}
+    @keyframes smockDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.78)}}
+    @keyframes lineBreathe{0%,100%{opacity:.72}50%{opacity:1}}
+    @keyframes lineScan{0%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
     /* checks */
     .checks{display:flex;flex-direction:column;gap:8px}
     .chk{display:flex;align-items:center;gap:8px;font-size:12px;color:#aaa}
     .chkicon{color:#30d158;font-size:14px}
+    .smock--result .result-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .smock--result .result-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:600;
+      color:#b7f7ca;
+      background:rgba(48,209,88,.16);
+      border:1px solid rgba(48,209,88,.35);
+    }
+    .smock--result .result-time{
+      font-size:11px;
+      color:#8ea0b7;
+      font-variant-numeric:tabular-nums;
+    }
+    .smock--result .chk{
+      position:relative;
+      padding:4px 0;
+      opacity:.5;
+      transform:translateY(2px);
+      animation:resultLine 3.2s ease-in-out infinite;
+    }
+    .smock--result .chk:nth-child(2){animation-delay:.45s}
+    .smock--result .chk:nth-child(3){animation-delay:.9s}
+    .smock--result .chkicon{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:18px;
+      height:18px;
+      border-radius:999px;
+      color:#7ee2a0;
+      background:rgba(48,209,88,.14);
+      animation:resultDot 3.2s ease-in-out infinite;
+    }
+    .smock--result .chk:nth-child(2) .chkicon{animation-delay:.45s}
+    .smock--result .chk:nth-child(3) .chkicon{animation-delay:.9s}
+    @keyframes resultLine{
+      0%,100%{opacity:.5;transform:translateY(2px)}
+      35%,70%{opacity:1;transform:translateY(0)}
+    }
+    @keyframes resultDot{
+      0%,100%{box-shadow:0 0 0 rgba(48,209,88,0)}
+      35%,70%{box-shadow:0 0 0 6px rgba(48,209,88,.08)}
+    }
 
     /* USE CASES */
     .sec-usecases{background:#f5f5f7}
@@ -2839,8 +2940,12 @@ body .sec-how .smock { display: none !important }
             <div class="snum">02</div>
             <div class="stitle">AI анализирует и расшифровывает</div>
             <div class="sdesc">ChatGPT расшифровывает запись, определяет спикеров и собирает структурированный текст.</div>
-            <div class="smock">
-              <div style="font-size:11px;color:#4da3ff;margin-bottom:8px">Обработка...</div>
+            <div class="smock smock--analyze">
+              <div class="smock-status">
+                <span class="dot"></span>
+                <span>Обработка речи...</span>
+                <span class="pct">87%</span>
+              </div>
               <div class="tlines">
                 <div class="tl full"></div>
                 <div class="tl medium"></div>
@@ -2865,7 +2970,11 @@ body .sec-how .smock { display: none !important }
             <div class="snum">03</div>
             <div class="stitle">Получаете готовый результат</div>
             <div class="sdesc">Получаете текст, краткое резюме и список задач сразу в рабочем приложении.</div>
-            <div class="smock">
+            <div class="smock smock--result">
+              <div class="result-head">
+                <span class="result-badge">Готово</span>
+                <span class="result-time">сейчас</span>
+              </div>
               <div class="checks">
                 <div class="chk"><span class="chkicon">✓</span><span>Резюме готово</span></div>
                 <div class="chk"><span class="chkicon">✓</span><span>Задачи выделены</span></div>
