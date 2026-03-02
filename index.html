@@ -90,6 +90,28 @@
       color:#71747f;
     }
     .hero-proof span{display:inline-flex;align-items:center;gap:6px}
+    .hero-trust{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .hero-trust-item{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:30px;
+      padding:6px 12px;
+      border-radius:999px;
+      border:1px solid rgba(17,17,17,.12);
+      background:rgba(255,255,255,.72);
+      color:#4b5563;
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:.01em;
+      white-space:nowrap;
+    }
     .hero-visual{display:flex;justify-content:flex-end}
     .hero-product{position:relative;width:min(100%,980px);padding:0;background:transparent;
       border:none;box-shadow:none}
@@ -814,6 +836,8 @@
       .btns{justify-content:flex-start;flex-direction:column}
       .btn-blue,.btn-ghost{width:100%;max-width:320px}
       .hero-proof{font-size:13px;gap:10px}
+      .hero-trust{gap:8px;margin-top:12px}
+      .hero-trust-item{font-size:11px;padding:6px 10px}
       .hero-visual{justify-content:center}
       .hero-product{width:min(100%,520px)}
       .hero-product-image{min-height:320px;justify-content:center}
@@ -1651,7 +1675,10 @@ img{max-width:100%;height:auto}
   color: rgba(255,255,255,.5) !important;
   margin-bottom: 0 !important;
 }
-.sec-how .smock { display: none !important }
+.sec-how .smock {
+  display: block !important;
+  margin-top: 14px !important;
+}
 .sec-how .proc-label { color: rgba(255,255,255,.36) !important }
 .sec-how .how-title { color: #fff !important }
 .sec-how .how-sub { color: rgba(255,255,255,.5) !important }
@@ -1711,10 +1738,10 @@ img{max-width:100%;height:auto}
   overflow: visible !important;
 }
 .hero-inner {
-  max-width: 1320px !important;
+  max-width: 1460px !important;
   width: 100% !important;
   margin: 0 auto !important;
-  grid-template-columns: 54% 46% !important;
+  grid-template-columns: 56% 44% !important;
   gap: 0 !important;
   flex: 1 !important;
   min-height: 0 !important;
@@ -1722,7 +1749,8 @@ img{max-width:100%;height:auto}
   align-items: center !important;
 }
 .hero-copy {
-  padding: 120px 48px 64px 0 !important;
+  /* Десктоп: делаем первый экран крупнее и плотнее по смыслу */
+  padding: 132px 48px 72px 0 !important;
   max-width: none !important;
 }
 .hero-label {
@@ -1732,21 +1760,43 @@ img{max-width:100%;height:auto}
   color: rgba(17,17,17,.38) !important;
 }
 .hero-title {
-  font-size: clamp(52px, 5.8vw, 72px) !important;
+  font-size: clamp(62px, 6.5vw, 94px) !important;
   line-height: .96 !important;
-  max-width: 560px !important;
-  margin-bottom: 20px !important;
+  max-width: 720px !important;
+  margin-bottom: 24px !important;
   letter-spacing: -.04em !important;
 }
 .hero-sub {
-  font-size: 18px !important;
-  max-width: 420px !important;
-  line-height: 1.58 !important;
-  margin-bottom: 28px !important;
+  font-size: 24px !important;
+  max-width: 560px !important;
+  line-height: 1.48 !important;
+  margin-bottom: 34px !important;
   color: #6e6e73 !important;
 }
 .hero-proof { display: none !important }
 .hero .btns { gap: 20px !important; align-items: center !important; flex-wrap: nowrap !important }
+.hero .btn-blue{
+  padding:18px 44px !important;
+  font-size:20px !important;
+  border-radius:18px !important;
+}
+.hero .btn-ghost{
+  font-size:18px !important;
+}
+.hero-trust{
+  gap:12px !important;
+  margin-top:20px !important;
+}
+.hero-trust-item{
+  min-height:36px !important;
+  padding:8px 15px !important;
+  font-size:13px !important;
+}
+.hero-visual .hero-product-image img{
+  /* Увеличиваем визуальный вес продукта на первом экране */
+  width:122% !important;
+  max-width:980px !important;
+}
 /* Secondary CTA → underline text link */
 .hero .btn-ghost {
   background: none !important;
@@ -2152,7 +2202,10 @@ body .sec-how .sdesc {
   color: rgba(255,255,255,.60) !important;
   margin-bottom: 0 !important;
 }
-body .sec-how .smock { display: none !important }
+body .sec-how .smock {
+  display: block !important;
+  margin-top: 14px !important;
+}
 </style>
 
 <style>
@@ -2317,16 +2370,13 @@ body .sec-how .smock { display: none !important }
   }
   .sec-how .step .step-icon svg { width: 28px !important; height: 28px !important }
   .sec-how .step .sconn { display: none !important }
-  /* Default: hide body of each step; JS will open the first */
+  /* На мобилке показываем все шаги сразу — без аккордеона */
   .sec-how .step .sdesc,
-  .sec-how .step .smock { display: none !important }
-  /* Expanded state */
-  .sec-how .step.step--open .sdesc,
-  .sec-how .step.step--open .smock { display: block !important }
-  /* Clickable title */
+  .sec-how .step .smock { display: block !important }
+  /* Заголовок шага не кликабельный */
   .sec-how .step .stitle {
-    cursor: pointer !important;
-    user-select: none !important;
+    cursor: default !important;
+    user-select: text !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -2335,15 +2385,7 @@ body .sec-how .smock { display: none !important }
     padding: 4px 0 !important;
     min-height: 44px !important;
   }
-  .sec-how .step .stitle::after {
-    content: '+';
-    font-size: 20px;
-    font-weight: 300;
-    color: rgba(17,17,17,.36);
-    flex-shrink: 0;
-    line-height: 1;
-  }
-  .sec-how .step.step--open .stitle::after { content: '−' }
+  .sec-how .step .stitle::after { content: none !important }
   .sec-how .step .snum { font-size: 11px !important }
 
   /* ── Reviews: already 1-per-row at 768px ── */
@@ -2413,6 +2455,17 @@ body .sec-how .smock { display: none !important }
   opacity: 1 !important;
   transform: translateY(0) scale(1) !important;
   animation: none !important;
+}
+
+/* ── HERO TITLE TYPEWRITER ── */
+.hero-type-caret {
+  border-right: 2px solid rgba(17,17,17,.55);
+  animation: twCaret .7s step-end infinite;
+  padding-right: 3px;
+}
+@keyframes twCaret {
+  0%, 49% { border-right-color: rgba(17,17,17,.55) }
+  50%, 100% { border-right-color: transparent }
 }
 
 /* ── HERO GRADIENT BLOB ── */
@@ -2583,6 +2636,39 @@ body .sec-how .smock { display: none !important }
   transition: transform .1s linear;
 }
 
+/* ── HERO IMAGE WOW: tilt + sheen (вместо постоянного парения) ── */
+.hero-product {
+  position: relative;
+  perspective: 1200px;
+}
+.hero-product-image img {
+  animation: none !important;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.03);
+  transform-style: preserve-3d;
+  transition: transform .28s cubic-bezier(.16,1,.3,1), filter .28s ease;
+  will-change: transform;
+}
+.hero-product::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  left: -30%;
+  width: 42%;
+  border-radius: 26px;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.28) 46%, rgba(255,255,255,.05) 72%, transparent 100%);
+  transform: translateX(-180%) skewX(-16deg);
+  opacity: .86;
+  pointer-events: none;
+  filter: blur(.2px);
+  animation: heroSheen 4.6s cubic-bezier(.16,1,.3,1) infinite;
+}
+@keyframes heroSheen {
+  0%, 6%, 100% { transform: translateX(-180%) skewX(-16deg); opacity: 0 }
+  12% { opacity: .82 }
+  30% { transform: translateX(380%) skewX(-16deg); opacity: .82 }
+}
+
 /* ── HERO FLOATING CHIPS — horizontal row ── */
 
 /* Chips row container — pulled up closer to image */
@@ -2727,6 +2813,8 @@ body .sec-how .smock { display: none !important }
   .hero::after { animation: none !important }
   #lead .lsubmit::after { animation: none !important }
   .hero-product-image { will-change: auto; transition: none }
+  .hero-product::after { animation: none !important; opacity: .35 !important }
+  .hero-type-caret { border-right: none !important; animation: none !important; padding-right: 0 !important }
   .feat-primary__stat.counted { animation: none !important }
   .uc-block.reveal, .uc-block.reveal.vis { transform: none !important; opacity: 1 !important }
   .products-grid .pcard:first-child.reveal { transform: none !important; opacity: 1 !important }
@@ -2746,11 +2834,60 @@ body .sec-how .smock { display: none !important }
   <div class="hero-inner">
     <div class="hero-copy">
       <span class="hero-label">AI-ДИКТОФОН CRYPTORO</span>
-      <h1 class="hero-title reveal d1">Речь в текст<br>за секунды</h1>
+      <h1 class="hero-title d1" data-typewriter="Речь в текст&#10;за секунды"><span id="heroTypeTarget">Речь в текст<br>за секунды</span></h1>
+      <script>
+        (function () {
+          var title = document.querySelector('.hero-title');
+          var target = document.getElementById('heroTypeTarget');
+          if (!title || !target) return;
+
+          var source = (title.getAttribute('data-typewriter') || target.innerText || '').replace(/\r/g, '');
+          if (!source.trim()) return;
+
+          function esc(s) {
+            return s
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
+
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            target.innerHTML = esc(source).replace(/\n/g, '<br>');
+            return;
+          }
+
+          var chars = Array.from(source);
+          var i = 0;
+          target.classList.add('hero-type-caret');
+          target.innerHTML = '';
+
+          function tick() {
+            i += 1;
+            target.innerHTML = esc(chars.slice(0, i).join('')).replace(/\n/g, '<br>');
+            if (i < chars.length) {
+              window.setTimeout(tick, 24);
+            } else {
+              window.setTimeout(function () {
+                target.classList.remove('hero-type-caret');
+              }, 380);
+            }
+          }
+
+          window.setTimeout(tick, 90);
+        })();
+      </script>
       <p class="hero-sub reveal d2">Записали встречу — получили расшифровку, задачи и резюме. Всё делает AI, автоматически.</p>
       <div class="btns reveal d3">
         <a href="#products" class="btn-blue">Смотреть модели</a>
         <a href="/catalog" class="btn-ghost">Перейти в каталог</a>
+      </div>
+      <div class="hero-trust reveal d3">
+        <span class="hero-trust-item">81 язык</span>
+        <span class="hero-trust-item">До 98% точность</span>
+        <span class="hero-trust-item">Гарантия 1 год</span>
+        <span class="hero-trust-item">Оплата РФ</span>
       </div>
     </div>
     <div class="hero-visual reveal d4">
@@ -3574,34 +3711,9 @@ body .sec-how .smock { display: none !important }
 </script>
 
 <script>
-/* ── Mobile: "Как работает" steps → accordion (≤480px only) ── */
+/* ── Mobile: шаги "Как работает" показываем полностью (без аккордеона) ── */
 (function () {
-  if (window.innerWidth > 480) return;
-  var steps = Array.from(document.querySelectorAll('.sec-how .step'));
-  if (!steps.length) return;
-
-  // Open first step by default
-  steps[0].classList.add('step--open');
-
-  steps.forEach(function (step) {
-    var title = step.querySelector('.stitle');
-    if (!title) return;
-    title.setAttribute('role', 'button');
-    title.setAttribute('tabindex', '0');
-
-    title.addEventListener('click', function () {
-      var isOpen = step.classList.contains('step--open');
-      steps.forEach(function (s) { s.classList.remove('step--open'); });
-      if (!isOpen) step.classList.add('step--open');
-    });
-
-    title.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        title.click();
-      }
-    });
-  });
+  // Намеренно пусто: аккордеон отключен, чтобы шаги 01/02/03 всегда были видны.
 })();
 
 /* ── Lazy-load below-fold images ── */
@@ -3624,11 +3736,11 @@ body .sec-how .smock { display: none !important }
 /* ── HERO STAGGERED ENTRANCE ── */
 (function () {
   var items = [
-    { sel: '.hero-label', delay: 0.1, y: 24 },
-    { sel: '.hero-title', delay: 0.25, y: 48 },
-    { sel: '.hero-sub', delay: 0.45, y: 32 },
-    { sel: '.hero .btns', delay: 0.6, y: 32 },
-    { sel: '.hero-visual', delay: 0.4, y: 40, s: 0.96 }
+    { sel: '.hero-label', delay: 0.02, y: 16 },
+    { sel: '.hero-sub', delay: 0.12, y: 18 },
+    { sel: '.hero .btns', delay: 0.2, y: 18 },
+    { sel: '.hero-trust', delay: 0.26, y: 14 },
+    { sel: '.hero-visual', delay: 0.08, y: 24, s: 0.98 }
   ];
   var els = [];
   items.forEach(function (item) {
@@ -3649,13 +3761,13 @@ body .sec-how .smock { display: none !important }
         el.classList.remove('hero-anim-init');
         el.classList.add('hero-anim-go');
       });
-      // After longest animation completes, lock in final state
+      // После короткого входа фиксируем финальное состояние.
       setTimeout(function () {
         els.forEach(function (el) {
           el.classList.remove('hero-anim-go');
           el.classList.add('hero-anim-done');
         });
-      }, 1600); // 0.6s delay + 0.9s anim = 1.5s, add buffer
+      }, 820);
     });
   });
 })();
@@ -3699,27 +3811,61 @@ body .sec-how .smock { display: none !important }
   io.observe(stat);
 })();
 
-/* ── HERO PARALLAX: subtle product float on scroll ── */
+/* ── HERO IMAGE TILT: интерактивный наклон по курсору ── */
 (function () {
-  var hero = document.querySelector('.hero');
-  var img = document.querySelector('.hero-product-image');
-  if (!hero || !img || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var frame = document.querySelector('.hero-product');
+  var img = document.querySelector('.hero-product-image img');
+  if (!frame || !img) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(pointer:fine)').matches) return;
 
-  var ticking = false;
-  window.addEventListener('scroll', function () {
-    if (!ticking) {
-      ticking = true;
-      requestAnimationFrame(function () {
-        var rect = hero.getBoundingClientRect();
-        if (rect.bottom > 0 && rect.top < window.innerHeight) {
-          var scrolled = -rect.top;
-          var parallax = scrolled * 0.15;
-          img.style.transform = 'translateY(' + parallax + 'px)';
-        }
-        ticking = false;
-      });
+  var raf = 0;
+  var targetX = 0;
+  var targetY = 0;
+  var currentX = 0;
+  var currentY = 0;
+
+  function animate() {
+    currentX += (targetX - currentX) * 0.12;
+    currentY += (targetY - currentY) * 0.12;
+    img.style.setProperty('--tilt-x', currentX.toFixed(2) + 'deg');
+    img.style.setProperty('--tilt-y', currentY.toFixed(2) + 'deg');
+
+    if (Math.abs(targetX - currentX) > 0.02 || Math.abs(targetY - currentY) > 0.02) {
+      raf = requestAnimationFrame(animate);
+    } else {
+      raf = 0;
     }
-  }, { passive: true });
+  }
+
+  function requestAnim() {
+    if (!raf) raf = requestAnimationFrame(animate);
+  }
+
+  // Стартовый жест: лёгкий наклон при загрузке, чтобы эффект читался без hover.
+  targetX = 3.5;
+  targetY = -4.5;
+  requestAnim();
+  window.setTimeout(function () {
+    targetX = 0;
+    targetY = 0;
+    requestAnim();
+  }, 320);
+
+  frame.addEventListener('mousemove', function (e) {
+    var r = frame.getBoundingClientRect();
+    var x = (e.clientX - r.left) / r.width;
+    var y = (e.clientY - r.top) / r.height;
+    targetY = (x - 0.5) * 9;    // rotateY
+    targetX = (0.5 - y) * 7.5;  // rotateX
+    requestAnim();
+  });
+
+  frame.addEventListener('mouseleave', function () {
+    targetX = 0;
+    targetY = 0;
+    requestAnim();
+  });
 })();
 
 /* ── HERO FLOATING CHIPS: sequential story ── */
