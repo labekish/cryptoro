@@ -13,6 +13,10 @@ import Layout from '../layouts/Layout.astro';
       <h1>Заказ оформлен!</h1>
       <p class="order-id-line">Номер заказа: <strong id="orderIdDisplay">—</strong></p>
       <p class="success-msg">Спасибо! Мы свяжемся с вами в течение 30 минут для подтверждения заказа и расчёта стоимости доставки.</p>
+      <details id="leadDebugBox" class="lead-debug" hidden>
+        <summary>Тех. данные CRM (для поддержки)</summary>
+        <pre id="leadDebugPre"></pre>
+      </details>
       <div class="success-actions">
         <a href="/catalog" class="dark-btn">Продолжить покупки</a>
         <a href="/" class="ghost-btn">На главную</a>
@@ -25,6 +29,18 @@ import Layout from '../layouts/Layout.astro';
     const orderId = params.get('orderId');
     const el = document.getElementById('orderIdDisplay');
     if (el && orderId) el.textContent = orderId;
+
+    const debugBox = document.getElementById('leadDebugBox');
+    const debugPre = document.getElementById('leadDebugPre');
+    try {
+      const raw = window.sessionStorage.getItem('cryptoro_b24_last_lead_response');
+      if (raw && debugBox && debugPre) {
+        debugPre.textContent = raw;
+        debugBox.hidden = false;
+      }
+    } catch {
+      // ignore
+    }
   </script>
 
   <style is:global>
@@ -73,6 +89,29 @@ import Layout from '../layouts/Layout.astro';
       gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
+    }
+    .lead-debug {
+      margin: 0 auto 20px;
+      max-width: 100%;
+      text-align: left;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .lead-debug summary {
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+    }
+    .lead-debug pre {
+      margin-top: 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #374151;
     }
     .dark-btn, .ghost-btn {
       height: 46px;
