@@ -1461,10 +1461,18 @@ const ogUrl = Astro.url?.toString() || '';
 
           // Если есть свежий кэш — показываем цены мгновенно, фоново обновляем.
           const cachedPrices = loadPriceCache();
+          const hasServerPrefilledPrices = priceNodes.some((node) => {
+            const value = Number(node.getAttribute('data-ms-price-value') || '');
+            return Number.isFinite(value) && value > 0;
+          });
           if (cachedPrices) {
             applyItems(cachedPrices);
             revealPrices();
             request(); // тихое фоновое обновление
+          } else if (hasServerPrefilledPrices) {
+            // Русский комментарий: если цена уже подставлена на edge, не прячем её повторно.
+            revealPrices();
+            request(); // фоновая сверка с актуальными ценами
           } else {
             hidePendingPrices();
             window.setTimeout(() => revealPrices(), 1800);
