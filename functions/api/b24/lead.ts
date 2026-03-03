@@ -6,6 +6,9 @@ type Env = {
   B24_CURRENCY_ID?: string;
   B24_CONTACT_SYNC?: string;
   B24_TELEGRAM_FIELD_CODE?: string;
+  B24_LEAD_DELIVERY_FIELD_CODE?: string;
+  B24_DEAL_DELIVERY_FIELD_CODE?: string;
+  B24_DEAL_SYNC_ON_CONVERT?: string;
 };
 
 interface ConsultPayload {
@@ -381,6 +384,14 @@ function formatBitrixError(label: string, res: BitrixCallError | BitrixCallSucce
   return `${label}:ok`;
 }
 
+function shouldSyncDealOnConvert(env: Env): boolean {
+  return String(env.B24_DEAL_SYNC_ON_CONVERT || '1').trim() !== '0';
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function setLeadProductRows(
   webhookUrl: string,
   leadId: number,
@@ -443,6 +454,136 @@ async function setLeadProductRows(
       formatBitrixError('item_custom_ownerTypeId', itemCustomResById),
     ].join('|'),
   };
+}
+
+async function setDealProductRows(
+  webhookUrl: string,
+  dealId: number,
+  rows: BitrixLeadProductRow[]
+): Promise<ProductRowsSyncResult> {
+  if (!rows.length) return { ok: true, method: 'skipped_empty_rows' };
+
+  const legacyRes = await callBitrix<boolean>(webhookUrl, 'crm.deal.productrows.set', {
+    id: dealId,
+    rows,
+  });
+  if (legacyRes.ok) return { ok: true, method: 'crm.deal.productrows.set' };
+
+  const itemRes = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerType: 'D',
+    ownerId: dealId,
+    productRows: mapRowsToItemApi(rows),
+  });
+  if (itemRes.ok) return { ok: true, method: 'crm.item.productrow.set(ownerType=D)' };
+
+  const itemResById = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerTypeId: 2,
+    ownerId: dealId,
+    productRows: mapRowsToItemApi(rows),
+  });
+  if (itemResById.ok) return { ok: true, method: 'crm.item.productrow.set(ownerTypeId=2)' };
+
+  const customRows = toCustomRows(rows);
+  const legacyCustomRes = await callBitrix<boolean>(webhookUrl, 'crm.deal.productrows.set', {
+    id: dealId,
+    rows: customRows,
+  });
+  if (legacyCustomRes.ok) return { ok: true, method: 'crm.deal.productrows.set(custom)' };
+
+  const itemCustomRes = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerType: 'D',
+    ownerId: dealId,
+    productRows: mapRowsToItemApi(customRows),
+  });
+  if (itemCustomRes.ok) return { ok: true, method: 'crm.item.productrow.set(custom,ownerType=D)' };
+
+  const itemCustomResById = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerTypeId: 2,
+    ownerId: dealId,
+    productRows: mapRowsToItemApi(customRows),
+  });
+  if (itemCustomResById.ok) return { ok: true, method: 'crm.item.productrow.set(custom,ownerTypeId=2)' };
+
+  return {
+    ok: false,
+    warning: [
+      'deal_productrows_set_failed',
+      formatBitrixError('deal_rows', legacyRes),
+      formatBitrixError('item_ownerType', itemRes),
+      formatBitrixError('item_ownerTypeId', itemResById),
+      formatBitrixError('deal_rows_custom', legacyCustomRes),
+      formatBitrixError('item_custom_ownerType', itemCustomRes),
+      formatBitrixError('item_custom_ownerTypeId', itemCustomResById),
+    ].join('|'),
+  };
+}
+
+async function findDealsByLeadId(webhookUrl: string, leadId: number): Promise<number[]> {
+  const res = await callBitrix<Array<{ ID?: string | number }>>(webhookUrl, 'crm.deal.list', {
+    filter: { LEAD_ID: leadId },
+    order: { ID: 'DESC' },
+    select: ['ID'],
+  });
+  if (res.ok === false) return [];
+
+  return (res.data || [])
+    .map((item) => Number(item?.ID))
+    .filter((id) => Number.isFinite(id) && id > 0);
+}
+
+async function waitDealsByLeadId(webhookUrl: string, leadId: number, maxAttempts = 6): Promise<number[]> {
+  for (let i = 0; i < maxAttempts; i += 1) {
+    const dealIds = await findDealsByLeadId(webhookUrl, leadId);
+    if (dealIds.length) return dealIds;
+    await sleep(300);
+  }
+  return [];
+}
+
+async function syncConvertedDeal(
+  webhookUrl: string,
+  leadId: number,
+  rows: BitrixLeadProductRow[],
+  orderTotal: number,
+  currencyId: string,
+  delivery: string,
+  comments: string,
+  env: Env,
+  warnings: string[]
+): Promise<string | undefined> {
+  if (!shouldSyncDealOnConvert(env)) return undefined;
+
+  const dealIds = await waitDealsByLeadId(webhookUrl, leadId);
+  if (!dealIds.length) {
+    warnings.push('deal_sync_not_found_by_lead');
+    return undefined;
+  }
+
+  const dealId = dealIds[0];
+  const dealDeliveryField = sanitizeMeta(env.B24_DEAL_DELIVERY_FIELD_CODE, 80);
+  const dealFields: Record<string, unknown> = {
+    OPPORTUNITY: orderTotal,
+    CURRENCY_ID: currencyId,
+    ...(comments ? { COMMENTS: comments } : {}),
+  };
+  if (dealDeliveryField && delivery) {
+    // Русский комментарий: опционально пишем способ доставки в кастомное поле сделки (тип Список/Строка).
+    dealFields[dealDeliveryField] = delivery;
+  }
+
+  const updateDealRes = await callBitrix<boolean>(webhookUrl, 'crm.deal.update', {
+    id: dealId,
+    fields: dealFields,
+  });
+  if (updateDealRes.ok === false) warnings.push(`deal_update_failed:${updateDealRes.error}`);
+
+  const setRowsRes = await setDealProductRows(webhookUrl, dealId, rows);
+  if (setRowsRes.ok === false) {
+    warnings.push(setRowsRes.warning);
+    return undefined;
+  }
+
+  return `${setRowsRes.method || 'unknown'}:deal#${dealId}`;
 }
 
 function hashString(input: string): string {
@@ -645,6 +786,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const sourcePage = sanitizeMeta((body as ConsultPayload | OrderPayload).sourcePage, 120);
   const sourceButton = sanitizeMeta((body as ConsultPayload | OrderPayload).sourceButton, 120);
   const entryPoint = rawEntryPoint || (isOrder ? 'cart_checkout_default' : 'consult_default');
+  const leadDeliveryField = sanitizeMeta(env.B24_LEAD_DELIVERY_FIELD_CODE, 80);
   const warnings: string[] = [];
   let productRowsSyncMethod: string | undefined;
 
@@ -742,6 +884,19 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         const setRowsRes = await setLeadProductRows(webhookUrl, existingId, rows);
         if (setRowsRes.ok === false) warnings.push(setRowsRes.warning);
         else productRowsSyncMethod = setRowsRes.method;
+
+        const dealSyncMethod = await syncConvertedDeal(
+          webhookUrl,
+          existingId,
+          rows,
+          orderTotal,
+          currencyId,
+          String(o.delivery || ''),
+          comments,
+          env,
+          warnings
+        );
+        if (dealSyncMethod) productRowsSyncMethod = `${productRowsSyncMethod || 'lead_unknown'}|${dealSyncMethod}`;
       } else {
         warnings.push('productrows_not_mapped');
       }
@@ -786,6 +941,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     // Русский комментарий: заполняем сумму лида явно, чтобы в Bitrix не оставался 0.
     fields.OPPORTUNITY = orderTotal;
     fields.CURRENCY_ID = currencyId;
+    if (leadDeliveryField && o.delivery) fields[leadDeliveryField] = String(o.delivery);
     if (orderTotal <= 0) warnings.push('order_total_zero');
   }
   if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
@@ -812,6 +968,20 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       const setRowsRes = await setLeadProductRows(webhookUrl, createLeadRes.data, rows);
       if (setRowsRes.ok === false) warnings.push(setRowsRes.warning);
       else productRowsSyncMethod = setRowsRes.method;
+
+      const orderTotal = calculateOrderTotal(o.items, o.total);
+      const dealSyncMethod = await syncConvertedDeal(
+        webhookUrl,
+        createLeadRes.data,
+        rows,
+        orderTotal,
+        currencyId,
+        String(o.delivery || ''),
+        comments,
+        env,
+        warnings
+      );
+      if (dealSyncMethod) productRowsSyncMethod = `${productRowsSyncMethod || 'lead_unknown'}|${dealSyncMethod}`;
     } else {
       warnings.push('productrows_not_mapped');
     }
