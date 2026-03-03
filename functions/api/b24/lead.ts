@@ -61,6 +61,7 @@ type BitrixLeadProductRow = {
   QUANTITY: number;
   PRODUCT_ID?: number;
   PRODUCT_NAME?: string;
+  CUSTOMIZED?: 'Y';
 };
 type LeadVerifyInfo = {
   opportunity: string;
@@ -331,6 +332,7 @@ function buildProductRows(
     if (productId) {
       grouped.set(key, {
         PRODUCT_ID: productId,
+        PRODUCT_NAME: buildProductRowName(item),
         PRICE: price,
         QUANTITY: qty,
       });
@@ -355,6 +357,16 @@ function mapRowsToItemApi(rows: BitrixLeadProductRow[]): Array<Record<string, un
     productName: row.PRODUCT_NAME,
     price: row.PRICE,
     quantity: row.QUANTITY,
+    customized: row.CUSTOMIZED,
+  }));
+}
+
+function toCustomRows(rows: BitrixLeadProductRow[]): BitrixLeadProductRow[] {
+  return rows.map((row) => ({
+    PRODUCT_NAME: row.PRODUCT_NAME || 'Товар',
+    PRICE: row.PRICE,
+    QUANTITY: row.QUANTITY,
+    CUSTOMIZED: 'Y',
   }));
 }
 
@@ -379,9 +391,30 @@ async function setLeadProductRows(
   });
   if (itemRes.ok) return { ok: true };
 
+  // Русский комментарий: если PRODUCT_ID невалидный для каталога Б24, пробуем записать строки как кастомные товары.
+  const customRows = toCustomRows(rows);
+  const legacyCustomRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
+    id: leadId,
+    rows: customRows,
+  });
+  if (legacyCustomRes.ok) return { ok: true };
+
+  const itemCustomRes = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerType: 'L',
+    ownerId: leadId,
+    productRows: mapRowsToItemApi(customRows),
+  });
+  if (itemCustomRes.ok) return { ok: true };
+
   const legacyError = legacyRes.ok === false ? legacyRes.error : 'unknown';
   const fallbackError = itemRes.ok === false ? itemRes.error : 'unknown';
-  return { ok: false, warning: `productrows_set_failed:${legacyError}|fallback:${fallbackError}` };
+  const legacyCustomError = legacyCustomRes.ok === false ? legacyCustomRes.error : 'unknown';
+  const itemCustomError = itemCustomRes.ok === false ? itemCustomRes.error : 'unknown';
+  return {
+    ok: false,
+    warning:
+      `productrows_set_failed:${legacyError}|fallback:${fallbackError}|custom_legacy:${legacyCustomError}|custom_item:${itemCustomError}`,
+  };
 }
 
 function hashString(input: string): string {
