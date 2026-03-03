@@ -2844,7 +2844,6 @@ body .sec-how .smock {
 <section class="hero" id="top">
   <div class="hero-inner">
     <div class="hero-copy">
-      <span class="hero-label">AI-ДИКТОФОН CRYPTORO</span>
       <h1 class="hero-title d1" data-typewriter="Речь в текст&#10;за секунды"><span id="heroTypeTarget">Речь в текст<br>за секунды</span></h1>
       <script>
         (function () {
@@ -2871,22 +2870,31 @@ body .sec-how .smock {
 
           var chars = Array.from(source);
           var i = 0;
-          target.classList.add('hero-type-caret');
-          target.innerHTML = '';
+
+          // Hide text but keep layout height — opacity:0 preserves the h1 dimensions
+          // so the left column doesn't collapse while waiting for typing to begin
+          title.style.opacity = '0';
 
           function tick() {
             i += 1;
             target.innerHTML = esc(chars.slice(0, i).join('')).replace(/\n/g, '<br>');
             if (i < chars.length) {
-              window.setTimeout(tick, 24);
+              window.setTimeout(tick, 58);
             } else {
               window.setTimeout(function () {
                 target.classList.remove('hero-type-caret');
-              }, 380);
+              }, 600);
             }
           }
 
-          window.setTimeout(tick, 90);
+          // Start after entrance animations settle (~900ms animation + buffer).
+          // Caret and opacity restored at the same moment typing begins.
+          window.setTimeout(function () {
+            title.style.opacity = '1';
+            target.innerHTML = '';
+            target.classList.add('hero-type-caret');
+            tick();
+          }, 950);
         })();
       </script>
       <p class="hero-sub reveal d2">Записали встречу — получили расшифровку, задачи и резюме. Всё делает AI, автоматически.</p>
