@@ -68,6 +68,9 @@ type LeadVerifyInfo = {
   currencyId: string;
   productRowsCount: number;
 };
+type ProductRowsSyncResult =
+  | { ok: true; method?: string }
+  | { ok: false; warning: string };
 type ContactChannels = {
   phoneRaw: string;
   phoneNormalized: string;
@@ -370,26 +373,41 @@ function toCustomRows(rows: BitrixLeadProductRow[]): BitrixLeadProductRow[] {
   }));
 }
 
+function formatBitrixError(label: string, res: BitrixCallError | BitrixCallSuccess<boolean>): string {
+  if (res.ok === false) {
+    const detail = sanitizeMeta(res.detail, 160);
+    return `${label}:${res.error}${detail ? `(${detail})` : ''}`;
+  }
+  return `${label}:ok`;
+}
+
 async function setLeadProductRows(
   webhookUrl: string,
   leadId: number,
   rows: BitrixLeadProductRow[]
-): Promise<{ ok: true } | { ok: false; warning: string }> {
-  if (!rows.length) return { ok: true };
+): Promise<ProductRowsSyncResult> {
+  if (!rows.length) return { ok: true, method: 'skipped_empty_rows' };
 
   const legacyRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
     id: leadId,
     rows,
   });
-  if (legacyRes.ok) return { ok: true };
+  if (legacyRes.ok) return { ok: true, method: 'crm.lead.productrows.set' };
 
-  // Русский комментарий: на части порталов работает только новый endpoint crm.item.productrow.set.
+  // Русский комментарий: на части порталов работает новый endpoint с ownerType, на части — с ownerTypeId.
   const itemRes = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
     ownerType: 'L',
     ownerId: leadId,
     productRows: mapRowsToItemApi(rows),
   });
-  if (itemRes.ok) return { ok: true };
+  if (itemRes.ok) return { ok: true, method: 'crm.item.productrow.set(ownerType=L)' };
+
+  const itemResById = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerTypeId: 1,
+    ownerId: leadId,
+    productRows: mapRowsToItemApi(rows),
+  });
+  if (itemResById.ok) return { ok: true, method: 'crm.item.productrow.set(ownerTypeId=1)' };
 
   // Русский комментарий: если PRODUCT_ID невалидный для каталога Б24, пробуем записать строки как кастомные товары.
   const customRows = toCustomRows(rows);
@@ -397,23 +415,33 @@ async function setLeadProductRows(
     id: leadId,
     rows: customRows,
   });
-  if (legacyCustomRes.ok) return { ok: true };
+  if (legacyCustomRes.ok) return { ok: true, method: 'crm.lead.productrows.set(custom)' };
 
   const itemCustomRes = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
     ownerType: 'L',
     ownerId: leadId,
     productRows: mapRowsToItemApi(customRows),
   });
-  if (itemCustomRes.ok) return { ok: true };
+  if (itemCustomRes.ok) return { ok: true, method: 'crm.item.productrow.set(custom,ownerType=L)' };
 
-  const legacyError = legacyRes.ok === false ? legacyRes.error : 'unknown';
-  const fallbackError = itemRes.ok === false ? itemRes.error : 'unknown';
-  const legacyCustomError = legacyCustomRes.ok === false ? legacyCustomRes.error : 'unknown';
-  const itemCustomError = itemCustomRes.ok === false ? itemCustomRes.error : 'unknown';
+  const itemCustomResById = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerTypeId: 1,
+    ownerId: leadId,
+    productRows: mapRowsToItemApi(customRows),
+  });
+  if (itemCustomResById.ok) return { ok: true, method: 'crm.item.productrow.set(custom,ownerTypeId=1)' };
+
   return {
     ok: false,
-    warning:
-      `productrows_set_failed:${legacyError}|fallback:${fallbackError}|custom_legacy:${legacyCustomError}|custom_item:${itemCustomError}`,
+    warning: [
+      'productrows_set_failed',
+      formatBitrixError('lead_rows', legacyRes),
+      formatBitrixError('item_ownerType', itemRes),
+      formatBitrixError('item_ownerTypeId', itemResById),
+      formatBitrixError('lead_rows_custom', legacyCustomRes),
+      formatBitrixError('item_custom_ownerType', itemCustomRes),
+      formatBitrixError('item_custom_ownerTypeId', itemCustomResById),
+    ].join('|'),
   };
 }
 
@@ -618,6 +646,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const sourceButton = sanitizeMeta((body as ConsultPayload | OrderPayload).sourceButton, 120);
   const entryPoint = rawEntryPoint || (isOrder ? 'cart_checkout_default' : 'consult_default');
   const warnings: string[] = [];
+  let productRowsSyncMethod: string | undefined;
 
   if (isOrder && o) {
     if (!orderIdNormalized) {
@@ -712,6 +741,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       if (rows.length) {
         const setRowsRes = await setLeadProductRows(webhookUrl, existingId, rows);
         if (setRowsRes.ok === false) warnings.push(setRowsRes.warning);
+        else productRowsSyncMethod = setRowsRes.method;
       } else {
         warnings.push('productrows_not_mapped');
       }
@@ -734,6 +764,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       ok: true,
       id: existingId,
       duplicate: true,
+      ...(productRowsSyncMethod ? { productRowsSyncMethod } : {}),
       ...(verify ? { verify } : {}),
       ...(warnings.length ? { warnings } : {}),
     }), {
@@ -780,6 +811,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       // Русский комментарий: добавляем товарные позиции в лид Bitrix, чтобы менеджер видел корзину в блоке "Товары".
       const setRowsRes = await setLeadProductRows(webhookUrl, createLeadRes.data, rows);
       if (setRowsRes.ok === false) warnings.push(setRowsRes.warning);
+      else productRowsSyncMethod = setRowsRes.method;
     } else {
       warnings.push('productrows_not_mapped');
     }
@@ -794,6 +826,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   return new Response(JSON.stringify({
     ok: true,
     id: createLeadRes.data,
+    ...(productRowsSyncMethod ? { productRowsSyncMethod } : {}),
     ...(verify ? { verify } : {}),
     ...(warnings.length ? { warnings } : {}),
   }), {
