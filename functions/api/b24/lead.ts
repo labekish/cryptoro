@@ -588,19 +588,33 @@ async function reconcileDealRows(
   expectedRows: BitrixLeadProductRow[],
   warnings: string[]
 ): Promise<void> {
-  const currentRows = await getDealProductRows(webhookUrl, dealId);
-  if (!currentRows) {
-    warnings.push('deal_productrows_get_failed');
-    return;
+  // Русский комментарий: внешние роботы могут добавить "доставку-товар" с задержкой, поэтому проверяем несколько раз.
+  let lastDeliveryLabels = '';
+  for (let attempt = 0; attempt < 7; attempt += 1) {
+    const currentRows = await getDealProductRows(webhookUrl, dealId);
+    if (!currentRows) {
+      warnings.push('deal_productrows_get_failed');
+      return;
+    }
+
+    const deliveryLikeRows = currentRows.filter((row) => isDeliveryLikeRow(row));
+    if (!deliveryLikeRows.length) return;
+
+    lastDeliveryLabels = deliveryLikeRows
+      .map((row) => extractRowLabel(row))
+      .filter(Boolean)
+      .join(',');
+
+    const resetRes = await setDealProductRows(webhookUrl, dealId, expectedRows);
+    if (resetRes.ok === false) {
+      warnings.push(`deal_productrows_reconcile_failed:${resetRes.warning}`);
+      return;
+    }
+
+    await sleep(500);
   }
 
-  const hasDeliveryLike = currentRows.some((row) => isDeliveryLikeRow(row));
-  if (!hasDeliveryLike) return;
-
-  // Русский комментарий: иногда робот Б24 добавляет доставку как товар — перезаписываем строки заказа ещё раз.
-  await sleep(400);
-  const secondSet = await setDealProductRows(webhookUrl, dealId, expectedRows);
-  if (secondSet.ok === false) warnings.push(`deal_productrows_reconcile_failed:${secondSet.warning}`);
+  if (lastDeliveryLabels) warnings.push(`deal_productrows_delivery_row_persisted:${lastDeliveryLabels}`);
 }
 
 async function findDealsByLeadId(webhookUrl: string, leadId: number): Promise<number[]> {
