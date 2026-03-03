@@ -5,9 +5,18 @@ type Env = {
   B24_PRODUCT_MAP_JSON?: string;
   B24_CURRENCY_ID?: string;
   B24_CONTACT_SYNC?: string;
+  B24_CONTACT_UPDATE_ON_MATCH?: string;
   B24_TELEGRAM_FIELD_CODE?: string;
   B24_LEAD_DELIVERY_FIELD_CODE?: string;
+  B24_LEAD_DELIVERY_ENUM_JSON?: string;
+  B24_LEAD_FULL_NAME_FIELD_CODE?: string;
+  B24_LEAD_PHONE_FIELD_CODE?: string;
+  B24_LEAD_EMAIL_FIELD_CODE?: string;
   B24_DEAL_DELIVERY_FIELD_CODE?: string;
+  B24_DEAL_DELIVERY_ENUM_JSON?: string;
+  B24_DEAL_FULL_NAME_FIELD_CODE?: string;
+  B24_DEAL_PHONE_FIELD_CODE?: string;
+  B24_DEAL_EMAIL_FIELD_CODE?: string;
   B24_DEAL_SYNC_ON_CONVERT?: string;
 };
 
@@ -74,6 +83,7 @@ type LeadVerifyInfo = {
 type ProductRowsSyncResult =
   | { ok: true; method?: string }
   | { ok: false; warning: string };
+type EnumMap = Record<string, string | number>;
 type ContactChannels = {
   phoneRaw: string;
   phoneNormalized: string;
@@ -388,8 +398,46 @@ function shouldSyncDealOnConvert(env: Env): boolean {
   return String(env.B24_DEAL_SYNC_ON_CONVERT || '1').trim() !== '0';
 }
 
+function shouldUpdateContactOnMatch(env: Env): boolean {
+  return String(env.B24_CONTACT_UPDATE_ON_MATCH || '1').trim() !== '0';
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function normalizeDeliveryLabel(input: string): string {
+  return String(input || '')
+    .split('|')[0]
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/\s+/g, ' ');
+}
+
+function parseEnumMap(rawJson: string | undefined): EnumMap {
+  if (!rawJson || !rawJson.trim()) return {};
+  try {
+    const parsed = JSON.parse(rawJson);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    return parsed as EnumMap;
+  } catch {
+    return {};
+  }
+}
+
+function resolveDeliveryFieldValue(delivery: string, enumMap: EnumMap): string | number {
+  const normalized = normalizeDeliveryLabel(delivery);
+  if (!normalized || !Object.keys(enumMap).length) return delivery;
+
+  // Русский комментарий: для поля-списка в Б24 выбираем ID значения из маппинга по вхождению ключа.
+  for (const [key, value] of Object.entries(enumMap)) {
+    const normalizedKey = normalizeDeliveryLabel(key);
+    if (!normalizedKey) continue;
+    if (normalized.includes(normalizedKey)) return value;
+  }
+
+  return delivery;
 }
 
 async function setLeadProductRows(
@@ -518,6 +566,43 @@ async function setDealProductRows(
   };
 }
 
+async function getDealProductRows(webhookUrl: string, dealId: number): Promise<Array<Record<string, unknown>> | null> {
+  const res = await callBitrix<Array<Record<string, unknown>>>(webhookUrl, 'crm.deal.productrows.get', { id: dealId });
+  if (res.ok === false) return null;
+  return Array.isArray(res.data) ? res.data : [];
+}
+
+function extractRowLabel(row: Record<string, unknown>): string {
+  return sanitizeMeta(String(row.PRODUCT_NAME || row.productName || row.NAME || ''), 180).toLowerCase();
+}
+
+function isDeliveryLikeRow(row: Record<string, unknown>): boolean {
+  const label = extractRowLabel(row);
+  if (!label) return false;
+  return label.includes('доставк') || label.includes('самовывоз') || label.includes('pickup');
+}
+
+async function reconcileDealRows(
+  webhookUrl: string,
+  dealId: number,
+  expectedRows: BitrixLeadProductRow[],
+  warnings: string[]
+): Promise<void> {
+  const currentRows = await getDealProductRows(webhookUrl, dealId);
+  if (!currentRows) {
+    warnings.push('deal_productrows_get_failed');
+    return;
+  }
+
+  const hasDeliveryLike = currentRows.some((row) => isDeliveryLikeRow(row));
+  if (!hasDeliveryLike) return;
+
+  // Русский комментарий: иногда робот Б24 добавляет доставку как товар — перезаписываем строки заказа ещё раз.
+  await sleep(400);
+  const secondSet = await setDealProductRows(webhookUrl, dealId, expectedRows);
+  if (secondSet.ok === false) warnings.push(`deal_productrows_reconcile_failed:${secondSet.warning}`);
+}
+
 async function findDealsByLeadId(webhookUrl: string, leadId: number): Promise<number[]> {
   const res = await callBitrix<Array<{ ID?: string | number }>>(webhookUrl, 'crm.deal.list', {
     filter: { LEAD_ID: leadId },
@@ -546,6 +631,8 @@ async function syncConvertedDeal(
   rows: BitrixLeadProductRow[],
   orderTotal: number,
   currencyId: string,
+  customerName: string,
+  channels: ContactChannels,
   delivery: string,
   comments: string,
   env: Env,
@@ -561,15 +648,24 @@ async function syncConvertedDeal(
 
   const dealId = dealIds[0];
   const dealDeliveryField = sanitizeMeta(env.B24_DEAL_DELIVERY_FIELD_CODE, 80);
+  const dealDeliveryEnumMap = parseEnumMap(env.B24_DEAL_DELIVERY_ENUM_JSON);
+  const dealFullNameField = sanitizeMeta(env.B24_DEAL_FULL_NAME_FIELD_CODE, 80);
+  const dealPhoneField = sanitizeMeta(env.B24_DEAL_PHONE_FIELD_CODE, 80);
+  const dealEmailField = sanitizeMeta(env.B24_DEAL_EMAIL_FIELD_CODE, 80);
   const dealFields: Record<string, unknown> = {
     OPPORTUNITY: orderTotal,
     CURRENCY_ID: currencyId,
+    TITLE: `Заказ — ${sanitizeMeta(customerName, 120) || 'Клиент'}`,
     ...(comments ? { COMMENTS: comments } : {}),
   };
+
   if (dealDeliveryField && delivery) {
     // Русский комментарий: опционально пишем способ доставки в кастомное поле сделки (тип Список/Строка).
-    dealFields[dealDeliveryField] = delivery;
+    dealFields[dealDeliveryField] = resolveDeliveryFieldValue(delivery, dealDeliveryEnumMap);
   }
+  if (dealFullNameField) dealFields[dealFullNameField] = sanitizeMeta(customerName, 140);
+  if (dealPhoneField) dealFields[dealPhoneField] = channels.phoneRaw || channels.phoneNormalized;
+  if (dealEmailField && channels.hasEmail) dealFields[dealEmailField] = channels.email;
 
   const updateDealRes = await callBitrix<boolean>(webhookUrl, 'crm.deal.update', {
     id: dealId,
@@ -582,6 +678,7 @@ async function syncConvertedDeal(
     warnings.push(setRowsRes.warning);
     return undefined;
   }
+  await reconcileDealRows(webhookUrl, dealId, rows, warnings);
 
   return `${setRowsRes.method || 'unknown'}:deal#${dealId}`;
 }
@@ -687,6 +784,31 @@ async function findContactByEmail(webhookUrl: string, email: string): Promise<nu
   return isFinite(id) && id > 0 ? id : null;
 }
 
+async function updateContactBasics(
+  webhookUrl: string,
+  contactId: number,
+  payload: LeadPayload,
+  channels: ContactChannels,
+  env: Env
+): Promise<string | undefined> {
+  if (!shouldUpdateContactOnMatch(env)) return undefined;
+
+  const personName = splitPersonName(payload.name);
+  const fields: Record<string, unknown> = {
+    NAME: personName.firstName,
+    ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
+  };
+  if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
+  if (channels.hasEmail) fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
+
+  const res = await callBitrix<boolean>(webhookUrl, 'crm.contact.update', {
+    id: contactId,
+    fields,
+  });
+  if (res.ok === false) return `contact_update_failed:${res.error}`;
+  return undefined;
+}
+
 async function findOrCreateContact(
   webhookUrl: string,
   payload: LeadPayload,
@@ -700,11 +822,17 @@ async function findOrCreateContact(
 
   if (channels.hasPhone) {
     const existingByPhone = await findContactByPhone(webhookUrl, channels.phoneRaw);
-    if (existingByPhone) return { id: existingByPhone };
+    if (existingByPhone) {
+      const warning = await updateContactBasics(webhookUrl, existingByPhone, payload, channels, env);
+      return { id: existingByPhone, ...(warning ? { warning } : {}) };
+    }
   }
   if (channels.hasEmail) {
     const existingByEmail = await findContactByEmail(webhookUrl, channels.email);
-    if (existingByEmail) return { id: existingByEmail };
+    if (existingByEmail) {
+      const warning = await updateContactBasics(webhookUrl, existingByEmail, payload, channels, env);
+      return { id: existingByEmail, ...(warning ? { warning } : {}) };
+    }
   }
 
   if (!channels.hasPhone && !channels.hasEmail && !channels.telegram) {
@@ -787,6 +915,11 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const sourceButton = sanitizeMeta((body as ConsultPayload | OrderPayload).sourceButton, 120);
   const entryPoint = rawEntryPoint || (isOrder ? 'cart_checkout_default' : 'consult_default');
   const leadDeliveryField = sanitizeMeta(env.B24_LEAD_DELIVERY_FIELD_CODE, 80);
+  const leadDeliveryEnumMap = parseEnumMap(env.B24_LEAD_DELIVERY_ENUM_JSON);
+  const leadFullNameField = sanitizeMeta(env.B24_LEAD_FULL_NAME_FIELD_CODE, 80);
+  const leadPhoneField = sanitizeMeta(env.B24_LEAD_PHONE_FIELD_CODE, 80);
+  const leadEmailField = sanitizeMeta(env.B24_LEAD_EMAIL_FIELD_CODE, 80);
+  const personName = splitPersonName(name);
   const warnings: string[] = [];
   let productRowsSyncMethod: string | undefined;
 
@@ -871,8 +1004,16 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       const updateRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
         id: existingId,
         fields: {
+          NAME: personName.firstName,
+          ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
           OPPORTUNITY: orderTotal,
           CURRENCY_ID: currencyId,
+          ...(channels.hasPhone ? { PHONE: [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }] } : {}),
+          ...(channels.hasEmail ? { EMAIL: [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }] } : {}),
+          ...(leadDeliveryField ? { [leadDeliveryField]: resolveDeliveryFieldValue(String(o.delivery || ''), leadDeliveryEnumMap) } : {}),
+          ...(leadFullNameField ? { [leadFullNameField]: sanitizeMeta(name, 140) } : {}),
+          ...(leadPhoneField ? { [leadPhoneField]: channels.phoneRaw || channels.phoneNormalized } : {}),
+          ...(leadEmailField && channels.hasEmail ? { [leadEmailField]: channels.email } : {}),
           ...(comments ? { COMMENTS: comments } : {}),
         },
       });
@@ -891,6 +1032,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
           rows,
           orderTotal,
           currencyId,
+          name,
+          channels,
           String(o.delivery || ''),
           comments,
           env,
@@ -929,7 +1072,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
 
   const fields: Record<string, unknown> = {
     TITLE: title,
-    NAME: name,
+    NAME: personName.firstName,
+    ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
     SOURCE_ID: 'WEB',
     // Русский комментарий: сохраняем точку входа, чтобы в CRM различать каждую кнопку/форму.
     SOURCE_DESCRIPTION: `${isOrder ? 'Корзина' : 'Консультация по диктофонам'} | ${entryPoint}`,
@@ -941,11 +1085,14 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     // Русский комментарий: заполняем сумму лида явно, чтобы в Bitrix не оставался 0.
     fields.OPPORTUNITY = orderTotal;
     fields.CURRENCY_ID = currencyId;
-    if (leadDeliveryField && o.delivery) fields[leadDeliveryField] = String(o.delivery);
+    if (leadDeliveryField && o.delivery) fields[leadDeliveryField] = resolveDeliveryFieldValue(String(o.delivery), leadDeliveryEnumMap);
     if (orderTotal <= 0) warnings.push('order_total_zero');
   }
   if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
   if (channels.hasEmail) fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
+  if (leadFullNameField) fields[leadFullNameField] = sanitizeMeta(name, 140);
+  if (leadPhoneField) fields[leadPhoneField] = channels.phoneRaw || channels.phoneNormalized;
+  if (leadEmailField && channels.hasEmail) fields[leadEmailField] = channels.email;
   if (contactId) fields.CONTACT_ID = contactId;
   if (comments) fields.COMMENTS = comments;
 
@@ -976,6 +1123,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         rows,
         orderTotal,
         currencyId,
+        name,
+        channels,
         String(o.delivery || ''),
         comments,
         env,
