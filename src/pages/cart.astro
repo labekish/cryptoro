@@ -88,7 +88,11 @@ import Layout from '../layouts/Layout.astro';
                   </span>
                 </label>
               </div>
-              <p class="delivery-note">Точную стоимость доставки сообщим после оформления заказа</p>
+              <div id="deliveryQuote" class="delivery-quote" hidden>
+                <strong id="deliveryQuoteTitle">Расчёт СДЭК</strong>
+                <p id="deliveryQuoteMeta">Заполните адрес и выберите способ доставки</p>
+              </div>
+              <p id="deliveryQuoteHint" class="delivery-note">Точную стоимость доставки сообщим после оформления заказа</p>
             </div>
 
             <div class="actions">
@@ -118,6 +122,16 @@ import Layout from '../layouts/Layout.astro';
     const deliveryInputs = Array.from(document.querySelectorAll('input[name="delivery"]'));
     const phoneInput = checkoutForm?.querySelector('input[data-mask="phone"]');
     const zipInput = checkoutForm?.querySelector('input[data-mask="zip"]');
+    const cityInput = checkoutForm?.querySelector('input[name="city"]');
+    const streetInput = checkoutForm?.querySelector('input[name="street"]');
+    const apartmentInput = checkoutForm?.querySelector('input[name="apartment"]');
+    const deliveryQuote = document.getElementById('deliveryQuote');
+    const deliveryQuoteTitle = document.getElementById('deliveryQuoteTitle');
+    const deliveryQuoteMeta = document.getElementById('deliveryQuoteMeta');
+    const deliveryQuoteHint = document.getElementById('deliveryQuoteHint');
+    let cdekQuoteSummary = '';
+    let cdekQuoteTimer: ReturnType<typeof setTimeout> | null = null;
+    let cdekQuoteRequestId = 0;
 
     function money(value) {
       return `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
@@ -130,6 +144,157 @@ import Layout from '../layouts/Layout.astro';
         if (!(option instanceof HTMLElement)) return;
         option.classList.toggle('is-selected', input.checked);
       });
+    }
+
+    function isCdekSelected() {
+      const selected = deliveryInputs.find((input) => input.checked);
+      if (!selected) return false;
+      return String(selected.value || '').toLowerCase().includes('сдэк');
+    }
+
+    function hideDeliveryQuote() {
+      if (deliveryQuote instanceof HTMLElement) {
+        deliveryQuote.hidden = true;
+        deliveryQuote.classList.remove('is-idle');
+        deliveryQuote.classList.remove('is-error');
+      }
+      cdekQuoteSummary = '';
+    }
+
+    function setDeliveryQuoteIdle(message) {
+      if (!(deliveryQuote instanceof HTMLElement)) return;
+      if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
+      if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
+      deliveryQuote.hidden = false;
+      deliveryQuote.classList.remove('is-error');
+      deliveryQuote.classList.add('is-idle');
+      deliveryQuoteTitle.textContent = 'Расчёт СДЭК';
+      deliveryQuoteMeta.textContent = message;
+      cdekQuoteSummary = '';
+    }
+
+    function setDeliveryQuoteLoading() {
+      if (!(deliveryQuote instanceof HTMLElement)) return;
+      if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
+      if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
+      deliveryQuote.hidden = false;
+      deliveryQuote.classList.remove('is-idle');
+      deliveryQuote.classList.remove('is-error');
+      deliveryQuoteTitle.textContent = 'Считаем доставку СДЭК...';
+      deliveryQuoteMeta.textContent = 'Проверяем город и индекс';
+      if (deliveryQuoteHint instanceof HTMLElement) {
+        deliveryQuoteHint.textContent = 'Расчёт обновляется автоматически';
+      }
+    }
+
+    function setDeliveryQuoteError() {
+      if (!(deliveryQuote instanceof HTMLElement)) return;
+      if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
+      if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
+      deliveryQuote.hidden = false;
+      deliveryQuote.classList.remove('is-idle');
+      deliveryQuote.classList.add('is-error');
+      deliveryQuoteTitle.textContent = 'Не удалось получить расчёт СДЭК';
+      deliveryQuoteMeta.textContent = 'Заказ можно оформить, менеджер уточнит стоимость вручную';
+      if (deliveryQuoteHint instanceof HTMLElement) {
+        deliveryQuoteHint.textContent = 'Точную стоимость доставки сообщим после оформления заказа';
+      }
+      cdekQuoteSummary = '';
+    }
+
+    function setDeliveryQuoteData(quote, mode) {
+      if (!(deliveryQuote instanceof HTMLElement)) return;
+      if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
+      if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
+
+      const quoteTitle = String(quote?.title || 'СДЭК Доставка');
+      const quotePrice = Math.max(0, Number(quote?.priceRub) || 0);
+      const quoteEta = String(quote?.etaDays || 'срок уточняется');
+      const quoteTariff = Number(quote?.tariffCode);
+      const modeLabel = mode === 'live' ? 'боевой расчёт' : 'тестовый расчёт';
+      const tariffText = Number.isFinite(quoteTariff) && quoteTariff > 0 ? ` • тариф ${quoteTariff}` : '';
+
+      deliveryQuote.hidden = false;
+      deliveryQuote.classList.remove('is-idle');
+      deliveryQuote.classList.remove('is-error');
+      deliveryQuoteTitle.textContent = `${quoteTitle}: ${money(quotePrice)}`;
+      deliveryQuoteMeta.textContent = `${quoteEta}${tariffText} • ${modeLabel}`;
+      if (deliveryQuoteHint instanceof HTMLElement) {
+        deliveryQuoteHint.textContent = 'Стоимость доставки обновляется по адресу в форме';
+      }
+
+      cdekQuoteSummary = `${quoteTitle} ${money(quotePrice)}, ${quoteEta}${tariffText}`;
+    }
+
+    async function calculateCdekQuote() {
+      if (!(cityInput instanceof HTMLInputElement)) return;
+      if (!(streetInput instanceof HTMLInputElement)) return;
+      if (!(zipInput instanceof HTMLInputElement)) return;
+
+      if (!isCdekSelected()) {
+        hideDeliveryQuote();
+        return;
+      }
+
+      const items = getCart();
+      if (!items.length) {
+        setDeliveryQuoteIdle('Добавьте товар в корзину для расчёта доставки');
+        return;
+      }
+
+      const city = String(cityInput.value || '').trim();
+      const street = String(streetInput.value || '').trim();
+      const zip = String(zipInput.value || '').trim();
+      const apartment = apartmentInput instanceof HTMLInputElement ? String(apartmentInput.value || '').trim() : '';
+      if (!city || !street || zip.length < 6) {
+        setDeliveryQuoteIdle('Заполните город, улицу и 6-значный индекс');
+        return;
+      }
+
+      const orderTotal = items.reduce((sum, item) => sum + item.price * Math.max(1, Number(item.qty) || 1), 0);
+      const payload = {
+        city,
+        street,
+        zip,
+        apartment,
+        orderTotal,
+        items: items.map((item) => ({
+          ...(item.sku ? { sku: item.sku } : {}),
+          name: item.name,
+          qty: Math.max(1, Number(item.qty) || 1),
+          price: Math.max(0, Number(item.price) || 0),
+        })),
+      };
+
+      const requestId = ++cdekQuoteRequestId;
+      setDeliveryQuoteLoading();
+
+      try {
+        const response = await fetch('/api/cdek/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => null);
+
+        if (requestId !== cdekQuoteRequestId) return;
+        if (!response.ok || !data?.ok || !data?.quote) {
+          setDeliveryQuoteError();
+          return;
+        }
+
+        setDeliveryQuoteData(data.quote, data.mode);
+      } catch {
+        if (requestId !== cdekQuoteRequestId) return;
+        setDeliveryQuoteError();
+      }
+    }
+
+    function scheduleCdekQuoteCalculation(delay = 350) {
+      if (cdekQuoteTimer) clearTimeout(cdekQuoteTimer);
+      cdekQuoteTimer = setTimeout(() => {
+        void calculateCdekQuote();
+      }, delay);
     }
 
     function formatPhone(value) {
@@ -214,6 +379,11 @@ import Layout from '../layouts/Layout.astro';
 
       const total = items.reduce((sum, item) => sum + item.price * Math.max(1, Number(item.qty) || 1), 0);
       if (cartTotal) cartTotal.textContent = money(total);
+      if (isEmpty) {
+        setDeliveryQuoteIdle('Добавьте товар в корзину для расчёта доставки');
+      } else {
+        scheduleCdekQuoteCalculation(120);
+      }
       window.dispatchEvent(new CustomEvent('cart:updated', { detail: { count: getCartCount() } }));
     }
 
@@ -261,6 +431,12 @@ import Layout from '../layouts/Layout.astro';
     }
 
     function buildPayload(formData: FormData, items: ReturnType<typeof getCart>, orderId: string) {
+      const deliveryRaw = String(formData.get('delivery') || '');
+      const delivery =
+        deliveryRaw.toLowerCase().includes('сдэк') && cdekQuoteSummary
+          ? `${deliveryRaw} | ${cdekQuoteSummary}`
+          : deliveryRaw;
+
       return {
         type: 'order' as const,
         // Русский комментарий: источник лида, чтобы в CRM отличать поток корзины от других кнопок.
@@ -275,7 +451,7 @@ import Layout from '../layouts/Layout.astro';
         street: String(formData.get('street') || ''),
         apartment: String(formData.get('apartment') || '').trim() || undefined,
         zip: String(formData.get('zip') || ''),
-        delivery: String(formData.get('delivery') || ''),
+        delivery,
         items: items.map((item) => ({
           ...(item.sku ? { sku: item.sku } : {}),
           name: item.name,
@@ -303,6 +479,17 @@ import Layout from '../layouts/Layout.astro';
       deliveryInputs.forEach((input) => {
         input.addEventListener('change', () => {
           updateDeliveryOptionState();
+          scheduleCdekQuoteCalculation();
+        });
+      });
+
+      [cityInput, streetInput, apartmentInput, zipInput].forEach((input) => {
+        if (!(input instanceof HTMLInputElement)) return;
+        input.addEventListener('input', () => {
+          scheduleCdekQuoteCalculation();
+        });
+        input.addEventListener('blur', () => {
+          scheduleCdekQuoteCalculation();
         });
       });
 
@@ -350,6 +537,7 @@ import Layout from '../layouts/Layout.astro';
     setupInputMasks();
     updateDeliveryOptionState();
     renderCart();
+    scheduleCdekQuoteCalculation(0);
   </script>
 
   <style is:global>
@@ -491,6 +679,28 @@ import Layout from '../layouts/Layout.astro';
     .delivery-option-body{display:grid;gap:2px}
     .delivery-option-title{font-size:16px;line-height:1.2;color:#111;font-weight:600;letter-spacing:-.005em}
     .delivery-option-sub{font-size:13px;line-height:1.45;color:#6b7280}
+    .delivery-quote{
+      margin:12px 2px 2px;
+      padding:10px 12px;
+      border:1px dashed rgba(17,17,17,.25);
+      border-radius:12px;
+      background:#f8fafc;
+      display:grid;
+      gap:4px;
+    }
+    .delivery-quote[hidden]{display:none !important}
+    .delivery-quote strong{font-size:14px;line-height:1.35;color:#111}
+    .delivery-quote p{margin:0;font-size:13px;line-height:1.45;color:#4b5563}
+    .delivery-quote.is-idle{
+      border-color:rgba(17,17,17,.2);
+      background:#f8fafc;
+    }
+    .delivery-quote.is-error{
+      border-color:rgba(185,28,28,.36);
+      background:#fef2f2;
+    }
+    .delivery-quote.is-error strong{color:#991b1b}
+    .delivery-quote.is-error p{color:#7f1d1d}
     .delivery-note{margin:12px 2px 2px;font-size:13px;color:#6b7280;line-height:1.5}
     .actions{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
     .dark-btn,.ghost-btn{height:52px;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;line-height:1;padding:0 18px}
