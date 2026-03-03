@@ -296,7 +296,10 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    if (checkoutForm && submitBtn) {
+    if (checkoutForm && submitBtn && checkoutForm.dataset.checkoutBound !== '1') {
+      checkoutForm.dataset.checkoutBound = '1';
+      let isSubmitting = false;
+
       deliveryInputs.forEach((input) => {
         input.addEventListener('change', () => {
           updateDeliveryOptionState();
@@ -305,6 +308,7 @@ import Layout from '../layouts/Layout.astro';
 
       checkoutForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+        if (isSubmitting) return;
         const items = getCart();
         if (!items.length) return;
 
@@ -315,8 +319,10 @@ import Layout from '../layouts/Layout.astro';
         const requiredOk = payload.name && payload.phone && payload.city && payload.street && payload.zip;
         if (!requiredOk) return;
 
+        isSubmitting = true;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Отправляем...';
+        checkoutForm.setAttribute('aria-busy', 'true');
         try {
           const response = await fetch('/api/b24/lead', {
             method: 'POST',
@@ -329,12 +335,14 @@ import Layout from '../layouts/Layout.astro';
           clearCart();
           window.location.href = `/order-success?orderId=${encodeURIComponent(orderId)}`;
         } catch {
+          isSubmitting = false;
           if (formMessage) {
             formMessage.textContent = 'Ошибка отправки. Попробуйте ещё раз.';
             formMessage.className = 'form-message err';
           }
           submitBtn.disabled = false;
           submitBtn.textContent = 'Оформить заказ';
+          checkoutForm.removeAttribute('aria-busy');
         }
       });
     }

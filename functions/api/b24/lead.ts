@@ -468,6 +468,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
 
   const isOrder = type === 'order';
   const o = isOrder ? (body as OrderPayload) : null;
+  const orderIdNormalized = isOrder && o ? sanitizeMeta(o.orderId, 80) : '';
   const consultDedupMinutes = parsePositiveInt(env.B24_CONSULT_DEDUP_MINUTES, DEFAULT_CONSULT_DEDUP_MINUTES);
   const originatorId = (env.B24_ORIGINATOR_ID || DEFAULT_ORIGINATOR_ID).trim() || DEFAULT_ORIGINATOR_ID;
   const channels = parseContactChannels(phone, email);
@@ -480,12 +481,24 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const entryPoint = rawEntryPoint || (isOrder ? 'cart_checkout_default' : 'consult_default');
   const warnings: string[] = [];
 
+  if (isOrder && o) {
+    if (!orderIdNormalized) {
+      return new Response(JSON.stringify({ ok: false, error: 'missing_order_id' }), { status: 400, headers });
+    }
+    if (!Array.isArray(o.items) || o.items.length === 0) {
+      return new Response(JSON.stringify({ ok: false, error: 'missing_order_items' }), { status: 400, headers });
+    }
+    if (!channels.hasPhone) {
+      return new Response(JSON.stringify({ ok: false, error: 'invalid_order_phone' }), { status: 400, headers });
+    }
+  }
+
   const contactSync = await findOrCreateContact(webhookUrl, body, channels, entryPoint, sourcePage, sourceButton, env);
   const contactId = contactSync.id;
   if (contactSync.warning) warnings.push(contactSync.warning);
 
   const title = isOrder && o
-    ? `Заказ ${o.orderId} — ${name}`
+    ? `Заказ ${orderIdNormalized || o.orderId} — ${name}`
     : `Консультация по диктофонам — ${name}`;
 
   const sourceLines = [
@@ -521,7 +534,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   // Ключ идемпотентности: для заказа — номер заказа, для консультации — отпечаток контакта в окне времени.
   const consultBucket = Math.floor(Date.now() / (consultDedupMinutes * 60 * 1000));
   const dedupeOriginId = isOrder && o
-    ? `order:${String(o.orderId || '').trim().toUpperCase()}:${entryPoint}`
+    ? `order:${String(orderIdNormalized || '').trim().toUpperCase()}:${entryPoint}`
     : `consult:${consultBucket}:${hashString([channels.phoneNormalized, channels.email, channels.telegram, consultComment, entryPoint, sourcePage, sourceButton].join('|'))}`;
 
   // Если лид с таким ключом уже есть, возвращаем существующий ID и не создаем дубль.
@@ -544,7 +557,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const existingIdRaw = existingLeadRes.data?.[0]?.ID;
   const existingId = existingIdRaw !== undefined && existingIdRaw !== null ? Number(existingIdRaw) : NaN;
   if (isFinite(existingId) && existingId > 0) {
-    if (contactId) {
+    if (!isOrder && contactId) {
       const linkRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
         id: existingId,
         fields: { CONTACT_ID: contactId },
