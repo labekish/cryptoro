@@ -488,13 +488,34 @@ const BOX_ICONS = [
       };
     }
 
+    function parseRubAmount(raw) {
+      const normalized = String(raw || '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/[^\d]/g, '');
+      const value = Number(normalized);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    }
+
+    function getLiveProductPrice() {
+      const selector = `[data-ms-price="${baseProduct.id}"]`;
+      const candidate = document.querySelector(`${selector}[data-ms-price-value]`) || document.querySelector(selector);
+      if (!(candidate instanceof HTMLElement)) return baseProduct.price;
+
+      const fromAttr = parseRubAmount(candidate.getAttribute('data-ms-price-value'));
+      if (fromAttr > 0) return fromAttr;
+
+      const fromText = parseRubAmount(candidate.textContent);
+      return fromText > 0 ? fromText : baseProduct.price;
+    }
+
     function buildCartItem() {
       const color = getSelectedColor();
       const sku = (color && colorSkus[color]) ? colorSkus[color] : (baseSku || undefined);
       return {
         id: color ? baseProduct.id + '::' + color : baseProduct.id,
         name: baseProduct.name,
-        price: baseProduct.price,
+        // Русский комментарий: цена в корзину всегда берётся из текущего UI (после синка МС), а не из статичного frontmatter.
+        price: getLiveProductPrice(),
         image: baseProduct.image,
         qty: 1,
         color: color || undefined,

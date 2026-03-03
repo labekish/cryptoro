@@ -50,6 +50,7 @@ export function addToCart(product: CartProduct): CartProduct[] {
       i === idx
         ? {
             ...item,
+            ...product,
             qty: Math.max(1, Number(item.qty) || 1) + Math.max(1, Number(product.qty) || 1)
           }
         : item

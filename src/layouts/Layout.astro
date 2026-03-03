@@ -865,7 +865,14 @@ const ogUrl = Astro.url?.toString() || '';
           if (payloadOrStep && typeof payloadOrStep === 'object') {
             const idx = items.findIndex((item) => item.id === payloadOrStep.id);
             if (idx >= 0) {
-              items[idx].qty = Math.max(1, Number(items[idx].qty) || 1) + Math.max(1, Number(payloadOrStep.qty) || 1);
+              const nextQty = Math.max(1, Number(items[idx].qty) || 1) + Math.max(1, Number(payloadOrStep.qty) || 1);
+              // Русский комментарий: обновляем цену/sku/название в существующей позиции, чтобы при смене цены МС не оставался старый прайс.
+              items[idx] = {
+                ...items[idx],
+                ...payloadOrStep,
+                qty: nextQty,
+                addedAt: Date.now()
+              };
             } else {
               items.push({
                 ...payloadOrStep,
@@ -1251,6 +1258,7 @@ const ogUrl = Astro.url?.toString() || '';
             Object.entries(items || {}).forEach(([slug, item]) => {
               document.querySelectorAll(`[data-ms-price="${slug}"]`).forEach((node) => {
                 node.textContent = formatRub(item.price);
+                node.setAttribute('data-ms-price-value', String(Math.round(Number(item.price || 0))));
                 node.classList.remove('ms-price-pending');
               });
 
