@@ -4,6 +4,8 @@ type Env = {
   B24_CONSULT_DEDUP_MINUTES?: string;
   B24_PRODUCT_MAP_JSON?: string;
   B24_CURRENCY_ID?: string;
+  B24_CONTACT_SYNC?: string;
+  B24_TELEGRAM_FIELD_CODE?: string;
 };
 
 interface ConsultPayload {
@@ -60,6 +62,15 @@ type BitrixLeadProductRow = {
   QUANTITY: number;
   CURRENCY_ID: string;
 };
+type ContactChannels = {
+  phoneRaw: string;
+  phoneNormalized: string;
+  phoneDigits: string;
+  email: string;
+  telegram: string;
+  hasPhone: boolean;
+  hasEmail: boolean;
+};
 
 const DEFAULT_ORIGINATOR_ID = 'CRYPTORO_SITE';
 const DEFAULT_CONSULT_DEDUP_MINUTES = 30;
@@ -77,6 +88,56 @@ function normalizePhone(input: string): string {
 
 function normalizeEmail(input: string): string {
   return String(input || '').trim().toLowerCase();
+}
+
+function isLikelyEmail(input: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+}
+
+function normalizeTelegramHandle(input: string): string {
+  const raw = String(input || '').trim();
+  if (!raw) return '';
+
+  const tMeMatch = raw.match(/(?:t\.me|telegram\.me)\/([a-zA-Z0-9_]{3,})/i);
+  if (tMeMatch?.[1]) return `@${tMeMatch[1]}`;
+
+  const atMatch = raw.match(/@([a-zA-Z0-9_]{3,})/);
+  if (atMatch?.[1]) return `@${atMatch[1]}`;
+
+  if (/^[a-zA-Z0-9_]{3,}$/.test(raw)) return `@${raw}`;
+  return '';
+}
+
+function splitPersonName(fullName: string): { firstName: string; lastName: string } {
+  const cleaned = sanitizeMeta(fullName, 120);
+  if (!cleaned) return { firstName: 'Клиент', lastName: '' };
+  const parts = cleaned.split(' ').filter(Boolean);
+  if (!parts.length) return { firstName: 'Клиент', lastName: '' };
+  return {
+    firstName: parts[0],
+    lastName: parts.slice(1).join(' '),
+  };
+}
+
+function parseContactChannels(phoneInput: string, emailInput: string): ContactChannels {
+  const phoneRaw = sanitizeMeta(phoneInput, 120);
+  const phoneNormalized = normalizePhone(phoneRaw);
+  const phoneDigits = phoneNormalized.replace(/\D/g, '');
+  const hasPhone = phoneDigits.length >= 10;
+
+  const emailNormalized = normalizeEmail(emailInput);
+  const hasEmail = isLikelyEmail(emailNormalized);
+  const telegram = hasPhone ? '' : normalizeTelegramHandle(phoneRaw);
+
+  return {
+    phoneRaw,
+    phoneNormalized,
+    phoneDigits,
+    email: hasEmail ? emailNormalized : '',
+    telegram,
+    hasPhone,
+    hasEmail,
+  };
 }
 
 function sanitizeMeta(input: string | undefined, maxLength: number): string {
@@ -278,6 +339,112 @@ async function callBitrix<T>(
   return { ok: true, data: data.result as T };
 }
 
+async function findContactByPhone(webhookUrl: string, phone: string): Promise<number | null> {
+  const variants = Array.from(
+    new Set(
+      [phone, normalizePhone(phone), normalizePhone(phone).replace(/\D/g, '')]
+        .map((value) => String(value || '').trim())
+        .filter(Boolean)
+    )
+  );
+
+  for (const candidate of variants) {
+    const res = await callBitrix<Array<{ ID?: string | number }>>(webhookUrl, 'crm.contact.list', {
+      filter: { PHONE: candidate },
+      order: { ID: 'DESC' },
+      select: ['ID'],
+    });
+    if (res.ok === false) continue;
+
+    const idRaw = res.data?.[0]?.ID;
+    const id = idRaw !== undefined && idRaw !== null ? Number(idRaw) : NaN;
+    if (isFinite(id) && id > 0) return id;
+  }
+
+  return null;
+}
+
+async function findContactByEmail(webhookUrl: string, email: string): Promise<number | null> {
+  const normalized = normalizeEmail(email);
+  if (!normalized || !isLikelyEmail(normalized)) return null;
+
+  const res = await callBitrix<Array<{ ID?: string | number }>>(webhookUrl, 'crm.contact.list', {
+    filter: { EMAIL: normalized },
+    order: { ID: 'DESC' },
+    select: ['ID'],
+  });
+  if (res.ok === false) return null;
+
+  const idRaw = res.data?.[0]?.ID;
+  const id = idRaw !== undefined && idRaw !== null ? Number(idRaw) : NaN;
+  return isFinite(id) && id > 0 ? id : null;
+}
+
+async function findOrCreateContact(
+  webhookUrl: string,
+  payload: LeadPayload,
+  channels: ContactChannels,
+  entryPoint: string,
+  sourcePage: string,
+  sourceButton: string,
+  env: Env
+): Promise<{ id: number | null; warning?: string }> {
+  if (env.B24_CONTACT_SYNC === '0') return { id: null };
+
+  if (channels.hasPhone) {
+    const existingByPhone = await findContactByPhone(webhookUrl, channels.phoneRaw);
+    if (existingByPhone) return { id: existingByPhone };
+  }
+  if (channels.hasEmail) {
+    const existingByEmail = await findContactByEmail(webhookUrl, channels.email);
+    if (existingByEmail) return { id: existingByEmail };
+  }
+
+  if (!channels.hasPhone && !channels.hasEmail && !channels.telegram) {
+    return { id: null, warning: 'contact_sync_skipped_no_channels' };
+  }
+
+  const personName = splitPersonName(payload.name);
+  const telegramFieldCode = sanitizeMeta(env.B24_TELEGRAM_FIELD_CODE, 80);
+
+  const contactComments = [
+    'Источник лида с сайта:',
+    `Точка входа: ${entryPoint}`,
+    sourcePage ? `Страница: ${sourcePage}` : '',
+    sourceButton ? `Кнопка: ${sourceButton}` : '',
+    channels.telegram ? `Telegram: ${channels.telegram}` : '',
+  ].filter(Boolean).join('\n');
+
+  const fields: Record<string, unknown> = {
+    NAME: personName.firstName,
+    ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
+    TYPE_ID: 'CLIENT',
+    SOURCE_ID: 'WEB',
+    COMMENTS: contactComments,
+  };
+
+  if (channels.hasPhone) {
+    fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
+  }
+  if (channels.hasEmail) {
+    fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
+  }
+  if (channels.telegram) {
+    if (telegramFieldCode) {
+      // Русский комментарий: пишем Telegram в кастомное поле контакта только если код поля задан в env.
+      fields[telegramFieldCode] = channels.telegram;
+    } else {
+      fields.COMMENTS = `${contactComments}\n(Подсказка: задайте B24_TELEGRAM_FIELD_CODE, чтобы хранить Telegram в отдельном поле.)`;
+    }
+  }
+
+  const addRes = await callBitrix<number>(webhookUrl, 'crm.contact.add', { fields });
+  if (addRes.ok === false) {
+    return { id: null, warning: `contact_add_failed:${addRes.error}` };
+  }
+  return { id: addRes.data };
+}
+
 export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
   const { request, env } = context;
   const headers = { 'Content-Type': 'application/json' };
@@ -303,8 +470,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const o = isOrder ? (body as OrderPayload) : null;
   const consultDedupMinutes = parsePositiveInt(env.B24_CONSULT_DEDUP_MINUTES, DEFAULT_CONSULT_DEDUP_MINUTES);
   const originatorId = (env.B24_ORIGINATOR_ID || DEFAULT_ORIGINATOR_ID).trim() || DEFAULT_ORIGINATOR_ID;
-  const normalizedPhone = normalizePhone(phone);
-  const normalizedEmail = normalizeEmail(email);
+  const channels = parseContactChannels(phone, email);
   const productMap = parseProductMap(env.B24_PRODUCT_MAP_JSON);
   const currencyId = sanitizeMeta(env.B24_CURRENCY_ID || 'RUB', 6) || 'RUB';
   const consultComment = !isOrder ? String((body as ConsultPayload).comment || '').trim() : '';
@@ -312,6 +478,11 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const sourcePage = sanitizeMeta((body as ConsultPayload | OrderPayload).sourcePage, 120);
   const sourceButton = sanitizeMeta((body as ConsultPayload | OrderPayload).sourceButton, 120);
   const entryPoint = rawEntryPoint || (isOrder ? 'cart_checkout_default' : 'consult_default');
+  const warnings: string[] = [];
+
+  const contactSync = await findOrCreateContact(webhookUrl, body, channels, entryPoint, sourcePage, sourceButton, env);
+  const contactId = contactSync.id;
+  if (contactSync.warning) warnings.push(contactSync.warning);
 
   const title = isOrder && o
     ? `Заказ ${o.orderId} — ${name}`
@@ -321,6 +492,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     `Точка входа: ${entryPoint}`,
     sourcePage ? `Страница: ${sourcePage}` : '',
     sourceButton ? `Кнопка: ${sourceButton}` : '',
+    channels.telegram ? `Telegram: ${channels.telegram}` : '',
   ].filter(Boolean);
 
   const businessLines = isOrder && o
@@ -350,7 +522,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const consultBucket = Math.floor(Date.now() / (consultDedupMinutes * 60 * 1000));
   const dedupeOriginId = isOrder && o
     ? `order:${String(o.orderId || '').trim().toUpperCase()}:${entryPoint}`
-    : `consult:${consultBucket}:${hashString([normalizedPhone, normalizedEmail, consultComment, entryPoint, sourcePage, sourceButton].join('|'))}`;
+    : `consult:${consultBucket}:${hashString([channels.phoneNormalized, channels.email, channels.telegram, consultComment, entryPoint, sourcePage, sourceButton].join('|'))}`;
 
   // Если лид с таким ключом уже есть, возвращаем существующий ID и не создаем дубль.
   const existingLeadRes = await callBitrix<Array<{ ID?: string | number }>>(webhookUrl, 'crm.lead.list', {
@@ -372,20 +544,30 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const existingIdRaw = existingLeadRes.data?.[0]?.ID;
   const existingId = existingIdRaw !== undefined && existingIdRaw !== null ? Number(existingIdRaw) : NaN;
   if (isFinite(existingId) && existingId > 0) {
-    return new Response(JSON.stringify({ ok: true, id: existingId, duplicate: true }), { headers });
+    if (contactId) {
+      const linkRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
+        id: existingId,
+        fields: { CONTACT_ID: contactId },
+      });
+      if (linkRes.ok === false) warnings.push(`lead_contact_link_failed:${linkRes.error}`);
+    }
+    return new Response(JSON.stringify({ ok: true, id: existingId, duplicate: true, ...(warnings.length ? { warnings } : {}) }), {
+      headers,
+    });
   }
 
   const fields: Record<string, unknown> = {
     TITLE: title,
     NAME: name,
-    PHONE: [{ VALUE: phone, VALUE_TYPE: 'WORK' }],
     SOURCE_ID: 'WEB',
     // Русский комментарий: сохраняем точку входа, чтобы в CRM различать каждую кнопку/форму.
     SOURCE_DESCRIPTION: `${isOrder ? 'Корзина' : 'Консультация по диктофонам'} | ${entryPoint}`,
     ORIGINATOR_ID: originatorId,
     ORIGIN_ID: dedupeOriginId,
   };
-  if (email) fields.EMAIL = [{ VALUE: email, VALUE_TYPE: 'WORK' }];
+  if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
+  if (channels.hasEmail) fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
+  if (contactId) fields.CONTACT_ID = contactId;
   if (comments) fields.COMMENTS = comments;
 
   const createLeadRes = await callBitrix<number>(webhookUrl, 'crm.lead.add', {
@@ -398,8 +580,6 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       { status: 502, headers }
     );
   }
-
-  const warnings: string[] = [];
 
   if (isOrder && o) {
     const rows = buildProductRows(o.items, productMap, currencyId);
