@@ -64,6 +64,11 @@ type BitrixLeadProductRow = {
   PRODUCT_NAME?: string;
   CUSTOMIZED?: 'Y';
 };
+type LeadVerifyInfo = {
+  opportunity: string;
+  currencyId: string;
+  productRowsCount: number;
+};
 type ContactChannels = {
   phoneRaw: string;
   phoneNormalized: string;
@@ -358,6 +363,24 @@ function hashString(input: string): string {
   return hash.toString(36);
 }
 
+async function getLeadVerifyInfo(webhookUrl: string, leadId: number): Promise<{ info?: LeadVerifyInfo; warning?: string }> {
+  const leadGetRes = await callBitrix<Record<string, unknown>>(webhookUrl, 'crm.lead.get', { id: leadId });
+  if (leadGetRes.ok === false) return { warning: `lead_get_failed:${leadGetRes.error}` };
+
+  const rowsGetRes = await callBitrix<Array<Record<string, unknown>>>(webhookUrl, 'crm.lead.productrows.get', { id: leadId });
+  if (rowsGetRes.ok === false) return { warning: `productrows_get_failed:${rowsGetRes.error}` };
+
+  const lead = leadGetRes.data || {};
+  const rows = Array.isArray(rowsGetRes.data) ? rowsGetRes.data : [];
+  return {
+    info: {
+      opportunity: String(lead.OPPORTUNITY ?? ''),
+      currencyId: String(lead.CURRENCY_ID ?? ''),
+      productRowsCount: rows.length,
+    },
+  };
+}
+
 async function callBitrix<T>(
   webhookUrl: string,
   method: string,
@@ -642,7 +665,19 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       });
       if (linkRes.ok === false) warnings.push(`lead_contact_link_failed:${linkRes.error}`);
     }
-    return new Response(JSON.stringify({ ok: true, id: existingId, duplicate: true, ...(warnings.length ? { warnings } : {}) }), {
+    let verify: LeadVerifyInfo | undefined;
+    if (isOrder) {
+      const verifyRes = await getLeadVerifyInfo(webhookUrl, existingId);
+      if (verifyRes.warning) warnings.push(verifyRes.warning);
+      if (verifyRes.info) verify = verifyRes.info;
+    }
+    return new Response(JSON.stringify({
+      ok: true,
+      id: existingId,
+      duplicate: true,
+      ...(verify ? { verify } : {}),
+      ...(warnings.length ? { warnings } : {}),
+    }), {
       headers,
     });
   }
@@ -695,8 +730,19 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       warnings.push('productrows_not_mapped');
     }
   }
+  let verify: LeadVerifyInfo | undefined;
+  if (isOrder) {
+    const verifyRes = await getLeadVerifyInfo(webhookUrl, createLeadRes.data);
+    if (verifyRes.warning) warnings.push(verifyRes.warning);
+    if (verifyRes.info) verify = verifyRes.info;
+  }
 
-  return new Response(JSON.stringify({ ok: true, id: createLeadRes.data, ...(warnings.length ? { warnings } : {}) }), {
+  return new Response(JSON.stringify({
+    ok: true,
+    id: createLeadRes.data,
+    ...(verify ? { verify } : {}),
+    ...(warnings.length ? { warnings } : {}),
+  }), {
     headers,
   });
 };
