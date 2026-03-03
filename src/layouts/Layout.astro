@@ -270,6 +270,22 @@ const ogUrl = Astro.url?.toString() || '';
         border:1px solid transparent;
         white-space:nowrap;
       }
+      .catalog-title-row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        min-width:0;
+      }
+      .catalog-title-row h3{
+        margin:0;
+        min-width:0;
+        flex:1;
+      }
+      .catalog-title-stock{
+        margin:0 0 0 auto;
+        flex-shrink:0;
+      }
       .ms-stock-badge.ms-in-stock{
         color:#166534;
         background:#ecfdf3;
