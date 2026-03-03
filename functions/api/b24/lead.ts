@@ -57,10 +57,12 @@ type BitrixCallSuccess<T> = { ok: true; data: T };
 type BitrixCallError = { ok: false; error: string; detail?: string };
 type ProductMap = Record<string, number>;
 type BitrixLeadProductRow = {
-  PRODUCT_ID: number;
   PRICE: number;
   QUANTITY: number;
   CURRENCY_ID: string;
+  PRODUCT_ID?: number;
+  PRODUCT_NAME?: string;
+  CUSTOMIZED?: 'Y';
 };
 type ContactChannels = {
   phoneRaw: string;
@@ -267,18 +269,56 @@ function resolveProductId(item: OrderItem, productMap: ProductMap): number | nul
   return null;
 }
 
-function buildProductRows(items: OrderItem[] | undefined, productMap: ProductMap, currencyId: string): BitrixLeadProductRow[] {
-  if (!Array.isArray(items) || !items.length) return [];
+function parseAmount(raw: unknown): number {
+  if (typeof raw === 'number') return Number.isFinite(raw) ? Math.max(0, raw) : 0;
+  const normalized = String(raw || '')
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/[^\d,.-]/g, '')
+    .replace(',', '.');
+  const n = Number(normalized);
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
+}
+
+function buildProductRowName(item: OrderItem): string {
+  const name = sanitizeMeta(item.name, 140) || 'Товар';
+  const color = sanitizeMeta(item.color, 60);
+  const sku = normalizeSku(item.sku);
+  const withColor = color ? `${name} (${color})` : name;
+  return sku ? `${withColor} [${sku}]` : withColor;
+}
+
+function calculateOrderTotal(items: OrderItem[] | undefined, totalRaw: string | undefined): number {
+  const fromItems = Array.isArray(items)
+    ? items.reduce((sum, item) => {
+      const qty = Math.max(1, Number(item.qty) || 1);
+      const price = parseAmount(item.price);
+      return sum + qty * price;
+    }, 0)
+    : 0;
+
+  if (fromItems > 0) return Number(fromItems.toFixed(2));
+  return Number(parseAmount(totalRaw).toFixed(2));
+}
+
+function buildProductRows(
+  items: OrderItem[] | undefined,
+  productMap: ProductMap,
+  currencyId: string
+): { rows: BitrixLeadProductRow[]; unmappedItems: number } {
+  if (!Array.isArray(items) || !items.length) return { rows: [], unmappedItems: 0 };
 
   const grouped = new Map<string, BitrixLeadProductRow>();
+  let unmappedItems = 0;
 
   for (const item of items) {
-    const productId = resolveProductId(item, productMap);
-    if (!productId) continue;
-
     const qty = Math.max(1, Number(item.qty) || 1);
-    const price = Math.max(0, Number(item.price) || 0);
-    const key = `${productId}:${price.toFixed(2)}`;
+    const price = parseAmount(item.price);
+    const productId = resolveProductId(item, productMap);
+
+    const key = productId
+      ? `id:${productId}:${price.toFixed(2)}`
+      : `name:${buildProductRowName(item)}:${price.toFixed(2)}`;
     const prev = grouped.get(key);
 
     if (prev) {
@@ -286,15 +326,28 @@ function buildProductRows(items: OrderItem[] | undefined, productMap: ProductMap
       continue;
     }
 
+    if (productId) {
+      grouped.set(key, {
+        PRODUCT_ID: productId,
+        PRICE: price,
+        QUANTITY: qty,
+        CURRENCY_ID: currencyId,
+      });
+      continue;
+    }
+
+    // Русский комментарий: fallback-строка без PRODUCT_ID, чтобы товар и сумма не терялись в лиде.
+    unmappedItems += 1;
     grouped.set(key, {
-      PRODUCT_ID: productId,
+      PRODUCT_NAME: buildProductRowName(item),
       PRICE: price,
       QUANTITY: qty,
       CURRENCY_ID: currencyId,
+      CUSTOMIZED: 'Y',
     });
   }
 
-  return Array.from(grouped.values());
+  return { rows: Array.from(grouped.values()), unmappedItems };
 }
 
 function hashString(input: string): string {
@@ -578,6 +631,13 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     ORIGINATOR_ID: originatorId,
     ORIGIN_ID: dedupeOriginId,
   };
+  if (isOrder && o) {
+    const orderTotal = calculateOrderTotal(o.items, o.total);
+    // Русский комментарий: заполняем сумму лида явно, чтобы в Bitrix не оставался 0.
+    fields.OPPORTUNITY = orderTotal;
+    fields.CURRENCY_ID = currencyId;
+    if (orderTotal <= 0) warnings.push('order_total_zero');
+  }
   if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
   if (channels.hasEmail) fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
   if (contactId) fields.CONTACT_ID = contactId;
@@ -595,7 +655,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   }
 
   if (isOrder && o) {
-    const rows = buildProductRows(o.items, productMap, currencyId);
+    const { rows, unmappedItems } = buildProductRows(o.items, productMap, currencyId);
+    if (unmappedItems > 0) warnings.push(`productrows_unmapped_items:${unmappedItems}`);
     if (rows.length) {
       // Русский комментарий: добавляем товарные позиции в лид Bitrix, чтобы менеджер видел корзину в блоке "Товары".
       const setRowsRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
