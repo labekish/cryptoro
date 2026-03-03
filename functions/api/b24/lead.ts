@@ -59,10 +59,8 @@ type ProductMap = Record<string, number>;
 type BitrixLeadProductRow = {
   PRICE: number;
   QUANTITY: number;
-  CURRENCY_ID: string;
   PRODUCT_ID?: number;
   PRODUCT_NAME?: string;
-  CUSTOMIZED?: 'Y';
 };
 type LeadVerifyInfo = {
   opportunity: string;
@@ -308,8 +306,7 @@ function calculateOrderTotal(items: OrderItem[] | undefined, totalRaw: string | 
 
 function buildProductRows(
   items: OrderItem[] | undefined,
-  productMap: ProductMap,
-  currencyId: string
+  productMap: ProductMap
 ): { rows: BitrixLeadProductRow[]; unmappedItems: number } {
   if (!Array.isArray(items) || !items.length) return { rows: [], unmappedItems: 0 };
 
@@ -336,7 +333,6 @@ function buildProductRows(
         PRODUCT_ID: productId,
         PRICE: price,
         QUANTITY: qty,
-        CURRENCY_ID: currencyId,
       });
       continue;
     }
@@ -347,12 +343,45 @@ function buildProductRows(
       PRODUCT_NAME: buildProductRowName(item),
       PRICE: price,
       QUANTITY: qty,
-      CURRENCY_ID: currencyId,
-      CUSTOMIZED: 'Y',
     });
   }
 
   return { rows: Array.from(grouped.values()), unmappedItems };
+}
+
+function mapRowsToItemApi(rows: BitrixLeadProductRow[]): Array<Record<string, unknown>> {
+  return rows.map((row) => ({
+    productId: row.PRODUCT_ID,
+    productName: row.PRODUCT_NAME,
+    price: row.PRICE,
+    quantity: row.QUANTITY,
+  }));
+}
+
+async function setLeadProductRows(
+  webhookUrl: string,
+  leadId: number,
+  rows: BitrixLeadProductRow[]
+): Promise<{ ok: true } | { ok: false; warning: string }> {
+  if (!rows.length) return { ok: true };
+
+  const legacyRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
+    id: leadId,
+    rows,
+  });
+  if (legacyRes.ok) return { ok: true };
+
+  // Русский комментарий: на части порталов работает только новый endpoint crm.item.productrow.set.
+  const itemRes = await callBitrix<boolean>(webhookUrl, 'crm.item.productrow.set', {
+    ownerType: 'L',
+    ownerId: leadId,
+    productRows: mapRowsToItemApi(rows),
+  });
+  if (itemRes.ok) return { ok: true };
+
+  const legacyError = legacyRes.ok === false ? legacyRes.error : 'unknown';
+  const fallbackError = itemRes.ok === false ? itemRes.error : 'unknown';
+  return { ok: false, warning: `productrows_set_failed:${legacyError}|fallback:${fallbackError}` };
 }
 
 function hashString(input: string): string {
@@ -645,14 +674,11 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       });
       if (updateRes.ok === false) warnings.push(`lead_order_update_failed:${updateRes.error}`);
 
-      const { rows, unmappedItems } = buildProductRows(o.items, productMap, currencyId);
+      const { rows, unmappedItems } = buildProductRows(o.items, productMap);
       if (unmappedItems > 0) warnings.push(`productrows_unmapped_items:${unmappedItems}`);
       if (rows.length) {
-        const setRowsRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
-          id: existingId,
-          rows,
-        });
-        if (setRowsRes.ok === false) warnings.push(`productrows_set_failed:${setRowsRes.error}`);
+        const setRowsRes = await setLeadProductRows(webhookUrl, existingId, rows);
+        if (setRowsRes.ok === false) warnings.push(setRowsRes.warning);
       } else {
         warnings.push('productrows_not_mapped');
       }
@@ -715,17 +741,12 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   }
 
   if (isOrder && o) {
-    const { rows, unmappedItems } = buildProductRows(o.items, productMap, currencyId);
+    const { rows, unmappedItems } = buildProductRows(o.items, productMap);
     if (unmappedItems > 0) warnings.push(`productrows_unmapped_items:${unmappedItems}`);
     if (rows.length) {
       // Русский комментарий: добавляем товарные позиции в лид Bitrix, чтобы менеджер видел корзину в блоке "Товары".
-      const setRowsRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
-        id: createLeadRes.data,
-        rows,
-      });
-      if (setRowsRes.ok === false) {
-        warnings.push(`productrows_set_failed:${setRowsRes.error}`);
-      }
+      const setRowsRes = await setLeadProductRows(webhookUrl, createLeadRes.data, rows);
+      if (setRowsRes.ok === false) warnings.push(setRowsRes.warning);
     } else {
       warnings.push('productrows_not_mapped');
     }
