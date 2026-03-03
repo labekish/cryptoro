@@ -202,7 +202,16 @@ const { active } = Astro.props;
       </nav>
     </div>
     <div class="header-right">
-      <button type="button" class="header-consult-cta" data-open-consult aria-haspopup="dialog" aria-controls="consultModal" style="margin-right:8px">
+      <button
+        type="button"
+        class="header-consult-cta"
+        data-open-consult
+        data-lead-entrypoint="header_consult_cta"
+        data-lead-source-button="Подобрать модель (хедер)"
+        aria-haspopup="dialog"
+        aria-controls="consultModal"
+        style="margin-right:8px"
+      >
         <span class="header-consult-cta__icon" aria-hidden="true">→</span>
         <span>Подобрать модель</span>
       </button>

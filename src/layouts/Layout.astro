@@ -985,11 +985,51 @@ const ogUrl = Astro.url?.toString() || '';
           const submitBtn = modal.querySelector('[data-consult-submit]');
           const statusNode = modal.querySelector('[data-consult-status]');
           let isSubmitting = false;
+          const pagePath = window.location.pathname || '/';
+          let pendingLeadSource = {
+            entryPoint: 'consult_modal_direct',
+            sourcePage: pagePath,
+            sourceButton: 'Прямой вызов модалки',
+          };
 
           const setStatus = (text, mode = '') => {
             if (!statusNode) return;
             statusNode.textContent = text || '';
             statusNode.className = `consult-status${mode ? ` ${mode}` : ''}`;
+          };
+
+          const normalizeToken = (value) => String(value || '')
+            .toLowerCase()
+            .replace(/[^a-z0-9а-яё]+/gi, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 60);
+
+          const resolveLeadSourceFromLink = (link, index) => {
+            const href = String(link.getAttribute('href') || '').trim();
+            const text = String((link.textContent || '').trim() || link.getAttribute('aria-label') || 'Кнопка').slice(0, 120);
+            const explicitEntryPoint = String(link.dataset.leadEntrypoint || '').trim();
+            const explicitSourcePage = String(link.dataset.leadSourcePage || '').trim();
+            const explicitSourceButton = String(link.dataset.leadSourceButton || '').trim();
+
+            if (explicitEntryPoint) {
+              return {
+                entryPoint: explicitEntryPoint,
+                sourcePage: explicitSourcePage || pagePath,
+                sourceButton: explicitSourceButton || text,
+              };
+            }
+
+            const pageToken = normalizeToken(pagePath) || 'home';
+            const hrefToken = normalizeToken(href) || 'consult';
+            const textToken = normalizeToken(text) || 'button';
+            const base = link.hasAttribute('data-open-consult') ? 'consult_cta' : 'consult_link';
+            const entryPoint = `${base}_${pageToken}_${hrefToken}_${textToken}_${index + 1}`.slice(0, 80);
+
+            return {
+              entryPoint,
+              sourcePage: pagePath,
+              sourceButton: text,
+            };
           };
 
           const openModal = () => {
@@ -1047,7 +1087,11 @@ const ogUrl = Astro.url?.toString() || '';
                     name: name || 'Без имени',
                     phone: contact,
                     email: '',
-                    comment
+                    comment,
+                    // Русский комментарий: метки источника нужны для раздельной аналитики лидов в CRM.
+                    entryPoint: pendingLeadSource.entryPoint,
+                    sourcePage: pendingLeadSource.sourcePage,
+                    sourceButton: pendingLeadSource.sourceButton,
                   })
                 });
 
@@ -1067,10 +1111,11 @@ const ogUrl = Astro.url?.toString() || '';
           }
 
           const isHome = window.location.pathname === '/';
-          document.querySelectorAll('a[href="/#lead"], a[href="#lead"], [data-open-consult]').forEach((link) => {
+          document.querySelectorAll('a[href="/#lead"], a[href="#lead"], [data-open-consult]').forEach((link, index) => {
             if (isHome && link.getAttribute('href') === '#lead') return;
             link.addEventListener('click', (event) => {
               event.preventDefault();
+              pendingLeadSource = resolveLeadSourceFromLink(link, index);
               openModal();
             });
           });

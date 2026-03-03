@@ -3626,7 +3626,16 @@ body .sec-how .smock {
         const response = await fetch('/api/b24/lead', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'consult', name, phone, email })
+          body: JSON.stringify({
+            type: 'consult',
+            name,
+            phone,
+            email,
+            // Русский комментарий: отдельная метка для формы на главной странице.
+            entryPoint: 'home_lead_form',
+            sourcePage: window.location.pathname || '/',
+            sourceButton: 'Получить консультацию (главная форма)',
+          })
         });
 
         if (!response.ok) throw new Error('request_failed');

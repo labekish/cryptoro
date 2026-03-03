@@ -263,6 +263,10 @@ import Layout from '../layouts/Layout.astro';
     function buildPayload(formData: FormData, items: ReturnType<typeof getCart>, orderId: string) {
       return {
         type: 'order' as const,
+        // Русский комментарий: источник лида, чтобы в CRM отличать поток корзины от других кнопок.
+        entryPoint: 'cart_checkout_submit',
+        sourcePage: '/cart',
+        sourceButton: 'Оформить заказ',
         orderId,
         name: String(formData.get('fullName') || ''),
         phone: String(formData.get('phone') || ''),

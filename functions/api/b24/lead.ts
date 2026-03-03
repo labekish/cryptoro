@@ -2,6 +2,8 @@ type Env = {
   B24_WEBHOOK_URL?: string;
   B24_ORIGINATOR_ID?: string;
   B24_CONSULT_DEDUP_MINUTES?: string;
+  B24_PRODUCT_MAP_JSON?: string;
+  B24_CURRENCY_ID?: string;
 };
 
 interface ConsultPayload {
@@ -10,6 +12,9 @@ interface ConsultPayload {
   phone: string;
   email: string;
   comment?: string;
+  entryPoint?: string;
+  sourcePage?: string;
+  sourceButton?: string;
 }
 
 interface OrderItem {
@@ -33,6 +38,9 @@ interface OrderPayload {
   delivery: string;
   items: OrderItem[];
   total: string;
+  entryPoint?: string;
+  sourcePage?: string;
+  sourceButton?: string;
 }
 
 type LeadPayload = ConsultPayload | OrderPayload;
@@ -45,6 +53,13 @@ type BitrixApiResponse<T> = {
 
 type BitrixCallSuccess<T> = { ok: true; data: T };
 type BitrixCallError = { ok: false; error: string; detail?: string };
+type ProductMap = Record<string, number>;
+type BitrixLeadProductRow = {
+  PRODUCT_ID: number;
+  PRICE: number;
+  QUANTITY: number;
+  CURRENCY_ID: string;
+};
 
 const DEFAULT_ORIGINATOR_ID = 'CRYPTORO_SITE';
 const DEFAULT_CONSULT_DEDUP_MINUTES = 30;
@@ -62,6 +77,163 @@ function normalizePhone(input: string): string {
 
 function normalizeEmail(input: string): string {
   return String(input || '').trim().toLowerCase();
+}
+
+function sanitizeMeta(input: string | undefined, maxLength: number): string {
+  return String(input || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .slice(0, maxLength);
+}
+
+function normalizeSku(input: string | undefined): string {
+  return String(input || '')
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, '')
+    .slice(0, 60);
+}
+
+function normalizeColor(input: string | undefined): string {
+  return String(input || '')
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/[()"'`]/g, '')
+    .replace(/[^a-z0-9а-я]+/gi, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 60);
+}
+
+function colorAliases(normalizedColor: string): string[] {
+  if (!normalizedColor) return [];
+  const aliases = new Set<string>([normalizedColor]);
+
+  if (normalizedColor.includes('черн') || normalizedColor === 'black') {
+    aliases.add('черный');
+    aliases.add('black');
+  }
+  if (normalizedColor.includes('сереб') || normalizedColor === 'silver') {
+    aliases.add('серебристый');
+    aliases.add('silver');
+  }
+  if (
+    normalizedColor.includes('золот') ||
+    normalizedColor === 'gold' ||
+    normalizedColor === 'starlight'
+  ) {
+    aliases.add('золотистый');
+    aliases.add('gold');
+    aliases.add('starlight');
+  }
+  if (normalizedColor.includes('син') || normalizedColor === 'blue') {
+    aliases.add('синий');
+    aliases.add('blue');
+  }
+  if (
+    normalizedColor.includes('графит') ||
+    normalizedColor.includes('gray') ||
+    normalizedColor.includes('grey') ||
+    normalizedColor === 'graphite' ||
+    normalizedColor === 'cosmic_gray'
+  ) {
+    aliases.add('графит');
+    aliases.add('gray');
+    aliases.add('cosmic_gray');
+    aliases.add('graphite');
+  }
+  if (
+    normalizedColor.includes('фиолет') ||
+    normalizedColor === 'purple' ||
+    normalizedColor === 'violet'
+  ) {
+    aliases.add('фиолетовый');
+    aliases.add('purple');
+    aliases.add('violet');
+  }
+
+  return Array.from(aliases);
+}
+
+function parseProductMap(rawJson: string | undefined): ProductMap {
+  if (!rawJson || !rawJson.trim()) return {};
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawJson);
+  } catch {
+    return {};
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+
+  const out: ProductMap = {};
+  for (const [rawKey, rawValue] of Object.entries(parsed as Record<string, unknown>)) {
+    const key = String(rawKey || '').trim();
+    const value = Number(rawValue);
+    if (!key || !Number.isFinite(value) || value <= 0) continue;
+
+    if (key.includes('::')) {
+      const [skuPart, colorPart] = key.split('::');
+      const sku = normalizeSku(skuPart);
+      const color = normalizeColor(colorPart);
+      if (!sku || !color) continue;
+      out[`${sku}::${color}`] = Math.floor(value);
+      continue;
+    }
+
+    const sku = normalizeSku(key);
+    if (!sku) continue;
+    out[sku] = Math.floor(value);
+  }
+
+  return out;
+}
+
+function resolveProductId(item: OrderItem, productMap: ProductMap): number | null {
+  const sku = normalizeSku(item.sku);
+  if (!sku) return null;
+  const color = normalizeColor(item.color);
+
+  if (color) {
+    for (const colorKey of colorAliases(color)) {
+      const fromSkuColor = productMap[`${sku}::${colorKey}`];
+      if (Number.isFinite(fromSkuColor) && fromSkuColor > 0) return fromSkuColor;
+    }
+  }
+
+  const fromSku = productMap[sku];
+  if (Number.isFinite(fromSku) && fromSku > 0) return fromSku;
+  return null;
+}
+
+function buildProductRows(items: OrderItem[] | undefined, productMap: ProductMap, currencyId: string): BitrixLeadProductRow[] {
+  if (!Array.isArray(items) || !items.length) return [];
+
+  const grouped = new Map<string, BitrixLeadProductRow>();
+
+  for (const item of items) {
+    const productId = resolveProductId(item, productMap);
+    if (!productId) continue;
+
+    const qty = Math.max(1, Number(item.qty) || 1);
+    const price = Math.max(0, Number(item.price) || 0);
+    const key = `${productId}:${price.toFixed(2)}`;
+    const prev = grouped.get(key);
+
+    if (prev) {
+      prev.QUANTITY += qty;
+      continue;
+    }
+
+    grouped.set(key, {
+      PRODUCT_ID: productId,
+      PRICE: price,
+      QUANTITY: qty,
+      CURRENCY_ID: currencyId,
+    });
+  }
+
+  return Array.from(grouped.values());
 }
 
 function hashString(input: string): string {
@@ -133,13 +305,25 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const originatorId = (env.B24_ORIGINATOR_ID || DEFAULT_ORIGINATOR_ID).trim() || DEFAULT_ORIGINATOR_ID;
   const normalizedPhone = normalizePhone(phone);
   const normalizedEmail = normalizeEmail(email);
+  const productMap = parseProductMap(env.B24_PRODUCT_MAP_JSON);
+  const currencyId = sanitizeMeta(env.B24_CURRENCY_ID || 'RUB', 6) || 'RUB';
   const consultComment = !isOrder ? String((body as ConsultPayload).comment || '').trim() : '';
+  const rawEntryPoint = sanitizeMeta((body as ConsultPayload | OrderPayload).entryPoint, 80);
+  const sourcePage = sanitizeMeta((body as ConsultPayload | OrderPayload).sourcePage, 120);
+  const sourceButton = sanitizeMeta((body as ConsultPayload | OrderPayload).sourceButton, 120);
+  const entryPoint = rawEntryPoint || (isOrder ? 'cart_checkout_default' : 'consult_default');
 
   const title = isOrder && o
     ? `Заказ ${o.orderId} — ${name}`
     : `Консультация по диктофонам — ${name}`;
 
-  const comments = isOrder && o
+  const sourceLines = [
+    `Точка входа: ${entryPoint}`,
+    sourcePage ? `Страница: ${sourcePage}` : '',
+    sourceButton ? `Кнопка: ${sourceButton}` : '',
+  ].filter(Boolean);
+
+  const businessLines = isOrder && o
     ? [
         `№ заказа: ${o.orderId || '—'}`,
         `Доставка: ${o.delivery || '—'}`,
@@ -155,14 +339,18 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
           : ['—']),
         '',
         `Итого: ${o.total || '—'}`,
-      ].join('\n')
-    : (consultComment ? `Комментарий клиента:\n${consultComment}` : undefined);
+      ]
+    : (consultComment ? [`Комментарий клиента: ${consultComment}`] : []);
+
+  const comments = [...sourceLines, ...(businessLines.length ? ['', ...businessLines] : [])]
+    .filter((line, index, arr) => !(line === '' && (index === 0 || arr[index - 1] === '')))
+    .join('\n');
 
   // Ключ идемпотентности: для заказа — номер заказа, для консультации — отпечаток контакта в окне времени.
   const consultBucket = Math.floor(Date.now() / (consultDedupMinutes * 60 * 1000));
   const dedupeOriginId = isOrder && o
-    ? `order:${String(o.orderId || '').trim().toUpperCase()}`
-    : `consult:${consultBucket}:${hashString([normalizedPhone, normalizedEmail, consultComment].join('|'))}`;
+    ? `order:${String(o.orderId || '').trim().toUpperCase()}:${entryPoint}`
+    : `consult:${consultBucket}:${hashString([normalizedPhone, normalizedEmail, consultComment, entryPoint, sourcePage, sourceButton].join('|'))}`;
 
   // Если лид с таким ключом уже есть, возвращаем существующий ID и не создаем дубль.
   const existingLeadRes = await callBitrix<Array<{ ID?: string | number }>>(webhookUrl, 'crm.lead.list', {
@@ -192,7 +380,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     NAME: name,
     PHONE: [{ VALUE: phone, VALUE_TYPE: 'WORK' }],
     SOURCE_ID: 'WEB',
-    SOURCE_DESCRIPTION: isOrder ? 'Корзина' : 'Консультация по диктофонам',
+    // Русский комментарий: сохраняем точку входа, чтобы в CRM различать каждую кнопку/форму.
+    SOURCE_DESCRIPTION: `${isOrder ? 'Корзина' : 'Консультация по диктофонам'} | ${entryPoint}`,
     ORIGINATOR_ID: originatorId,
     ORIGIN_ID: dedupeOriginId,
   };
@@ -210,5 +399,25 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     );
   }
 
-  return new Response(JSON.stringify({ ok: true, id: createLeadRes.data }), { headers });
+  const warnings: string[] = [];
+
+  if (isOrder && o) {
+    const rows = buildProductRows(o.items, productMap, currencyId);
+    if (rows.length) {
+      // Русский комментарий: добавляем товарные позиции в лид Bitrix, чтобы менеджер видел корзину в блоке "Товары".
+      const setRowsRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
+        id: createLeadRes.data,
+        rows,
+      });
+      if (setRowsRes.ok === false) {
+        warnings.push(`productrows_set_failed:${setRowsRes.error}`);
+      }
+    } else {
+      warnings.push('productrows_not_mapped');
+    }
+  }
+
+  return new Response(JSON.stringify({ ok: true, id: createLeadRes.data, ...(warnings.length ? { warnings } : {}) }), {
+    headers,
+  });
 };
