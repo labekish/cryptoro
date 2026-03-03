@@ -610,6 +610,31 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const existingIdRaw = existingLeadRes.data?.[0]?.ID;
   const existingId = existingIdRaw !== undefined && existingIdRaw !== null ? Number(existingIdRaw) : NaN;
   if (isFinite(existingId) && existingId > 0) {
+    if (isOrder && o) {
+      const orderTotal = calculateOrderTotal(o.items, o.total);
+      const updateRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
+        id: existingId,
+        fields: {
+          OPPORTUNITY: orderTotal,
+          CURRENCY_ID: currencyId,
+          ...(comments ? { COMMENTS: comments } : {}),
+        },
+      });
+      if (updateRes.ok === false) warnings.push(`lead_order_update_failed:${updateRes.error}`);
+
+      const { rows, unmappedItems } = buildProductRows(o.items, productMap, currencyId);
+      if (unmappedItems > 0) warnings.push(`productrows_unmapped_items:${unmappedItems}`);
+      if (rows.length) {
+        const setRowsRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.productrows.set', {
+          id: existingId,
+          rows,
+        });
+        if (setRowsRes.ok === false) warnings.push(`productrows_set_failed:${setRowsRes.error}`);
+      } else {
+        warnings.push('productrows_not_mapped');
+      }
+    }
+
     if (!isOrder && contactId) {
       const linkRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
         id: existingId,
