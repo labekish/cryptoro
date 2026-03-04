@@ -18,6 +18,8 @@ type Env = {
   B24_DEAL_PHONE_FIELD_CODE?: string;
   B24_DEAL_EMAIL_FIELD_CODE?: string;
   B24_DEAL_SYNC_ON_CONVERT?: string;
+  B24_LEAD_DELIVERY_COST_FIELD_CODE?: string;
+  B24_DEAL_DELIVERY_COST_FIELD_CODE?: string;
 };
 
 interface ConsultPayload {
@@ -50,6 +52,7 @@ interface OrderPayload {
   apartment?: string;
   zip: string;
   delivery: string;
+  deliveryCost?: number;
   items: OrderItem[];
   total: string;
   entryPoint?: string;
@@ -426,9 +429,12 @@ function parseEnumMap(rawJson: string | undefined): EnumMap {
   }
 }
 
-function resolveDeliveryFieldValue(delivery: string, enumMap: EnumMap): string | number {
+function resolveDeliveryFieldValue(delivery: string, enumMap: EnumMap): string | number | null {
   const normalized = normalizeDeliveryLabel(delivery);
-  if (!normalized || !Object.keys(enumMap).length) return delivery;
+  if (!normalized) return null;
+
+  // Русский комментарий: если enum-карта не задана — поле текстовое, пишем строку как есть.
+  if (!Object.keys(enumMap).length) return delivery;
 
   // Русский комментарий: для поля-списка в Б24 выбираем ID значения из маппинга по вхождению ключа.
   for (const [key, value] of Object.entries(enumMap)) {
@@ -437,7 +443,9 @@ function resolveDeliveryFieldValue(delivery: string, enumMap: EnumMap): string |
     if (normalized.includes(normalizedKey)) return value;
   }
 
-  return delivery;
+  // Русский комментарий: enum-карта задана, но совпадения нет — не устанавливаем поле,
+  // чтобы Bitrix24 не использовал значение по умолчанию (например, "Самовывоз").
+  return null;
 }
 
 async function setLeadProductRows(
@@ -648,6 +656,7 @@ async function syncConvertedDeal(
   customerName: string,
   channels: ContactChannels,
   delivery: string,
+  deliveryCost: number | undefined,
   comments: string,
   env: Env,
   warnings: string[]
@@ -666,6 +675,7 @@ async function syncConvertedDeal(
   const dealFullNameField = sanitizeMeta(env.B24_DEAL_FULL_NAME_FIELD_CODE, 80);
   const dealPhoneField = sanitizeMeta(env.B24_DEAL_PHONE_FIELD_CODE, 80);
   const dealEmailField = sanitizeMeta(env.B24_DEAL_EMAIL_FIELD_CODE, 80);
+  const dealDeliveryCostField = sanitizeMeta(env.B24_DEAL_DELIVERY_COST_FIELD_CODE, 80);
   const dealFields: Record<string, unknown> = {
     OPPORTUNITY: orderTotal,
     CURRENCY_ID: currencyId,
@@ -675,10 +685,13 @@ async function syncConvertedDeal(
 
   if (dealDeliveryField && delivery) {
     // Русский комментарий: опционально пишем способ доставки в кастомное поле сделки (тип Список/Строка).
-    dealFields[dealDeliveryField] = resolveDeliveryFieldValue(delivery, dealDeliveryEnumMap);
+    // Если enum-карта задана, но совпадения нет — не перезаписываем поле (иначе Bitrix оставит "Самовывоз").
+    const dv = resolveDeliveryFieldValue(delivery, dealDeliveryEnumMap);
+    if (dv !== null) dealFields[dealDeliveryField] = dv;
   }
+  if (dealDeliveryCostField && deliveryCost && deliveryCost > 0) dealFields[dealDeliveryCostField] = deliveryCost;
   if (dealFullNameField) dealFields[dealFullNameField] = sanitizeMeta(customerName, 140);
-  if (dealPhoneField) dealFields[dealPhoneField] = channels.phoneRaw || channels.phoneNormalized;
+  if (dealPhoneField && channels.hasPhone) dealFields[dealPhoneField] = channels.phoneRaw || channels.phoneNormalized;
   if (dealEmailField && channels.hasEmail) dealFields[dealEmailField] = channels.email;
 
   const updateDealRes = await callBitrix<boolean>(webhookUrl, 'crm.deal.update', {
@@ -933,6 +946,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const leadFullNameField = sanitizeMeta(env.B24_LEAD_FULL_NAME_FIELD_CODE, 80);
   const leadPhoneField = sanitizeMeta(env.B24_LEAD_PHONE_FIELD_CODE, 80);
   const leadEmailField = sanitizeMeta(env.B24_LEAD_EMAIL_FIELD_CODE, 80);
+  const leadDeliveryCostField = sanitizeMeta(env.B24_LEAD_DELIVERY_COST_FIELD_CODE, 80);
   const personName = splitPersonName(name);
   const warnings: string[] = [];
   let productRowsSyncMethod: string | undefined;
@@ -1024,9 +1038,14 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
           CURRENCY_ID: currencyId,
           ...(channels.hasPhone ? { PHONE: [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }] } : {}),
           ...(channels.hasEmail ? { EMAIL: [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }] } : {}),
-          ...(leadDeliveryField ? { [leadDeliveryField]: resolveDeliveryFieldValue(String(o.delivery || ''), leadDeliveryEnumMap) } : {}),
+          ...(() => {
+            if (!leadDeliveryField || !o.delivery) return {};
+            const dv = resolveDeliveryFieldValue(String(o.delivery), leadDeliveryEnumMap);
+            return dv !== null ? { [leadDeliveryField]: dv } : {};
+          })(),
+          ...(leadDeliveryCostField && o.deliveryCost && o.deliveryCost > 0 ? { [leadDeliveryCostField]: o.deliveryCost } : {}),
           ...(leadFullNameField ? { [leadFullNameField]: sanitizeMeta(name, 140) } : {}),
-          ...(leadPhoneField ? { [leadPhoneField]: channels.phoneRaw || channels.phoneNormalized } : {}),
+          ...(leadPhoneField && channels.hasPhone ? { [leadPhoneField]: channels.phoneRaw || channels.phoneNormalized } : {}),
           ...(leadEmailField && channels.hasEmail ? { [leadEmailField]: channels.email } : {}),
           ...(comments ? { COMMENTS: comments } : {}),
         },
@@ -1049,6 +1068,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
           name,
           channels,
           String(o.delivery || ''),
+          o.deliveryCost,
           comments,
           env,
           warnings
@@ -1099,13 +1119,19 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     // Русский комментарий: заполняем сумму лида явно, чтобы в Bitrix не оставался 0.
     fields.OPPORTUNITY = orderTotal;
     fields.CURRENCY_ID = currencyId;
-    if (leadDeliveryField && o.delivery) fields[leadDeliveryField] = resolveDeliveryFieldValue(String(o.delivery), leadDeliveryEnumMap);
+    if (leadDeliveryField && o.delivery) {
+      // Русский комментарий: если enum-карта задана, но ключ не найден — не пишем поле,
+      // чтобы Bitrix не подставил значение по умолчанию (например, "Самовывоз").
+      const dv = resolveDeliveryFieldValue(String(o.delivery), leadDeliveryEnumMap);
+      if (dv !== null) fields[leadDeliveryField] = dv;
+    }
+    if (leadDeliveryCostField && o.deliveryCost && o.deliveryCost > 0) fields[leadDeliveryCostField] = o.deliveryCost;
     if (orderTotal <= 0) warnings.push('order_total_zero');
   }
   if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
   if (channels.hasEmail) fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
   if (leadFullNameField) fields[leadFullNameField] = sanitizeMeta(name, 140);
-  if (leadPhoneField) fields[leadPhoneField] = channels.phoneRaw || channels.phoneNormalized;
+  if (leadPhoneField && channels.hasPhone) fields[leadPhoneField] = channels.phoneRaw || channels.phoneNormalized;
   if (leadEmailField && channels.hasEmail) fields[leadEmailField] = channels.email;
   if (contactId) fields.CONTACT_ID = contactId;
   if (comments) fields.COMMENTS = comments;
@@ -1140,6 +1166,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         name,
         channels,
         String(o.delivery || ''),
+        o.deliveryCost,
         comments,
         env,
         warnings
