@@ -303,6 +303,11 @@ function parseAmount(raw: unknown): number {
   return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
 
+function formatRub(value: number): string {
+  const rounded = Math.round(Number(value || 0));
+  return `${new Intl.NumberFormat('ru-RU').format(Math.max(0, rounded))} ₽`;
+}
+
 function buildProductRowName(item: OrderItem): string {
   const name = sanitizeMeta(item.name, 140) || 'Товар';
   const color = sanitizeMeta(item.color, 60);
@@ -322,6 +327,16 @@ function calculateOrderTotal(items: OrderItem[] | undefined, totalRaw: string | 
 
   if (fromItems > 0) return Number(fromItems.toFixed(2));
   return Number(parseAmount(totalRaw).toFixed(2));
+}
+
+function calculateOrderOpportunity(
+  items: OrderItem[] | undefined,
+  totalRaw: string | undefined,
+  deliveryCostRaw: unknown
+): number {
+  const itemsTotal = calculateOrderTotal(items, totalRaw);
+  const deliveryCost = parseAmount(deliveryCostRaw);
+  return Number((itemsTotal + deliveryCost).toFixed(2));
 }
 
 function buildProductRows(
@@ -948,6 +963,9 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const leadEmailField = sanitizeMeta(env.B24_LEAD_EMAIL_FIELD_CODE, 80);
   const leadDeliveryCostField = sanitizeMeta(env.B24_LEAD_DELIVERY_COST_FIELD_CODE, 80);
   const personName = splitPersonName(name);
+  const orderItemsTotal = isOrder && o ? calculateOrderTotal(o.items, o.total) : 0;
+  const orderDeliveryCost = isOrder && o ? Number(parseAmount(o.deliveryCost).toFixed(2)) : 0;
+  const orderOpportunity = isOrder && o ? calculateOrderOpportunity(o.items, o.total, o.deliveryCost) : 0;
   const warnings: string[] = [];
   let productRowsSyncMethod: string | undefined;
 
@@ -982,6 +1000,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     ? [
         `№ заказа: ${o.orderId || '—'}`,
         `Доставка: ${o.delivery || '—'}`,
+        `Стоимость доставки: ${orderDeliveryCost > 0 ? formatRub(orderDeliveryCost) : '—'}`,
         `Адрес: ${[o.city, o.street, o.apartment, o.zip].filter(Boolean).join(', ') || '—'}`,
         '',
         'Состав заказа:',
@@ -993,7 +1012,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
             })
           : ['—']),
         '',
-        `Итого: ${o.total || '—'}`,
+        `Товары: ${orderItemsTotal > 0 ? formatRub(orderItemsTotal) : (o.total || '—')}`,
+        `Итого с доставкой: ${orderOpportunity > 0 ? formatRub(orderOpportunity) : '—'}`,
       ]
     : (consultComment ? [`Комментарий клиента: ${consultComment}`] : []);
 
@@ -1028,13 +1048,12 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const existingId = existingIdRaw !== undefined && existingIdRaw !== null ? Number(existingIdRaw) : NaN;
   if (isFinite(existingId) && existingId > 0) {
     if (isOrder && o) {
-      const orderTotal = calculateOrderTotal(o.items, o.total);
       const updateRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
         id: existingId,
         fields: {
           NAME: personName.firstName,
           ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
-          OPPORTUNITY: orderTotal,
+          OPPORTUNITY: orderOpportunity,
           CURRENCY_ID: currencyId,
           ...(channels.hasPhone ? { PHONE: [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }] } : {}),
           ...(channels.hasEmail ? { EMAIL: [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }] } : {}),
@@ -1063,7 +1082,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
           webhookUrl,
           existingId,
           rows,
-          orderTotal,
+          orderOpportunity,
           currencyId,
           name,
           channels,
@@ -1115,9 +1134,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     ORIGIN_ID: dedupeOriginId,
   };
   if (isOrder && o) {
-    const orderTotal = calculateOrderTotal(o.items, o.total);
     // Русский комментарий: заполняем сумму лида явно, чтобы в Bitrix не оставался 0.
-    fields.OPPORTUNITY = orderTotal;
+    fields.OPPORTUNITY = orderOpportunity;
     fields.CURRENCY_ID = currencyId;
     if (leadDeliveryField && o.delivery) {
       // Русский комментарий: если enum-карта задана, но ключ не найден — не пишем поле,
@@ -1126,7 +1144,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       if (dv !== null) fields[leadDeliveryField] = dv;
     }
     if (leadDeliveryCostField && o.deliveryCost && o.deliveryCost > 0) fields[leadDeliveryCostField] = o.deliveryCost;
-    if (orderTotal <= 0) warnings.push('order_total_zero');
+    if (orderOpportunity <= 0) warnings.push('order_total_zero');
   }
   if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
   if (channels.hasEmail) fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
@@ -1156,12 +1174,11 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       if (setRowsRes.ok === false) warnings.push(setRowsRes.warning);
       else productRowsSyncMethod = setRowsRes.method;
 
-      const orderTotal = calculateOrderTotal(o.items, o.total);
       const dealSyncMethod = await syncConvertedDeal(
         webhookUrl,
         createLeadRes.data,
         rows,
-        orderTotal,
+        orderOpportunity,
         currencyId,
         name,
         channels,
