@@ -22,13 +22,18 @@ const skus = Object.values(modules).reduce<Record<string, string[]>>((acc, mod) 
   if (nextSkus.length) acc[mod.frontmatter.slug] = Array.from(new Set(nextSkus));
   return acc;
 }, {});
+const manualCatalogSkus: Record<string, string[]> = {
+  // Русский комментарий: карточка чехлов пока без отдельной страницы товара, но с полной МойСклад-синхронизацией.
+  'plaud-note-cases': ['AC-39', 'AC-38', 'AC-37', 'AC-36', 'AC-60']
+};
+const skuMap = { ...skus, ...manualCatalogSkus };
 const formatPrice = (value: number) => `${Math.round(Number(value || 0)).toLocaleString('ru-RU')} ₽`;
 
 let syncedBody = page.body;
-const cardSlugs = ['vspomnit', 'plaud-note', 'plaud-note-pro', 'notepin', 'accessories'];
+const cardSlugs = ['vspomnit', 'plaud-note', 'plaud-note-pro', 'notepin', 'accessories', 'plaud-note-cases'];
 
 function patchCard(slug: string, patcher: (cardHtml: string) => string) {
-  const cardRegex = new RegExp(`(<a[^>]*href="/products/${slug}"[^>]*>[\\s\\S]*?<\\/a>)`, 'i');
+  const cardRegex = new RegExp(`(<a[^>]*data-card-id="${slug}"[^>]*>[\\s\\S]*?<\\/a>)`, 'i');
   syncedBody = syncedBody.replace(cardRegex, (cardHtml) => patcher(cardHtml));
 }
 
@@ -45,7 +50,7 @@ cardSlugs.forEach((slug) => {
   });
 });
 
-Object.entries(skus).forEach(([slug, skuList]) => {
+Object.entries(skuMap).forEach(([slug, skuList]) => {
   const primarySku = skuList[0];
   if (!primarySku) return;
   const skuListCsv = skuList.join(',');
