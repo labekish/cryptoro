@@ -38,6 +38,7 @@ type CdekQuote = {
 type CdekAuthSuccess = { ok: true; token: string };
 type CdekAuthError = { ok: false; error: string };
 type CdekAuthResult = CdekAuthSuccess | CdekAuthError;
+type CdekCityResolveResult = { ok: true; code?: number } | { ok: false };
 
 const DEFAULT_TIMEOUT_MS = 12000;
 const DEFAULT_TEST_API_BASE = 'https://api.edu.cdek.ru';
@@ -157,6 +158,48 @@ async function fetchAccessToken(
   }
 }
 
+async function resolveCityCode(
+  apiBase: string,
+  accessToken: string,
+  city: string,
+  zip: string,
+  timeoutMs: number
+): Promise<CdekCityResolveResult> {
+  const params = new URLSearchParams({
+    country_codes: 'RU',
+    size: '5',
+    city,
+  });
+  if (zip) params.set('postal_code', zip);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(`${apiBase}/v2/location/cities?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return { ok: false };
+    const raw = (await response.json().catch(() => [])) as unknown;
+    if (!Array.isArray(raw) || !raw.length) return { ok: true };
+
+    // Русский комментарий: берём первый подходящий город из справочника СДЭК.
+    const first = raw.find((entry) => entry && typeof entry === 'object') as Record<string, unknown> | undefined;
+    if (!first) return { ok: true };
+    const code = toPositiveInt(first.code, 0);
+    return code > 0 ? { ok: true, code } : { ok: true };
+  } catch {
+    return { ok: false };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
   const traceId = toTraceId();
   const { request, env } = context;
@@ -207,6 +250,14 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   }
 
   const totalWeightG = calculateTotalWeight(items);
+  const cityResolve = await resolveCityCode(apiBase, auth.token, city, zip, timeoutMs);
+  const toLocation: Record<string, unknown> = cityResolve.ok && cityResolve.code
+    ? { code: cityResolve.code }
+    : {
+      country_code: 'RU',
+      city,
+      postal_code: zip,
+    };
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -220,11 +271,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       body: JSON.stringify({
         date: new Date().toISOString().slice(0, 10),
         from_location: { code: senderCityCode },
-        to_location: {
-          city,
-          postal_code: zip,
-          address: [street, apartment].filter(Boolean).join(', '),
-        },
+        to_location: toLocation,
         packages: [
           {
             weight: totalWeightG,
@@ -246,6 +293,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         mode: 'mock_fallback',
         quote: mockQuote,
         warning: 'cdek_calculate_failed',
+        raw,
+        toLocation,
         traceId,
       });
     }
