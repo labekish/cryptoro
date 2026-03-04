@@ -130,6 +130,7 @@ import Layout from '../layouts/Layout.astro';
     const deliveryQuoteMeta = document.getElementById('deliveryQuoteMeta');
     const deliveryQuoteHint = document.getElementById('deliveryQuoteHint');
     let cdekQuoteSummary = '';
+    let cdekQuotePrice = 0;
     let cdekQuoteTimer: ReturnType<typeof setTimeout> | null = null;
     let cdekQuoteRequestId = 0;
 
@@ -159,6 +160,7 @@ import Layout from '../layouts/Layout.astro';
         deliveryQuote.classList.remove('is-error');
       }
       cdekQuoteSummary = '';
+      cdekQuotePrice = 0;
     }
 
     function setDeliveryQuoteIdle(message) {
@@ -171,6 +173,7 @@ import Layout from '../layouts/Layout.astro';
       deliveryQuoteTitle.textContent = 'Расчёт СДЭК';
       deliveryQuoteMeta.textContent = message;
       cdekQuoteSummary = '';
+      cdekQuotePrice = 0;
     }
 
     function setDeliveryQuoteLoading() {
@@ -200,6 +203,7 @@ import Layout from '../layouts/Layout.astro';
         deliveryQuoteHint.textContent = 'Точную стоимость доставки сообщим после оформления заказа';
       }
       cdekQuoteSummary = '';
+      cdekQuotePrice = 0;
     }
 
     function setDeliveryQuoteData(quote, mode) {
@@ -224,6 +228,7 @@ import Layout from '../layouts/Layout.astro';
       }
 
       cdekQuoteSummary = `${quoteTitle} ${money(quotePrice)}, ${quoteEta}${tariffText}`;
+      cdekQuotePrice = quotePrice;
     }
 
     async function calculateCdekQuote() {
@@ -432,8 +437,9 @@ import Layout from '../layouts/Layout.astro';
 
     function buildPayload(formData: FormData, items: ReturnType<typeof getCart>, orderId: string) {
       const deliveryRaw = String(formData.get('delivery') || '');
+      const isCdek = deliveryRaw.toLowerCase().includes('сдэк');
       const delivery =
-        deliveryRaw.toLowerCase().includes('сдэк') && cdekQuoteSummary
+        isCdek && cdekQuoteSummary
           ? `${deliveryRaw} | ${cdekQuoteSummary}`
           : deliveryRaw;
 
@@ -452,6 +458,8 @@ import Layout from '../layouts/Layout.astro';
         apartment: String(formData.get('apartment') || '').trim() || undefined,
         zip: String(formData.get('zip') || ''),
         delivery,
+        // Русский комментарий: стоимость доставки СДЭК как отдельное числовое поле для B24_LEAD_DELIVERY_COST_FIELD_CODE.
+        ...(isCdek && cdekQuotePrice > 0 ? { deliveryCost: cdekQuotePrice } : {}),
         items: items.map((item) => ({
           ...(item.sku ? { sku: item.sku } : {}),
           name: item.name,
