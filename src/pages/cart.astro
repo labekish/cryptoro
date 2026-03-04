@@ -103,7 +103,7 @@ import Layout from '../layouts/Layout.astro';
                 <strong id="deliveryQuoteTitle">Расчёт СДЭК</strong>
                 <p id="deliveryQuoteMeta">Заполните адрес и выберите способ доставки</p>
               </div>
-              <p id="deliveryQuoteHint" class="delivery-note">Точную стоимость доставки сообщим после оформления заказа</p>
+              <p id="deliveryQuoteHint" class="delivery-note">Предварительный расчёт. Точную стоимость подтверждаем при оформлении заказа.</p>
             </div>
 
             <div class="actions">
@@ -175,6 +175,26 @@ import Layout from '../layouts/Layout.astro';
       return getCdekDeliveryType() === 'door' ? 'до двери' : 'ПВЗ';
     }
 
+    function pluralizeDays(value) {
+      const n = Math.abs(Number(value) || 0);
+      const n10 = n % 10;
+      const n100 = n % 100;
+      if (n10 === 1 && n100 !== 11) return `${n} день`;
+      if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return `${n} дня`;
+      return `${n} дней`;
+    }
+
+    function formatEtaDays(rawEta) {
+      const raw = String(rawEta || '').trim();
+      const rangeMatch = raw.match(/^(\d+)\s*-\s*(\d+)/);
+      if (!rangeMatch) return raw || 'срок уточняется';
+      const min = Number(rangeMatch[1]);
+      const max = Number(rangeMatch[2]);
+      if (!Number.isFinite(min) || !Number.isFinite(max)) return raw;
+      if (min === max) return pluralizeDays(min);
+      return `${min}-${max} дней`;
+    }
+
     function updateCdekTypeState() {
       if (!(cdekTypeGroup instanceof HTMLElement)) return;
       cdekTypeGroup.hidden = !isCdekSelected();
@@ -238,11 +258,11 @@ import Layout from '../layouts/Layout.astro';
       if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
       if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
 
-      const quoteTitle = String(quote?.title || 'СДЭК Доставка');
+      const quoteTitle = getCdekDeliveryType() === 'door' ? 'СДЭК до двери' : 'СДЭК до ПВЗ';
       const quotePrice = Math.max(0, Number(quote?.priceRub) || 0);
-      const quoteEta = String(quote?.etaDays || 'срок уточняется');
+      const quoteEta = formatEtaDays(quote?.etaDays);
       const quoteTariff = Number(quote?.tariffCode);
-      const modeLabel = mode === 'live' ? 'боевой расчёт' : 'тестовый расчёт';
+      const modeLabel = mode === 'live' ? '' : ' • тестовый расчёт';
       const tariffText = Number.isFinite(quoteTariff) && quoteTariff > 0 ? ` • тариф ${quoteTariff}` : '';
       const deliveryTypeLabel = getCdekDeliveryTypeLabel();
 
@@ -250,9 +270,9 @@ import Layout from '../layouts/Layout.astro';
       deliveryQuote.classList.remove('is-idle');
       deliveryQuote.classList.remove('is-error');
       deliveryQuoteTitle.textContent = `${quoteTitle} (${deliveryTypeLabel}): ${money(quotePrice)}`;
-      deliveryQuoteMeta.textContent = `${quoteEta}${tariffText} • ${modeLabel}`;
+      deliveryQuoteMeta.textContent = `${quoteEta}${tariffText}${modeLabel}`;
       if (deliveryQuoteHint instanceof HTMLElement) {
-        deliveryQuoteHint.textContent = 'Стоимость доставки обновляется по адресу в форме';
+        deliveryQuoteHint.textContent = 'Предварительный расчёт. Точную стоимость подтверждаем при оформлении заказа.';
       }
 
       cdekQuoteSummary = `${quoteTitle} (${deliveryTypeLabel}) ${money(quotePrice)}, ${quoteEta}${tariffText}`;
