@@ -1734,8 +1734,8 @@ img{max-width:100%;height:auto}
   flex-direction: column !important;
   align-items: stretch !important;
   justify-content: flex-start !important;
-  min-height: calc(100vh - 80px) !important;
-  min-height: calc(100dvh - 80px) !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
   overflow: visible !important;
 }
 .hero-inner {
@@ -2637,37 +2637,79 @@ body .sec-how .smock {
   transition: transform .1s linear;
 }
 
-/* ── HERO IMAGE WOW: tilt + sheen (вместо постоянного парения) ── */
+/* ── HERO PRODUCT: entrance blur-reveal + float + warm glow ── */
+
+/* Container: floats + provides perspective for tilt */
 .hero-product {
   position: relative;
   perspective: 1200px;
+  isolation: isolate;
+  animation: productFloat 4.6s ease-in-out 1.8s infinite;
 }
+@keyframes productFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-14px); }
+}
+
+/* Warm ambient glow behind device — pulses in sync with float */
+.hero-product::before {
+  content: '';
+  position: absolute;
+  inset: -28% -18%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 56%,
+    rgba(232,134,53,.44) 0%,
+    rgba(232,134,53,.18) 36%,
+    transparent 68%
+  );
+  filter: blur(36px);
+  z-index: -1;
+  pointer-events: none;
+  animation: glowPulse 4.6s ease-in-out 1.8s infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: .48; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.14); }
+}
+
+/* Image: enters from blur — only opacity+filter animated (transform stays with JS tilt) */
 .hero-product-image img {
-  animation: none !important;
-  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.03);
+  animation: productReveal 1.1s cubic-bezier(.16,1,.3,1) .85s both !important;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   transform-style: preserve-3d;
-  transition: transform .28s cubic-bezier(.16,1,.3,1), filter .28s ease;
+  transition: transform .3s cubic-bezier(.16,1,.3,1);
   will-change: transform;
 }
+@keyframes productReveal {
+  from {
+    opacity: 0;
+    filter: blur(14px) drop-shadow(0 0 0 transparent);
+  }
+  to {
+    opacity: 1;
+    filter: drop-shadow(0 32px 52px rgba(15,23,42,.20))
+            drop-shadow(0 8px 18px rgba(15,23,42,.10));
+  }
+}
+
+/* Light sheen sweep across device */
 .hero-product::after {
   content: '';
   position: absolute;
-  top: 10%;
-  bottom: 10%;
-  left: -30%;
+  top: 10%; bottom: 10%; left: -30%;
   width: 42%;
   border-radius: 26px;
-  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.28) 46%, rgba(255,255,255,.05) 72%, transparent 100%);
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.3) 46%, rgba(255,255,255,.06) 72%, transparent 100%);
   transform: translateX(-180%) skewX(-16deg);
-  opacity: .86;
   pointer-events: none;
   filter: blur(.2px);
-  animation: heroSheen 4.6s cubic-bezier(.16,1,.3,1) infinite;
+  z-index: 1;
+  animation: heroSheen 5.4s cubic-bezier(.16,1,.3,1) 2.2s infinite;
 }
 @keyframes heroSheen {
-  0%, 6%, 100% { transform: translateX(-180%) skewX(-16deg); opacity: 0 }
-  12% { opacity: .82 }
-  30% { transform: translateX(380%) skewX(-16deg); opacity: .82 }
+  0%, 8%, 100% { transform: translateX(-180%) skewX(-16deg); opacity: 0 }
+  15%           { opacity: .9 }
+  36%           { transform: translateX(380%) skewX(-16deg); opacity: .9 }
 }
 
 /* ── HERO FLOATING CHIPS — horizontal row ── */
@@ -2850,7 +2892,10 @@ body .sec-how .smock {
   .hero::after { animation: none !important }
   #lead .lsubmit::after { animation: none !important }
   .hero-product-image { will-change: auto; transition: none }
+  .hero-product { animation: none !important }
+  .hero-product::before { animation: none !important; opacity: .6 !important }
   .hero-product::after { animation: none !important; opacity: .35 !important }
+  .hero-product-image img { animation: none !important; opacity: 1 !important; filter: drop-shadow(0 30px 48px rgba(15,23,42,.18)) !important }
   .hero-type-caret { border-right: none !important; animation: none !important; padding-right: 0 !important }
   .feat-primary__stat.counted { animation: none !important }
   .uc-block.reveal, .uc-block.reveal.vis { transform: none !important; opacity: 1 !important }
@@ -3908,22 +3953,14 @@ body .sec-how .smock {
     if (!raf) raf = requestAnimationFrame(animate);
   }
 
-  // Стартовый жест: лёгкий наклон при загрузке, чтобы эффект читался без hover.
-  targetX = 3.5;
-  targetY = -4.5;
-  requestAnim();
-  window.setTimeout(function () {
-    targetX = 0;
-    targetY = 0;
-    requestAnim();
-  }, 320);
-
+  // Тилт работает только при hover — убран стартовый наклон,
+  // который искажал вид устройства до первого движения мыши.
   frame.addEventListener('mousemove', function (e) {
     var r = frame.getBoundingClientRect();
     var x = (e.clientX - r.left) / r.width;
     var y = (e.clientY - r.top) / r.height;
-    targetY = (x - 0.5) * 9;    // rotateY
-    targetX = (0.5 - y) * 7.5;  // rotateX
+    targetY = (x - 0.5) * 4.5;  // rotateY (было 9)
+    targetX = (0.5 - y) * 3.5;  // rotateX (было 7.5)
     requestAnim();
   });
 
