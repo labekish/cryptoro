@@ -240,68 +240,133 @@ body .catalog-controls .catalog-chips .filter-btn::after{
   display:grid!important;
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
   justify-content:stretch!important;
-  gap:24px!important;
+  gap:18px!important;
 }
 #productsGrid .pcard{
-  max-width:420px!important;
   width:100%!important;
-  border-radius:22px!important;
-  padding:20px 20px 20px!important;
-  border:1px solid rgba(29,29,31,.08)!important;
+  border-radius:14px!important;
+  padding:12px 12px 16px!important;
+  border:1px solid rgba(29,29,31,.14)!important;
   background:#fff!important;
-  box-shadow:0 1px 2px rgba(29,29,31,.05),0 10px 24px rgba(29,29,31,.04)!important;
-  transition:all .2s ease-in-out!important;
-  overflow:hidden;
+  box-shadow:none!important;
+  transition:border-color .2s ease, box-shadow .2s ease, opacity .35s ease, transform .35s cubic-bezier(.16,1,.3,1)!important;
+  overflow:hidden!important;
+  text-decoration:none!important;
 }
 #productsGrid .pcard:hover{
-  transform:translateY(-4px)!important;
-  box-shadow:0 16px 30px rgba(0,0,0,.12)!important;
+  transform:none!important;
+  border-color:rgba(29,29,31,.35)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.08)!important;
 }
-#productsGrid .pcard .card-badge{
+#productsGrid .pcard .catalog-card-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:28px;
+  margin-bottom:10px;
+}
+#productsGrid .pcard .catalog-card-tags{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+#productsGrid .pcard .card-tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:24px;
+  padding:4px 10px;
+  border-radius:7px;
+  font-size:11px;
+  font-weight:600;
+  line-height:1;
+  letter-spacing:.02em;
+  border:1px solid transparent;
+}
+#productsGrid .pcard .card-tag--new{
   background:#111!important;
   color:#fff!important;
   border:1px solid #111!important;
-  border-radius:999px!important;
-  padding:6px 11px!important;
-  font-size:10px!important;
-  font-weight:700!important;
-  letter-spacing:.08em!important;
 }
-#productsGrid .pcard .badge-stack{
+#productsGrid .pcard .card-tag--year{
+  background:#f5f5f7!important;
+  color:#4b5563!important;
+  border-color:rgba(17,17,17,.12)!important;
+}
+#productsGrid .pcard .catalog-color-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  margin:0 0 12px;
+  min-height:24px;
+}
+#productsGrid .pcard .catalog-card-content{
   display:flex;
   flex-direction:column;
-  align-items:flex-end;
   gap:6px;
+  flex:1;
 }
+#productsGrid .pcard .catalog-colors{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+#productsGrid .pcard .catalog-swatch{
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  border:1px solid rgba(17,17,17,.26);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
+  cursor:pointer;
+  transition:transform .18s ease, border-color .18s ease;
+}
+#productsGrid .pcard .catalog-swatch.is-active{
+  transform:scale(1.08);
+  border-color:#111;
+}
+#productsGrid .pcard .catalog-swatch.sw-black{background:#111111}
+#productsGrid .pcard .catalog-swatch.sw-blue{background:#1e3a8a}
+#productsGrid .pcard .catalog-swatch.sw-gold{background:#d4a83c}
+#productsGrid .pcard .catalog-swatch.sw-silver{background:#b8bcc6}
+#productsGrid .pcard .catalog-swatch.sw-graphite{background:#4b5563}
+#productsGrid .pcard .catalog-swatch.sw-purple{background:#7c3aed}
 #productsGrid .pcard h3,
 #productsGrid .pcard p,
 #productsGrid .pcard .text-2xl{
   text-align:left!important;
 }
-#productsGrid .pcard .mb-3{
-  justify-content:flex-start!important;
+#productsGrid .pcard h3{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  font-size:30px!important;
+  line-height:1.2!important;
+}
+#productsGrid .pcard p{
+  margin-top:0!important;
+  margin-bottom:0!important;
+  font-size:14px!important;
+  line-height:1.5!important;
+  color:#6b7280!important;
 }
 #productsGrid .pcard .catalog-media{
-  height:282px!important;
+  height:260px!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
-  margin-bottom:16px!important;
-  border-radius:18px!important;
-  background:#f5f5f7!important;
+  margin-bottom:12px!important;
+  border-radius:12px!important;
+  background:#f3f4f6!important;
 }
-#productsGrid .pcard .catalog-media img{max-height:248px!important}
-#productsGrid .pcard .mt-4{
-  text-align:left!important;
+#productsGrid .pcard .catalog-media img{
+  max-height:224px!important;
+  transition:transform .2s ease!important;
 }
-#productsGrid .pcard .inline-flex.w-full{
-  border-radius:999px!important;
-  height:46px!important;
-  transition:all .2s ease-in-out!important;
-}
-#productsGrid .pcard .inline-flex.w-full:hover{
-  filter:brightness(.9)!important;
-  transform:scale(1.02)!important;
+#productsGrid .pcard .catalog-price-row{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  margin-top:2px;
 }
 #productsCount{
   color:#6e6e73!important;
@@ -317,9 +382,10 @@ body .catalog-controls .catalog-chips .filter-btn::after{
 }
 @media (max-width:640px){
   #productsGrid{grid-template-columns:1fr!important;gap:18px!important}
-  #productsGrid .pcard{border-radius:20px!important;padding:20px 16px 18px!important}
-  #productsGrid .pcard .catalog-media{height:236px!important}
-  #productsGrid .pcard .catalog-media img{max-height:214px!important}
+  #productsGrid .pcard{border-radius:14px!important;padding:12px 12px 14px!important}
+  #productsGrid .pcard .catalog-media{height:218px!important}
+  #productsGrid .pcard .catalog-media img{max-height:192px!important}
+  #productsGrid .pcard h3{font-size:24px!important}
 }
 
 /* Final micro-pass: spacing/contrast rhythm */
@@ -396,14 +462,14 @@ main{padding-top:40px!important}
 
 /* ── ENHANCED CARD HOVER ── */
 #productsGrid .pcard:hover {
-  transform:translateY(-6px) !important;
-  box-shadow:0 20px 40px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06) !important;
+  transform:none !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.08) !important;
 }
 #productsGrid .pcard:hover .catalog-media img {
-  transform:scale(1.08) !important;
+  transform:scale(1.02) !important;
 }
 #productsGrid .pcard .catalog-media img {
-  transition:transform .4s cubic-bezier(.16,1,.3,1) !important;
+  transition:transform .22s ease !important;
 }
 
 /* ── SMOOTH FILTER TRANSITIONS ── */
@@ -423,14 +489,9 @@ main{padding-top:40px!important}
   to   { opacity:1; transform:scale(1) translateY(0) }
 }
 
-/* ── BADGE PULSE FOR НОВИНКА / ПРЕДЗАКАЗ ── */
-@keyframes badgePulse {
-  0%,100% { box-shadow:0 0 0 0 rgba(17,17,17,.15) }
-  50%     { box-shadow:0 0 0 6px rgba(17,17,17,0) }
-}
-#productsGrid .pcard .card-badge {
-  animation:badgePulse 2.5s ease-in-out infinite !important;
-}
+/* Русский комментарий: бейджи в карточке без пульсации, как в референсе. */
+#productsGrid .pcard .card-badge,
+#productsGrid .pcard .card-tag { animation:none !important; }
 
 /* ── CONSULTATION BANNER ACCENT ── */
 .reveal.relative.mb-10,
@@ -494,7 +555,7 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
 /* ── REDUCED MOTION ── */
 @media (prefers-reduced-motion: reduce) {
   .catalog-hero::after,
-  #productsGrid .pcard .card-badge { animation:none !important; }
+  #productsGrid .pcard .card-tag { animation:none !important; }
   .catalog-hero-go { animation:none !important; opacity:1 !important; }
   #productsGrid .pcard.vis { animation:none !important; opacity:1 !important; transform:none !important; }
   #productsGrid .pcard.card-showing { animation:none !important; opacity:1 !important; }
@@ -530,73 +591,126 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
       <div id="productsCount" class="mb-5 text-sm text-zinc-500" aria-live="polite">5 товаров</div>
 
       <div id="productsGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <a href="/products/vspomnit" data-cat="vspomnit" data-price="11990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft">
-          <div class="badge-stack absolute right-4 top-4 z-20">
-            <span class="card-badge">НОВИНКА</span>
-          </div>
-          <div class="catalog-media mb-5 flex h-56 items-center justify-center">
-            <img src="/images/products/vspomnit-vse-cutout.png" alt="AI-диктофон Вспомни всё в чёрном цвете" class="h-full w-full object-contain drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
-          </div>
-          <h3 class="text-xl font-semibold">Вспомни всё</h3>
-          <p class="mt-2 text-sm leading-6 text-zinc-600">AI-диктофон с ChatGPT. Бесплатный год безлимитной подписки в комплекте.</p>
-          <div class="mt-auto pt-5">
-            <div class="text-2xl font-bold">11 990 ₽</div>
-            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-zinc-800">Выбрать</span>
-          </div>
-        </a>
-
-        <a href="/products/plaud-note" data-cat="note" data-price="17490" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.08s">
-          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
-            <img src="/images/products/plaud-note-black.webp" alt="AI-диктофон Plaud Note в чёрном корпусе" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
-          </div>
-          <h3 class="text-xl font-semibold">Plaud Note</h3>
-          <p class="mt-2 text-sm leading-6 text-zinc-600">Компактный металлический корпус. Магнитное крепление на телефон. 4 цвета.</p>
-          <div class="mt-auto pt-5">
-            <div class="text-2xl font-bold">17 490 ₽</div>
-            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-zinc-800">Выбрать</span>
-          </div>
-        </a>
-
-        <a href="/products/plaud-note-pro" data-cat="notepro" data-price="25990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.14s">
-          <span class="card-badge absolute right-4 top-4">PRO</span>
-          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
-            <img src="/images/products/plaud-note-silver.webp" alt="AI-диктофон Plaud Note Pro в серебристом цвете" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
-          </div>
-          <h3 class="text-xl font-semibold">Plaud Note Pro</h3>
-          <p class="mt-2 text-sm leading-6 text-zinc-600">Профессиональная версия 2025 года. Магнитный кейс в комплекте.</p>
-          <div class="mt-auto pt-5">
-            <div class="text-2xl font-bold">25 990 ₽</div>
-            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-zinc-800">Выбрать</span>
-          </div>
-        </a>
-
-        <a href="/products/notepin" data-cat="notepin" data-price="20990" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.2s">
-          <span class="card-badge absolute right-4 top-4">ПРЕДЗАКАЗ</span>
-          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
-            <img src="/images/products/plaud-notepin.webp" alt="Носимый AI-диктофон Plaud NotePin" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
-          </div>
-          <h3 class="text-xl font-semibold">Plaud NotePin</h3>
-          <p class="mt-2 text-sm leading-6 text-zinc-600">Носимый значок 15 г. Водозащита IP54. Для живых разговоров без рук.</p>
-          <div class="mt-auto pt-5">
-            <div class="flex items-end gap-2">
-              <span class="text-2xl font-bold">20 990 ₽</span>
-              <span class="text-sm text-amber-600">предзаказ</span>
+        <a href="/products/vspomnit" data-card-id="vspomnit" data-cat="vspomnit" data-price="11990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--new">NEW</span>
+              <span class="card-tag card-tag--year">2025</span>
             </div>
-            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-amber-600">Предзаказ</span>
+          </div>
+          <div class="catalog-media">
+            <img src="/images/products/vspomnit-vse-cutout.png" alt="AI-диктофон Вспомни всё в чёрном цвете" class="h-full w-full object-contain drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-color-row">
+            <div class="catalog-colors" aria-label="Цвета Вспомни всё">
+              <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/vspomnit-vse-cutout.png" data-alt="AI-диктофон Вспомни всё в чёрном цвете"></span>
+            </div>
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">Вспомни всё</h3>
+            <p class="mt-2 text-sm leading-6 text-zinc-600">AI-диктофон с ChatGPT. Бесплатный год безлимитной подписки в комплекте.</p>
+            <div class="catalog-price-row">
+              <div class="text-2xl font-bold">11 990 ₽</div>
+            </div>
           </div>
         </a>
 
-        <a href="/products/accessories" data-cat="accessory" data-price="3670" class="pcard reveal group relative flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500 hover:scale-[1.02] hover:shadow-soft" style="transition-delay:.24s">
-          <span class="card-badge absolute right-4 top-4">АКСЕССУАР</span>
-          <div class="catalog-media mb-5 flex h-56 items-center justify-center rounded-xl">
-            <img src="/images/products/plaud-accessories.webp" alt="Набор аксессуаров для AI-диктофона CRYPTORO" class="h-full w-full object-contain p-1 drop-shadow-[0_16px_28px_rgba(17,24,39,.18)] transition-transform duration-300 group-hover:scale-105" />
+        <a href="/products/plaud-note" data-card-id="plaud-note" data-cat="note" data-price="17490" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--year">2025</span>
+            </div>
           </div>
-          <div class="mb-3 h-4"></div>
-          <h3 class="text-xl font-semibold">Набор аксессуаров</h3>
-          <p class="mt-2 text-sm leading-6 text-zinc-600">Подходит для всех моделей. Магнит, кабель, защитная накладка и крепёж.</p>
-          <div class="mt-auto pt-5">
-            <div class="text-2xl font-bold">3 670 ₽</div>
-            <span class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-emerald-600">Выбрать</span>
+          <div class="catalog-media">
+            <img src="/images/products/plaud-note-black.webp" alt="AI-диктофон Plaud Note в чёрном корпусе" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-color-row">
+            <div class="catalog-colors" aria-label="Цвета Plaud Note">
+              <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/plaud-note-black.webp" data-alt="AI-диктофон Plaud Note в чёрном корпусе"></span>
+              <span class="catalog-swatch sw-blue" role="button" tabindex="0" aria-label="Синий цвет" data-image="/images/products/plaud-note-color-blue.webp" data-alt="AI-диктофон Plaud Note в синем корпусе"></span>
+              <span class="catalog-swatch sw-gold" role="button" tabindex="0" aria-label="Золотой цвет" data-image="/images/products/plaud-note-color-gold.webp" data-alt="AI-диктофон Plaud Note в золотом корпусе"></span>
+              <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/plaud-note-color-silver.webp" data-alt="AI-диктофон Plaud Note в серебристом корпусе"></span>
+            </div>
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">Plaud Note</h3>
+            <p class="mt-2 text-sm leading-6 text-zinc-600">Компактный металлический корпус. Магнитное крепление на телефон. 4 цвета.</p>
+            <div class="catalog-price-row">
+              <div class="text-2xl font-bold">17 490 ₽</div>
+            </div>
+          </div>
+        </a>
+
+        <a href="/products/plaud-note-pro" data-card-id="plaud-note-pro" data-cat="notepro" data-price="25990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--year">2025</span>
+            </div>
+          </div>
+          <div class="catalog-media">
+            <img src="/images/products/Plaud_Note_Pro-front-black.webp" alt="AI-диктофон Plaud Note Pro в чёрном цвете" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-color-row">
+            <div class="catalog-colors" aria-label="Цвета Plaud Note Pro">
+              <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/Plaud_Note_Pro-front-black.webp" data-alt="AI-диктофон Plaud Note Pro в чёрном цвете"></span>
+              <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/Plaud_Note_Pro-front-silver.webp" data-alt="AI-диктофон Plaud Note Pro в серебристом цвете"></span>
+            </div>
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">Plaud Note Pro</h3>
+            <p class="mt-2 text-sm leading-6 text-zinc-600">Профессиональная версия 2025 года. Магнитный кейс в комплекте.</p>
+            <div class="catalog-price-row">
+              <div class="text-2xl font-bold">25 990 ₽</div>
+            </div>
+          </div>
+        </a>
+
+        <a href="/products/notepin" data-card-id="notepin" data-cat="notepin" data-price="20990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--new">ПРЕДЗАКАЗ</span>
+              <span class="card-tag card-tag--year">2025</span>
+            </div>
+          </div>
+          <div class="catalog-media">
+            <img src="/images/products/plaud-notepin.webp" alt="Носимый AI-диктофон Plaud NotePin" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-color-row">
+            <div class="catalog-colors" aria-label="Цвета Plaud NotePin">
+              <span class="catalog-swatch sw-graphite is-active" role="button" tabindex="0" aria-label="Графитовый цвет" data-image="/images/products/plaud-notepin.webp" data-alt="Носимый AI-диктофон Plaud NotePin в графитовом цвете"></span>
+              <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/plaud-notepin-silver.webp" data-alt="Носимый AI-диктофон Plaud NotePin в серебристом цвете"></span>
+              <span class="catalog-swatch sw-purple" role="button" tabindex="0" aria-label="Фиолетовый цвет" data-image="/images/products/plaud-notepin-purple.webp" data-alt="Носимый AI-диктофон Plaud NotePin в фиолетовом цвете"></span>
+            </div>
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">Plaud NotePin</h3>
+            <p class="mt-2 text-sm leading-6 text-zinc-600">Носимый значок 15 г. Водозащита IP54. Для живых разговоров без рук.</p>
+            <div class="catalog-price-row">
+              <span class="text-2xl font-bold">20 990 ₽</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="/products/accessories" data-card-id="accessories" data-cat="accessory" data-price="3670" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--year">АКСЕССУАР</span>
+            </div>
+          </div>
+          <div class="catalog-media">
+            <img src="/images/products/plaud-accessories.webp" alt="Набор аксессуаров для AI-диктофона CRYPTORO" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-color-row">
+            <div class="catalog-colors" aria-label="Набор аксессуаров">
+              <span class="catalog-swatch sw-graphite is-active" role="button" tabindex="0" aria-label="Стандартный комплект" data-image="/images/products/plaud-accessories.webp" data-alt="Набор аксессуаров для AI-диктофона CRYPTORO"></span>
+            </div>
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">Набор аксессуаров</h3>
+            <p class="mt-2 text-sm leading-6 text-zinc-600">Подходит для всех моделей. Магнит, кабель, защитная накладка и крепёж.</p>
+            <div class="catalog-price-row">
+              <div class="text-2xl font-bold">3 670 ₽</div>
+            </div>
           </div>
         </a>
       </div>
@@ -778,6 +892,52 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
       }, 600);
     }, 250);
   };
+})();
+
+/* Русский комментарий: при наведении на цвет в карточке сразу меняем фото товара. */
+(function(){
+  function applySwatch(card, swatch) {
+    var image = card.querySelector('.catalog-media img');
+    if (!image) return;
+
+    card.querySelectorAll('.catalog-swatch').forEach(function(item){
+      item.classList.remove('is-active');
+      item.setAttribute('aria-pressed', 'false');
+    });
+    swatch.classList.add('is-active');
+    swatch.setAttribute('aria-pressed', 'true');
+
+    var nextSrc = swatch.getAttribute('data-image');
+    var nextAlt = swatch.getAttribute('data-alt');
+    if (nextSrc) image.setAttribute('src', nextSrc);
+    if (nextAlt) image.setAttribute('alt', nextAlt);
+  }
+
+  document.querySelectorAll('#productsGrid .pcard').forEach(function(card){
+    var swatches = card.querySelectorAll('.catalog-swatch');
+    swatches.forEach(function(swatch){
+      swatch.setAttribute('aria-pressed', swatch.classList.contains('is-active') ? 'true' : 'false');
+      swatch.addEventListener('mouseenter', function(){
+        applySwatch(card, swatch);
+      });
+      swatch.addEventListener('focus', function(){
+        applySwatch(card, swatch);
+      });
+      swatch.addEventListener('click', function(e){
+        // Русский комментарий: клик по цвету не должен открывать карточку (mobile/touch сценарий).
+        e.preventDefault();
+        e.stopPropagation();
+        applySwatch(card, swatch);
+      });
+      swatch.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          applySwatch(card, swatch);
+        }
+      });
+    });
+  });
 })();
 </script>
 </body>

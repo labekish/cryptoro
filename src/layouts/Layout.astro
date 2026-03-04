@@ -367,15 +367,12 @@ const ogUrl = Astro.url?.toString() || '';
         font-family:'Unbounded','Inter',sans-serif!important;
       }
       .hero{
-        background:radial-gradient(65% 85% at 82% 14%, rgba(255,69,0,.2), transparent 58%), linear-gradient(180deg,#ffffff 0%,#f9fafb 100%)!important;
+        /* Русский комментарий: убираем теплое glow-пятно в hero, оставляем чистый Apple-style фон */
+        background:linear-gradient(180deg,#ffffff 0%,#f9fafb 100%)!important;
       }
-      /* Tame hero image scale — 1.72 causes heavy overflow on smaller screens */
+      /* Русский комментарий: не перебиваем локальную hero-анимацию из index.html */
       .hero-product-image img{
-        animation:heroFloatFixed 4.6s ease-in-out infinite!important;
-      }
-      @keyframes heroFloatFixed{
-        0%,100%{transform:translateY(0) rotate(0deg) scale(1.35)}
-        50%{transform:translateY(-14px) rotate(1.5deg) scale(1.35)}
+        will-change:transform;
       }
       .hero-title{color:#111!important}
       .hero-sub,.hero-label{color:#4b5563!important}
@@ -655,16 +652,7 @@ const ogUrl = Astro.url?.toString() || '';
         .hero-product-image img{
           width:100%!important;
           max-width:320px!important;
-          animation:none!important;
-          transform:none!important;
         }
-        .hero-chips{
-          display:flex!important;
-          flex-direction:column!important;
-          gap:12px!important;
-          margin-top:24px!important;
-        }
-        .hero-chips__arrow{display:none!important}
 
         .sec{
           padding:56px 16px!important;
@@ -917,10 +905,24 @@ const ogUrl = Astro.url?.toString() || '';
         function setupMobileNav() {
           const isMobile = window.matchMedia('(max-width: 768px)').matches;
           document.querySelectorAll('header').forEach((header) => {
-            if (header.dataset.mobileNavReady === '1') return;
+            const existingToggle = header.querySelector('.mobile-menu-toggle');
+            const existingPanel = header.querySelector('.mobile-nav-panel');
+            if (!isMobile) {
+              if (existingToggle) existingToggle.remove();
+              if (existingPanel) existingPanel.remove();
+              header.classList.remove('mobile-nav-open');
+              header.dataset.mobileNavReady = '1';
+              return;
+            }
+            if (existingToggle && existingPanel) {
+              header.dataset.mobileNavReady = '1';
+              return;
+            }
             // На legacy-страницах уже есть собственное мобильное меню.
             // Не дублируем его, чтобы избежать конфликтов кликов/состояний.
-            if (header.querySelector('#menuToggle') || document.getElementById('mobileNav')) {
+            // Русский комментарий: проверяем меню только внутри текущего header,
+            // чтобы скрытые legacy-узлы в другом месте DOM не блокировали smart-header.
+            if (header.querySelector('#menuToggle') || header.querySelector('#mobileNav')) {
               header.dataset.mobileNavReady = '1';
               return;
             }
@@ -933,10 +935,6 @@ const ogUrl = Astro.url?.toString() || '';
                 : nav.parentElement
             );
             if (!navParent) return;
-            if (!isMobile) {
-              header.dataset.mobileNavReady = '1';
-              return;
-            }
 
             const links = Array.from(nav.querySelectorAll('a'))
               .map((a) => ({ href: a.getAttribute('href') || '#', text: (a.textContent || '').trim() }))
@@ -1490,6 +1488,7 @@ const ogUrl = Astro.url?.toString() || '';
           bindCartButtons();
           syncMoysklad();
           setupMobileNav();
+          window.addEventListener('resize', setupMobileNav);
           setupConsultModal();
           setupFadeIn();
           setupAccessibilityLabels();

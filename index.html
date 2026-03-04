@@ -2637,179 +2637,122 @@ body .sec-how .smock {
   transition: transform .1s linear;
 }
 
-/* ── HERO PRODUCT: zoom-in entrance ── */
+/* ── HERO PRODUCT: clean zoom-in entrance (без невесомости) ── */
 
+/* Container: perspective only (без постоянного парения) */
 .hero-product {
   position: relative;
   perspective: 1200px;
+  isolation: isolate;
 }
 
-/* Zoom-in on wrapper div — scale 0.35 → 1 (драматичный zoom).
-   Анимация на div, а не на img, чтобы не конфликтовать с JS тилтом на img. */
-.hero-product-image {
-  animation: productZoomIn 1.5s cubic-bezier(.16,1,.3,1) .75s both;
-  will-change: transform;
-}
-@keyframes productZoomIn {
-  from { opacity: 0; transform: scale(.35); }
-  to   { opacity: 1; transform: scale(1); }
+/* Русский комментарий: убираем «свечение-шейп», которое визуально упиралось в контейнер */
+.hero-product::before {
+  display: none !important;
 }
 
-/* Image: только тилт через CSS-переменные от JS + статичная тень */
+/* Image: smooth zoom-in from small to full size */
 .hero-product-image img {
-  animation: none !important;
-  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  animation: productZoomIn 1.15s cubic-bezier(.16,1,.3,1) .45s both !important;
+  transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1);
   transform-style: preserve-3d;
   transition: transform .3s cubic-bezier(.16,1,.3,1);
   will-change: transform;
-  filter: drop-shadow(0 32px 52px rgba(15,23,42,.20))
-          drop-shadow(0 8px 18px rgba(15,23,42,.10));
 }
-
-
-/* ── HERO FLOATING CHIPS — horizontal row ── */
-
-/* Chips row container — pulled up closer to image */
-.hero-chips {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 100%;
-  max-width: 1320px;
-  margin: -48px auto 0;
-  padding: 0 24px 44px;
-  position: relative;
-  z-index: 5;
-  flex-shrink: 0;
-}
-
-/* Arrow connector between chips */
-.hero-chips__arrow {
-  display: block;
-  width: 32px;
-  height: 1px;
-  background: rgba(17,17,17,.12);
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity .4s ease .2s;
-}
-.hero-chips__arrow.visible { opacity: 1 }
-
-/* Shared chip base — BIGGER */
-.hero-chip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255,255,255,.90);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(0,0,0,.06);
-  border-radius: 48px;
-  padding: 14px 26px;
-  box-shadow: 0 6px 24px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.03);
-  font-size: 15px;
-  font-weight: 500;
-  color: #1d1d1f;
-  letter-spacing: -.01em;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity .5s cubic-bezier(.16,1,.3,1), transform .5s cubic-bezier(.16,1,.3,1);
-}
-.hero-chip.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ─ Chip 1: Recording ─ */
-.hero-chip__dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: #ff3b30;
-  flex-shrink: 0;
-}
-.hero-chip__dot.pulse {
-  animation: dotPulse 1.6s ease-in-out infinite;
-}
-@keyframes dotPulse {
-  0%, 100% { opacity: 1 }
-  50% { opacity: .3 }
-}
-.hero-chip__timer {
-  font-variant-numeric: tabular-nums;
-  font-size: 14px;
-  color: #86868b;
-  margin-left: 2px;
-}
-
-/* ─ Chip 2: Transcript ─ */
-.hero-chip--text {
-  border-radius: 18px;
-  max-width: 320px;
-  white-space: normal;
-  padding: 14px 22px;
-  font-size: 15px;
-  line-height: 1.45;
-  font-weight: 400;
-}
-.hero-chip__quote {
-  display: block;
-  transition: opacity .4s ease;
-}
-
-/* ─ Chip 3: AI result — green ─ */
-.hero-chip--ai {
-  background: rgba(32, 140, 72, .92);
-  border-color: rgba(255,255,255,.18);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: .01em;
-}
-.hero-chip__icon {
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.22);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 12px;
-  line-height: 1;
-}
-
-/* Tablet */
-@media (max-width: 1024px) {
-  .hero-chips { gap: 12px; margin-top: -32px; padding-bottom: 36px }
-  .hero-chip { padding: 12px 20px; font-size: 14px }
-  .hero-chip--text { max-width: 240px; font-size: 13px }
-}
-/* Mobile: wrap */
-@media (max-width: 768px) {
-  .hero-chips {
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: -8px;
-    padding-bottom: 28px;
+@keyframes productZoomIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(.42);
+    filter: blur(18px) drop-shadow(0 0 0 transparent);
   }
-  .hero-chips__arrow { display: none }
-  .hero-chip { font-size: 13px; padding: 10px 18px }
-}
-@media (max-width: 480px) {
-  .hero-chips { display: none }
+  72% {
+    opacity: 1;
+    transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.1);
+    filter: drop-shadow(0 18px 28px rgba(15,23,42,.13));
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1);
+    filter: drop-shadow(0 18px 30px rgba(15,23,42,.12))
+            drop-shadow(0 6px 14px rgba(15,23,42,.08));
+  }
 }
 
-/* ── CHIP FLOAT: gentle bobbing after all chips are revealed ── */
-@keyframes chipFloat {
-  0%, 100% { transform: translateY(0) }
-  50% { transform: translateY(-4px) }
+/* Русский комментарий: по запросу отключаем остаточный блик/свечение */
+.hero-product::after {
+  display: none !important;
 }
-.hero-chip.float {
-  animation: chipFloat 4s ease-in-out infinite;
+
+/* ── PREMIUM PASS: focus + depth + calmer motion ── */
+.hero-trust-item:nth-child(4){display:none!important}
+.hero-trust .hero-trust-item{
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .42s ease, transform .42s ease;
 }
-.hero-chip--text.float { animation-delay: -.8s }
-.hero-chip--ai.float   { animation-delay: -1.6s }
+.hero-trust.is-ready .hero-trust-item{opacity:1;transform:translateY(0)}
+.hero-trust.is-ready .hero-trust-item:nth-child(1){transition-delay:.02s}
+.hero-trust.is-ready .hero-trust-item:nth-child(2){transition-delay:.12s}
+.hero-trust.is-ready .hero-trust-item:nth-child(3){transition-delay:.22s}
+
+.products-grid .pcard{
+  --pc-rx:0deg;
+  --pc-ry:0deg;
+  --pc-x:50%;
+  --pc-y:0%;
+  position:relative!important;
+  overflow:hidden!important;
+  transform:perspective(1200px) rotateX(var(--pc-rx)) rotateY(var(--pc-ry)) translateY(0)!important;
+  transform-style:preserve-3d;
+  transition:transform .24s cubic-bezier(.16,1,.3,1), box-shadow .24s ease, border-color .24s ease!important;
+}
+.products-grid .pcard::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .26s ease;
+  background:radial-gradient(420px circle at var(--pc-x) var(--pc-y), rgba(232,134,53,.16), transparent 52%);
+}
+.products-grid .pcard:hover::before{opacity:1}
+.products-grid .pcard:hover{
+  transform:perspective(1200px) rotateX(var(--pc-rx)) rotateY(var(--pc-ry)) translateY(-6px)!important;
+  box-shadow:0 16px 34px rgba(0,0,0,.13)!important;
+  border-color:rgba(17,17,17,.16)!important;
+}
+.products-grid .pcard .pimg-wrap img{transition:transform .36s cubic-bezier(.16,1,.3,1)!important}
+.products-grid .pcard:hover .pimg-wrap img{transform:scale(1.08)!important}
+
+/* Русский комментарий: снимаем сверх-акцент первой карточки, чтобы сетка читалась равномерно */
+.products-grid .pcard:first-child{
+  background:#fff!important;
+  border-color:rgba(17,17,17,.09)!important;
+}
+.products-grid .pcard:first-child .pname{color:#1d1d1f!important;font-size:17px!important}
+.products-grid .pcard:first-child .pdesc{color:#6b7280!important}
+.products-grid .pcard:first-child .pprice{color:#1d1d1f!important;font-size:20px!important}
+.products-grid .pcard:first-child .pbtn{background:#111!important;color:#fff!important;border:none!important}
+.products-grid .pcard:first-child .pbtn:hover{background:#222!important}
+.products-grid .pcard:first-child:hover .pimg-wrap img{transform:scale(1.08)!important}
+.products-grid .pcard:first-child:hover{box-shadow:0 16px 34px rgba(0,0,0,.13)!important}
+
+.motion-paused .accent-icon,
+.motion-paused .trans-line,
+.motion-paused .trans-chip,
+.motion-paused .int-center,
+.motion-paused .int-node,
+.motion-paused .assist-pill,
+.motion-paused .wbar,
+.motion-paused .recdot,
+.motion-paused .smock-status .dot,
+.motion-paused .smock--analyze .tl,
+.motion-paused .smock--analyze .tl::after,
+.motion-paused .smock--result .chk,
+.motion-paused .smock--result .chkicon,
+.motion-paused .hero-product::after{
+  animation-play-state:paused!important;
+}
 
 /* ── POST-TYPEWRITER: sub, buttons, trust reveal after title finishes ── */
 /* Elements start hidden (layout preserved via existing size); JS adds .vis */
@@ -2847,16 +2790,16 @@ body .sec-how .smock {
   .hero::after { animation: none !important }
   #lead .lsubmit::after { animation: none !important }
   .hero-product-image { will-change: auto; transition: none }
-.hero-product-image   { animation: none !important; opacity: 1 !important; transform: none !important }
-  .hero-product-image img { animation: none !important; opacity: 1 !important }
+  .hero-product::before { display: none !important }
+  .hero-product::after { display: none !important }
+  .hero-product-image img { animation: none !important; opacity: 1 !important; filter: drop-shadow(0 30px 48px rgba(15,23,42,.18)) !important }
   .hero-type-caret { border-right: none !important; animation: none !important; padding-right: 0 !important }
   .feat-primary__stat.counted { animation: none !important }
   .uc-block.reveal, .uc-block.reveal.vis { transform: none !important; opacity: 1 !important }
   .products-grid .pcard:first-child.reveal { transform: none !important; opacity: 1 !important }
-  .hero-chip { opacity: 1 !important; transform: none !important; animation: none !important }
-  .hero-chip__dot { animation: none !important }
   .hero-sub, .hero .btns, .hero-trust { opacity: 1 !important; transform: none !important; transition: none !important }
   .hero-sub.pvis, .hero .btns.pvis, .hero-trust.pvis { transition-delay: 0s !important }
+  .hero-trust .hero-trust-item{opacity:1!important;transform:none!important}
 }
 </style>
 
@@ -2956,7 +2899,6 @@ body .sec-how .smock {
       </div>
     </div>
   </div>
-
 </section>
 
 <!-- FEATURES -->
@@ -3890,8 +3832,6 @@ body .sec-how .smock {
     if (!raf) raf = requestAnimationFrame(animate);
   }
 
-  // Тилт работает только при hover — убран стартовый наклон,
-  // который искажал вид устройства до первого движения мыши.
   frame.addEventListener('mousemove', function (e) {
     var r = frame.getBoundingClientRect();
     var x = (e.clientX - r.left) / r.width;
@@ -3908,86 +3848,66 @@ body .sec-how .smock {
   });
 })();
 
-/* ── HERO FLOATING CHIPS: sequential story ── */
+/* ── HERO TRUST: stagger badges after hero entrance ── */
 (function () {
-  var timerEl  = document.getElementById('heroTimer');
-  var quoteEl  = document.getElementById('heroQuote');
-  var aiLabel  = document.getElementById('heroAiLabel');
-  var dotEl    = document.querySelector('.hero-chip__dot');
-  var chipRec  = document.querySelector('.hero-chip--rec');
-  var chipText = document.querySelector('.hero-chip--text');
-  var chipAi   = document.querySelector('.hero-chip--ai');
-  var arrows   = document.querySelectorAll('.hero-chips__arrow');
-  if (!timerEl || !quoteEl || !chipRec || !chipText || !chipAi) return;
-
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced) {
-    chipRec.classList.add('visible');
-    chipText.classList.add('visible');
-    chipAi.classList.add('visible');
-    quoteEl.textContent = '«Давайте обсудим сроки запуска и задачи.»';
-    timerEl.textContent = '0:32';
+  var trust = document.querySelector('.hero-trust');
+  if (!trust) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    trust.classList.add('is-ready');
     return;
   }
-
-  var quotes = [
-    '«Давайте обсудим сроки запуска и задачи на спринт.»',
-    '«Предлагаю начать с бэкенда, фронт — на второй неделе.»',
-    '«Итого: дедлайн — две недели, приоритет — API.»'
-  ];
-  var qIdx = 0;
-  var seconds = 0;
-  var timerId = null;
-
-  function startTimer() {
-    seconds = 0;
-    timerEl.textContent = '0:00';
-    if (timerId) clearInterval(timerId);
-    timerId = setInterval(function () {
-      seconds++;
-      var m = Math.floor(seconds / 60);
-      var s = String(seconds % 60).padStart(2, '0');
-      timerEl.textContent = m + ':' + s;
-    }, 1000);
-  }
-
-  /* Step 1 → recording chip appears, timer starts */
   setTimeout(function () {
-    chipRec.classList.add('visible');
-    if (dotEl) dotEl.classList.add('pulse');
-    startTimer();
+    trust.classList.add('is-ready');
+  }, 620);
+})();
 
-    /* Step 2 → transcript chip appears with first quote (2s later) */
-    setTimeout(function () {
-      quoteEl.textContent = quotes[0];
-      qIdx = 1;
-      chipText.classList.add('visible');
+/* ── PRODUCTS: premium pointer depth on desktop ── */
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+  var cards = document.querySelectorAll('.products-grid .pcard');
+  if (!cards.length) return;
 
-      /* Step 3 → AI result chip appears green (2.5s later) */
-      setTimeout(function () {
-        chipAi.classList.add('visible');
-        arrows.forEach(function (a) { a.classList.add('visible'); });
+  cards.forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var r = card.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width;
+      var y = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--pc-x', (x * 100).toFixed(2) + '%');
+      card.style.setProperty('--pc-y', (y * 100).toFixed(2) + '%');
+      card.style.setProperty('--pc-ry', ((x - 0.5) * 7).toFixed(2) + 'deg');
+      card.style.setProperty('--pc-rx', ((0.5 - y) * 6).toFixed(2) + 'deg');
+    });
 
-        /* All revealed — start gentle floating after a beat */
-        setTimeout(function () {
-          chipRec.classList.add('float');
-          chipText.classList.add('float');
-          chipAi.classList.add('float');
-        }, 600);
+    card.addEventListener('mouseleave', function () {
+      card.style.setProperty('--pc-rx', '0deg');
+      card.style.setProperty('--pc-ry', '0deg');
+      card.style.setProperty('--pc-x', '50%');
+      card.style.setProperty('--pc-y', '0%');
+    });
+  });
+})();
 
-        /* Cycle quote text every 6s (soft fade) */
-        setInterval(function () {
-          quoteEl.style.opacity = '0';
-          setTimeout(function () {
-            quoteEl.textContent = quotes[qIdx];
-            quoteEl.style.opacity = '1';
-            qIdx = (qIdx + 1) % quotes.length;
-          }, 400);
-        }, 6000);
+/* ── MOTION BUDGET: pause perpetual animations offscreen ── */
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-      }, 2500);
-    }, 2000);
-  }, 1600);
+  var sections = document.querySelectorAll('.hero, .sec, .sec-lead');
+  if (!sections.length) return;
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      entry.target.classList.toggle('motion-paused', !entry.isIntersecting);
+    });
+  }, { threshold: 0.02, rootMargin: '220px 0px 220px 0px' });
+
+  sections.forEach(function (section) {
+    if (!section.classList.contains('hero')) {
+      section.classList.add('motion-paused');
+    }
+    io.observe(section);
+  });
 })();
 </script>
 </body>
