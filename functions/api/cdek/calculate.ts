@@ -269,7 +269,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         Authorization: `Bearer ${auth.token}`,
       },
       body: JSON.stringify({
-        date: new Date().toISOString().slice(0, 10),
+        // Русский комментарий: поле date не отправляем, чтобы СДЭК взял текущую дату по умолчанию.
         from_location: { code: senderCityCode },
         to_location: toLocation,
         packages: [
