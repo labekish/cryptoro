@@ -1,3 +1,5 @@
+import { createCdekOrder, type CdekCreateOrderPayload, type CdekCreateOrderResult } from '../cdek/create-order';
+
 type Env = {
   B24_WEBHOOK_URL?: string;
   B24_ORIGINATOR_ID?: string;
@@ -52,6 +54,8 @@ interface OrderPayload {
   apartment?: string;
   zip: string;
   delivery: string;
+  deliveryType?: 'pickup' | 'door';
+  deliveryTariffCode?: number;
   deliveryCost?: number;
   items: OrderItem[];
   total: string;
@@ -431,6 +435,79 @@ function normalizeDeliveryLabel(input: string): string {
     .toLowerCase()
     .replace(/ё/g, 'е')
     .replace(/\s+/g, ' ');
+}
+
+function isCdekDelivery(delivery: string): boolean {
+  const normalized = normalizeDeliveryLabel(delivery);
+  return normalized.includes('сдэк') || normalized.includes('cdek');
+}
+
+function resolveCdekDeliveryType(order: OrderPayload): 'pickup' | 'door' {
+  const explicitType = String(order.deliveryType || '').trim().toLowerCase();
+  if (explicitType === 'door' || explicitType === 'pickup') return explicitType;
+
+  const normalized = normalizeDeliveryLabel(order.delivery);
+  if (
+    normalized.includes('до двери') ||
+    normalized.includes('двери') ||
+    normalized.includes('курьер')
+  ) {
+    return 'door';
+  }
+  return 'pickup';
+}
+
+function resolveCdekTariffCode(order: OrderPayload): number | undefined {
+  const explicitCode = Number(order.deliveryTariffCode);
+  if (Number.isFinite(explicitCode) && explicitCode > 0) return Math.floor(explicitCode);
+
+  const match = String(order.delivery || '').match(/тариф\s*(\d{2,4})/i);
+  if (!match?.[1]) return undefined;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : undefined;
+}
+
+function buildCdekCreatePayload(order: OrderPayload, leadId: number): CdekCreateOrderPayload {
+  return {
+    orderId: sanitizeMeta(order.orderId, 80),
+    name: sanitizeMeta(order.name, 120),
+    phone: sanitizeMeta(order.phone, 80),
+    email: sanitizeMeta(order.email, 120),
+    city: sanitizeMeta(order.city, 120),
+    street: sanitizeMeta(order.street, 160),
+    apartment: sanitizeMeta(order.apartment, 120),
+    zip: sanitizeMeta(order.zip, 20),
+    deliveryType: resolveCdekDeliveryType(order),
+    tariffCode: resolveCdekTariffCode(order),
+    // Русский комментарий: сохраняем привязку к лиду Б24 прямо в комментарии заказа СДЭК.
+    comment: `Заказ с сайта CRYPTORO #${sanitizeMeta(order.orderId, 80)}, лид B24 #${leadId}`,
+    items: Array.isArray(order.items)
+      ? order.items.map((item) => ({
+          sku: sanitizeMeta(item.sku, 80) || undefined,
+          name: sanitizeMeta(item.name, 140),
+          qty: Math.max(1, Number(item.qty) || 1),
+          price: Math.max(0, Number(item.price) || 0),
+        }))
+      : [],
+  };
+}
+
+async function maybeCreateCdekOrderForOrder(
+  env: Env,
+  order: OrderPayload,
+  leadId: number,
+  warnings: string[]
+): Promise<CdekCreateOrderResult | undefined> {
+  if (!isCdekDelivery(order.delivery)) return undefined;
+
+  const cdekResult = await createCdekOrder(env, buildCdekCreatePayload(order, leadId));
+  if (!cdekResult.ok) {
+    warnings.push(`cdek_create_failed:${cdekResult.error}`);
+    return cdekResult;
+  }
+
+  if (cdekResult.warning) warnings.push(cdekResult.warning);
+  return cdekResult;
 }
 
 function parseEnumMap(rawJson: string | undefined): EnumMap {
@@ -1047,6 +1124,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const existingIdRaw = existingLeadRes.data?.[0]?.ID;
   const existingId = existingIdRaw !== undefined && existingIdRaw !== null ? Number(existingIdRaw) : NaN;
   if (isFinite(existingId) && existingId > 0) {
+    let cdekOrder: CdekCreateOrderResult | undefined;
     if (isOrder && o) {
       const updateRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
         id: existingId,
@@ -1096,6 +1174,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       } else {
         warnings.push('productrows_not_mapped');
       }
+
+      cdekOrder = await maybeCreateCdekOrderForOrder(env, o, existingId, warnings);
     }
 
     if (!isOrder && contactId) {
@@ -1116,6 +1196,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       id: existingId,
       duplicate: true,
       ...(productRowsSyncMethod ? { productRowsSyncMethod } : {}),
+      ...(cdekOrder ? { cdekOrder } : {}),
       ...(verify ? { verify } : {}),
       ...(warnings.length ? { warnings } : {}),
     }), {
@@ -1193,6 +1274,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       warnings.push('productrows_not_mapped');
     }
   }
+  const cdekOrder = isOrder && o ? await maybeCreateCdekOrderForOrder(env, o, createLeadRes.data, warnings) : undefined;
   let verify: LeadVerifyInfo | undefined;
   if (isOrder) {
     const verifyRes = await getLeadVerifyInfo(webhookUrl, createLeadRes.data);
@@ -1204,6 +1286,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     ok: true,
     id: createLeadRes.data,
     ...(productRowsSyncMethod ? { productRowsSyncMethod } : {}),
+    ...(cdekOrder ? { cdekOrder } : {}),
     ...(verify ? { verify } : {}),
     ...(warnings.length ? { warnings } : {}),
   }), {

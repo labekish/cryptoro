@@ -144,6 +144,7 @@ import Layout from '../layouts/Layout.astro';
     const deliveryQuoteHint = document.getElementById('deliveryQuoteHint');
     let cdekQuoteSummary = '';
     let cdekQuotePrice = 0;
+    let cdekQuoteTariffCode = 0;
     let cdekQuoteTimer: ReturnType<typeof setTimeout> | null = null;
     let cdekQuoteRequestId = 0;
 
@@ -208,6 +209,7 @@ import Layout from '../layouts/Layout.astro';
       }
       cdekQuoteSummary = '';
       cdekQuotePrice = 0;
+      cdekQuoteTariffCode = 0;
     }
 
     function setDeliveryQuoteIdle(message) {
@@ -221,6 +223,7 @@ import Layout from '../layouts/Layout.astro';
       deliveryQuoteMeta.textContent = message;
       cdekQuoteSummary = '';
       cdekQuotePrice = 0;
+      cdekQuoteTariffCode = 0;
     }
 
     function setDeliveryQuoteLoading() {
@@ -251,6 +254,7 @@ import Layout from '../layouts/Layout.astro';
       }
       cdekQuoteSummary = '';
       cdekQuotePrice = 0;
+      cdekQuoteTariffCode = 0;
     }
 
     function setDeliveryQuoteData(quote, mode) {
@@ -277,6 +281,7 @@ import Layout from '../layouts/Layout.astro';
 
       cdekQuoteSummary = `${quoteTitle} (${deliveryTypeLabel}) ${money(quotePrice)}, ${quoteEta}${tariffText}`;
       cdekQuotePrice = quotePrice;
+      cdekQuoteTariffCode = Number.isFinite(quoteTariff) && quoteTariff > 0 ? quoteTariff : 0;
     }
 
     async function calculateCdekQuote() {
@@ -509,6 +514,10 @@ import Layout from '../layouts/Layout.astro';
         apartment: String(formData.get('apartment') || '').trim() || undefined,
         zip: String(formData.get('zip') || ''),
         delivery,
+        // Русский комментарий: тип СДЭК (ПВЗ/дверь) передаем отдельно для создания заказа в СДЭК.
+        ...(isCdek ? { deliveryType: getCdekDeliveryType() } : {}),
+        // Русский комментарий: если тариф известен из расчета — отправляем явным числом.
+        ...(isCdek && cdekQuoteTariffCode > 0 ? { deliveryTariffCode: cdekQuoteTariffCode } : {}),
         // Русский комментарий: стоимость доставки СДЭК как отдельное числовое поле для B24_LEAD_DELIVERY_COST_FIELD_CODE.
         ...(isCdek && cdekQuotePrice > 0 ? { deliveryCost: cdekQuotePrice } : {}),
         items: items.map((item) => ({
