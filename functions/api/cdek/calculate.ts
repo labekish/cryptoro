@@ -8,6 +8,12 @@ type Env = {
   CDEK_TIMEOUT_MS?: string;
   CDEK_MOCK?: string;
   CDEK_TEST_MODE?: string;
+  CDEK_SURCHARGE_RUB?: string;
+  CDEK_PICKUP_TARIFF_CODES?: string;
+  CDEK_DOOR_TARIFF_CODES?: string;
+  CDEK_PACKAGE_LENGTH_MM?: string;
+  CDEK_PACKAGE_WIDTH_MM?: string;
+  CDEK_PACKAGE_HEIGHT_MM?: string;
 };
 
 type CartItem = {
@@ -25,6 +31,7 @@ type CalculatePayload = {
   apartment?: string;
   items?: CartItem[];
   orderTotal?: number;
+  deliveryType?: 'pickup' | 'door';
 };
 
 type CdekQuote = {
@@ -39,11 +46,16 @@ type CdekAuthSuccess = { ok: true; token: string };
 type CdekAuthError = { ok: false; error: string };
 type CdekAuthResult = CdekAuthSuccess | CdekAuthError;
 type CdekCityResolveResult = { ok: true; code?: number } | { ok: false };
+type DeliveryType = 'pickup' | 'door';
 
 const DEFAULT_TIMEOUT_MS = 12000;
 const DEFAULT_TEST_API_BASE = 'https://api.edu.cdek.ru';
 const DEFAULT_PROD_API_BASE = 'https://api.cdek.ru';
 const DEFAULT_SENDER_CITY_CODE = 44; // Москва
+const DEFAULT_SURCHARGE_RUB = 100;
+const DEFAULT_PACKAGE_LENGTH_MM = 86;
+const DEFAULT_PACKAGE_WIDTH_MM = 54;
+const DEFAULT_PACKAGE_HEIGHT_MM = 3;
 
 function toTraceId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -59,6 +71,15 @@ function json(status: number, payload: unknown): Response {
 function toPositiveInt(input: unknown, fallback: number): number {
   const value = Number(input);
   return Number.isFinite(value) && value > 0 ? Math.floor(value) : fallback;
+}
+
+function toNonNegativeInt(input: unknown, fallback: number): number {
+  const value = Number(input);
+  return Number.isFinite(value) && value >= 0 ? Math.floor(value) : fallback;
+}
+
+function mmToCm(mm: number): number {
+  return Math.max(1, Math.ceil(mm / 10));
 }
 
 function isMockMode(env: Env): boolean {
@@ -87,6 +108,39 @@ function getSenderCityCode(env: Env): number {
   return toPositiveInt(env.CDEK_SENDER_CITY_CODE, DEFAULT_SENDER_CITY_CODE);
 }
 
+function getSurchargeRub(env: Env): number {
+  return toNonNegativeInt(env.CDEK_SURCHARGE_RUB, DEFAULT_SURCHARGE_RUB);
+}
+
+function getPackageSizeCm(env: Env): { length: number; width: number; height: number } {
+  const lengthMm = toPositiveInt(env.CDEK_PACKAGE_LENGTH_MM, DEFAULT_PACKAGE_LENGTH_MM);
+  const widthMm = toPositiveInt(env.CDEK_PACKAGE_WIDTH_MM, DEFAULT_PACKAGE_WIDTH_MM);
+  const heightMm = toPositiveInt(env.CDEK_PACKAGE_HEIGHT_MM, DEFAULT_PACKAGE_HEIGHT_MM);
+  return {
+    length: mmToCm(lengthMm),
+    width: mmToCm(widthMm),
+    height: mmToCm(heightMm),
+  };
+}
+
+function parseTariffCodes(raw: string | undefined): number[] {
+  if (!raw) return [];
+  return String(raw)
+    .split(',')
+    .map((part) => toPositiveInt(part.trim(), 0))
+    .filter((code) => code > 0);
+}
+
+function getPreferredTariffCodes(env: Env, deliveryType: DeliveryType): number[] {
+  return deliveryType === 'door'
+    ? parseTariffCodes(env.CDEK_DOOR_TARIFF_CODES)
+    : parseTariffCodes(env.CDEK_PICKUP_TARIFF_CODES);
+}
+
+function normalizeDeliveryType(input: unknown): DeliveryType {
+  return String(input || '').trim().toLowerCase() === 'door' ? 'door' : 'pickup';
+}
+
 function normalizeItems(input: CartItem[] | undefined): Array<{ name: string; qty: number; price: number; weightG: number; sku?: string }> {
   if (!Array.isArray(input)) return [];
 
@@ -107,19 +161,24 @@ function calculateTotalWeight(items: Array<{ qty: number; weightG: number }>): n
   return Math.max(100, sumG);
 }
 
-function createMockQuote(items: Array<{ qty: number }>, city: string): CdekQuote {
+function createMockQuote(
+  items: Array<{ qty: number }>,
+  city: string,
+  deliveryType: DeliveryType,
+  surchargeRub: number
+): CdekQuote {
   const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
-  const base = 290;
+  const base = deliveryType === 'door' ? 420 : 290;
   const perItem = Math.min(650, totalQty * 45);
   const cityExtra = city.toLowerCase() === 'москва' ? 0 : 140;
-  const priceRub = base + perItem + cityExtra;
+  const priceRub = base + perItem + cityExtra + surchargeRub;
 
   return {
     provider: 'cdek',
-    title: 'СДЭК до ПВЗ',
+    title: deliveryType === 'door' ? 'СДЭК до двери' : 'СДЭК до ПВЗ',
     priceRub,
     etaDays: city.toLowerCase() === 'москва' ? '1-2 дня' : '2-5 дней',
-    tariffCode: 136,
+    tariffCode: deliveryType === 'door' ? 137 : 136,
   };
 }
 
@@ -200,6 +259,66 @@ async function resolveCityCode(
   }
 }
 
+type TariffCandidate = {
+  tariffCode: number;
+  tariffName: string;
+  totalSum: number;
+  periodMin: number;
+  periodMax: number;
+  deliveryMode: number;
+};
+
+function isFulfillmentTariff(name: string): boolean {
+  return /фулфилмент|fulfillment/i.test(name);
+}
+
+function isPickupMode(mode: number): boolean {
+  return mode === 2 || mode === 4;
+}
+
+function isDoorMode(mode: number): boolean {
+  return mode === 1 || mode === 3;
+}
+
+function buildTariffCandidates(rawTariffs: Array<Record<string, unknown>>): TariffCandidate[] {
+  return rawTariffs
+    .map((entry) => ({
+      tariffCode: toPositiveInt(entry.tariff_code, 0),
+      tariffName: String(entry.tariff_name || '').trim(),
+      totalSum: Number(entry.total_sum || entry.delivery_sum || entry.delivery_sum_with_vat || 0),
+      periodMin: toPositiveInt(entry.period_min, 0),
+      periodMax: toPositiveInt(entry.period_max, 0),
+      deliveryMode: toPositiveInt(entry.delivery_mode, 0),
+    }))
+    .filter((entry) => entry.totalSum > 0 && entry.tariffCode > 0 && !isFulfillmentTariff(entry.tariffName));
+}
+
+function filterByDeliveryType(candidates: TariffCandidate[], deliveryType: DeliveryType): TariffCandidate[] {
+  const preferred = candidates.filter((entry) =>
+    deliveryType === 'door' ? isDoorMode(entry.deliveryMode) : isPickupMode(entry.deliveryMode)
+  );
+  if (preferred.length) return preferred;
+  // Русский комментарий: если mode не пришёл, fallback на все нефулфилмент-тарифы.
+  return candidates;
+}
+
+function pickBestTariff(
+  candidates: TariffCandidate[],
+  preferredCodes: number[]
+): TariffCandidate | null {
+  if (!candidates.length) return null;
+
+  const preferredIndex = new Map<number, number>();
+  preferredCodes.forEach((code, index) => preferredIndex.set(code, index));
+
+  return [...candidates].sort((a, b) => {
+    const aPref = preferredIndex.has(a.tariffCode) ? preferredIndex.get(a.tariffCode)! : Number.MAX_SAFE_INTEGER;
+    const bPref = preferredIndex.has(b.tariffCode) ? preferredIndex.get(b.tariffCode)! : Number.MAX_SAFE_INTEGER;
+    if (aPref !== bPref) return aPref - bPref;
+    return a.totalSum - b.totalSum;
+  })[0];
+}
+
 export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
   const traceId = toTraceId();
   const { request, env } = context;
@@ -214,8 +333,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const city = String(body.city || '').trim();
   const zip = String(body.zip || '').trim();
   const street = String(body.street || '').trim();
-  const apartment = String(body.apartment || '').trim();
   const items = normalizeItems(body.items);
+  const deliveryType = normalizeDeliveryType(body.deliveryType);
 
   if (!city || !zip || !street) {
     return json(400, { ok: false, error: 'missing_address_fields', traceId });
@@ -224,7 +343,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     return json(400, { ok: false, error: 'empty_items', traceId });
   }
 
-  const mockQuote = createMockQuote(items, city);
+  const surchargeRub = getSurchargeRub(env);
+  const mockQuote = createMockQuote(items, city, deliveryType, surchargeRub);
   if (isMockMode(env)) {
     return json(200, { ok: true, mode: 'mock', quote: mockQuote, traceId });
   }
@@ -237,6 +357,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const timeoutMs = toPositiveInt(env.CDEK_TIMEOUT_MS, DEFAULT_TIMEOUT_MS);
   const apiBase = getApiBase(env);
   const senderCityCode = getSenderCityCode(env);
+  const packageSizeCm = getPackageSizeCm(env);
+  const preferredTariffCodes = getPreferredTariffCodes(env, deliveryType);
 
   const auth = await fetchAccessToken(apiBase, credentials, timeoutMs);
   if (!auth.ok) {
@@ -275,9 +397,9 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         packages: [
           {
             weight: totalWeightG,
-            length: 20,
-            width: 20,
-            height: 10,
+            length: packageSizeCm.length,
+            width: packageSizeCm.width,
+            height: packageSizeCm.height,
           },
         ],
       }),
@@ -302,17 +424,9 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     const tariffCandidates = tariffs
       .map((entry) => (entry && typeof entry === 'object' ? (entry as Record<string, unknown>) : null))
       .filter(Boolean) as Array<Record<string, unknown>>;
-
-    const best = tariffCandidates
-      .map((entry) => ({
-        tariffCode: toPositiveInt(entry.tariff_code, 0),
-        tariffName: String(entry.tariff_name || '').trim(),
-        totalSum: Number(entry.total_sum || entry.delivery_sum || entry.delivery_sum_with_vat || 0),
-        periodMin: toPositiveInt(entry.period_min, 0),
-        periodMax: toPositiveInt(entry.period_max, 0),
-      }))
-      .filter((entry) => entry.totalSum > 0)
-      .sort((a, b) => a.totalSum - b.totalSum)[0];
+    const prepared = buildTariffCandidates(tariffCandidates);
+    const filteredByType = filterByDeliveryType(prepared, deliveryType);
+    const best = pickBestTariff(filteredByType, preferredTariffCodes);
 
     if (!best) {
       return json(200, {
@@ -320,6 +434,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         mode: 'mock_fallback',
         quote: mockQuote,
         warning: 'cdek_tariff_parse_failed',
+        raw,
+        deliveryType,
         traceId,
       });
     }
@@ -332,8 +448,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
 
     const liveQuote: CdekQuote = {
       provider: 'cdek',
-      title: best.tariffName || 'СДЭК Доставка',
-      priceRub: toPositiveInt(best.totalSum, mockQuote.priceRub),
+      title: best.tariffName || (deliveryType === 'door' ? 'СДЭК до двери' : 'СДЭК до ПВЗ'),
+      priceRub: toPositiveInt(best.totalSum + surchargeRub, mockQuote.priceRub),
       etaDays,
       tariffCode: best.tariffCode || undefined,
     };

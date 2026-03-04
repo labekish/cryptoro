@@ -88,6 +88,17 @@ import Layout from '../layouts/Layout.astro';
                   </span>
                 </label>
               </div>
+              <div id="cdekTypeGroup" class="cdek-type-group">
+                <span class="cdek-type-title">Формат доставки СДЭК</span>
+                <label class="cdek-type-option">
+                  <input type="radio" name="cdekDeliveryType" value="pickup" checked />
+                  <span>ПВЗ (по умолчанию)</span>
+                </label>
+                <label class="cdek-type-option">
+                  <input type="radio" name="cdekDeliveryType" value="door" />
+                  <span>До двери (курьер)</span>
+                </label>
+              </div>
               <div id="deliveryQuote" class="delivery-quote" hidden>
                 <strong id="deliveryQuoteTitle">Расчёт СДЭК</strong>
                 <p id="deliveryQuoteMeta">Заполните адрес и выберите способ доставки</p>
@@ -120,12 +131,14 @@ import Layout from '../layouts/Layout.astro';
     const cardPayBtn = document.getElementById('cardPayBtn');
     const formMessage = document.getElementById('formMessage');
     const deliveryInputs = Array.from(document.querySelectorAll('input[name="delivery"]'));
+    const cdekTypeInputs = Array.from(document.querySelectorAll('input[name="cdekDeliveryType"]'));
     const phoneInput = checkoutForm?.querySelector('input[data-mask="phone"]');
     const zipInput = checkoutForm?.querySelector('input[data-mask="zip"]');
     const cityInput = checkoutForm?.querySelector('input[name="city"]');
     const streetInput = checkoutForm?.querySelector('input[name="street"]');
     const apartmentInput = checkoutForm?.querySelector('input[name="apartment"]');
     const deliveryQuote = document.getElementById('deliveryQuote');
+    const cdekTypeGroup = document.getElementById('cdekTypeGroup');
     const deliveryQuoteTitle = document.getElementById('deliveryQuoteTitle');
     const deliveryQuoteMeta = document.getElementById('deliveryQuoteMeta');
     const deliveryQuoteHint = document.getElementById('deliveryQuoteHint');
@@ -151,6 +164,20 @@ import Layout from '../layouts/Layout.astro';
       const selected = deliveryInputs.find((input) => input.checked);
       if (!selected) return false;
       return String(selected.value || '').toLowerCase().includes('сдэк');
+    }
+
+    function getCdekDeliveryType() {
+      const selected = cdekTypeInputs.find((input) => input.checked);
+      return String(selected?.value || '').toLowerCase() === 'door' ? 'door' : 'pickup';
+    }
+
+    function getCdekDeliveryTypeLabel() {
+      return getCdekDeliveryType() === 'door' ? 'до двери' : 'ПВЗ';
+    }
+
+    function updateCdekTypeState() {
+      if (!(cdekTypeGroup instanceof HTMLElement)) return;
+      cdekTypeGroup.hidden = !isCdekSelected();
     }
 
     function hideDeliveryQuote() {
@@ -217,17 +244,18 @@ import Layout from '../layouts/Layout.astro';
       const quoteTariff = Number(quote?.tariffCode);
       const modeLabel = mode === 'live' ? 'боевой расчёт' : 'тестовый расчёт';
       const tariffText = Number.isFinite(quoteTariff) && quoteTariff > 0 ? ` • тариф ${quoteTariff}` : '';
+      const deliveryTypeLabel = getCdekDeliveryTypeLabel();
 
       deliveryQuote.hidden = false;
       deliveryQuote.classList.remove('is-idle');
       deliveryQuote.classList.remove('is-error');
-      deliveryQuoteTitle.textContent = `${quoteTitle}: ${money(quotePrice)}`;
+      deliveryQuoteTitle.textContent = `${quoteTitle} (${deliveryTypeLabel}): ${money(quotePrice)}`;
       deliveryQuoteMeta.textContent = `${quoteEta}${tariffText} • ${modeLabel}`;
       if (deliveryQuoteHint instanceof HTMLElement) {
         deliveryQuoteHint.textContent = 'Стоимость доставки обновляется по адресу в форме';
       }
 
-      cdekQuoteSummary = `${quoteTitle} ${money(quotePrice)}, ${quoteEta}${tariffText}`;
+      cdekQuoteSummary = `${quoteTitle} (${deliveryTypeLabel}) ${money(quotePrice)}, ${quoteEta}${tariffText}`;
       cdekQuotePrice = quotePrice;
     }
 
@@ -262,6 +290,7 @@ import Layout from '../layouts/Layout.astro';
         street,
         zip,
         apartment,
+        deliveryType: getCdekDeliveryType(),
         orderTotal,
         items: items.map((item) => ({
           ...(item.sku ? { sku: item.sku } : {}),
@@ -438,10 +467,12 @@ import Layout from '../layouts/Layout.astro';
     function buildPayload(formData: FormData, items: ReturnType<typeof getCart>, orderId: string) {
       const deliveryRaw = String(formData.get('delivery') || '');
       const isCdek = deliveryRaw.toLowerCase().includes('сдэк');
+      const cdekDeliveryTypeLabel = getCdekDeliveryTypeLabel();
+      const deliveryBase = isCdek ? `СДЭК (${cdekDeliveryTypeLabel})` : deliveryRaw;
       const delivery =
         isCdek && cdekQuoteSummary
-          ? `${deliveryRaw} | ${cdekQuoteSummary}`
-          : deliveryRaw;
+          ? `${deliveryBase} | ${cdekQuoteSummary}`
+          : deliveryBase;
 
       return {
         type: 'order' as const,
@@ -487,6 +518,12 @@ import Layout from '../layouts/Layout.astro';
       deliveryInputs.forEach((input) => {
         input.addEventListener('change', () => {
           updateDeliveryOptionState();
+          updateCdekTypeState();
+          scheduleCdekQuoteCalculation();
+        });
+      });
+      cdekTypeInputs.forEach((input) => {
+        input.addEventListener('change', () => {
           scheduleCdekQuoteCalculation();
         });
       });
@@ -544,6 +581,7 @@ import Layout from '../layouts/Layout.astro';
 
     setupInputMasks();
     updateDeliveryOptionState();
+    updateCdekTypeState();
     renderCart();
     scheduleCdekQuoteCalculation(0);
   </script>
@@ -687,6 +725,32 @@ import Layout from '../layouts/Layout.astro';
     .delivery-option-body{display:grid;gap:2px}
     .delivery-option-title{font-size:16px;line-height:1.2;color:#111;font-weight:600;letter-spacing:-.005em}
     .delivery-option-sub{font-size:13px;line-height:1.45;color:#6b7280}
+    .cdek-type-group{
+      margin:10px 2px 0;
+      padding:10px 12px;
+      border:1px solid rgba(17,17,17,.12);
+      border-radius:12px;
+      background:#fff;
+      display:grid;
+      gap:8px;
+    }
+    .cdek-type-group[hidden]{display:none !important}
+    .cdek-type-title{
+      font-size:13px;
+      line-height:1.3;
+      font-weight:700;
+      color:#111;
+    }
+    .cdek-type-option{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+      line-height:1.35;
+      color:#374151;
+      cursor:pointer;
+    }
+    .cdek-type-option input{margin:0}
     .delivery-quote{
       margin:12px 2px 2px;
       padding:10px 12px;
