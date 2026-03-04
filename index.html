@@ -2666,14 +2666,14 @@ body .sec-how .smock {
   50%       { opacity: .84; transform: scale(1.09); }
 }
 
-/* Zoom-in on wrapper div — scale 0.55 → 1 (большой zoom как просили).
+/* Zoom-in on wrapper div — scale 0.35 → 1 (драматичный zoom).
    Анимация на div, а не на img, чтобы не конфликтовать с JS тилтом на img. */
 .hero-product-image {
   animation: productZoomIn 1.5s cubic-bezier(.16,1,.3,1) .75s both;
   will-change: transform;
 }
 @keyframes productZoomIn {
-  from { opacity: 0; transform: scale(.55); }
+  from { opacity: 0; transform: scale(.35); }
   to   { opacity: 1; transform: scale(1); }
 }
 
@@ -2999,23 +2999,7 @@ body .sec-how .smock {
       </div>
     </div>
   </div>
-  <!-- Chips row: sequential story below the hero grid -->
-  <div class="hero-chips" aria-hidden="true">
-    <div class="hero-chip hero-chip--rec">
-      <span class="hero-chip__dot"></span>
-      Идёт запись
-      <span class="hero-chip__timer" id="heroTimer">0:00</span>
-    </div>
-    <span class="hero-chips__arrow"></span>
-    <div class="hero-chip hero-chip--text">
-      <span class="hero-chip__quote" id="heroQuote"></span>
-    </div>
-    <span class="hero-chips__arrow"></span>
-    <div class="hero-chip hero-chip--ai">
-      <span class="hero-chip__icon">✓</span>
-      <span id="heroAiLabel">Резюме готово</span>
-    </div>
-  </div>
+
 </section>
 
 <!-- FEATURES -->
