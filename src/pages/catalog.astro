@@ -66,19 +66,19 @@ Object.entries(skus).forEach(([slug, skuList]) => {
       /(<span class="text-2xl font-bold")(?![^>]*data-ms-price)([^>]*>)/i,
       `$1 data-ms-price="${slug}"$2`
     );
-    // Русский комментарий: переносим плашку статуса в строку заголовка карточки (справа от названия).
-    next = next.replace(new RegExp(`<div[^>]*data-ms-stock="${slug}"[^>]*>\\s*</div>`, 'ig'), '');
+    // Русский комментарий: переносим плашку статуса в верхнюю строку карточки рядом с бейджем года.
+    next = next.replace(new RegExp(`<(?:div|span)[^>]*data-ms-stock="${slug}"[^>]*>\\s*</(?:div|span)>`, 'ig'), '');
     if (!new RegExp(`data-ms-stock="${slug}"`, 'i').test(next)) {
-      const withTitleBadge = next.replace(
-        /<h3 class="text-xl font-semibold">([\s\S]*?)<\/h3>/i,
-        `<div class="catalog-title-row"><h3 class="text-xl font-semibold">$1</h3><div data-ms-stock="${slug}" class="ms-stock-badge catalog-title-stock"></div></div>`
+      const withTopBadge = next.replace(
+        /(<div class="catalog-card-top">[\s\S]*?<div class="catalog-card-tags">[\s\S]*?)(<\/div>)/i,
+        `$1<div data-ms-stock="${slug}" class="ms-stock-badge catalog-top-stock"></div>$2`
       );
-      if (withTitleBadge !== next) {
-        next = withTitleBadge;
+      if (withTopBadge !== next) {
+        next = withTopBadge;
       } else {
         next = next.replace(
-          /(<div class="mt-auto pt-5">)/i,
-          `$1<div data-ms-stock="${slug}" class="ms-stock-badge catalog-title-stock"></div>`
+          /(<div class="catalog-card-top">)/i,
+          `$1<div data-ms-stock="${slug}" class="ms-stock-badge catalog-top-stock"></div>`
         );
       }
     }
