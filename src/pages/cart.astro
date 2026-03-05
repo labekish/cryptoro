@@ -20,18 +20,6 @@ import Layout from '../layouts/Layout.astro';
 
         <div class="checkout-panel" id="checkoutPanel">
           <h2>Оформление заказа</h2>
-          <div class="summary-row summary-row-subtotal">
-            <span>Товары</span>
-            <strong id="cartSubtotal">0 ₽</strong>
-          </div>
-          <div id="deliverySummaryRow" class="summary-row summary-row-delivery" hidden>
-            <span id="deliverySummaryLabel">Доставка</span>
-            <strong id="deliverySummaryValue">0 ₽</strong>
-          </div>
-          <div class="summary-row summary-row-total">
-            <span id="cartTotalLabel">Итоговая сумма</span>
-            <strong id="cartTotal">0 ₽</strong>
-          </div>
           <p id="checkoutHint" class="checkout-hint">Добавьте товар в корзину, чтобы заполнить форму заказа.</p>
 
           <form id="checkoutForm" class="checkout-form">
@@ -111,6 +99,21 @@ import Layout from '../layouts/Layout.astro';
                 <p id="deliveryQuoteMeta">Заполните адрес и выберите способ доставки</p>
               </div>
               <p id="deliveryQuoteHint" class="delivery-note">Предварительный расчёт. Точную стоимость подтверждаем при оформлении заказа.</p>
+            </div>
+
+            <div class="checkout-totals" aria-live="polite">
+              <div class="summary-row summary-row-subtotal">
+                <span>Товары</span>
+                <strong id="cartSubtotal">0 ₽</strong>
+              </div>
+              <div id="deliverySummaryRow" class="summary-row summary-row-delivery" hidden>
+                <span id="deliverySummaryLabel">Доставка</span>
+                <strong id="deliverySummaryValue">0 ₽</strong>
+              </div>
+              <div class="summary-row summary-row-total">
+                <span id="cartTotalLabel">Итоговая сумма</span>
+                <strong id="cartTotal">0 ₽</strong>
+              </div>
             </div>
 
             <div class="actions">
@@ -873,30 +876,40 @@ import Layout from '../layouts/Layout.astro';
       color:#fff;
       border-color:#ef4444;
     }
-    .summary-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;color:#111}
-    .summary-row span{font-size:18px;font-weight:600;letter-spacing:-.01em}
-    .summary-row strong{font-size:30px;line-height:1.1;letter-spacing:-.02em}
+    .checkout-totals{
+      border:1px solid rgba(17,17,17,.08);
+      border-radius:14px;
+      padding:12px 14px;
+      background:#fcfcfd;
+      margin-top:2px;
+    }
+    .summary-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:10px 0;color:#111}
+    .summary-row span{font-size:14px;font-weight:600;letter-spacing:-.005em;color:#4b5563}
+    .summary-row strong{font-size:22px;line-height:1.1;letter-spacing:-.01em}
     .summary-row-subtotal{
-      border-top:1px solid rgba(0,0,0,.08);
       border-bottom:1px solid rgba(0,0,0,.06);
-      padding-top:16px;
-      padding-bottom:14px;
+      padding-top:2px;
     }
     .summary-row-delivery{
       border-bottom:1px dashed rgba(0,0,0,.12);
-      padding-top:10px;
-      padding-bottom:10px;
+      padding-top:8px;
+      padding-bottom:8px;
     }
     .summary-row-delivery span,.summary-row-delivery strong{
-      font-size:16px;
+      font-size:13px;
       font-weight:600;
       color:#4b5563;
     }
     .summary-row-total{
-      border-bottom:1px solid rgba(0,0,0,.08);
-      padding-top:14px;
-      padding-bottom:16px;
-      margin-bottom:18px;
+      padding-top:10px;
+      padding-bottom:2px;
+    }
+    .summary-row-total span{
+      color:#111;
+      font-size:15px;
+    }
+    .summary-row-total strong{
+      font-size:30px;
     }
     .checkout-form{display:grid;gap:16px}
     .field-grid{display:grid;gap:12px}
@@ -1120,9 +1133,12 @@ import Layout from '../layouts/Layout.astro';
       .cart-item-main h3{font-size:18px}
       .cart-item-main p{font-size:20px}
       .checkout-panel h2{font-size:30px}
-      .summary-row span{font-size:17px}
-      .summary-row strong{font-size:34px}
-      .summary-row-delivery span,.summary-row-delivery strong{font-size:14px}
+      .checkout-totals{padding:10px 12px}
+      .summary-row span{font-size:13px}
+      .summary-row strong{font-size:20px}
+      .summary-row-delivery span,.summary-row-delivery strong{font-size:12px}
+      .summary-row-total span{font-size:14px}
+      .summary-row-total strong{font-size:26px}
       .field-grid label{font-size:15px}
       .field-grid input{height:48px;font-size:16px}
       .delivery-group-title{font-size:15px}
