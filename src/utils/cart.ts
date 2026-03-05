@@ -6,6 +6,10 @@ export type CartProduct = {
   qty?: number;
   color?: string;
   sku?: string;
+  weight?: number;
+  length?: number;
+  width?: number;
+  height?: number;
 };
 
 const CART_KEY = 'cryptoro_cart';
@@ -32,7 +36,11 @@ export function getCart(): CartProduct[] {
         image: String(item.image || ''),
         qty: Math.max(1, Number(item.qty) || 1),
         ...(item.color ? { color: String(item.color) } : {}),
-        ...(item.sku ? { sku: String(item.sku) } : {})
+        ...(item.sku ? { sku: String(item.sku) } : {}),
+        ...(item.weight ? { weight: Number(item.weight) || undefined } : {}),
+        ...(item.length ? { length: Number(item.length) || undefined } : {}),
+        ...(item.width ? { width: Number(item.width) || undefined } : {}),
+        ...(item.height ? { height: Number(item.height) || undefined } : {})
       }));
   } catch {
     return [];
