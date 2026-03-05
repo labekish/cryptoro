@@ -50,7 +50,10 @@ const DEFAULT_SKU_MAP: Record<string, string[]> = {
   'plaud-note': ['CR-191', 'CR-400', 'CR-197', 'CR-209'],
   'plaud-note-pro': ['CR-327'],
   notepin: ['CR-217', 'CR-256', 'CR-258'],
-  accessories: ['AC-40']
+  accessories: ['AC-40'],
+  // Русский комментарий: подписки PLAUD AI в каталоге как аксессуары без отдельной product-страницы.
+  'plaud-ai-pro-12m': ['AC-61'],
+  'plaud-ai-unlimited-12m': ['AC-59']
 };
 
 // Дефолтная группа для витрины CRYPTORO (используется, если переменная MS_GROUP_* не задана в Cloudflare).
@@ -66,7 +69,9 @@ const DEFAULT_SKU_META: Record<string, { color?: string; title?: string }> = {
   'CR-217': { color: 'Cosmic Gray', title: 'Plaud NotePin' },
   'CR-256': { color: 'Lunar Silver', title: 'Plaud NotePin' },
   'CR-258': { color: 'Sunset Purple', title: 'Plaud NotePin' },
-  'AC-40': { title: 'Набор аксессуаров' }
+  'AC-40': { title: 'Набор аксессуаров' },
+  'AC-61': { title: 'Подписка PLAUD AI PRO (12 мес.)' },
+  'AC-59': { title: 'Подписка PLAUD AI Unlimited Plan (12 мес.)' }
 };
 
 const normalizeSkuList = (value: unknown): string[] => {

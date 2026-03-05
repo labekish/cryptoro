@@ -24,13 +24,25 @@ const skus = Object.values(modules).reduce<Record<string, string[]>>((acc, mod) 
 }, {});
 const manualCatalogSkus: Record<string, string[]> = {
   // Русский комментарий: карточка чехлов пока без отдельной страницы товара, но с полной МойСклад-синхронизацией.
-  'plaud-note-cases': ['AC-39', 'AC-38', 'AC-37', 'AC-36', 'AC-60']
+  'plaud-note-cases': ['AC-39', 'AC-38', 'AC-37', 'AC-36', 'AC-60'],
+  // Русский комментарий: подписки PLAUD AI показываем в каталоге как аксессуары без отдельной карточки товара.
+  'plaud-ai-pro-12m': ['AC-61'],
+  'plaud-ai-unlimited-12m': ['AC-59']
 };
 const skuMap = { ...skus, ...manualCatalogSkus };
 const formatPrice = (value: number) => `${Math.round(Number(value || 0)).toLocaleString('ru-RU')} ₽`;
 
 let syncedBody = page.body;
-const cardSlugs = ['vspomnit', 'plaud-note', 'plaud-note-pro', 'notepin', 'accessories', 'plaud-note-cases'];
+const cardSlugs = [
+  'vspomnit',
+  'plaud-note',
+  'plaud-note-pro',
+  'notepin',
+  'accessories',
+  'plaud-note-cases',
+  'plaud-ai-pro-12m',
+  'plaud-ai-unlimited-12m'
+];
 const catalogSeoTitle = 'AI диктофоны с автоматической расшифровкой речи | CRYPTORO';
 const catalogSeoDescription =
   'AI диктофоны для записи разговоров, лекций и встреч с автоматической расшифровкой речи, транскрибацией и умными заметками.';

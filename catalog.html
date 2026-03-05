@@ -308,7 +308,7 @@ body .catalog-controls .catalog-chips .filter-btn::after{
   display:flex;
   align-items:center;
   justify-content:flex-start;
-  margin:0 0 12px;
+  margin:2px 0 6px;
   min-height:24px;
 }
 #productsGrid .pcard .catalog-card-content{
@@ -382,7 +382,9 @@ body .catalog-controls .catalog-chips .filter-btn::after{
   display:flex;
   align-items:baseline;
   gap:10px;
-  margin-top:2px;
+  margin-top:auto;
+  padding-top:8px;
+  min-height:40px;
 }
 #productsCount{
   color:#6e6e73!important;
@@ -591,12 +593,10 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
   <section class="px-6">
     <div class="catalog-controls mx-auto max-w-7xl py-3">
       <div class="catalog-chips">
-      <button class="filter-btn is-selected shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-white" onclick="filterProducts('all', this)">Все модели</button>
-      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('vspomnit', this)">Вспомни всё</button>
-      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('note', this)">Plaud Note</button>
-      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('notepro', this)">Plaud Note Pro</button>
-      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('notepin', this)">Plaud NotePin</button>
+      <button class="filter-btn is-selected shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-white" onclick="filterProducts('all', this)">Всё</button>
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('plaud', this)">Plaud</button>
       <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('accessory', this)">Аксессуары</button>
+      <button class="filter-btn shrink-0 rounded-full border border-zinc-300 px-4 py-2 text-xs font-medium text-zinc-600 transition hover:border-zinc-500 hover:text-zinc-900" onclick="filterProducts('subscription', this)">Подписка</button>
       </div>
 
     </div>
@@ -604,10 +604,10 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
 
   <main class="px-6 pb-24 pt-8">
     <div class="mx-auto max-w-7xl">
-      <div id="productsCount" class="mb-5 text-sm text-zinc-500" aria-live="polite">6 товаров</div>
+      <div id="productsCount" class="mb-5 text-sm text-zinc-500" aria-live="polite">8 товаров</div>
 
       <div id="productsGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <a href="/products/vspomnit" data-card-id="vspomnit" data-cat="vspomnit" data-price="11990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+        <a href="/products/vspomnit" data-card-id="vspomnit" data-cat="plaud" data-price="11990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
           <div class="catalog-card-top">
             <div class="catalog-card-tags">
               <span class="card-tag card-tag--new">NEW</span>
@@ -616,11 +616,6 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           </div>
           <div class="catalog-media">
             <img src="/images/products/vspomnit-vse-cutout.png" alt="AI-диктофон Вспомни всё в чёрном цвете" class="h-full w-full object-contain drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
-          </div>
-          <div class="catalog-color-row">
-            <div class="catalog-colors" aria-label="Цвета Вспомни всё">
-              <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/vspomnit-vse-cutout.png" data-alt="AI-диктофон Вспомни всё в чёрном цвете"></span>
-            </div>
           </div>
           <div class="catalog-card-content">
             <h3 class="text-xl font-semibold">Вспомни всё</h3>
@@ -631,7 +626,7 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           </div>
         </a>
 
-        <a href="/products/plaud-note" data-card-id="plaud-note" data-cat="note" data-price="17490" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+        <a href="/products/plaud-note" data-card-id="plaud-note" data-cat="plaud" data-price="17490" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
           <div class="catalog-card-top">
             <div class="catalog-card-tags">
               <span class="card-tag card-tag--year">2025</span>
@@ -640,16 +635,16 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           <div class="catalog-media">
             <img src="/images/products/plaud-note-black.webp" alt="AI-диктофон Plaud Note в чёрном корпусе" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
           </div>
-          <div class="catalog-color-row">
-            <div class="catalog-colors" aria-label="Цвета Plaud Note">
-              <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/plaud-note-black.webp" data-alt="AI-диктофон Plaud Note в чёрном корпусе"></span>
-              <span class="catalog-swatch sw-blue" role="button" tabindex="0" aria-label="Синий цвет" data-image="/images/products/plaud-note-color-blue.webp" data-alt="AI-диктофон Plaud Note в синем корпусе"></span>
-              <span class="catalog-swatch sw-gold" role="button" tabindex="0" aria-label="Золотой цвет" data-image="/images/products/plaud-note-color-gold.webp" data-alt="AI-диктофон Plaud Note в золотом корпусе"></span>
-              <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/plaud-note-color-silver.webp" data-alt="AI-диктофон Plaud Note в серебристом корпусе"></span>
-            </div>
-          </div>
           <div class="catalog-card-content">
             <h3 class="text-xl font-semibold">Plaud Note</h3>
+            <div class="catalog-color-row">
+              <div class="catalog-colors" aria-label="Цвета Plaud Note">
+                <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/plaud-note-black.webp" data-alt="AI-диктофон Plaud Note в чёрном корпусе"></span>
+                <span class="catalog-swatch sw-blue" role="button" tabindex="0" aria-label="Синий цвет" data-image="/images/products/plaud-note-color-blue.webp" data-alt="AI-диктофон Plaud Note в синем корпусе"></span>
+                <span class="catalog-swatch sw-gold" role="button" tabindex="0" aria-label="Золотой цвет" data-image="/images/products/plaud-note-color-gold.webp" data-alt="AI-диктофон Plaud Note в золотом корпусе"></span>
+                <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/plaud-note-color-silver.webp" data-alt="AI-диктофон Plaud Note в серебристом корпусе"></span>
+              </div>
+            </div>
             <p class="mt-2 text-sm leading-6 text-zinc-600">Компактный металлический корпус. Магнитное крепление на телефон. 4 цвета.</p>
             <div class="catalog-price-row">
               <div class="text-2xl font-bold">17 490 ₽</div>
@@ -657,7 +652,7 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           </div>
         </a>
 
-        <a href="/products/plaud-note-pro" data-card-id="plaud-note-pro" data-cat="notepro" data-price="25990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+        <a href="/products/plaud-note-pro" data-card-id="plaud-note-pro" data-cat="plaud" data-price="25990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
           <div class="catalog-card-top">
             <div class="catalog-card-tags">
               <span class="card-tag card-tag--year">2025</span>
@@ -666,14 +661,14 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           <div class="catalog-media">
             <img src="/images/products/Plaud_Note_Pro-front-black.webp" alt="AI-диктофон Plaud Note Pro в чёрном цвете" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
           </div>
-          <div class="catalog-color-row">
-            <div class="catalog-colors" aria-label="Цвета Plaud Note Pro">
-              <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/Plaud_Note_Pro-front-black.webp" data-alt="AI-диктофон Plaud Note Pro в чёрном цвете"></span>
-              <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/Plaud_Note_Pro-front-silver.webp" data-alt="AI-диктофон Plaud Note Pro в серебристом цвете"></span>
-            </div>
-          </div>
           <div class="catalog-card-content">
             <h3 class="text-xl font-semibold">Plaud Note Pro</h3>
+            <div class="catalog-color-row">
+              <div class="catalog-colors" aria-label="Цвета Plaud Note Pro">
+                <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Чёрный цвет" data-image="/images/products/Plaud_Note_Pro-front-black.webp" data-alt="AI-диктофон Plaud Note Pro в чёрном цвете"></span>
+                <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/Plaud_Note_Pro-front-silver.webp" data-alt="AI-диктофон Plaud Note Pro в серебристом цвете"></span>
+              </div>
+            </div>
             <p class="mt-2 text-sm leading-6 text-zinc-600">Профессиональная версия 2025 года. Магнитный кейс в комплекте.</p>
             <div class="catalog-price-row">
               <div class="text-2xl font-bold">25 990 ₽</div>
@@ -681,7 +676,7 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           </div>
         </a>
 
-        <a href="/products/notepin" data-card-id="notepin" data-cat="notepin" data-price="20990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+        <a href="/products/notepin" data-card-id="notepin" data-cat="plaud" data-price="20990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
           <div class="catalog-card-top">
             <div class="catalog-card-tags">
               <span class="card-tag card-tag--new">ПРЕДЗАКАЗ</span>
@@ -691,15 +686,15 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           <div class="catalog-media">
             <img src="/images/products/plaud-notepin.webp" alt="Носимый AI-диктофон Plaud NotePin" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
           </div>
-          <div class="catalog-color-row">
-            <div class="catalog-colors" aria-label="Цвета Plaud NotePin">
-              <span class="catalog-swatch sw-graphite is-active" role="button" tabindex="0" aria-label="Графитовый цвет" data-image="/images/products/plaud-notepin.webp" data-alt="Носимый AI-диктофон Plaud NotePin в графитовом цвете"></span>
-              <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/plaud-notepin-silver.webp" data-alt="Носимый AI-диктофон Plaud NotePin в серебристом цвете"></span>
-              <span class="catalog-swatch sw-purple" role="button" tabindex="0" aria-label="Фиолетовый цвет" data-image="/images/products/plaud-notepin-purple.webp" data-alt="Носимый AI-диктофон Plaud NotePin в фиолетовом цвете"></span>
-            </div>
-          </div>
           <div class="catalog-card-content">
             <h3 class="text-xl font-semibold">Plaud NotePin</h3>
+            <div class="catalog-color-row">
+              <div class="catalog-colors" aria-label="Цвета Plaud NotePin">
+                <span class="catalog-swatch sw-graphite is-active" role="button" tabindex="0" aria-label="Графитовый цвет" data-image="/images/products/plaud-notepin.webp" data-alt="Носимый AI-диктофон Plaud NotePin в графитовом цвете"></span>
+                <span class="catalog-swatch sw-silver" role="button" tabindex="0" aria-label="Серебристый цвет" data-image="/images/products/plaud-notepin-silver.webp" data-alt="Носимый AI-диктофон Plaud NotePin в серебристом цвете"></span>
+                <span class="catalog-swatch sw-purple" role="button" tabindex="0" aria-label="Фиолетовый цвет" data-image="/images/products/plaud-notepin-purple.webp" data-alt="Носимый AI-диктофон Plaud NotePin в фиолетовом цвете"></span>
+              </div>
+            </div>
             <p class="mt-2 text-sm leading-6 text-zinc-600">Носимый значок 15 г. Водозащита IP54. Для живых разговоров без рук.</p>
             <div class="catalog-price-row">
               <span class="text-2xl font-bold">20 990 ₽</span>
@@ -715,11 +710,6 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           </div>
           <div class="catalog-media">
             <img src="/images/products/plaud-accessories.webp" alt="Набор аксессуаров для AI-диктофона CRYPTORO" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
-          </div>
-          <div class="catalog-color-row">
-            <div class="catalog-colors" aria-label="Набор аксессуаров">
-              <span class="catalog-swatch sw-graphite is-active" role="button" tabindex="0" aria-label="Стандартный комплект" data-image="/images/products/plaud-accessories.webp" data-alt="Набор аксессуаров для AI-диктофона CRYPTORO"></span>
-            </div>
           </div>
           <div class="catalog-card-content">
             <h3 class="text-xl font-semibold">Набор аксессуаров</h3>
@@ -740,18 +730,56 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
           <div class="catalog-media">
             <img src="/images/products/note-magnetic-case-black-0225.webp" alt="Чехол кожаный Plaud Note AI Black от CRYPTORO" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
           </div>
-          <div class="catalog-color-row">
-            <div class="catalog-colors" aria-label="Цвета кожаного чехла Plaud Note AI">
-              <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Black" data-image="/images/products/note-magnetic-case-black-0225.webp" data-alt="Чехол кожаный Plaud Note AI Black от CRYPTORO"></span>
-              <span class="catalog-swatch sw-blue" role="button" tabindex="0" aria-label="Blue" data-image="/images/products/note-magnetic-case-blue-0225.webp" data-alt="Чехол кожаный Plaud Note AI Blue от CRYPTORO"></span>
-              <span class="catalog-swatch sw-brown" role="button" tabindex="0" aria-label="Brown" data-image="/images/products/note-magnetic-case-brown-0225.webp" data-alt="Чехол кожаный Plaud Note AI Brown от CRYPTORO"></span>
-              <span class="catalog-swatch sw-green" role="button" tabindex="0" aria-label="Green" data-image="/images/products/note-magnetic-case-green-0225.webp" data-alt="Чехол кожаный Plaud Note AI Green от CRYPTORO"></span>
-              <span class="catalog-swatch sw-dark-blue" role="button" tabindex="0" aria-label="Dark Blue" data-image="/images/products/f1nr2y5y5kueey0bkyhn44866pz20o9l.png" data-alt="Чехол кожаный Plaud Note AI Dark Blue от CRYPTORO"></span>
-            </div>
-          </div>
           <div class="catalog-card-content">
             <h3 class="text-xl font-semibold">Чехол Plaud Note AI</h3>
+            <div class="catalog-color-row">
+              <div class="catalog-colors" aria-label="Цвета кожаного чехла Plaud Note AI">
+                <span class="catalog-swatch sw-black is-active" role="button" tabindex="0" aria-label="Black" data-image="/images/products/note-magnetic-case-black-0225.webp" data-alt="Чехол кожаный Plaud Note AI Black от CRYPTORO"></span>
+                <span class="catalog-swatch sw-blue" role="button" tabindex="0" aria-label="Blue" data-image="/images/products/note-magnetic-case-blue-0225.webp" data-alt="Чехол кожаный Plaud Note AI Blue от CRYPTORO"></span>
+                <span class="catalog-swatch sw-brown" role="button" tabindex="0" aria-label="Brown" data-image="/images/products/note-magnetic-case-brown-0225.webp" data-alt="Чехол кожаный Plaud Note AI Brown от CRYPTORO"></span>
+                <span class="catalog-swatch sw-green" role="button" tabindex="0" aria-label="Green" data-image="/images/products/note-magnetic-case-green-0225.webp" data-alt="Чехол кожаный Plaud Note AI Green от CRYPTORO"></span>
+                <span class="catalog-swatch sw-dark-blue" role="button" tabindex="0" aria-label="Dark Blue" data-image="/images/products/f1nr2y5y5kueey0bkyhn44866pz20o9l.png" data-alt="Чехол кожаный Plaud Note AI Dark Blue от CRYPTORO"></span>
+              </div>
+            </div>
             <p class="mt-2 text-sm leading-6 text-zinc-600">Кожаный чехол для Plaud Note AI. 5 цветов: Black, Blue, Brown, Green, Dark Blue.</p>
+            <div class="catalog-price-row">
+              <div class="text-2xl font-bold">Уточняется</div>
+            </div>
+          </div>
+        </a>
+
+        <a href="/catalog" data-card-id="plaud-ai-pro-12m" data-no-product-page="true" data-cat="subscription" data-price="0" class="pcard pcard--comingsoon reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--year">ПОДПИСКА</span>
+              <span class="card-tag card-tag--year">12 МЕС</span>
+            </div>
+          </div>
+          <div class="catalog-media">
+            <img src="/images/products/plaud-ai-pro-12m.svg" alt="Подписка PLAUD AI PRO на 12 месяцев" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">PLAUD AI PRO</h3>
+            <p class="mt-2 text-sm leading-6 text-zinc-600">Годовой план AI PRO для расширенных возможностей обработки записей и аналитики.</p>
+            <div class="catalog-price-row">
+              <div class="text-2xl font-bold">Уточняется</div>
+            </div>
+          </div>
+        </a>
+
+        <a href="/catalog" data-card-id="plaud-ai-unlimited-12m" data-no-product-page="true" data-cat="subscription" data-price="0" class="pcard pcard--comingsoon reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--year">ПОДПИСКА</span>
+              <span class="card-tag card-tag--year">12 МЕС</span>
+            </div>
+          </div>
+          <div class="catalog-media">
+            <img src="/images/products/plaud-ai-unlimited-12m.svg" alt="Подписка PLAUD AI Unlimited Plan на 12 месяцев" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">PLAUD AI Unlimited</h3>
+            <p class="mt-2 text-sm leading-6 text-zinc-600">Годовой Unlimited-план без лимитов на использование ключевых AI-функций сервиса.</p>
             <div class="catalog-price-row">
               <div class="text-2xl font-bold">Уточняется</div>
             </div>

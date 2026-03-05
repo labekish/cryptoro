@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+  <title id="title">PLAUD AI Unlimited Plan — 12 месяцев</title>
+  <desc id="desc">Премиальная минималистичная обложка подписки PLAUD AI Unlimited Plan</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="100%" stop-color="#EAEEF4"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F3F6FB"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#4B5563"/>
+    </linearGradient>
+    <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#0F172A" flood-opacity="0.17"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="1200" rx="68" fill="url(#bg)"/>
+
+  <g filter="url(#cardShadow)">
+    <rect x="154" y="118" width="892" height="964" rx="56" fill="url(#glass)" stroke="#DCE2EB" stroke-width="3"/>
+  </g>
+
+  <rect x="210" y="182" width="420" height="58" rx="29" fill="url(#accent)"/>
+  <text x="420" y="219" text-anchor="middle" font-family="'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="25" font-weight="700" fill="#FFFFFF">PLAUD AI UNLIMITED PLAN</text>
+
+  <text x="210" y="370" font-family="'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="126" font-weight="700" fill="#111827">12</text>
+  <text x="470" y="370" font-family="'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="56" font-weight="600" fill="#374151">месяцев</text>
+
+  <text x="210" y="448" font-family="'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="38" font-weight="500" fill="#374151">Максимальный план без ограничений</text>
+
+  <g opacity="0.96">
+    <rect x="210" y="548" width="780" height="88" rx="20" fill="#FFFFFF" stroke="#DDE3EC"/>
+    <text x="250" y="603" font-family="'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="32" font-weight="500" fill="#111827">• Наивысшие лимиты и приоритет AI-очереди</text>
+
+    <rect x="210" y="664" width="780" height="88" rx="20" fill="#FFFFFF" stroke="#DDE3EC"/>
+    <text x="250" y="719" font-family="'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="32" font-weight="500" fill="#111827">• Полный доступ ко всем функциям платформы</text>
+
+    <rect x="210" y="780" width="780" height="88" rx="20" fill="#FFFFFF" stroke="#DDE3EC"/>
+    <text x="250" y="835" font-family="'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="32" font-weight="500" fill="#111827">• Срок действия подписки: 12 месяцев</text>
+  </g>
+
+  <line x1="210" y1="926" x2="990" y2="926" stroke="#E4E8EF" stroke-width="2"/>
+  <text x="210" y="975" font-family="'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="27" font-weight="500" fill="#6B7280">Digital subscription · AC-59</text>
+</svg>
