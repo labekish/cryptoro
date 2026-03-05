@@ -106,7 +106,10 @@ if (homePage) {
     );
   }
   if (homePage.reviewsTitle) {
-    syncedBody = syncedBody.replace(/(<h2 class="sec-title">)Что говорят клиенты(<\/h2>)/i, `$1${escapeHtml(homePage.reviewsTitle)}$2`);
+    syncedBody = syncedBody.replace(
+      /(<section class="sec sec-reviews">[\s\S]*?<h2 class="sec-title">)([\s\S]*?)(<\/h2>)/i,
+      `$1${escapeHtml(homePage.reviewsTitle)}$3`
+    );
   }
   if (homePage.reviewsSubtitle) {
     syncedBody = syncedBody.replace(

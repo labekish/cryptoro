@@ -1066,14 +1066,52 @@ img{max-width:100%;height:auto}
 .sec-features .fcard--analytics{grid-column:3 / span 3!important;grid-row:2!important}
 .sec-features .fvisual{min-height:132px!important;margin-bottom:14px!important}
 
-/* Reviews: светлый компактный стиль */
-.sec-reviews{background:#fff!important}
-.sec-reviews .sec-title{color:#1d1d1f!important}
-.sec-reviews .sec-sub{color:#6e6e73!important}
-.sec-reviews .rv-grid{gap:16px!important}
+/* Reviews: переработка под референс (premium-light carousel) */
+.sec-reviews{
+  position:relative!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,var(--c-bg-alt) 0%, var(--c-bg) 56%, var(--c-bg) 100%)!important;
+}
+.sec-reviews::before{
+  content:''!important;
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(820px 340px at 12% 100%, rgba(232,134,53,.12), transparent 72%),
+    radial-gradient(760px 320px at 88% 100%, rgba(232,134,53,.08), transparent 74%)!important;
+  opacity:.36!important;
+}
+.sec-reviews .wrap{position:relative!important;z-index:1!important}
+.sec-reviews .sec-head{
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:space-between!important;
+  gap:20px!important;
+  margin-bottom:28px!important;
+  text-align:left!important;
+}
+.sec-reviews .rv-head-main{max-width:760px!important}
+.sec-reviews .sec-title{
+  margin-bottom:10px!important;
+  color:var(--c-text)!important;
+  font-size:clamp(36px,4.2vw,56px)!important;
+  line-height:1.04!important;
+}
+.sec-reviews .rv-title-accent{color:var(--c-accent)!important}
+.sec-reviews .sec-sub{
+  color:var(--c-muted)!important;
+  font-size:18px!important;
+  line-height:1.5!important;
+}
+.sec-reviews .rv-head-actions{
+  display:flex!important;
+  gap:12px!important;
+  align-items:center!important;
+}
 .sec-reviews .rv-carousel{
   position:relative!important;
-  margin-top:10px!important;
+  margin-top:0!important;
 }
 .sec-reviews .rv-viewport{
   overflow:hidden!important;
@@ -1081,46 +1119,67 @@ img{max-width:100%;height:auto}
 }
 .sec-reviews .rv-track{
   display:flex!important;
-  gap:16px!important;
-  transition:transform .45s ease!important;
+  gap:20px!important;
+  transition:transform .5s cubic-bezier(.16,1,.3,1)!important;
   will-change:transform!important;
 }
 .sec-reviews .rv-nav{
-  position:absolute!important;
-  top:-56px!important;
-  width:38px!important;
-  height:38px!important;
+  position:static!important;
+  width:48px!important;
+  height:48px!important;
   border-radius:999px!important;
-  border:1px solid rgba(17,17,17,.16)!important;
-  background:#fff!important;
-  color:#111!important;
+  border:1px solid rgba(17,17,17,.18)!important;
+  background:rgba(255,255,255,.92)!important;
+  color:var(--c-text)!important;
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
   cursor:pointer!important;
   z-index:2!important;
-  transition:all .2s ease!important;
+  font-size:0!important;
+  line-height:0!important;
+  padding:0!important;
+  transition:transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease!important;
+}
+.sec-reviews .rv-nav svg{
+  width:18px!important;
+  height:18px!important;
+  display:block!important;
+  pointer-events:none!important;
+  stroke:currentColor!important;
+  fill:none!important;
+  stroke-width:2.4!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+.sec-reviews .rv-nav.is-primary{
+  background:var(--c-text)!important;
+  color:#fff!important;
+  border-color:var(--c-text)!important;
 }
 .sec-reviews .rv-nav:hover{
-  background:#111!important;
-  color:#fff!important;
-  border-color:#111!important;
+  transform:translateY(-1px)!important;
+  box-shadow:0 8px 18px rgba(17,17,17,.16)!important;
 }
-.sec-reviews .rv-nav.prev{right:46px!important}
-.sec-reviews .rv-nav.next{right:0!important}
+.sec-reviews .rv-nav:disabled{
+  opacity:.45!important;
+  cursor:not-allowed!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
 .sec-reviews .rv-dots{
-  margin-top:16px!important;
+  margin-top:20px!important;
   display:flex!important;
   justify-content:center!important;
   gap:8px!important;
 }
 .sec-reviews .rv-dot{
   position:relative!important;
-  width:8px!important;
-  height:8px!important;
+  width:10px!important;
+  height:10px!important;
   border-radius:999px!important;
   border:none!important;
-  background:#d0d5dd!important;
+  background:rgba(17,17,17,.16)!important;
   cursor:pointer!important;
   transition:all .2s ease!important;
   padding:0!important;
@@ -1128,36 +1187,62 @@ img{max-width:100%;height:auto}
 .sec-reviews .rv-dot::after{
   content:''!important;
   position:absolute!important;
-  inset:-18px!important;
+  inset:-16px!important;
 }
 .sec-reviews .rv-dot.active{
-  width:24px!important;
-  background:#111!important;
+  background:var(--c-text)!important;
+  transform:scale(1.16)!important;
 }
 .sec-reviews .rvcard{
   position:relative!important;
   overflow:hidden!important;
-  border-radius:16px!important;
+  border-radius:22px!important;
   background:#fff!important;
   border:1px solid rgba(17,17,17,.10)!important;
-  box-shadow:0 2px 10px rgba(15,23,42,.07)!important;
-  padding:24px!important;
-  min-height:260px!important;
+  box-shadow:0 10px 26px rgba(15,23,42,.08)!important;
+  padding:26px!important;
+  min-height:364px!important;
   display:flex!important;
   flex-direction:column!important;
-  flex:0 0 calc((100% - 32px) / 3)!important;
+  flex:0 0 calc((100% - 40px) / 3)!important;
 }
 .sec-reviews .rvcard::after{display:none!important}
-.sec-reviews .rvstars{color:#6e6e73!important;opacity:1!important}
-.sec-reviews .rvquote{color:#9aa3b2!important;opacity:.35!important;margin-bottom:8px!important}
+.sec-reviews .rvmeta{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  margin-bottom:14px!important;
+}
+.sec-reviews .rvquote{
+  color:var(--c-accent)!important;
+  opacity:1!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:42px!important;
+  height:42px!important;
+  border-radius:12px!important;
+  background:rgba(232,134,53,.12)!important;
+}
+.sec-reviews .rvquote svg{
+  width:24px!important;
+  height:24px!important;
+}
+.sec-reviews .rvstars{
+  color:var(--c-accent)!important;
+  font-size:18px!important;
+  letter-spacing:3px!important;
+  opacity:1!important;
+}
 .sec-reviews .rvtext{
   position:relative!important;
   z-index:1!important;
   color:#1f2937!important;
   font-size:17px!important;
-  line-height:1.55!important;
+  line-height:1.58!important;
   letter-spacing:0!important;
-  margin-bottom:18px!important;
+  margin-bottom:20px!important;
   font-weight:400!important;
   overflow-wrap:anywhere!important;
   word-break:normal!important;
@@ -1167,30 +1252,43 @@ img{max-width:100%;height:auto}
   position:relative!important;
   z-index:1!important;
   margin-top:auto!important;
-  padding:10px 12px!important;
-  border-radius:12px!important;
-  border:1px solid rgba(17,17,17,.10)!important;
-  background:#f8fafc!important;
+  border:none!important;
+  background:transparent!important;
+  padding:0!important;
 }
-.sec-reviews .rvname{color:#1d1d1f!important}
-.sec-reviews .rvrole{color:#6b7280!important}
+.sec-reviews .rvname{color:#111!important}
+.sec-reviews .rvrole{color:var(--c-muted)!important}
 .sec-reviews .rvav{
-  width:40px!important;
-  height:40px!important;
+  width:44px!important;
+  height:44px!important;
   font-size:13px!important;
   box-shadow:none!important;
-  background:#f0f0f3!important;
-  color:#1d1d1f!important;
+  border:1px solid rgba(17,17,17,.08)!important;
+  background:#eef0f3!important;
+  color:#374151!important;
 }
+.sec-reviews .rvav.blue{background:#eceff4!important;color:#374151!important}
+.sec-reviews .rvav.green{background:#edf2ee!important;color:#2f5f43!important}
+.sec-reviews .rvav.violet{background:#f0edf4!important;color:#514169!important}
 
-@media (max-width:768px){
-  .sec-reviews .rvcard{min-height:auto!important;padding:20px!important}
-  .sec-reviews .rvtext{font-size:16px!important;line-height:1.55!important;font-weight:400!important}
-  .sec-reviews .rvcard{flex-basis:100%!important}
-  .sec-reviews .rv-nav{display:none!important}
-}
 @media (max-width:1100px){
-  .sec-reviews .rvcard{flex-basis:calc((100% - 16px) / 2)!important}
+  .sec-reviews .rvcard{flex-basis:calc((100% - 20px) / 2)!important}
+}
+@media (max-width:768px){
+  .sec-reviews .sec-head{
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    margin-bottom:20px!important;
+    gap:12px!important;
+  }
+  .sec-reviews .rv-head-actions{display:none!important}
+  .sec-reviews .rvcard{
+    min-height:auto!important;
+    padding:20px!important;
+    flex-basis:100%!important;
+  }
+  .sec-reviews .rvtext{font-size:16px!important;line-height:1.55!important;font-weight:400!important}
+  .sec-reviews .rv-nav{display:none!important}
 }
 /* Use cases: выравнивание типографики и внутренних отступов */
 .sec-usecases .sec-head{max-width:980px;margin-left:auto!important;margin-right:auto!important}
@@ -2571,12 +2669,12 @@ body .sec-how .smock {
 
 /* ── REVIEW CARDS: accent quote marks ── */
 .sec-reviews .rvquote {
-  color: #e88635 !important;
-  opacity: .5 !important;
+  color: var(--c-accent) !important;
+  opacity: 1 !important;
 }
 .sec-reviews .rvquote svg {
-  width: 32px !important;
-  height: 32px !important;
+  width: 24px !important;
+  height: 24px !important;
 }
 
 /* ── CTA BUTTON: accent gradient + shimmer ── */
@@ -2611,12 +2709,138 @@ body .sec-how .smock {
   40%, 100% { left: 100% }
 }
 
-/* ── FAQ: smooth chevron rotation ── */
-.faqarr {
-  transition: transform .3s ease, background .3s ease, color .3s ease, border-color .3s ease !important;
+/* ── FAQ: redesign by reference, using CRYPTORO palette ── */
+.sec-faq {
+  background: var(--c-bg) !important;
 }
-.faqitem.open .faqarr {
-  transform: none !important;
+.sec-faq .wrap {
+  max-width: 1080px !important;
+}
+.sec-faq .faq-head {
+  text-align: center !important;
+  margin-bottom: 34px !important;
+}
+.sec-faq .faq-kicker {
+  font-size: 14px !important;
+  letter-spacing: .05em !important;
+  text-transform: uppercase !important;
+  color: var(--c-muted) !important;
+  margin-bottom: 10px !important;
+  font-weight: 600 !important;
+}
+.sec-faq .sec-title {
+  color: var(--c-text) !important;
+  margin-bottom: 10px !important;
+}
+.sec-faq .sec-sub {
+  color: var(--c-muted) !important;
+  max-width: 700px !important;
+  margin: 0 auto !important;
+}
+.sec-faq .faq-inner {
+  max-width: 860px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+.sec-faq .faqitem {
+  border: 1px solid var(--line) !important;
+  border-radius: 18px !important;
+  background: var(--c-bg-alt) !important;
+  overflow: hidden !important;
+  transition: border-color .25s ease, background .25s ease, box-shadow .25s ease !important;
+}
+.sec-faq .faqitem:hover {
+  border-color: rgba(29,29,31,.2) !important;
+}
+.sec-faq .faqq {
+  width: 100% !important;
+  border: 0 !important;
+  background: transparent !important;
+  min-height: 74px !important;
+  padding: 20px 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  cursor: pointer !important;
+}
+.sec-faq .faqq > span:first-child {
+  color: var(--c-text) !important;
+  font-size: 18px !important;
+  line-height: 1.45 !important;
+  font-weight: 500 !important;
+  text-align: left !important;
+}
+.sec-faq .faqarr {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(29,29,31,.26) !important;
+  background: transparent !important;
+  color: var(--c-text) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  transition: background .25s ease, color .25s ease, border-color .25s ease !important;
+}
+.sec-faq .faqa {
+  padding: 0 24px !important;
+  color: var(--c-muted) !important;
+  font-size: 16px !important;
+  line-height: 1.7 !important;
+}
+.sec-faq .faqitem.open {
+  background: var(--c-text) !important;
+  border-color: var(--c-text) !important;
+  box-shadow: 0 10px 26px rgba(17,17,17,.18) !important;
+}
+.sec-faq .faqitem.open .faqq > span:first-child {
+  color: #fff !important;
+}
+.sec-faq .faqitem.open .faqa {
+  padding: 0 24px 24px !important;
+  color: rgba(255,255,255,.8) !important;
+  max-height: 320px !important;
+  opacity: 1 !important;
+}
+.sec-faq .faqitem.open .faqarr {
+  background: #fff !important;
+  color: var(--c-text) !important;
+  border-color: #fff !important;
+}
+@media (max-width: 768px) {
+  .sec-faq .faq-head { margin-bottom: 24px !important; }
+  .sec-faq .faq-kicker { font-size: 12px !important; margin-bottom: 8px !important; }
+  .sec-faq .faq-inner { gap: 10px !important; }
+  .sec-faq .faqq {
+    min-height: 60px !important;
+    padding: 16px 16px !important;
+    align-items: flex-start !important;
+  }
+  .sec-faq .faqq > span:first-child {
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+  }
+  .sec-faq .faqarr {
+    flex-basis: 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 18px !important;
+  }
+  .sec-faq .faqa {
+    padding: 0 16px !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  .sec-faq .faqitem.open .faqa {
+    padding: 0 16px 16px !important;
+    max-height: 380px !important;
+  }
 }
 
 /* ── FEATURE ROW ITEMS: stagger reveal ── */
@@ -2632,9 +2856,283 @@ body .sec-how .smock {
 
 /* ── REVIEW STARS: subtle color ── */
 .sec-reviews .rvstars {
-  color: #111 !important;
-  font-size: 13px !important;
-  letter-spacing: 2px !important;
+  color: var(--c-accent) !important;
+  font-size: 18px !important;
+  letter-spacing: 3px !important;
+}
+
+/* ── HERO REDESIGN: light style + overlay cards (по референсу Enlango) ── */
+.hero-rating-badge{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-height:34px!important;
+  padding:6px 12px!important;
+  border-radius:999px!important;
+  border:1px solid var(--line)!important;
+  background:rgba(255,255,255,.9)!important;
+  color:var(--c-muted)!important;
+  font-size:14px!important;
+  font-weight:500!important;
+  margin:0 0 18px!important;
+}
+.hero-rating-icon{
+  width:18px!important;
+  height:18px!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:var(--c-bg-alt)!important;
+  color:var(--c-text)!important;
+  font-size:11px!important;
+  line-height:1!important;
+}
+.hero .btns{
+  gap:16px!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+}
+.hero-link{
+  display:inline-flex!important;
+  align-items:center!important;
+  color:var(--c-muted)!important;
+  font-size:16px!important;
+  font-weight:500!important;
+  text-decoration:none!important;
+  transition:color .2s ease!important;
+}
+.hero-link:hover{color:var(--c-text)!important}
+
+/* Русский комментарий: метрики под CTA вместо чипов */
+.hero-trust{
+  margin-top:22px!important;
+  display:flex!important;
+  align-items:stretch!important;
+  gap:0!important;
+  border:1px solid var(--line)!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.78)!important;
+  max-width:640px!important;
+}
+.hero-trust .hero-trust-item{
+  min-height:auto!important;
+  border:none!important;
+  border-radius:0!important;
+  background:transparent!important;
+  padding:14px 16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:2px!important;
+  flex:1 1 0!important;
+}
+.hero-trust .hero-trust-item:not(:last-child){
+  border-right:1px solid var(--line)!important;
+}
+.hero-metric-value{
+  color:var(--c-text)!important;
+  font-size:30px!important;
+  line-height:1.05!important;
+  font-weight:700!important;
+  letter-spacing:-.02em!important;
+}
+.hero-metric-label{
+  color:var(--c-muted)!important;
+  font-size:13px!important;
+  line-height:1.35!important;
+  font-weight:500!important;
+}
+
+/* Русский комментарий: floating-карточки вокруг визуала продукта */
+.hero-product{
+  overflow:visible!important;
+}
+.hero-product-image{position:relative!important;z-index:1!important}
+.hero-overlay{
+  position:absolute!important;
+  z-index:3!important;
+  pointer-events:none!important;
+  padding:16px!important;
+  border-radius:16px!important;
+  border:1px solid var(--line)!important;
+  background:rgba(255,255,255,.96)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.08)!important;
+}
+.hero-overlay--lang{
+  left:-2%!important;
+  bottom:54px!important;
+  min-width:186px!important;
+  min-height:76px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  border-color:transparent!important;
+  background:linear-gradient(145deg,#5f89e8 0%,#4b73d1 100%)!important;
+  color:#fff!important;
+}
+.hero-overlay-num{
+  font-size:38px!important;
+  line-height:.95!important;
+  font-weight:700!important;
+  letter-spacing:-.04em!important;
+}
+.hero-overlay-label{
+  margin-top:0!important;
+  font-size:12px!important;
+  line-height:1.3!important;
+  opacity:.95!important;
+  max-width:96px!important;
+}
+.hero-overlay--transcript{
+  top:8px!important;
+  right:-10%!important;
+  width:286px!important;
+  padding:16px 16px 12px!important;
+}
+.hero-overlay-title{
+  color:var(--c-text)!important;
+  font-size:14px!important;
+  line-height:1.25!important;
+  font-weight:600!important;
+  margin-bottom:8px!important;
+}
+.hero-overlay-text{
+  color:var(--c-muted)!important;
+  font-size:12px!important;
+  line-height:1.35!important;
+  margin-bottom:5px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.hero-overlay-meta{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  margin-top:7px!important;
+  padding-right:22px!important;
+  color:var(--c-muted)!important;
+  font-size:11px!important;
+  line-height:1.2!important;
+}
+.hero-overlay-progress{
+  width:82px!important;
+  height:6px!important;
+  border-radius:999px!important;
+  background:var(--c-bg-alt)!important;
+  overflow:hidden!important;
+}
+.hero-overlay-progress i{
+  display:block!important;
+  width:58%!important;
+  height:100%!important;
+  background:rgba(29,29,31,.35)!important;
+}
+.hero-overlay-check{
+  position:absolute!important;
+  top:12px!important;
+  right:12px!important;
+  width:18px!important;
+  height:18px!important;
+  border-radius:999px!important;
+  background:var(--c-text)!important;
+  color:#fff!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:12px!important;
+  line-height:1!important;
+  font-weight:700!important;
+}
+.hero-overlay--accuracy{
+  right:-8%!important;
+  bottom:26px!important;
+  width:152px!important;
+  min-height:84px!important;
+  color:var(--c-text)!important;
+}
+.hero-overlay-acc-head{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  color:var(--c-muted)!important;
+  font-size:11px!important;
+  line-height:1.2!important;
+  font-weight:600!important;
+  margin-bottom:8px!important;
+}
+.hero-overlay-acc-value{
+  color:var(--c-text)!important;
+  font-size:30px!important;
+  line-height:.95!important;
+  font-weight:700!important;
+  letter-spacing:-.03em!important;
+}
+.hero-overlay-acc-sub{
+  margin-top:4px!important;
+  color:var(--c-muted)!important;
+  font-size:11px!important;
+  line-height:1.3!important;
+  font-weight:500!important;
+}
+
+@media (max-width:1180px){
+  .hero-overlay--lang{left:-5%!important;bottom:48px!important}
+  .hero-overlay--transcript{right:-12%!important;top:6px!important;width:246px!important}
+  .hero-overlay--accuracy{right:-10%!important;bottom:22px!important}
+}
+@media (max-width:1024px){
+  .hero-rating-badge{margin-bottom:14px!important}
+  .hero-metric-value{font-size:26px!important}
+  .hero-metric-label{font-size:12px!important}
+  .hero-overlay--lang{
+    left:-6%!important;
+    bottom:34px!important;
+    min-width:156px!important;
+    min-height:62px!important;
+    padding:12px!important;
+  }
+  .hero-overlay-num{font-size:32px!important}
+  .hero-overlay-label{font-size:11px!important}
+  .hero-overlay--transcript{
+    top:-2px!important;
+    right:-16%!important;
+    width:226px!important;
+    padding:12px!important;
+  }
+  .hero-overlay-title{font-size:13px!important}
+  .hero-overlay-text{font-size:11px!important}
+  .hero-overlay-meta{font-size:10px!important}
+  .hero-overlay--accuracy{
+    right:-12%!important;
+    bottom:14px!important;
+    width:138px!important;
+    min-height:78px!important;
+  }
+  .hero-overlay-acc-value{font-size:24px!important}
+  .hero-overlay-acc-sub{font-size:10px!important}
+}
+@media (max-width:768px){
+  .hero .btns{
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    gap:10px!important;
+    width:100%!important;
+    max-width:320px!important;
+  }
+  .hero-link{font-size:15px!important}
+  .hero-trust{
+    max-width:100%!important;
+    width:100%!important;
+  }
+  .hero-trust .hero-trust-item{
+    padding:12px 10px!important;
+  }
+  .hero-metric-value{font-size:20px!important}
+  .hero-metric-label{font-size:11px!important}
 }
 
 /* ── Subtle parallax on hero image (will be driven by JS) ── */
@@ -2659,25 +3157,12 @@ body .sec-how .smock {
 
 /* Image: smooth zoom-in from small to full size */
 .hero-product-image img {
-  /* Русский комментарий: мягкий zoom-in без подпрыгивания + увеличенный финальный размер */
-  animation: productZoomIn 1.2s cubic-bezier(.22,1,.36,1) .35s both !important;
+  /* Русский комментарий: анимация входа теперь на .hero-product-image (по staged-сценарию) */
+  animation: none !important;
   transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.24);
   transform-style: preserve-3d;
   transition: transform .3s cubic-bezier(.16,1,.3,1);
   will-change: transform;
-}
-@keyframes productZoomIn {
-  0% {
-    opacity: 0;
-    transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(.36);
-    filter: blur(16px) drop-shadow(0 0 0 transparent);
-  }
-  100% {
-    opacity: 1;
-    transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.24);
-    filter: drop-shadow(0 14px 24px rgba(15,23,42,.10))
-            drop-shadow(0 4px 10px rgba(15,23,42,.06));
-  }
 }
 
 /* Русский комментарий: по запросу отключаем остаточный блик/свечение */
@@ -2756,29 +3241,36 @@ body .sec-how .smock {
   animation-play-state:paused!important;
 }
 
-/* ── POST-TYPEWRITER: sub, buttons, trust reveal after title finishes ── */
-/* Elements start hidden (layout preserved via existing size); JS adds .vis */
+/* Русский комментарий: Calm Editorial без подпрыгивания — только мягкий fade */
+.hero-product-image,
+.hero-overlay--transcript,
+.hero-overlay--lang,
+.hero-overlay--accuracy{
+  opacity:1!important;
+  animation-name:heroCalmFade!important;
+  animation-duration:500ms!important;
+  animation-fill-mode:both!important;
+  animation-timing-function:cubic-bezier(0.22,1,0.36,1)!important;
+}
+.hero-product-image{animation-delay:240ms!important}
+.hero-overlay--transcript{animation-delay:360ms!important}
+.hero-overlay--lang{animation-delay:480ms!important}
+.hero-overlay--accuracy{animation-delay:560ms!important}
+
+@keyframes heroCalmFade{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+/* Русский комментарий: sub/btns открываем после typewriter, чтобы ритм был аккуратным */
 .hero-sub,
-.hero .btns,
-.hero-trust {
-  opacity: 0 !important;
-  transform: translateY(10px) !important;
-  transition: opacity .7s ease, transform .7s cubic-bezier(.16,1,.3,1) !important;
+.hero .btns{
+  opacity:0!important;
 }
-/* .pvis = post-typewriter visible (avoids conflict with IntersectionObserver's .vis) */
-.hero-sub.pvis {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-}
-.hero .btns.pvis {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-  transition-delay: .15s !important;
-}
-.hero-trust.pvis {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-  transition-delay: .28s !important;
+.hero-sub.pvis,
+.hero .btns.pvis{
+  opacity:1!important;
+  transition:opacity .45s cubic-bezier(0.22,1,0.36,1)!important;
 }
 
 /* ── prefers-reduced-motion ── */
@@ -2794,13 +3286,15 @@ body .sec-how .smock {
   .hero-product-image { will-change: auto; transition: none }
   .hero-product::before { display: none !important }
   .hero-product::after { display: none !important }
+  .hero-product-image { animation: none !important; opacity: 1 !important; transform: none !important }
   .hero-product-image img { animation: none !important; opacity: 1 !important; filter: drop-shadow(0 30px 48px rgba(15,23,42,.18)) !important }
   .hero-type-caret { border-right: none !important; animation: none !important; padding-right: 0 !important }
   .feat-primary__stat.counted { animation: none !important }
   .uc-block.reveal, .uc-block.reveal.vis { transform: none !important; opacity: 1 !important }
   .products-grid .pcard:first-child.reveal { transform: none !important; opacity: 1 !important }
-  .hero-sub, .hero .btns, .hero-trust { opacity: 1 !important; transform: none !important; transition: none !important }
-  .hero-sub.pvis, .hero .btns.pvis, .hero-trust.pvis { transition-delay: 0s !important }
+  .hero-title, .hero-sub, .hero .btns, .hero-product-image, .hero-overlay--transcript, .hero-overlay--lang, .hero-overlay--accuracy {
+    animation: none !important; opacity: 1 !important; transform: none !important;
+  }
   .hero-trust .hero-trust-item{opacity:1!important;transform:none!important}
 }
 </style>
@@ -2834,15 +3328,26 @@ body .sec-how .smock {
               .replace(/'/g, '&#39;');
           }
 
-          // Reveal sub → btns → trust sequentially after typewriter completes.
-          // Uses .pvis (not .vis) to avoid conflict with IntersectionObserver scroll-reveals.
+          // Русский комментарий: безопасно добавляем класс, даже если DOM ещё догружается.
+          function addClassWhenReady(selector, className, delay) {
+            window.setTimeout(function () {
+              var attempts = 0;
+              (function applyClass() {
+                var node = document.querySelector(selector);
+                if (node) {
+                  node.classList.add(className);
+                  return;
+                }
+                attempts += 1;
+                if (attempts < 30) window.setTimeout(applyClass, 50);
+              })();
+            }, delay || 0);
+          }
+
+          // Русский комментарий: после печати показываем подзаголовок и кнопки.
           function revealPostType() {
-            var sub   = document.querySelector('.hero-sub');
-            var btns  = document.querySelector('.hero .btns');
-            var trust = document.querySelector('.hero-trust');
-            if (sub)   sub.classList.add('pvis');
-            if (btns)  window.setTimeout(function () { btns.classList.add('pvis'); }, 150);
-            if (trust) window.setTimeout(function () { trust.classList.add('pvis'); }, 300);
+            addClassWhenReady('.hero-sub', 'pvis', 0);
+            addClassWhenReady('.hero .btns', 'pvis', 120);
           }
 
           if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -2853,50 +3358,57 @@ body .sec-how .smock {
 
           var chars = Array.from(source);
           var i = 0;
-
-          // Hide text but keep layout height — opacity:0 preserves the h1 dimensions
-          // so the left column doesn't collapse while waiting for typing to begin
-          title.style.opacity = '0';
+          title.style.opacity = '1';
+          target.innerHTML = '';
+          target.classList.add('hero-type-caret');
 
           function tick() {
             i += 1;
             target.innerHTML = esc(chars.slice(0, i).join('')).replace(/\n/g, '<br>');
             if (i < chars.length) {
-              window.setTimeout(tick, 58);
-            } else {
-              // Caret stays briefly, then sub/btns/trust cascade in
-              window.setTimeout(function () {
-                target.classList.remove('hero-type-caret');
-              }, 600);
-              window.setTimeout(revealPostType, 180);
+              window.setTimeout(tick, 54);
+              return;
             }
+            window.setTimeout(function () {
+              target.classList.remove('hero-type-caret');
+            }, 450);
+            window.setTimeout(revealPostType, 80);
           }
 
-          // Start after entrance animations settle (~900ms animation + buffer).
-          // Caret and opacity restored at the same moment typing begins.
-          window.setTimeout(function () {
-            title.style.opacity = '1';
-            target.innerHTML = '';
-            target.classList.add('hero-type-caret');
-            tick();
-          }, 950);
+          window.setTimeout(tick, 80);
         })();
       </script>
-      <p class="hero-sub reveal d2">Записали встречу — получили расшифровку, задачи и резюме. Всё делает AI, автоматически.</p>
-      <div class="btns reveal d3">
+      <p class="hero-sub d2">Записали встречу — получили расшифровку, задачи и резюме. Всё делает AI, автоматически.</p>
+      <div class="btns d3">
         <a href="#products" class="btn-blue">Смотреть модели</a>
-        <a href="/catalog" class="btn-ghost">Перейти в каталог</a>
-      </div>
-      <div class="hero-trust reveal d3">
-        <span class="hero-trust-item">81 язык</span>
-        <span class="hero-trust-item">До 98% точность</span>
-        <span class="hero-trust-item">Гарантия 1 год</span>
+        <a href="/catalog" class="hero-link">Посмотреть каталог →</a>
       </div>
     </div>
-    <div class="hero-visual reveal d4">
+    <div class="hero-visual d4">
       <div class="hero-product">
         <div class="hero-product-image">
           <img src="/images/products/vspomnit-vse-cutout.png" alt="AI-диктофон Вспомни всё"/>
+        </div>
+        <div class="hero-overlay hero-overlay--lang" aria-hidden="true">
+          <div class="hero-overlay-num">81</div>
+          <div class="hero-overlay-label">язык поддерживается</div>
+        </div>
+        <div class="hero-overlay hero-overlay--transcript" aria-hidden="true">
+          <div class="hero-overlay-title">Транскрипция готова</div>
+          <div class="hero-overlay-text">Обсудили запуск продукта в Q2...</div>
+          <div class="hero-overlay-text">Следующий шаг: подготовить презентацию.</div>
+          <div class="hero-overlay-meta">
+            <span class="hero-overlay-progress"><i></i></span>
+            <span>2 мин назад</span>
+          </div>
+          <div class="hero-overlay-check">✓</div>
+        </div>
+        <div class="hero-overlay hero-overlay--accuracy" aria-hidden="true">
+          <div class="hero-overlay-acc-head">
+            <span>Точность</span>
+          </div>
+          <div class="hero-overlay-acc-value">98%</div>
+          <div class="hero-overlay-acc-sub">до распознавания</div>
         </div>
       </div>
     </div>
@@ -3190,22 +3702,36 @@ body .sec-how .smock {
 <section class="sec sec-reviews">
   <div class="wrap">
     <div class="sec-head reveal">
-      <h2 class="sec-title">Что говорят клиенты</h2>
-      <p class="sec-sub">Более 1 000 довольных покупателей по всей России</p>
+      <div class="rv-head-main">
+        <h2 class="sec-title">Что говорят <span class="rv-title-accent">клиенты</span></h2>
+        <p class="sec-sub">Более 1 000 довольных покупателей по всей России</p>
+      </div>
+      <div class="rv-head-actions">
+        <button class="rv-nav prev" type="button" aria-label="Предыдущий отзыв">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M15 6L9 12L15 18"></path>
+          </svg>
+        </button>
+        <button class="rv-nav next is-primary" type="button" aria-label="Следующий отзыв">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M9 6L15 12L9 18"></path>
+          </svg>
+        </button>
+      </div>
     </div>
     <div class="rv-carousel">
-      <button class="rv-nav prev" type="button" aria-label="Предыдущий отзыв">‹</button>
-      <button class="rv-nav next" type="button" aria-label="Следующий отзыв">›</button>
       <div class="rv-viewport">
         <div class="rv-track">
 
           <div class="rvcard reveal d1">
+            <div class="rvmeta">
             <span class="rvquote" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
               </svg>
             </span>
             <div class="rvstars">★★★★★</div>
+            </div>
             <p class="rvtext">«Пользуюсь 3 месяца на встречах. Транскрипция точная, резюме и задачи появляются сразу.»</p>
             <div class="rvauthor">
               <div class="rvav blue">АК</div>
@@ -3217,12 +3743,14 @@ body .sec-how .smock {
           </div>
 
           <div class="rvcard reveal d2">
+            <div class="rvmeta">
             <span class="rvquote" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
               </svg>
             </span>
             <div class="rvstars">★★★★★</div>
+            </div>
             <p class="rvtext">«Использую для интервью и звонков. Транскрипция аккуратная, удобно искать по записям и быстро собирать чистовой материал.»</p>
             <div class="rvauthor">
               <div class="rvav green">МС</div>
@@ -3234,12 +3762,14 @@ body .sec-how .smock {
           </div>
 
           <div class="rvcard reveal d3">
+            <div class="rvmeta">
             <span class="rvquote" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
               </svg>
             </span>
             <div class="rvstars">★★★★★</div>
+            </div>
             <p class="rvtext">«Записываю лекции и сразу получаю конспект. Экономит много времени на учебе.»</p>
             <div class="rvauthor">
               <div class="rvav violet">ДМ</div>
@@ -3251,12 +3781,14 @@ body .sec-how .smock {
           </div>
 
           <div class="rvcard reveal d1">
+            <div class="rvmeta">
             <span class="rvquote" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
               </svg>
             </span>
             <div class="rvstars">★★★★★</div>
+            </div>
             <p class="rvtext">«Для отдела продаж это лучший инструмент: после каждого звонка сразу видим резюме, ключевые возражения и next steps. Раньше на это уходил почти час в день.»</p>
             <div class="rvauthor">
               <div class="rvav blue">ИП</div>
@@ -3268,12 +3800,14 @@ body .sec-how .smock {
           </div>
 
           <div class="rvcard reveal d2">
+            <div class="rvmeta">
             <span class="rvquote" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
               </svg>
             </span>
             <div class="rvstars">★★★★★</div>
+            </div>
             <p class="rvtext">«Пользуюсь каждый день на консультациях. Всё работает стабильно.»</p>
             <div class="rvauthor">
               <div class="rvav green">ЕН</div>
@@ -3285,12 +3819,14 @@ body .sec-how .smock {
           </div>
 
           <div class="rvcard reveal d3">
+            <div class="rvmeta">
             <span class="rvquote" aria-hidden="true">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" focusable="false">
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.598-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.598-3.996 5.849h3.983v10h-9.983z"/>
               </svg>
             </span>
             <div class="rvstars">★★★★★</div>
+            </div>
             <p class="rvtext">«Понравилось, что можно быстро делиться готовой расшифровкой с командой и клиентом одной ссылкой.»</p>
             <div class="rvauthor">
               <div class="rvav violet">ОР</div>
@@ -3329,15 +3865,17 @@ body .sec-how .smock {
 <!-- FAQ -->
 <section class="sec sec-faq">
   <div class="wrap">
-    <div class="sec-head reveal">
+    <div class="sec-head faq-head reveal">
+      <div class="faq-kicker">Отвечаем на вопросы</div>
       <h2 class="sec-title">Вопросы и ответы</h2>
+      <p class="sec-sub">Ниже ответы по расшифровке, подписке, оплате и доставке.</p>
     </div>
     <div class="faq-inner">
 
-      <div class="faqitem">
-        <button type="button" class="faqq" aria-expanded="false">
+      <div class="faqitem open">
+        <button type="button" class="faqq" aria-expanded="true">
           <span>Как работает транскрипция?</span>
-          <span class="faqarr" aria-hidden="true">+</span>
+          <span class="faqarr" aria-hidden="true">−</span>
         </button>
         <div class="faqa">Запись уходит в приложение, где ChatGPT делает текст, таймкоды и разбивку по спикерам. Поддерживается 81 язык, включая русский.</div>
       </div>
@@ -3727,42 +4265,6 @@ body .sec-how .smock {
 /* ═══════════════════════════════════════════════════════════
    WOW JS — count-up, parallax, enhanced reveals
    ═══════════════════════════════════════════════════════════ */
-
-/* ── HERO STAGGERED ENTRANCE ── */
-/* sub/btns/trust are revealed by JS after typewriter — not here */
-(function () {
-  var items = [
-    { sel: '.hero-visual', delay: 0.08, y: 24, s: 0.98 }
-  ];
-  var els = [];
-  items.forEach(function (item) {
-    var el = document.querySelector(item.sel);
-    if (!el) return;
-    // Remove reveal classes so IntersectionObserver doesn't interfere
-    el.classList.remove('reveal', 'd1', 'd2', 'd3', 'd4', 'vis');
-    el.style.setProperty('--hero-delay', item.delay + 's');
-    el.style.setProperty('--hero-y', item.y + 'px');
-    if (item.s) el.style.setProperty('--hero-s', String(item.s));
-    el.classList.add('hero-anim-init');
-    els.push(el);
-  });
-  // Trigger on next frame so browser registers the initial hidden state
-  requestAnimationFrame(function () {
-    requestAnimationFrame(function () {
-      els.forEach(function (el) {
-        el.classList.remove('hero-anim-init');
-        el.classList.add('hero-anim-go');
-      });
-      // После короткого входа фиксируем финальное состояние.
-      setTimeout(function () {
-        els.forEach(function (el) {
-          el.classList.remove('hero-anim-go');
-          el.classList.add('hero-anim-done');
-        });
-      }, 820);
-    });
-  });
-})();
 
 /* ── COUNT-UP: animate 98% stat ── */
 (function () {
