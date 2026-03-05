@@ -38,7 +38,7 @@
       font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;
       display:flex;align-items:center;justify-content:center}
     .menu-toggle{display:none;background:#fff;border:1px solid rgba(0,0,0,.14);
-      width:36px;height:36px;border-radius:999px;align-items:center;justify-content:center;
+      width:44px;height:44px;border-radius:999px;align-items:center;justify-content:center;
       color:#111;cursor:pointer;margin-right:10px}
     .menu-toggle svg{width:18px;height:18px}
     .mobile-nav{display:none;position:absolute;top:56px;left:16px;right:16px;
@@ -46,7 +46,7 @@
       border:1px solid rgba(0,0,0,.1);border-radius:14px;padding:10px;
       box-shadow:0 14px 30px rgba(0,0,0,.14)}
     .mobile-nav-close{display:inline-flex;align-items:center;justify-content:center;
-      width:30px;height:30px;border:1px solid rgba(0,0,0,.14);border-radius:999px;
+      width:44px;height:44px;border:1px solid rgba(0,0,0,.14);border-radius:999px;
       background:#fff;color:#111;cursor:pointer;font-size:18px;line-height:1;
       margin-left:auto}
     .mobile-nav a{display:block;padding:10px 12px;border-radius:10px;
@@ -1115,6 +1115,7 @@ img{max-width:100%;height:auto}
   gap:8px!important;
 }
 .sec-reviews .rv-dot{
+  position:relative!important;
   width:8px!important;
   height:8px!important;
   border-radius:999px!important;
@@ -1123,6 +1124,11 @@ img{max-width:100%;height:auto}
   cursor:pointer!important;
   transition:all .2s ease!important;
   padding:0!important;
+}
+.sec-reviews .rv-dot::after{
+  content:''!important;
+  position:absolute!important;
+  inset:-18px!important;
 }
 .sec-reviews .rv-dot.active{
   width:24px!important;

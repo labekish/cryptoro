@@ -252,7 +252,13 @@ img{max-width:100%;height:auto}
 
 /* Final micro-pass: spacing/contrast rhythm */
 .about-hero{padding-top:136px!important;padding-bottom:76px!important}
-.about-hero h1{font-size:clamp(56px,6.8vw,92px)!important;line-height:1.01!important}
+.about-hero h1{
+  /* Русский комментарий: уменьшаем экстремальный mobile-overflow и разрешаем переносы */
+  font-size:clamp(48px,6.2vw,82px)!important;
+  line-height:1.02!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
 .about-hero p{font-size:clamp(20px,1.9vw,26px)!important;line-height:1.58!important}
 .sec{padding:86px 24px!important}
 .sec-head{margin-bottom:36px!important}
@@ -266,7 +272,7 @@ img{max-width:100%;height:auto}
 }
 @media (max-width:390px){
   .about-hero{padding:98px 18px 50px!important}
-  .about-hero h1{font-size:clamp(42px,14vw,56px)!important}
+  .about-hero h1{font-size:clamp(36px,11.5vw,46px)!important;line-height:1.04!important}
   .about-hero p{font-size:17px!important;line-height:1.55!important}
   .sec{padding:62px 18px!important}
   .sec-head{margin-bottom:26px!important}

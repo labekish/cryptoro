@@ -22,7 +22,8 @@ const {
   globalCss = '',
   headScripts = '',
   withChrome = false,
-  includeNetlifyIdentity = true,
+  // Русский комментарий: по умолчанию отключаем Netlify Identity, чтобы не получать CORS/ERR_FAILED на клиентских страницах.
+  includeNetlifyIdentity = false,
   active
 } = Astro.props;
 
@@ -382,8 +383,8 @@ const ogUrl = Astro.url?.toString() || '';
         display:none;
         align-items:center;
         justify-content:center;
-        width:36px;
-        height:36px;
+        width:44px;
+        height:44px;
         border:1px solid rgba(0,0,0,.14);
         border-radius:999px;
         background:#fff;
@@ -393,9 +394,9 @@ const ogUrl = Astro.url?.toString() || '';
       .mobile-nav-panel{
         display:none;
         position:absolute;
-        top:56px;
-        left:14px;
-        right:14px;
+        top:calc(100% + 8px);
+        left:12px;
+        right:12px;
         background:#fff;
         border:1px solid rgba(0,0,0,.1);
         border-radius:14px;
@@ -404,22 +405,24 @@ const ogUrl = Astro.url?.toString() || '';
         z-index:120;
       }
       .mobile-nav-close{
-        display:inline-flex;
+        display:flex;
         align-items:center;
         justify-content:center;
-        width:30px;
-        height:30px;
+        width:44px;
+        height:44px;
         border:1px solid rgba(0,0,0,.14);
         border-radius:999px;
         background:#fff;
         color:#111;
         font-size:18px;
         line-height:1;
-        margin-left:auto;
+        margin:0 0 8px auto;
         cursor:pointer;
       }
       .mobile-nav-panel a{
-        display:block;
+        display:flex;
+        align-items:center;
+        min-height:44px;
         padding:10px 12px;
         border-radius:10px;
         color:#111;
@@ -471,8 +474,8 @@ const ogUrl = Astro.url?.toString() || '';
       }
       .consult-modal-sub{color:#4b5563;font-size:14px;line-height:1.6;margin-bottom:14px}
       .consult-close{
-        width:36px;
-        height:36px;
+        width:44px;
+        height:44px;
         border-radius:999px;
         border:1px solid rgba(0,0,0,.14);
         background:rgba(255,255,255,.9);
@@ -928,13 +931,15 @@ const ogUrl = Astro.url?.toString() || '';
             }
             const nav = header.querySelector('nav');
             if (!nav) return;
-            const navParent = (
+            const toggleParent = (
               isMobile && header.id === 'smart-header'
-                // Для smart-header центрируем desktop-nav, а mobile toggle/panel крепим в правую зону.
+                // Для smart-header toggle остается в правой зоне.
                 ? header.querySelector('.header-right')
                 : nav.parentElement
             );
-            if (!navParent) return;
+            if (!toggleParent) return;
+            // Русский комментарий: сам dropdown крепим к header, иначе при монтировании в .header-right панель сжимается по ширине.
+            const panelParent = header;
 
             const links = Array.from(nav.querySelectorAll('a'))
               .map((a) => ({ href: a.getAttribute('href') || '#', text: (a.textContent || '').trim() }))
@@ -965,9 +970,9 @@ const ogUrl = Astro.url?.toString() || '';
               if (!header.contains(event.target)) header.classList.remove('mobile-nav-open');
             });
 
-            navParent.appendChild(toggle);
-            navParent.style.position = 'relative';
-            navParent.appendChild(panel);
+            toggleParent.appendChild(toggle);
+            toggleParent.style.position = 'relative';
+            panelParent.appendChild(panel);
             header.dataset.mobileNavReady = '1';
           });
         }
@@ -1210,6 +1215,13 @@ const ogUrl = Astro.url?.toString() || '';
             firstSyncResolved = true;
             priceNodes.forEach((node) => node.classList.remove('ms-price-pending'));
           };
+
+          // Русский комментарий: в локальном astro dev endpoints из functions/* недоступны, поэтому не дергаем API и не засоряем консоль 404.
+          const isLocalHost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+          if (isLocalHost) {
+            revealPrices();
+            return;
+          }
 
           const slugs = Array.from(
             new Set(

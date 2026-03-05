@@ -14,6 +14,15 @@
   @media (max-width:768px){
     .app-footer-grid{grid-template-columns:1fr;gap:24px}
     .app-footer-bottom{flex-direction:column;align-items:flex-start}
+    /* Русский комментарий: увеличиваем кликабельную зону ссылок футера на мобильных */
+    .app-footer-link,
+    .app-footer-bottom-link{
+      display:inline-flex;
+      align-items:center;
+      min-height:44px;
+      min-width:44px;
+    }
+    .app-footer-link{margin-bottom:4px}
   }
 </style>
 
@@ -54,4 +63,3 @@
     <span>info@cryptoro.ru · +7 495 191-81-74</span>
   </div>
 </footer>
-
