@@ -31,6 +31,21 @@ const formatPrice = (value: number) => `${Math.round(Number(value || 0)).toLocal
 
 let syncedBody = page.body;
 const cardSlugs = ['vspomnit', 'plaud-note', 'plaud-note-pro', 'notepin', 'accessories', 'plaud-note-cases'];
+const catalogSeoTitle = 'AI диктофоны с автоматической расшифровкой речи | CRYPTORO';
+const catalogSeoDescription =
+  'AI диктофоны для записи разговоров, лекций и встреч с автоматической расшифровкой речи, транскрибацией и умными заметками.';
+const catalogSeoTextSection = `
+  <section class="px-6 pb-16" data-seo-block="catalog-ai-dictophones">
+    <div class="mx-auto max-w-7xl rounded-2xl border border-zinc-200/80 bg-white px-6 py-7 md:px-8 md:py-9">
+      <h2 class="text-2xl font-semibold tracking-tight text-zinc-900 md:text-3xl">AI диктофоны для записи и расшифровки речи</h2>
+      <div class="mt-5 space-y-4 text-[15px] leading-7 text-zinc-700 md:text-base">
+        <p>AI диктофоны - это новое поколение устройств для записи разговоров, лекций и деловых встреч. Такие устройства используют технологии искусственного интеллекта для автоматической расшифровки речи, создания заметок и поиска информации в аудиозаписях.</p>
+        <p>Диктофоны Plaud позволяют быстро записывать разговоры и автоматически переводить аудио в текст. Благодаря интеграции с современными AI-алгоритмами записи можно структурировать, выделять ключевые моменты и получать краткие конспекты встреч.</p>
+        <p>AI диктофоны подходят для студентов, предпринимателей, журналистов и всех, кому важно сохранять информацию из разговоров и встреч. Устройства помогают экономить время на расшифровке аудио и упрощают работу с голосовыми заметками.</p>
+      </div>
+    </div>
+  </section>
+`;
 
 function patchCard(slug: string, patcher: (cardHtml: string) => string) {
   const cardRegex = new RegExp(`(<a[^>]*data-card-id="${slug}"[^>]*>[\\s\\S]*?<\\/a>)`, 'i');
@@ -90,10 +105,21 @@ Object.entries(skuMap).forEach(([slug, skuList]) => {
     return next;
   });
 });
+
+// Русский комментарий: фиксируем SEO H1 в hero-блоке каталога согласно ТЗ.
+syncedBody = syncedBody.replace(
+  /<h1 class="font-display text-4xl font-black tracking-tight md:text-6xl">[\s\S]*?<\/h1>/i,
+  '<h1 class="font-display text-4xl font-black tracking-tight md:text-6xl">AI диктофоны с автоматической расшифровкой речи</h1>'
+);
+
+// Русский комментарий: добавляем SEO-текст перед футером, чтобы соблюсти структуру из ТЗ.
+if (!syncedBody.includes('data-seo-block="catalog-ai-dictophones"')) {
+  syncedBody = syncedBody.replace('</main>', `${catalogSeoTextSection}\n  </main>`);
+}
 ---
 <Layout
-  title={page.title}
-  description="Каталог AI-диктофонов CRYPTORO: Вспомни всё, Plaud Note, Plaud Note Pro, Plaud NotePin. Цены, характеристики, доставка по России."
+  title={catalogSeoTitle}
+  description={catalogSeoDescription}
   globalCss={page.css}
   headScripts={page.headScripts}
   withChrome={true}

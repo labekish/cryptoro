@@ -3,6 +3,7 @@ import Layout from './Layout.astro';
 
 interface ProductData {
   title: string;
+  seoH1?: string;
   slug: string;
   sku?: string;
   skus?: string[];
@@ -60,6 +61,7 @@ interface Props {
 }
 
 const { product, related = [] } = Astro.props;
+const heroH1 = product.seoH1 ?? product.title;
 const price = new Intl.NumberFormat('ru-RU').format(product.price);
 const stockLabel = product.inStock === false ? 'Предзаказ' : 'Купить сейчас';
 const allSkus = Array.from(new Set([...(Array.isArray(product.skus) ? product.skus : []), ...(product.sku ? [product.sku] : [])]));
@@ -196,7 +198,7 @@ const BOX_ICONS = [
           {product.badge && <span class="pdp-badge">{product.badge}</span>}
           <span class="pdp-hero__stock" data-ms-stock={product.slug} data-ms-sku={primarySku} data-ms-skus={allSkusCsv}></span>
         </div>
-        <h1 class="pdp-hero__title">{product.title}</h1>
+        <h1 class="pdp-hero__title">{heroH1}</h1>
         <p class="pdp-hero__subtitle">{subtitle}</p>
 
         <div class="pdp-hero__price-row">
@@ -302,6 +304,19 @@ const BOX_ICONS = [
         )}
       </div>
     </section>
+
+    {hasEnhancedEditorial && (
+      <section class="pdp-editorial pdp-editorial--seo">
+        <div class="pdp-container pdp-container--narrow">
+          <div class="pdp-editorial__copy reveal">
+            <h2 class="pdp-section-title">Описание</h2>
+            <div class="pdp-editorial__body">
+              <slot />
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
 
     {hasEnhancedEditorial && hasCinematicSection && (
       <section class="pdp-cinematic">
