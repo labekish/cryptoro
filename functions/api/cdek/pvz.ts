@@ -15,6 +15,7 @@ type PvzItem = {
   name: string;
   address: string;
   city?: string;
+  postalCode?: string;
   workTime?: string;
 };
 
@@ -68,6 +69,27 @@ function normalizeCity(input: unknown): string {
   return String(input || '').trim();
 }
 
+function normalizeStreet(input: unknown): string {
+  return String(input || '').trim().toLowerCase();
+}
+
+function normalizeZip(input: unknown): string {
+  return String(input || '').trim().replace(/\D/g, '').slice(0, 6);
+}
+
+function tokenizeStreet(input: string): string[] {
+  return input
+    .replace(/[.,/]/g, ' ')
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 3);
+}
+
+function extractHouseToken(input: string): string {
+  const m = input.match(/\b\d+[а-яa-z0-9/-]*/i);
+  return m?.[0]?.toLowerCase() || '';
+}
+
 function mapPvz(list: unknown): PvzItem[] {
   if (!Array.isArray(list)) return [];
   return list
@@ -83,8 +105,9 @@ function mapPvz(list: unknown): PvzItem[] {
         id: code,
         code,
         name: String(row.name || row.full_address || '').trim() || code,
-        address: String(location.address_full || location.address || '').trim(),
+        address: String(location.address || location.address_full || '').trim(),
         city: String(location.city || '').trim() || undefined,
+        postalCode: String(location.postal_code || '').trim() || undefined,
         workTime: String(row.work_time || '').trim() || undefined,
       } as PvzItem;
     })
@@ -184,13 +207,20 @@ async function resolveCityCode(
   }
 }
 
-async function fetchPvzList(apiBase: string, token: string, cityCode: number, timeoutMs: number): Promise<PvzItem[]> {
+async function fetchPvzList(
+  apiBase: string,
+  token: string,
+  cityCode: number,
+  timeoutMs: number,
+  zip: string
+): Promise<PvzItem[]> {
   const params = new URLSearchParams({
     country_codes: 'RU',
     city_code: String(cityCode),
     type: 'PVZ',
     size: '200',
   });
+  if (zip.length === 6) params.set('postal_code', zip);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -210,9 +240,40 @@ async function fetchPvzList(apiBase: string, token: string, cityCode: number, ti
   }
 }
 
+function rankAndLimitPvz(points: PvzItem[], street: string, zip: string, limit = 30): PvzItem[] {
+  if (!points.length) return [];
+
+  const streetTokens = tokenizeStreet(street);
+  const houseToken = extractHouseToken(street);
+
+  const scored = points.map((point) => {
+    const hay = `${String(point.name || '')} ${String(point.address || '')}`.toLowerCase();
+    let score = 0;
+
+    if (zip && point.postalCode === zip) score += 80;
+    for (const token of streetTokens) {
+      if (hay.includes(token)) score += 12;
+    }
+    if (houseToken && hay.includes(houseToken)) score += 35;
+
+    return { point, score };
+  });
+
+  const hasAnyScore = scored.some((item) => item.score > 0);
+  if (!hasAnyScore) return points.slice(0, limit);
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .map((item) => item.point)
+    .slice(0, limit);
+}
+
 export const onRequestGet = async (context: { request: Request; env: Env }): Promise<Response> => {
   const { request, env } = context;
-  const city = normalizeCity(new URL(request.url).searchParams.get('city'));
+  const url = new URL(request.url);
+  const city = normalizeCity(url.searchParams.get('city'));
+  const street = normalizeStreet(url.searchParams.get('street'));
+  const zip = normalizeZip(url.searchParams.get('zip'));
 
   if (!city) return json(400, { ok: false, error: 'missing_city' });
 
@@ -239,13 +300,14 @@ export const onRequestGet = async (context: { request: Request; env: Env }): Pro
     return json(200, { ok: true, mode: 'live', points: [] });
   }
 
-  const points = await fetchPvzList(apiBase, auth.token, cityCode, timeoutMs);
-  return json(200, { ok: true, mode: 'live', cityCode, points });
+  const points = await fetchPvzList(apiBase, auth.token, cityCode, timeoutMs, zip);
+  const ranked = rankAndLimitPvz(points, street, zip, 30);
+  return json(200, { ok: true, mode: 'live', cityCode, points: ranked });
 };
 
 export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
   const { request, env } = context;
-  let body: { city?: string } = {};
+  let body: { city?: string; street?: string; zip?: string } = {};
 
   try {
     body = await request.json();
@@ -259,6 +321,8 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   // Русский комментарий: POST-обертка, чтобы фронт мог отправлять JSON, если нужно.
   const url = new URL(request.url);
   url.searchParams.set('city', city);
+  if (normalizeStreet(body.street)) url.searchParams.set('street', String(body.street || '').trim());
+  if (normalizeZip(body.zip)) url.searchParams.set('zip', normalizeZip(body.zip));
   const fakeReq = new Request(url.toString(), { method: 'GET', headers: request.headers });
   return onRequestGet({ request: fakeReq, env });
 };

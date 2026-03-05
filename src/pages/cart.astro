@@ -100,7 +100,6 @@ import Layout from '../layouts/Layout.astro';
               <div id="cdekPvzGroup" class="cdek-pvz-group" hidden>
                 <div class="cdek-pvz-head">
                   <label class="cdek-pvz-label" for="cdekPvzSelect">Пункт выдачи СДЭК</label>
-                  <span class="cdek-pvz-chip">Удобный выбор</span>
                 </div>
                 <select id="cdekPvzSelect" class="cdek-pvz-select">
                   <option value="">Выберите ПВЗ</option>
@@ -284,22 +283,27 @@ import Layout from '../layouts/Layout.astro';
 
     async function loadCdekPvz() {
       if (!(cityInput instanceof HTMLInputElement)) return;
+      if (!(streetInput instanceof HTMLInputElement)) return;
+      if (!(zipInput instanceof HTMLInputElement)) return;
       if (!(cdekPvzSelect instanceof HTMLSelectElement)) return;
 
       const city = String(cityInput.value || '').trim();
+      const street = String(streetInput.value || '').trim();
+      const zip = String(zipInput.value || '').trim();
       if (!isCdekSelected() || !isCdekPickupType()) return;
       if (!city) {
         resetPvzSelect();
         return;
       }
-      if (cdekPvzLoadedCity.toLowerCase() === city.toLowerCase() && cdekPvzSelect.options.length > 1) return;
+      const cacheKey = `${city.toLowerCase()}|${street.toLowerCase()}|${zip}`;
+      if (cdekPvzLoadedCity === cacheKey && cdekPvzSelect.options.length > 1) return;
 
       const requestId = ++cdekPvzRequestId;
       cdekPvzSelect.disabled = true;
       setPvzHint('Загружаем ПВЗ...');
 
       try {
-        const data = await fetchCdekPvz(city);
+        const data = await fetchCdekPvz(city, street, zip);
         if (requestId !== cdekPvzRequestId) return;
 
         const points = Array.isArray(data?.points) ? data.points : [];
@@ -307,20 +311,23 @@ import Layout from '../layouts/Layout.astro';
         for (const point of points) {
           const code = String(point?.code || point?.id || '').trim();
           if (!code) continue;
-          const name = String(point?.name || '').trim() || code;
+          const rawName = String(point?.name || '').trim();
+          const cleanName = rawName
+            .replace(/^[A-ZА-Я]{2,}\d+\s*,?\s*/u, '')
+            .trim();
           const address = String(point?.address || '').trim();
-          const label = address ? `${name} — ${address}` : name;
+          const label = address || cleanName || code;
           const option = document.createElement('option');
           option.value = code;
           option.textContent = label;
           cdekPvzSelect.append(option);
         }
 
-        cdekPvzLoadedCity = city;
+        cdekPvzLoadedCity = cacheKey;
         if (!points.length) {
           setPvzHint('По выбранному городу ПВЗ не найдены, можно оформить доставку до двери');
         } else {
-          setPvzHint(`Найдено ПВЗ: ${points.length}`);
+          setPvzHint(points.length > 1 ? `Подобрали ${points.length} ближайших ПВЗ` : 'Подобрали ближайший ПВЗ');
         }
       } catch {
         if (requestId !== cdekPvzRequestId) return;
@@ -392,7 +399,7 @@ import Layout from '../layouts/Layout.astro';
       refreshCheckoutTotals();
     }
 
-    function setDeliveryQuoteData(quote, mode, basePrice) {
+    function setDeliveryQuoteData(quote, mode) {
       if (!(deliveryQuote instanceof HTMLElement)) return;
       if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
       if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
@@ -402,23 +409,21 @@ import Layout from '../layouts/Layout.astro';
       const quoteEta = formatEtaDays(quote?.etaDays);
       const quoteTariff = Number(quote?.tariffCode);
       const modeLabel = mode === 'live' ? '' : ' • тестовый расчёт';
-      const baseText = Number(basePrice) > 0 ? ` • база ${money(Number(basePrice))}` : '';
-      const tariffText = Number.isFinite(quoteTariff) && quoteTariff > 0 ? ` • тариф ${quoteTariff}` : '';
       const deliveryTypeLabel = getCdekDeliveryTypeLabel();
 
       deliveryQuote.hidden = false;
       deliveryQuote.classList.remove('is-idle');
       deliveryQuote.classList.remove('is-error');
       deliveryQuoteTitle.textContent = `${quoteTitle} (${deliveryTypeLabel}): ${money(quotePrice)}`;
-      deliveryQuoteMeta.textContent = `${quoteEta}${tariffText}${baseText}${modeLabel}`;
+      deliveryQuoteMeta.textContent = `${quoteEta}${modeLabel}`;
       if (deliveryQuoteHint instanceof HTMLElement) {
         deliveryQuoteHint.textContent = 'Предварительный расчёт. Точную стоимость подтверждаем при оформлении заказа.';
       }
 
-      cdekQuoteSummary = `${quoteTitle} (${deliveryTypeLabel}) ${money(quotePrice)}, ${quoteEta}${tariffText}`;
+      cdekQuoteSummary = `${quoteTitle} (${deliveryTypeLabel}) ${money(quotePrice)}, ${quoteEta}`;
       cdekQuotePrice = quotePrice;
       cdekQuoteTariffCode = Number.isFinite(quoteTariff) && quoteTariff > 0 ? quoteTariff : 0;
-      cdekBasePrice = Number(basePrice) > 0 ? Math.ceil(Number(basePrice)) : 0;
+      cdekBasePrice = 0;
       refreshCheckoutTotals();
     }
 
@@ -492,7 +497,7 @@ import Layout from '../layouts/Layout.astro';
               tariffCode: Number(data.tariffCode) || undefined,
             };
 
-        setDeliveryQuoteData(quote, data.mode, data.basePrice);
+        setDeliveryQuoteData(quote, data.mode);
       } catch {
         if (requestId !== cdekQuoteRequestId) return;
         setDeliveryQuoteError();
@@ -792,20 +797,22 @@ import Layout from '../layouts/Layout.astro';
     .cart-head h1{font-family:'Unbounded',sans-serif;font-size:clamp(34px,5vw,56px);line-height:1.04;letter-spacing:-.02em;color:#111;margin:0 0 12px}
     .cart-head p{font-size:17px;color:#4b5563;line-height:1.6;margin:0}
     .cart-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:20px;align-items:start}
+    .cart-grid > *{min-width:0}
     .cart-panel,.checkout-panel{background:#fff;border:1px solid rgba(17,17,17,.08);border-radius:20px;box-shadow:0 10px 28px rgba(17,17,17,.04);padding:26px}
     @media (min-width: 1025px){
       .cart-panel{
         position:sticky;
         top:104px;
         max-height:calc(100vh - 124px);
-        overflow:auto;
+        overflow-y:auto;
+        overflow-x:hidden;
       }
     }
     .checkout-panel h2{font-family:'Unbounded',sans-serif;font-size:clamp(28px,2.2vw,36px);line-height:1.08;letter-spacing:-.02em;margin:0 0 16px}
     .checkout-hint{margin:12px 0 0;color:#6b7280;font-size:14px;line-height:1.5}
     .checkout-panel.is-empty .summary-row{margin-bottom:0}
     .items-list{display:grid;gap:14px}
-    .cart-item{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:16px;border:1px solid rgba(0,0,0,.08);border-radius:16px;background:#fff}
+    .cart-item{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px;border:1px solid rgba(0,0,0,.08);border-radius:16px;background:#fff}
     .cart-item img{width:96px;height:96px;object-fit:contain;background:#fff}
     .cart-item-main h3{font-size:20px;line-height:1.15;margin:0 0 4px;color:#111;letter-spacing:-.01em}
     .cart-item-color{font-size:13px;color:#6b7280;margin:0 0 8px;font-weight:500}
@@ -899,7 +906,7 @@ import Layout from '../layouts/Layout.astro';
     .field-grid input:focus{outline:none;border-color:#111;box-shadow:0 0 0 3px rgba(17,17,17,.08)}
     .field-grid input:invalid:not(:placeholder-shown){border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.12)}
     .delivery-group{
-      border:1px solid rgba(0,0,0,.1);
+      border:1px solid rgba(17,17,17,.08);
       border-radius:16px;
       padding:14px;
       margin:8px 0 0;
@@ -913,14 +920,17 @@ import Layout from '../layouts/Layout.astro';
       grid-template-columns:18px 1fr;
       gap:12px;
       align-items:flex-start;
-      border:1px solid rgba(17,17,17,.1);
-      border-radius:14px;
-      padding:12px 14px;
+      border:1px solid rgba(17,17,17,.08);
+      border-radius:12px;
+      padding:10px 12px;
       background:#fff;
       cursor:pointer;
-      transition:border-color .2s ease,background-color .2s ease,transform .2s ease,box-shadow .2s ease;
+      transition:border-color .2s ease,background-color .2s ease,box-shadow .2s ease;
     }
-    .delivery-option:hover{border-color:rgba(17,17,17,.2);transform:translateY(-1px)}
+    .delivery-option:hover{
+      border-color:rgba(17,17,17,.16);
+      background:#fbfcfe;
+    }
     .delivery-option input{
       appearance:none;
       width:18px;
@@ -945,13 +955,13 @@ import Layout from '../layouts/Layout.astro';
     .delivery-option input:checked{border-color:#111;background:#111}
     .delivery-option input:checked::before{transform:scale(1)}
     .delivery-option.is-selected{
-      border-color:#111;
-      background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);
-      box-shadow:0 10px 24px rgba(17,17,17,.12), inset 0 0 0 1px rgba(255,255,255,.7);
+      border-color:rgba(17,17,17,.22);
+      background:#f8fafc;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.8);
     }
     .delivery-option:focus-within{
       border-color:#111;
-      box-shadow:0 0 0 3px rgba(17,17,17,.14), 0 8px 20px rgba(17,17,17,.08);
+      box-shadow:0 0 0 3px rgba(17,17,17,.1);
     }
     .delivery-option input:focus-visible{
       outline:2px solid #111;
@@ -961,14 +971,11 @@ import Layout from '../layouts/Layout.astro';
     .delivery-option-title{font-size:16px;line-height:1.2;color:#111;font-weight:600;letter-spacing:-.005em}
     .delivery-option-sub{font-size:13px;line-height:1.45;color:#6b7280}
     .cdek-type-group{
-      margin:12px 2px 0;
-      padding:12px;
-      border:1px solid rgba(17,17,17,.14);
-      border-radius:14px;
-      background:linear-gradient(170deg,#ffffff 0%,#f7f9fc 100%);
+      margin:10px 2px 0;
+      padding:10px 0 0;
+      border-top:1px solid rgba(17,17,17,.08);
       display:grid;
       gap:10px;
-      box-shadow:0 8px 22px rgba(17,17,17,.06), inset 0 1px 0 rgba(255,255,255,.7);
     }
     .cdek-type-group[hidden]{display:none !important}
     .cdek-type-title{
@@ -980,23 +987,22 @@ import Layout from '../layouts/Layout.astro';
     .cdek-type-cards{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:10px;
+      gap:8px;
     }
     .cdek-type-card{
       position:relative;
-      border:1px solid rgba(17,17,17,.14);
+      border:1px solid rgba(17,17,17,.1);
       border-radius:12px;
-      padding:10px 12px 10px 38px;
+      padding:10px 12px 10px 36px;
       background:#fff;
       cursor:pointer;
-      transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease, background-color .2s ease;
+      transition:border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
       display:grid;
       gap:2px;
     }
     .cdek-type-card:hover{
-      transform:translateY(-1px);
-      border-color:rgba(17,17,17,.24);
-      box-shadow:0 8px 18px rgba(17,17,17,.08);
+      border-color:rgba(17,17,17,.16);
+      background:#fbfcfe;
     }
     .cdek-type-card input{
       position:absolute;
@@ -1008,9 +1014,9 @@ import Layout from '../layouts/Layout.astro';
       height:18px;
     }
     .cdek-type-card:has(input:checked){
-      border-color:#111;
-      background:linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);
-      box-shadow:0 10px 22px rgba(17,17,17,.12), inset 0 0 0 1px rgba(255,255,255,.8);
+      border-color:rgba(17,17,17,.22);
+      background:#f8fafc;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.8);
     }
     .cdek-type-card-title{
       font-size:14px;
@@ -1024,20 +1030,17 @@ import Layout from '../layouts/Layout.astro';
       color:#4b5563;
     }
     .cdek-pvz-group{
-      margin:12px 2px 0;
-      padding:12px;
-      border:1px solid rgba(17,17,17,.14);
-      border-radius:14px;
-      background:linear-gradient(170deg,#ffffff 0%,#f8fafc 100%);
+      margin:10px 2px 0;
+      padding:10px 0 0;
+      border-top:1px solid rgba(17,17,17,.08);
       display:grid;
       gap:10px;
-      box-shadow:0 8px 22px rgba(17,17,17,.06), inset 0 1px 0 rgba(255,255,255,.75);
     }
     .cdek-pvz-group[hidden]{display:none !important}
     .cdek-pvz-head{
       display:flex;
       align-items:center;
-      justify-content:space-between;
+      justify-content:flex-start;
       gap:8px;
     }
     .cdek-pvz-label{
@@ -1046,29 +1049,16 @@ import Layout from '../layouts/Layout.astro';
       font-weight:700;
       color:#111;
     }
-    .cdek-pvz-chip{
-      display:inline-flex;
-      align-items:center;
-      height:22px;
-      border-radius:999px;
-      border:1px solid rgba(17,17,17,.16);
-      background:#fff;
-      padding:0 10px;
-      font-size:11px;
-      line-height:1;
-      font-weight:600;
-      color:#374151;
-      white-space:nowrap;
-    }
     .cdek-pvz-select{
       height:46px;
-      border:1px solid rgba(17,17,17,.18);
+      border:1px solid rgba(17,17,17,.12);
       border-radius:12px;
       padding:0 12px;
       font-size:14px;
       color:#111;
       background:#fff;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+      width:100%;
+      min-width:0;
       transition:border-color .2s ease, box-shadow .2s ease;
     }
     .cdek-pvz-select:focus{
@@ -1085,9 +1075,9 @@ import Layout from '../layouts/Layout.astro';
     .delivery-quote{
       margin:12px 2px 2px;
       padding:10px 12px;
-      border:1px dashed rgba(17,17,17,.25);
+      border:1px dashed rgba(17,17,17,.18);
       border-radius:12px;
-      background:#f8fafc;
+      background:#fbfcfe;
       display:grid;
       gap:4px;
     }

@@ -29,7 +29,10 @@ export async function fetchCdekCalculation(payload: CdekCalcRequest): Promise<an
   return response.json().catch(() => null);
 }
 
-export async function fetchCdekPvz(city: string): Promise<any> {
-  const response = await fetch(`/api/cdek/pvz?city=${encodeURIComponent(city)}`);
+export async function fetchCdekPvz(city: string, street?: string, zip?: string): Promise<any> {
+  const params = new URLSearchParams({ city });
+  if (street && String(street).trim()) params.set('street', String(street).trim());
+  if (zip && String(zip).trim()) params.set('zip', String(zip).trim());
+  const response = await fetch(`/api/cdek/pvz?${params.toString()}`);
   return response.json().catch(() => null);
 }
