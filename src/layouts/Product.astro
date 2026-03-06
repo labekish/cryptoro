@@ -875,25 +875,7 @@ const BOX_ICONS = [
       }
     }
 
-    /* ── HERO PARALLAX ── */
-    var heroSection = document.querySelector('.pdp-hero');
-    var heroImg = document.querySelector('.pdp-hero__main-img img');
-    if(heroSection && heroImg && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-      var ticking = false;
-      window.addEventListener('scroll', function(){
-        if(!ticking){
-          ticking = true;
-          requestAnimationFrame(function(){
-            var rect = heroSection.getBoundingClientRect();
-            if(rect.bottom > 0 && rect.top < window.innerHeight){
-              var scrolled = -rect.top;
-              heroImg.style.transform = 'translateY(' + (scrolled * 0.06) + 'px)';
-            }
-            ticking = false;
-          });
-        }
-      }, { passive:true });
-    }
+    /* Русский комментарий: отключаем scroll-parallax в hero, чтобы не было визуального "прыжка" на первом экране. */
   })();
   </script>
 
@@ -1716,6 +1698,75 @@ const BOX_ICONS = [
       0%   { left:-100% }
       40%  { left:160% }
       100% { left:160% }
+    }
+
+    /* ── Phase 3 calm-stabilization: убираем визуальный шум PDP, оставляем мягкий премиум ── */
+    .pdp-hero::after{
+      display:none!important;
+      animation:none!important;
+    }
+    .pdp-badge{
+      animation:none!important;
+    }
+    .pdp-btn--primary::after{
+      display:none!important;
+      animation:none!important;
+    }
+    .pdp-anim-go{
+      animation-duration:.5s!important;
+      animation-timing-function:cubic-bezier(.16,1,.3,1)!important;
+    }
+    .pdp-hero__main-img img{
+      transition:transform .5s cubic-bezier(.16,1,.3,1),opacity .2s ease!important;
+      transform:none!important;
+    }
+    .pdp-hero__main-img:hover img{
+      transform:scale(1.02)!important;
+    }
+    .pdp-hero{
+      padding:96px 0 36px!important;
+    }
+    .pdp-hero__title{
+      text-wrap:balance;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .pdp-hero__actions{
+      margin-top:16px!important;
+      gap:10px!important;
+    }
+    .pdp-sticky-bar{
+      border-top:1px solid rgba(17,17,17,.12)!important;
+    }
+    @media(max-width:768px){
+      .pdp-hero{
+        padding:84px 0 28px!important;
+      }
+      .pdp-hero__title{
+        font-size:clamp(30px,8.8vw,38px)!important;
+        line-height:1.08!important;
+      }
+      .pdp-hero__subtitle{
+        font-size:16px!important;
+        line-height:1.5!important;
+        max-width:30ch!important;
+      }
+      .pdp-hero__media{
+        margin-top:14px!important;
+      }
+      .pdp-hero__main-img img{
+        width:96%!important;
+        max-width:420px!important;
+      }
+      .pdp-hero__actions{
+        padding:0 16px!important;
+      }
+      .pdp-btn{
+        min-height:48px!important;
+      }
+      .pdp-sticky-bar__inner{
+        padding:10px 16px!important;
+      }
     }
 
     /* ── REDUCED MOTION ── */

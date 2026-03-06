@@ -13,10 +13,19 @@ import Layout from '../layouts/Layout.astro';
       <h1>Заказ оформлен!</h1>
       <p class="order-id-line">Номер заказа: <strong id="orderIdDisplay">—</strong></p>
       <p class="success-msg">Спасибо! Мы свяжемся с вами в течение 30 минут для подтверждения заказа и расчёта стоимости доставки.</p>
+      <div class="success-next">
+        <p class="success-next__title">Что дальше</p>
+        <ul>
+          <li>Уточним наличие и срок доставки по вашему региону.</li>
+          <li>Подтвердим итоговую сумму и способ оплаты.</li>
+          <li>Отправим детали заказа в удобный для вас канал связи.</li>
+        </ul>
+      </div>
       <div class="success-actions">
         <a href="/catalog" class="dark-btn">Продолжить покупки</a>
         <a href="/" class="ghost-btn">На главную</a>
       </div>
+      <p class="success-help">Нужна помощь прямо сейчас: <a href="mailto:info@cryptoro.ru">info@cryptoro.ru</a></p>
     </section>
   </main>
 
@@ -74,6 +83,40 @@ import Layout from '../layouts/Layout.astro';
       justify-content: center;
       flex-wrap: wrap;
     }
+    .success-next{
+      margin:0 0 28px;
+      padding:16px 18px;
+      border-radius:14px;
+      border:1px solid rgba(17,17,17,.1);
+      background:rgba(255,255,255,.9);
+      text-align:left;
+    }
+    .success-next__title{
+      margin:0 0 8px;
+      font-size:14px;
+      font-weight:700;
+      color:#111;
+    }
+    .success-next ul{
+      margin:0 0 0 18px;
+      padding:0;
+      color:#4b5563;
+      font-size:14px;
+      line-height:1.5;
+      display:grid;
+      gap:5px;
+    }
+    .success-help{
+      margin:14px 0 0;
+      font-size:14px;
+      color:#6b7280;
+    }
+    .success-help a{
+      color:#111;
+      font-weight:600;
+      text-decoration:none;
+      border-bottom:1px solid rgba(17,17,17,.22);
+    }
     .dark-btn, .ghost-btn {
       height: 46px;
       border-radius: 12px;
@@ -94,6 +137,8 @@ import Layout from '../layouts/Layout.astro';
     @media (max-width: 768px) {
       .success-page { padding-top: 84px; }
       .success-actions { flex-direction: column; align-items: center; }
+      .success-next{padding:14px}
+      .success-next ul{font-size:13px}
     }
   </style>
 </Layout>

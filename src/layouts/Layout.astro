@@ -29,6 +29,20 @@ const {
 
 const ogImage = image || '/images/og-default.jpg';
 const ogUrl = Astro.url?.toString() || '';
+const pathname = Astro.url?.pathname || '/';
+const bodyClass = [
+  'site-shell',
+  pathname === '/' ? 'page-home' : '',
+  pathname.startsWith('/catalog') ? 'page-catalog' : '',
+  pathname.startsWith('/products/') ? 'page-pdp' : '',
+  pathname === '/about' ? 'page-about' : '',
+  pathname === '/cart' ? 'page-cart' : '',
+  pathname === '/privacy' ? 'page-privacy' : '',
+  pathname === '/terms' ? 'page-terms' : '',
+  pathname === '/order-success' ? 'page-order-success' : ''
+]
+  .filter(Boolean)
+  .join(' ');
 ---
 <!doctype html>
 <html lang="ru">
@@ -788,10 +802,100 @@ const ogUrl = Astro.url?.toString() || '';
         .hero-product-image{min-height:300px!important}
         .products-grid .pcard:first-child .pimg-wrap{height:210px!important}
       }
+
+      /* ── PHASE 0: единый motion-профиль Calm и базовая стабилизация ── */
+      :root{
+        --motion-calm-ease:cubic-bezier(.16,1,.3,1);
+        --motion-calm-fast:260ms;
+        --motion-calm-base:500ms;
+        --ui-radius-md:16px;
+        --ui-radius-lg:20px;
+        --ui-shadow-soft:0 8px 24px rgba(0,0,0,.08);
+      }
+      .site-shell .btn-blue,
+      .site-shell .btn-ghost,
+      .site-shell button,
+      .site-shell [role="button"]{
+        transition-duration:var(--motion-calm-fast)!important;
+        transition-timing-function:var(--motion-calm-ease)!important;
+      }
+      .site-shell .hero .btn-blue,
+      .site-shell .hero .btn-ghost,
+      .site-shell .hero-link,
+      .site-shell .filter-btn,
+      .site-shell .mobile-nav-link,
+      .site-shell .delivery-option{
+        min-height:44px;
+      }
+      .site-shell .hero-sub,
+      .site-shell .hero .btns{
+        transform:none!important;
+      }
+      .page-home .hero-overlay{
+        border-radius:var(--ui-radius-md)!important;
+        box-shadow:var(--ui-shadow-soft)!important;
+      }
+      .page-home .hero-overlay--transcript,
+      .page-home .hero-overlay--lang,
+      .page-home .hero-overlay--accuracy{
+        animation:none!important;
+      }
+      .page-home .hero-product{
+        overflow:visible!important;
+      }
+      .page-home .hero-trust{
+        display:none!important;
+      }
+
+      .page-catalog .catalog-controls{
+        position:sticky!important;
+        top:calc(var(--sh-h,68px) + 8px)!important;
+        z-index:45;
+        background:rgba(255,255,255,.86)!important;
+        backdrop-filter:blur(12px)!important;
+        -webkit-backdrop-filter:blur(12px)!important;
+      }
+      .page-catalog .catalog-chips{
+        scrollbar-width:none;
+      }
+      .page-catalog .catalog-chips::-webkit-scrollbar{
+        display:none;
+      }
+      .page-catalog #productsGrid .pcard{
+        border-radius:var(--ui-radius-md)!important;
+      }
+      .page-catalog #productsGrid .pcard .catalog-card-content{
+        min-height:194px;
+      }
+      .page-catalog #productsGrid .pcard .catalog-price-row{
+        min-height:42px;
+      }
+
+      .page-pdp .pdp-hero::after,
+      .page-pdp .pdp-badge,
+      .page-pdp .pdp-btn--primary::after{
+        animation:none!important;
+      }
+      .page-pdp .pdp-anim-go{
+        animation-duration:var(--motion-calm-base)!important;
+        animation-timing-function:var(--motion-calm-ease)!important;
+      }
+      .page-pdp .pdp-hero__main-img:hover img{
+        transform:scale(1.015)!important;
+      }
+
+      .page-cart .cart-panel,
+      .page-cart .checkout-panel,
+      .page-order-success .success-wrap,
+      .page-privacy .legal-page__card,
+      .page-terms .legal-page__card{
+        border-radius:var(--ui-radius-lg)!important;
+        box-shadow:var(--ui-shadow-soft)!important;
+      }
     </style>
     <slot name="head" />
   </head>
-  <body>
+  <body class={bodyClass}>
     {withChrome && <Header active={active} />}
     <slot />
     {withChrome && <Footer />}
@@ -925,6 +1029,10 @@ const ogUrl = Astro.url?.toString() || '';
             // Не дублируем его, чтобы избежать конфликтов кликов/состояний.
             // Русский комментарий: проверяем меню только внутри текущего header,
             // чтобы скрытые legacy-узлы в другом месте DOM не блокировали smart-header.
+            if (header.id === 'smart-header' && header.querySelector('#mobileMenuToggle')) {
+              header.dataset.mobileNavReady = '1';
+              return;
+            }
             if (header.querySelector('#menuToggle') || header.querySelector('#mobileNav')) {
               header.dataset.mobileNavReady = '1';
               return;

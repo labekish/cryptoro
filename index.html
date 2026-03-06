@@ -3461,6 +3461,230 @@ body .sec-how .smock {
 }
 </style>
 
+<style id="home-phase-redesign-final">
+/* Русский комментарий: финальный calm-профиль hero без подпрыгиваний и конфликтующих float-анимаций. */
+.hero-rating-badge{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin-bottom:16px!important;
+  padding:7px 12px!important;
+  border-radius:999px!important;
+  border:1px solid rgba(17,17,17,.12)!important;
+  background:rgba(255,255,255,.86)!important;
+  color:var(--c-muted)!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1!important;
+}
+.hero-rating-icon{
+  width:16px!important;
+  height:16px!important;
+  border-radius:999px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:rgba(17,17,17,.08)!important;
+  color:#111!important;
+  font-size:10px!important;
+}
+.hero-product{overflow:visible!important}
+.hero-product-image{position:relative!important;z-index:1!important}
+.hero-overlay{
+  border-radius:16px!important;
+  padding:16px!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.08)!important;
+}
+.hero-overlay--transcript,
+.hero-overlay--lang,
+.hero-overlay--accuracy{
+  transition:none!important;
+}
+.hero-overlay--transcript{
+  top:-6%!important;
+  right:-24%!important;
+  width:292px!important;
+  z-index:2!important;
+}
+.hero-overlay--lang{
+  left:-22%!important;
+  bottom:-2%!important;
+  min-width:168px!important;
+  min-height:68px!important;
+  z-index:2!important;
+}
+.hero-overlay--accuracy{
+  right:-18%!important;
+  bottom:0!important;
+  width:154px!important;
+  min-height:86px!important;
+  z-index:2!important;
+}
+
+@keyframes calmFadeUp{
+  from{opacity:0;transform:translate3d(0,14px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes calmFadeDown{
+  from{opacity:0;transform:translate3d(0,-14px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes calmFadeLeft{
+  from{opacity:0;transform:translate3d(14px,0,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes calmFadeScale{
+  from{opacity:0;transform:scale(.95)}
+  to{opacity:1;transform:scale(1)}
+}
+
+.hero-sub,
+.hero .btns,
+.hero-visual,
+.hero-overlay--transcript,
+.hero-overlay--lang,
+.hero-overlay--accuracy{
+  opacity:0!important;
+}
+.hero-sub.pvis{
+  animation:calmFadeUp 500ms cubic-bezier(.16,1,.3,1) 0ms both!important;
+}
+.hero .btns.pvis{
+  animation:calmFadeUp 500ms cubic-bezier(.16,1,.3,1) 200ms both!important;
+}
+.hero-visual.pvis{
+  opacity:1!important;
+  transition:opacity .45s cubic-bezier(.16,1,.3,1)!important;
+}
+.hero-product-image{
+  opacity:1!important;
+  animation:none!important;
+}
+.hero-product-image img{
+  opacity:0!important;
+  transform:rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.16)!important;
+  transition:opacity .62s cubic-bezier(.16,1,.3,1), transform .62s cubic-bezier(.16,1,.3,1)!important;
+  will-change:transform,opacity;
+}
+.hero-overlay--transcript,
+.hero-overlay--lang,
+.hero-overlay--accuracy{
+  animation:none!important;
+  transition:opacity .56s cubic-bezier(.16,1,.3,1), transform .56s cubic-bezier(.16,1,.3,1)!important;
+  will-change:transform,opacity;
+}
+.hero-overlay--transcript{transform:translate3d(0,-8px,0)}
+.hero-overlay--lang{transform:translate3d(-8px,8px,0)}
+.hero-overlay--accuracy{transform:translate3d(8px,8px,0)}
+
+.hero-visual.pvis .hero-product-image img{
+  opacity:1!important;
+  transform:rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.24)!important;
+  transition-delay:240ms!important;
+}
+.hero-visual.pvis .hero-overlay--transcript{
+  opacity:1!important;
+  transform:translate3d(0,0,0)!important;
+  transition-delay:560ms!important;
+}
+.hero-visual.pvis .hero-overlay--lang{
+  opacity:1!important;
+  transform:translate3d(0,0,0)!important;
+  transition-delay:700ms!important;
+}
+.hero-visual.pvis .hero-overlay--accuracy{
+  opacity:1!important;
+  transform:translate3d(0,0,0)!important;
+  transition-delay:840ms!important;
+}
+
+.sec-reviews .sec-title,
+.sec-faq .sec-title{
+  line-height:1.08!important;
+  letter-spacing:-.02em!important;
+}
+.sec-reviews .sec-sub,
+.sec-faq .sec-sub{
+  color:var(--c-muted)!important;
+  line-height:1.55!important;
+}
+.sec-faq .faqitem{
+  border-radius:16px!important;
+}
+
+@media (max-width:1024px){
+  .hero-overlay--transcript{
+    top:-10%!important;
+    right:-18%!important;
+    width:244px!important;
+  }
+  .hero-overlay--lang{
+    left:-18%!important;
+    bottom:-4%!important;
+    min-width:146px!important;
+  }
+  .hero-overlay--accuracy{
+    right:-14%!important;
+    bottom:-3%!important;
+    width:136px!important;
+  }
+}
+@media (max-width:768px){
+  .hero-copy{order:1!important}
+  .hero-visual{order:2!important}
+  .hero-rating-badge{font-size:13px!important}
+  .hero-product{max-width:340px!important;margin:0 auto!important}
+  .hero-overlay{padding:12px!important}
+  .hero-overlay--transcript{
+    top:-54px!important;
+    right:4px!important;
+    width:196px!important;
+  }
+  .hero-overlay--lang{
+    left:-28px!important;
+    bottom:-32px!important;
+    min-width:122px!important;
+    min-height:58px!important;
+  }
+  .hero-overlay--accuracy{
+    right:-8px!important;
+    bottom:-40px!important;
+    width:116px!important;
+    min-height:72px!important;
+  }
+  .hero-overlay-acc-value{font-size:24px!important}
+  .hero-overlay-label,.hero-overlay-text,.hero-overlay-meta,.hero-overlay-acc-sub{font-size:10px!important}
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-sub,.hero .btns,.hero-visual,.hero-product-image,.hero-product-image img,.hero-overlay--transcript,.hero-overlay--lang,.hero-overlay--accuracy{
+    opacity:1!important;
+    animation:none!important;
+    transform:none!important;
+    filter:none!important;
+    transition:none!important;
+  }
+}
+</style>
+<script>
+/* Русский комментарий: fallback на случай, если pvis не поставился из-за раннего JS-конфликта. */
+(function(){
+  function forceHeroReveal(){
+    var sub = document.querySelector('.hero-sub');
+    var btns = document.querySelector('.hero .btns');
+    var visual = document.querySelector('.hero-visual');
+    if (sub) sub.classList.add('pvis');
+    if (btns) btns.classList.add('pvis');
+    if (visual) visual.classList.add('pvis');
+  }
+  window.addEventListener('load', function(){
+    window.setTimeout(function(){
+      var visual = document.querySelector('.hero-visual');
+      if (visual && !visual.classList.contains('pvis')) forceHeroReveal();
+    }, 1600);
+  });
+})();
+</script>
+
 </head>
 <body>
 
@@ -3471,6 +3695,10 @@ body .sec-how .smock {
 <section class="hero" id="top">
   <div class="hero-inner">
     <div class="hero-copy">
+      <div class="hero-rating-badge" aria-label="Рейтинг 4.9 и более 500 клиентов">
+        <span class="hero-rating-icon" aria-hidden="true">★</span>
+        <span>4.9 · Более 500 клиентов</span>
+      </div>
       <h1 class="hero-title d1" data-typewriter="Речь в текст&#10;за секунды"><span id="heroTypeTarget">Речь в текст<br>за секунды</span></h1>
       <script>
         (function () {

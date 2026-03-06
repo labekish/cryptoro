@@ -580,6 +580,67 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
 }
 </style>
 
+<style id="catalog-phase-redesign-final">
+/* Русский комментарий: финальная стабилизация каталога — убираем дерганые эффекты и выравниваем mobile UX. */
+.catalog-hero::after{
+  display:none!important;
+}
+.catalog-hero-go,
+#productsGrid .pcard.vis,
+#productsGrid .pcard.card-showing,
+.filter-btn.is-activating{
+  animation:none!important;
+}
+.catalog-controls{
+  position:sticky!important;
+  top:calc(var(--sh-h,68px) + 8px)!important;
+  z-index:44;
+}
+#productsGrid .pcard{
+  min-height:100%!important;
+}
+#productsGrid .pcard .catalog-card-content{
+  min-height:198px!important;
+}
+#productsGrid .pcard .catalog-price-row{
+  min-height:42px!important;
+  align-items:flex-end!important;
+}
+#productsGrid .pcard[data-card-id="accessories"] .catalog-color-row,
+#productsGrid .pcard[data-card-id="vspomnit"] .catalog-color-row,
+#productsGrid .pcard[data-card-id="plaud-ai-pro-12m"] .catalog-color-row,
+#productsGrid .pcard[data-card-id="plaud-ai-unlimited-12m"] .catalog-color-row{
+  display:none!important;
+}
+#productsGrid .pcard[data-card-id="plaud-ai-pro-12m"] h3,
+#productsGrid .pcard[data-card-id="plaud-ai-unlimited-12m"] h3{
+  letter-spacing:-.01em!important;
+}
+@media (max-width:768px){
+  .catalog-controls{
+    padding:8px 0 12px!important;
+    gap:8px!important;
+  }
+  .catalog-controls .catalog-chips{
+    overflow-x:auto!important;
+    width:100%!important;
+    padding-bottom:2px!important;
+  }
+  .catalog-controls .filter-btn{
+    flex:0 0 auto!important;
+  }
+  .catalog-hero h1{
+    font-size:clamp(36px,10.2vw,48px)!important;
+    line-height:1.04!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important;
+  }
+  #productsGrid .pcard .catalog-card-content{
+    min-height:176px!important;
+  }
+}
+</style>
+
 
 </head>
 <body class="bg-zinc-100 text-zinc-900 font-sans antialiased">
@@ -862,123 +923,17 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
   })();
 </script>
 <script>
-/* ═══════════ WOW: CATALOG ANIMATIONS ═══════════ */
-
-/* ── HERO STAGGERED ENTRANCE ── */
-(function(){
-  var items = [
-    { sel:'.catalog-hero h1', delay:0.1, y:40 },
-    { sel:'.catalog-hero p',  delay:0.3, y:24 }
-  ];
-  var els = [];
-  items.forEach(function(item){
-    var el = document.querySelector(item.sel);
-    if(!el) return;
-    el.classList.remove('reveal','vis');
-    el.style.setProperty('--cat-delay', item.delay+'s');
-    el.classList.add('catalog-hero-init');
-    els.push(el);
-  });
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      els.forEach(function(el){
-        el.classList.remove('catalog-hero-init');
-        el.classList.add('catalog-hero-go');
-      });
-      setTimeout(function(){
-        els.forEach(function(el){
-          el.classList.remove('catalog-hero-go');
-          el.classList.add('catalog-hero-done');
-        });
-      }, 1200);
-    });
-  });
-})();
-
-/* ── CARD STAGGER DELAYS ── */
-(function(){
-  var cards = document.querySelectorAll('#productsGrid .pcard');
-  cards.forEach(function(card, i){
-    card.style.setProperty('--card-delay', (i * 0.1) + 's');
-  });
-})();
-
-/* ── SMOOTH FILTER WITH ANIMATION ── */
-(function(){
-  var origFilter = window.filterProducts;
-  window.filterProducts = function(cat, btn){
-    var grid = document.getElementById('productsGrid');
-    var cards = grid.querySelectorAll('.pcard');
-    var countEl = document.getElementById('productsCount');
-
-    /* Update filter button state */
-    document.querySelectorAll('.filter-btn').forEach(function(b){
-      b.classList.remove('bg-zinc-900','text-white','border-zinc-900','active','is-selected','is-activating');
-      b.classList.add('text-zinc-600','border-zinc-300');
-    });
-    btn.classList.add('is-selected','text-white','border-zinc-900');
-    btn.classList.remove('text-zinc-600','border-zinc-300');
-    void btn.offsetWidth;
-    btn.classList.add('is-activating');
-    setTimeout(function(){ btn.classList.remove('is-activating'); }, 380);
-
-    /* Hide all first */
-    var toHide = [];
-    var toShow = [];
-    cards.forEach(function(card){
-      var show = cat === 'all' || card.dataset.cat === cat;
-      if(show) toShow.push(card);
-      else toHide.push(card);
-    });
-
-    /* Animate out */
-    toHide.forEach(function(card){
-      card.classList.add('card-hiding');
-    });
-
-    setTimeout(function(){
-      toHide.forEach(function(card){
-        card.style.display = 'none';
-        card.classList.remove('card-hiding');
-      });
-
-      /* Show with stagger */
-      toShow.forEach(function(card, i){
-        card.style.display = '';
-        card.classList.remove('card-hiding');
-        card.classList.add('card-showing');
-        card.style.setProperty('--card-delay', (i * 0.08) + 's');
-      });
-
-      /* Update count with animation */
-      var visible = toShow.length;
-      var word = visible === 1 ? 'товар' : (visible < 5 ? 'товара' : 'товаров');
-      countEl.classList.remove('count-update');
-      void countEl.offsetWidth;
-      countEl.textContent = visible + ' ' + word;
-      countEl.classList.add('count-update');
-
-      /* Clean up animation classes */
-      setTimeout(function(){
-        toShow.forEach(function(card){ card.classList.remove('card-showing'); });
-      }, 600);
-    }, 250);
-  };
-})();
-
-/* Русский комментарий: при наведении на цвет в карточке сразу меняем фото товара. */
+/* Русский комментарий: спокойный сценарий каталога без рывков и двойных оберток filterProducts. */
 (function(){
   function applySwatch(card, swatch) {
     var image = card.querySelector('.catalog-media img');
     if (!image) return;
-
     card.querySelectorAll('.catalog-swatch').forEach(function(item){
       item.classList.remove('is-active');
       item.setAttribute('aria-pressed', 'false');
     });
     swatch.classList.add('is-active');
     swatch.setAttribute('aria-pressed', 'true');
-
     var nextSrc = swatch.getAttribute('data-image');
     var nextAlt = swatch.getAttribute('data-alt');
     if (nextSrc) image.setAttribute('src', nextSrc);
@@ -989,14 +944,9 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
     var swatches = card.querySelectorAll('.catalog-swatch');
     swatches.forEach(function(swatch){
       swatch.setAttribute('aria-pressed', swatch.classList.contains('is-active') ? 'true' : 'false');
-      swatch.addEventListener('mouseenter', function(){
-        applySwatch(card, swatch);
-      });
-      swatch.addEventListener('focus', function(){
-        applySwatch(card, swatch);
-      });
+      swatch.addEventListener('mouseenter', function(){ applySwatch(card, swatch); });
+      swatch.addEventListener('focus', function(){ applySwatch(card, swatch); });
       swatch.addEventListener('click', function(e){
-        // Русский комментарий: клик по цвету не должен открывать карточку (mobile/touch сценарий).
         e.preventDefault();
         e.stopPropagation();
         applySwatch(card, swatch);
@@ -1017,9 +967,7 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
       e.preventDefault();
     });
     card.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-      }
+      if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
     });
   });
 })();

@@ -6,7 +6,38 @@ import Layout from '../layouts/Layout.astro';
     <section class="legal-page__section">
       <div class="legal-page__card">
         <h1 class="legal-page__title">Политика конфиденциальности</h1>
-        <p class="legal-page__text">Это временная страница-заглушка. Здесь будет размещена полная политика обработки и хранения персональных данных CRYPTORO.</p>
+        <p class="legal-page__text">Редакция от 6 марта 2026 года. Настоящая политика описывает, какие данные мы получаем при работе сайта CRYPTORO, зачем используем эти данные и как защищаем информацию пользователей.</p>
+
+        <h2 class="legal-page__subtitle">1. Какие данные мы обрабатываем</h2>
+        <ul class="legal-page__list">
+          <li>Контактные данные из форм: имя, телефон, email, Telegram, комментарий.</li>
+          <li>Данные заказа: состав корзины, адрес доставки, выбранный способ доставки, сумма заказа.</li>
+          <li>Технические данные: IP-адрес, cookie, тип устройства и браузера, действия на сайте.</li>
+        </ul>
+
+        <h2 class="legal-page__subtitle">2. Цели обработки</h2>
+        <ul class="legal-page__list">
+          <li>Обработка заявок и оформление заказов.</li>
+          <li>Расчет доставки и согласование условий покупки.</li>
+          <li>Поддержка пользователей и улучшение качества сервиса.</li>
+          <li>Выполнение требований законодательства РФ.</li>
+        </ul>
+
+        <h2 class="legal-page__subtitle">3. Передача данных третьим лицам</h2>
+        <p class="legal-page__text">Данные передаются только в объеме, необходимом для исполнения заказа и работы сервиса: CRM, службе доставки, платежным провайдерам и подрядчикам хостинга. Мы не продаем персональные данные третьим лицам.</p>
+
+        <h2 class="legal-page__subtitle">4. Срок хранения</h2>
+        <p class="legal-page__text">Мы храним данные не дольше, чем это необходимо для целей обработки, либо в сроки, установленные законом и бухгалтерскими требованиями.</p>
+
+        <h2 class="legal-page__subtitle">5. Права пользователя</h2>
+        <ul class="legal-page__list">
+          <li>Запросить сведения об обработке персональных данных.</li>
+          <li>Потребовать уточнение, блокирование или удаление данных при наличии оснований.</li>
+          <li>Отозвать согласие на обработку персональных данных.</li>
+        </ul>
+
+        <h2 class="legal-page__subtitle">6. Контакты</h2>
+        <p class="legal-page__text">По вопросам обработки персональных данных: <a href="mailto:info@cryptoro.ru">info@cryptoro.ru</a>. Мы отвечаем на запросы в разумный срок.</p>
       </div>
     </section>
   </main>
@@ -21,12 +52,32 @@ import Layout from '../layouts/Layout.astro';
     font-family:'Unbounded',sans-serif;font-size:clamp(28px,3.7vw,40px);line-height:1.12;color:#111;margin-bottom:14px;
     overflow-wrap:anywhere;word-break:break-word;
   }
-  .legal-page__text{font-size:16px;line-height:1.7;color:#4b5563}
+  .legal-page__text{font-size:16px;line-height:1.7;color:#4b5563;margin:0 0 14px}
+  .legal-page__subtitle{
+    font-size:20px;
+    line-height:1.3;
+    font-weight:700;
+    color:#111;
+    margin:22px 0 10px;
+  }
+  .legal-page__list{
+    margin:0 0 12px 18px;
+    padding:0;
+    display:grid;
+    gap:8px;
+    color:#4b5563;
+    font-size:16px;
+    line-height:1.6;
+  }
+  .legal-page__list li{margin:0}
+  .legal-page__text a{color:#111;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(17,17,17,.22)}
   @media (max-width:640px){
     .legal-page{padding-top:86px;padding-bottom:56px}
     .legal-page__section{padding:0 16px}
     .legal-page__card{padding:20px}
     .legal-page__title{font-size:clamp(24px,8.1vw,30px);line-height:1.14}
     .legal-page__text{font-size:15px;line-height:1.62}
+    .legal-page__subtitle{font-size:18px;line-height:1.34;margin-top:18px}
+    .legal-page__list{font-size:15px;line-height:1.56;gap:6px}
   }
 </style>

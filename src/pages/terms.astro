@@ -6,7 +6,37 @@ import Layout from '../layouts/Layout.astro';
     <section class="legal-page__section">
       <div class="legal-page__card">
         <h1 class="legal-page__title">Условия использования</h1>
-        <p class="legal-page__text">Это временная страница-заглушка. Здесь будут опубликованы официальные условия использования сайта и сервисов CRYPTORO.</p>
+        <p class="legal-page__text">Редакция от 6 марта 2026 года. Используя сайт CRYPTORO, пользователь принимает настоящие условия и обязуется соблюдать их при оформлении заказов и работе с сервисом.</p>
+
+        <h2 class="legal-page__subtitle">1. Общие положения</h2>
+        <ul class="legal-page__list">
+          <li>Сайт предоставляет информацию о товарах, ценах, наличии и условиях покупки.</li>
+          <li>Информация на сайте не является публичной офертой, если иное прямо не указано.</li>
+          <li>Оформление заказа подтверждает намерение пользователя приобрести выбранный товар.</li>
+        </ul>
+
+        <h2 class="legal-page__subtitle">2. Оформление и оплата заказа</h2>
+        <ul class="legal-page__list">
+          <li>Пользователь обязуется указывать корректные контактные и адресные данные.</li>
+          <li>Финальная стоимость заказа подтверждается менеджером с учетом выбранной доставки.</li>
+          <li>Оплата возможна доступными на сайте способами в момент подтверждения заказа.</li>
+        </ul>
+
+        <h2 class="legal-page__subtitle">3. Доставка и получение</h2>
+        <ul class="legal-page__list">
+          <li>Сроки доставки зависят от региона и выбранного способа получения.</li>
+          <li>Стоимость доставки может меняться в зависимости от тарифа перевозчика.</li>
+          <li>Пользователь обязан проверить товар при получении в соответствии с правилами перевозчика.</li>
+        </ul>
+
+        <h2 class="legal-page__subtitle">4. Возврат и гарантия</h2>
+        <p class="legal-page__text">Порядок возврата и гарантийного обслуживания определяется законодательством РФ и условиями гарантийной поддержки конкретного товара.</p>
+
+        <h2 class="legal-page__subtitle">5. Ограничение ответственности</h2>
+        <p class="legal-page__text">Администрация сайта не несет ответственности за временную недоступность ресурса, технические сбои у сторонних сервисов и убытки, возникшие из-за предоставления пользователем недостоверных данных.</p>
+
+        <h2 class="legal-page__subtitle">6. Контакты</h2>
+        <p class="legal-page__text">Вопросы по заказам и условиям использования: <a href="mailto:info@cryptoro.ru">info@cryptoro.ru</a>.</p>
       </div>
     </section>
   </main>
@@ -21,12 +51,32 @@ import Layout from '../layouts/Layout.astro';
     font-family:'Unbounded',sans-serif;font-size:clamp(28px,3.7vw,40px);line-height:1.12;color:#111;margin-bottom:14px;
     overflow-wrap:anywhere;word-break:break-word;
   }
-  .legal-page__text{font-size:16px;line-height:1.7;color:#4b5563}
+  .legal-page__text{font-size:16px;line-height:1.7;color:#4b5563;margin:0 0 14px}
+  .legal-page__subtitle{
+    font-size:20px;
+    line-height:1.3;
+    font-weight:700;
+    color:#111;
+    margin:22px 0 10px;
+  }
+  .legal-page__list{
+    margin:0 0 12px 18px;
+    padding:0;
+    display:grid;
+    gap:8px;
+    color:#4b5563;
+    font-size:16px;
+    line-height:1.6;
+  }
+  .legal-page__list li{margin:0}
+  .legal-page__text a{color:#111;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(17,17,17,.22)}
   @media (max-width:640px){
     .legal-page{padding-top:86px;padding-bottom:56px}
     .legal-page__section{padding:0 16px}
     .legal-page__card{padding:20px}
     .legal-page__title{font-size:clamp(24px,8.1vw,30px);line-height:1.14}
     .legal-page__text{font-size:15px;line-height:1.62}
+    .legal-page__subtitle{font-size:18px;line-height:1.34;margin-top:18px}
+    .legal-page__list{font-size:15px;line-height:1.56;gap:6px}
   }
 </style>
