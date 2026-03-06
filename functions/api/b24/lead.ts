@@ -1443,12 +1443,25 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
       cdekOrder = await maybeCreateCdekOrderForOrder(env, o, existingId, warnings);
     }
 
-    if (!isOrder && contactId) {
-      const linkRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
+    if (!isOrder) {
+      const consultUpdateRes = await callBitrix<boolean>(webhookUrl, 'crm.lead.update', {
         id: existingId,
-        fields: { CONTACT_ID: contactId },
+        fields: {
+          TITLE: title,
+          NAME: personName.firstName,
+          ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
+          ...(channels.hasPhone ? { PHONE: [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }] } : {}),
+          ...(channels.hasEmail ? { EMAIL: [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }] } : {}),
+          ...(leadFieldConfig.fullNameFieldCode ? { [leadFieldConfig.fullNameFieldCode]: sanitizeMeta(name, 140) } : {}),
+          ...(leadFieldConfig.phoneFieldCode && channels.hasPhone
+            ? { [leadFieldConfig.phoneFieldCode]: channels.phoneRaw || channels.phoneNormalized }
+            : {}),
+          ...(leadFieldConfig.emailFieldCode && channels.hasEmail ? { [leadFieldConfig.emailFieldCode]: channels.email } : {}),
+          ...(contactId ? { CONTACT_ID: contactId } : {}),
+          ...(comments ? { COMMENTS: comments } : {}),
+        },
       });
-      if (linkRes.ok === false) warnings.push(`lead_contact_link_failed:${linkRes.error}`);
+      if (consultUpdateRes.ok === false) warnings.push(`lead_consult_update_failed:${consultUpdateRes.error}`);
     }
     let verify: LeadVerifyInfo | undefined;
     if (isOrder) {
