@@ -4,6 +4,7 @@ type Env = {
   B24_WEBHOOK_URL?: string;
   B24_ORIGINATOR_ID?: string;
   B24_CONSULT_DEDUP_MINUTES?: string;
+  B24_AUTO_FIELD_DISCOVERY?: string;
   B24_PRODUCT_MAP_JSON?: string;
   B24_CURRENCY_ID?: string;
   B24_CONTACT_SYNC?: string;
@@ -100,9 +101,35 @@ type ContactChannels = {
   hasPhone: boolean;
   hasEmail: boolean;
 };
+type BitrixFieldDefinition = {
+  type?: string;
+  title?: string;
+  formLabel?: string;
+  listLabel?: string;
+  items?: unknown;
+};
+type BitrixFieldMap = Record<string, BitrixFieldDefinition>;
+type ResolvedCrmFieldConfig = {
+  deliveryFieldCode: string;
+  deliveryEnumMap: EnumMap;
+  deliveryFieldRequiresEnum: boolean;
+  fullNameFieldCode: string;
+  phoneFieldCode: string;
+  emailFieldCode: string;
+  deliveryCostFieldCode: string;
+};
 
 const DEFAULT_ORIGINATOR_ID = 'CRYPTORO_SITE';
 const DEFAULT_CONSULT_DEDUP_MINUTES = 30;
+const EMPTY_CRM_FIELD_CONFIG: ResolvedCrmFieldConfig = {
+  deliveryFieldCode: '',
+  deliveryEnumMap: {},
+  deliveryFieldRequiresEnum: false,
+  fullNameFieldCode: '',
+  phoneFieldCode: '',
+  emailFieldCode: '',
+  deliveryCostFieldCode: '',
+};
 
 function parsePositiveInt(value: string | undefined, fallback: number): number {
   const n = Number(value);
@@ -424,6 +451,226 @@ function shouldUpdateContactOnMatch(env: Env): boolean {
   return String(env.B24_CONTACT_UPDATE_ON_MATCH || '1').trim() !== '0';
 }
 
+function shouldAutoFieldDiscovery(env: Env): boolean {
+  return String(env.B24_AUTO_FIELD_DISCOVERY || '1').trim() !== '0';
+}
+
+function normalizeFieldLabel(input: string): string {
+  return String(input || '')
+    .trim()
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/[()"'`.,:;/\\[\]{}|!?+_*&#№-]+/g, ' ')
+    .replace(/\s+/g, ' ');
+}
+
+function collectFieldLabels(field: BitrixFieldDefinition): string[] {
+  return [field.title, field.formLabel, field.listLabel]
+    .map((value) => normalizeFieldLabel(String(value || '')))
+    .filter(Boolean);
+}
+
+function isUserFieldCode(fieldCode: string): boolean {
+  return fieldCode.startsWith('UF_CRM_');
+}
+
+function findFieldCodeByAliases(
+  fields: BitrixFieldMap,
+  aliases: string[],
+  negativeAliases: string[] = []
+): { code: string; field?: BitrixFieldDefinition } {
+  const normalizedAliases = aliases.map((alias) => normalizeFieldLabel(alias)).filter(Boolean);
+  const normalizedNegativeAliases = negativeAliases
+    .map((alias) => normalizeFieldLabel(alias))
+    .filter(Boolean);
+
+  let bestScore = 0;
+  let bestCode = '';
+  let bestField: BitrixFieldDefinition | undefined;
+
+  for (const [fieldCode, field] of Object.entries(fields || {})) {
+    const labels = collectFieldLabels(field);
+    if (!labels.length) continue;
+
+    const hasNegative = labels.some((label) =>
+      normalizedNegativeAliases.some((negative) => negative && label.includes(negative))
+    );
+    if (hasNegative) continue;
+
+    let score = 0;
+    for (const label of labels) {
+      for (const alias of normalizedAliases) {
+        if (!alias) continue;
+        if (label === alias) score = Math.max(score, 120);
+        else if (label.startsWith(alias)) score = Math.max(score, 100);
+        else if (label.includes(alias)) score = Math.max(score, 80);
+      }
+    }
+
+    if (score <= 0) continue;
+    if (isUserFieldCode(fieldCode)) score += 10;
+    if (score <= bestScore) continue;
+
+    bestScore = score;
+    bestCode = fieldCode;
+    bestField = field;
+  }
+
+  return bestCode ? { code: bestCode, field: bestField } : { code: '' };
+}
+
+function isListLikeField(field: BitrixFieldDefinition | undefined): boolean {
+  const type = normalizeFieldLabel(String(field?.type || ''));
+  return type === 'enumeration' || type === 'list' || type === 'crm status' || type === 'crm_status';
+}
+
+function buildEnumMapFromFieldItems(field: BitrixFieldDefinition | undefined): EnumMap {
+  if (!field?.items) return {};
+
+  const sourceItems = Array.isArray(field.items)
+    ? field.items
+    : typeof field.items === 'object' && field.items
+      ? Object.values(field.items as Record<string, unknown>)
+      : [];
+
+  const enumMap: EnumMap = {};
+  for (const rawItem of sourceItems) {
+    if (!rawItem || typeof rawItem !== 'object') continue;
+    const item = rawItem as Record<string, unknown>;
+    const value = sanitizeMeta(String(item.VALUE ?? item.value ?? item.NAME ?? item.name ?? ''), 120);
+    const idCandidate = item.ID ?? item.id ?? item.VALUE_ID ?? item.valueId;
+    const idNum = Number(idCandidate);
+    const id = Number.isFinite(idNum) && idNum > 0 ? idNum : sanitizeMeta(String(idCandidate ?? ''), 80);
+    if (!value || !id) continue;
+    enumMap[value] = id;
+  }
+  return enumMap;
+}
+
+async function getCrmFieldMap(
+  webhookUrl: string,
+  entity: 'lead' | 'deal'
+): Promise<BitrixFieldMap | null> {
+  const method = entity === 'deal' ? 'crm.deal.fields' : 'crm.lead.fields';
+  const res = await callBitrix<BitrixFieldMap>(webhookUrl, method, {});
+  if (res.ok === false) return null;
+  return res.data && typeof res.data === 'object' ? res.data : null;
+}
+
+async function resolveCrmFieldConfig(
+  webhookUrl: string,
+  entity: 'lead' | 'deal',
+  env: Env,
+  warnings: string[]
+): Promise<ResolvedCrmFieldConfig> {
+  const isLead = entity === 'lead';
+  const config: ResolvedCrmFieldConfig = {
+    deliveryFieldCode: sanitizeMeta(
+      isLead ? env.B24_LEAD_DELIVERY_FIELD_CODE : env.B24_DEAL_DELIVERY_FIELD_CODE,
+      80
+    ),
+    deliveryEnumMap: parseEnumMap(
+      isLead ? env.B24_LEAD_DELIVERY_ENUM_JSON : env.B24_DEAL_DELIVERY_ENUM_JSON
+    ),
+    deliveryFieldRequiresEnum: false,
+    fullNameFieldCode: sanitizeMeta(
+      isLead ? env.B24_LEAD_FULL_NAME_FIELD_CODE : env.B24_DEAL_FULL_NAME_FIELD_CODE,
+      80
+    ),
+    phoneFieldCode: sanitizeMeta(
+      isLead ? env.B24_LEAD_PHONE_FIELD_CODE : env.B24_DEAL_PHONE_FIELD_CODE,
+      80
+    ),
+    emailFieldCode: sanitizeMeta(
+      isLead ? env.B24_LEAD_EMAIL_FIELD_CODE : env.B24_DEAL_EMAIL_FIELD_CODE,
+      80
+    ),
+    deliveryCostFieldCode: sanitizeMeta(
+      isLead ? env.B24_LEAD_DELIVERY_COST_FIELD_CODE : env.B24_DEAL_DELIVERY_COST_FIELD_CODE,
+      80
+    ),
+  };
+
+  if (!shouldAutoFieldDiscovery(env)) return config;
+
+  const needFieldDiscovery = !config.deliveryFieldCode
+    || !config.fullNameFieldCode
+    || !config.phoneFieldCode
+    || !config.emailFieldCode
+    || !config.deliveryCostFieldCode
+    || (!Object.keys(config.deliveryEnumMap).length && !!config.deliveryFieldCode);
+  if (!needFieldDiscovery) return config;
+
+  const fieldMap = await getCrmFieldMap(webhookUrl, entity);
+  if (!fieldMap) {
+    warnings.push(`${entity}_fields_autodetect_failed`);
+    return config;
+  }
+
+  if (!config.fullNameFieldCode) {
+    const found = findFieldCodeByAliases(fieldMap, ['ФИО', 'имя и фамилия', 'полное имя']);
+    if (found.code) config.fullNameFieldCode = found.code;
+  }
+
+  if (!config.phoneFieldCode) {
+    const found = findFieldCodeByAliases(fieldMap, ['телефон', 'phone']);
+    if (found.code) config.phoneFieldCode = found.code;
+  }
+
+  if (!config.emailFieldCode) {
+    const found = findFieldCodeByAliases(fieldMap, ['e-mail', 'email', 'электронная почта']);
+    if (found.code) config.emailFieldCode = found.code;
+  }
+
+  let deliveryFieldMeta: BitrixFieldDefinition | undefined;
+  if (!config.deliveryFieldCode) {
+    const found = findFieldCodeByAliases(
+      fieldMap,
+      ['способ доставки', 'доставка'],
+      ['стоимость', 'трек', 'статус', 'отгружен', 'разрешена', 'код']
+    );
+    if (found.code) {
+      config.deliveryFieldCode = found.code;
+      deliveryFieldMeta = found.field;
+    }
+  } else {
+    deliveryFieldMeta = fieldMap[config.deliveryFieldCode];
+  }
+
+  if (!config.deliveryCostFieldCode) {
+    const found = findFieldCodeByAliases(
+      fieldMap,
+      ['стоимость доставки', 'расчетная стоимость доставки'],
+      ['сдэк']
+    );
+    if (found.code) config.deliveryCostFieldCode = found.code;
+  }
+
+  if (config.deliveryFieldCode && !deliveryFieldMeta) {
+    deliveryFieldMeta = fieldMap[config.deliveryFieldCode];
+  }
+  config.deliveryFieldRequiresEnum = isListLikeField(deliveryFieldMeta);
+
+  if (
+    config.deliveryFieldCode
+    && config.deliveryFieldRequiresEnum
+    && !Object.keys(config.deliveryEnumMap).length
+  ) {
+    // Русский комментарий: если список значений в env не задан, пытаемся собрать enum напрямую из метаданных Б24.
+    config.deliveryEnumMap = buildEnumMapFromFieldItems(deliveryFieldMeta);
+  }
+
+  if (
+    config.deliveryFieldCode
+    && config.deliveryFieldRequiresEnum
+    && !Object.keys(config.deliveryEnumMap).length
+  ) {
+    warnings.push(`${entity}_delivery_enum_missing`);
+  }
+
+  return config;
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -521,12 +768,16 @@ function parseEnumMap(rawJson: string | undefined): EnumMap {
   }
 }
 
-function resolveDeliveryFieldValue(delivery: string, enumMap: EnumMap): string | number | null {
+function resolveDeliveryFieldValue(
+  delivery: string,
+  enumMap: EnumMap,
+  requireEnum = false
+): string | number | null {
   const normalized = normalizeDeliveryLabel(delivery);
   if (!normalized) return null;
 
-  // Русский комментарий: если enum-карта не задана — поле текстовое, пишем строку как есть.
-  if (!Object.keys(enumMap).length) return delivery;
+  // Русский комментарий: для списка без enum-значений ничего не пишем, чтобы не ловить дефолт Б24.
+  if (!Object.keys(enumMap).length) return requireEnum ? null : delivery;
 
   // Русский комментарий: для поля-списка в Б24 выбираем ID значения из маппинга по вхождению ключа.
   for (const [key, value] of Object.entries(enumMap)) {
@@ -751,6 +1002,7 @@ async function syncConvertedDeal(
   deliveryCost: number | undefined,
   comments: string,
   env: Env,
+  dealFieldConfig: ResolvedCrmFieldConfig,
   warnings: string[]
 ): Promise<string | undefined> {
   if (!shouldSyncDealOnConvert(env)) return undefined;
@@ -762,12 +1014,6 @@ async function syncConvertedDeal(
   }
 
   const dealId = dealIds[0];
-  const dealDeliveryField = sanitizeMeta(env.B24_DEAL_DELIVERY_FIELD_CODE, 80);
-  const dealDeliveryEnumMap = parseEnumMap(env.B24_DEAL_DELIVERY_ENUM_JSON);
-  const dealFullNameField = sanitizeMeta(env.B24_DEAL_FULL_NAME_FIELD_CODE, 80);
-  const dealPhoneField = sanitizeMeta(env.B24_DEAL_PHONE_FIELD_CODE, 80);
-  const dealEmailField = sanitizeMeta(env.B24_DEAL_EMAIL_FIELD_CODE, 80);
-  const dealDeliveryCostField = sanitizeMeta(env.B24_DEAL_DELIVERY_COST_FIELD_CODE, 80);
   const dealFields: Record<string, unknown> = {
     OPPORTUNITY: orderTotal,
     CURRENCY_ID: currencyId,
@@ -775,16 +1021,28 @@ async function syncConvertedDeal(
     ...(comments ? { COMMENTS: comments } : {}),
   };
 
-  if (dealDeliveryField && delivery) {
+  if (dealFieldConfig.deliveryFieldCode && delivery) {
     // Русский комментарий: опционально пишем способ доставки в кастомное поле сделки (тип Список/Строка).
     // Если enum-карта задана, но совпадения нет — не перезаписываем поле (иначе Bitrix оставит "Самовывоз").
-    const dv = resolveDeliveryFieldValue(delivery, dealDeliveryEnumMap);
-    if (dv !== null) dealFields[dealDeliveryField] = dv;
+    const dv = resolveDeliveryFieldValue(
+      delivery,
+      dealFieldConfig.deliveryEnumMap,
+      dealFieldConfig.deliveryFieldRequiresEnum
+    );
+    if (dv !== null) dealFields[dealFieldConfig.deliveryFieldCode] = dv;
   }
-  if (dealDeliveryCostField && deliveryCost && deliveryCost > 0) dealFields[dealDeliveryCostField] = deliveryCost;
-  if (dealFullNameField) dealFields[dealFullNameField] = sanitizeMeta(customerName, 140);
-  if (dealPhoneField && channels.hasPhone) dealFields[dealPhoneField] = channels.phoneRaw || channels.phoneNormalized;
-  if (dealEmailField && channels.hasEmail) dealFields[dealEmailField] = channels.email;
+  if (dealFieldConfig.deliveryCostFieldCode && deliveryCost && deliveryCost > 0) {
+    dealFields[dealFieldConfig.deliveryCostFieldCode] = deliveryCost;
+  }
+  if (dealFieldConfig.fullNameFieldCode) {
+    dealFields[dealFieldConfig.fullNameFieldCode] = sanitizeMeta(customerName, 140);
+  }
+  if (dealFieldConfig.phoneFieldCode && channels.hasPhone) {
+    dealFields[dealFieldConfig.phoneFieldCode] = channels.phoneRaw || channels.phoneNormalized;
+  }
+  if (dealFieldConfig.emailFieldCode && channels.hasEmail) {
+    dealFields[dealFieldConfig.emailFieldCode] = channels.email;
+  }
 
   const updateDealRes = await callBitrix<boolean>(webhookUrl, 'crm.deal.update', {
     id: dealId,
@@ -1033,17 +1291,15 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const sourcePage = sanitizeMeta((body as ConsultPayload | OrderPayload).sourcePage, 120);
   const sourceButton = sanitizeMeta((body as ConsultPayload | OrderPayload).sourceButton, 120);
   const entryPoint = rawEntryPoint || (isOrder ? 'cart_checkout_default' : 'consult_default');
-  const leadDeliveryField = sanitizeMeta(env.B24_LEAD_DELIVERY_FIELD_CODE, 80);
-  const leadDeliveryEnumMap = parseEnumMap(env.B24_LEAD_DELIVERY_ENUM_JSON);
-  const leadFullNameField = sanitizeMeta(env.B24_LEAD_FULL_NAME_FIELD_CODE, 80);
-  const leadPhoneField = sanitizeMeta(env.B24_LEAD_PHONE_FIELD_CODE, 80);
-  const leadEmailField = sanitizeMeta(env.B24_LEAD_EMAIL_FIELD_CODE, 80);
-  const leadDeliveryCostField = sanitizeMeta(env.B24_LEAD_DELIVERY_COST_FIELD_CODE, 80);
   const personName = splitPersonName(name);
   const orderItemsTotal = isOrder && o ? calculateOrderTotal(o.items, o.total) : 0;
   const orderDeliveryCost = isOrder && o ? Number(parseAmount(o.deliveryCost).toFixed(2)) : 0;
   const orderOpportunity = isOrder && o ? calculateOrderOpportunity(o.items, o.total, o.deliveryCost) : 0;
   const warnings: string[] = [];
+  const leadFieldConfig = await resolveCrmFieldConfig(webhookUrl, 'lead', env, warnings);
+  const dealFieldConfig = isOrder
+    ? await resolveCrmFieldConfig(webhookUrl, 'deal', env, warnings)
+    : EMPTY_CRM_FIELD_CONFIG;
   let productRowsSyncMethod: string | undefined;
 
   if (isOrder && o) {
@@ -1136,14 +1392,22 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
           ...(channels.hasPhone ? { PHONE: [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }] } : {}),
           ...(channels.hasEmail ? { EMAIL: [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }] } : {}),
           ...(() => {
-            if (!leadDeliveryField || !o.delivery) return {};
-            const dv = resolveDeliveryFieldValue(String(o.delivery), leadDeliveryEnumMap);
-            return dv !== null ? { [leadDeliveryField]: dv } : {};
+            if (!leadFieldConfig.deliveryFieldCode || !o.delivery) return {};
+            const dv = resolveDeliveryFieldValue(
+              String(o.delivery),
+              leadFieldConfig.deliveryEnumMap,
+              leadFieldConfig.deliveryFieldRequiresEnum
+            );
+            return dv !== null ? { [leadFieldConfig.deliveryFieldCode]: dv } : {};
           })(),
-          ...(leadDeliveryCostField && o.deliveryCost && o.deliveryCost > 0 ? { [leadDeliveryCostField]: o.deliveryCost } : {}),
-          ...(leadFullNameField ? { [leadFullNameField]: sanitizeMeta(name, 140) } : {}),
-          ...(leadPhoneField && channels.hasPhone ? { [leadPhoneField]: channels.phoneRaw || channels.phoneNormalized } : {}),
-          ...(leadEmailField && channels.hasEmail ? { [leadEmailField]: channels.email } : {}),
+          ...(leadFieldConfig.deliveryCostFieldCode && o.deliveryCost && o.deliveryCost > 0
+            ? { [leadFieldConfig.deliveryCostFieldCode]: o.deliveryCost }
+            : {}),
+          ...(leadFieldConfig.fullNameFieldCode ? { [leadFieldConfig.fullNameFieldCode]: sanitizeMeta(name, 140) } : {}),
+          ...(leadFieldConfig.phoneFieldCode && channels.hasPhone
+            ? { [leadFieldConfig.phoneFieldCode]: channels.phoneRaw || channels.phoneNormalized }
+            : {}),
+          ...(leadFieldConfig.emailFieldCode && channels.hasEmail ? { [leadFieldConfig.emailFieldCode]: channels.email } : {}),
           ...(comments ? { COMMENTS: comments } : {}),
         },
       });
@@ -1168,6 +1432,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
           o.deliveryCost,
           comments,
           env,
+          dealFieldConfig,
           warnings
         );
         if (dealSyncMethod) productRowsSyncMethod = `${productRowsSyncMethod || 'lead_unknown'}|${dealSyncMethod}`;
@@ -1218,20 +1483,28 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     // Русский комментарий: заполняем сумму лида явно, чтобы в Bitrix не оставался 0.
     fields.OPPORTUNITY = orderOpportunity;
     fields.CURRENCY_ID = currencyId;
-    if (leadDeliveryField && o.delivery) {
+    if (leadFieldConfig.deliveryFieldCode && o.delivery) {
       // Русский комментарий: если enum-карта задана, но ключ не найден — не пишем поле,
       // чтобы Bitrix не подставил значение по умолчанию (например, "Самовывоз").
-      const dv = resolveDeliveryFieldValue(String(o.delivery), leadDeliveryEnumMap);
-      if (dv !== null) fields[leadDeliveryField] = dv;
+      const dv = resolveDeliveryFieldValue(
+        String(o.delivery),
+        leadFieldConfig.deliveryEnumMap,
+        leadFieldConfig.deliveryFieldRequiresEnum
+      );
+      if (dv !== null) fields[leadFieldConfig.deliveryFieldCode] = dv;
     }
-    if (leadDeliveryCostField && o.deliveryCost && o.deliveryCost > 0) fields[leadDeliveryCostField] = o.deliveryCost;
+    if (leadFieldConfig.deliveryCostFieldCode && o.deliveryCost && o.deliveryCost > 0) {
+      fields[leadFieldConfig.deliveryCostFieldCode] = o.deliveryCost;
+    }
     if (orderOpportunity <= 0) warnings.push('order_total_zero');
   }
   if (channels.hasPhone) fields.PHONE = [{ VALUE: channels.phoneRaw, VALUE_TYPE: 'WORK' }];
   if (channels.hasEmail) fields.EMAIL = [{ VALUE: channels.email, VALUE_TYPE: 'WORK' }];
-  if (leadFullNameField) fields[leadFullNameField] = sanitizeMeta(name, 140);
-  if (leadPhoneField && channels.hasPhone) fields[leadPhoneField] = channels.phoneRaw || channels.phoneNormalized;
-  if (leadEmailField && channels.hasEmail) fields[leadEmailField] = channels.email;
+  if (leadFieldConfig.fullNameFieldCode) fields[leadFieldConfig.fullNameFieldCode] = sanitizeMeta(name, 140);
+  if (leadFieldConfig.phoneFieldCode && channels.hasPhone) {
+    fields[leadFieldConfig.phoneFieldCode] = channels.phoneRaw || channels.phoneNormalized;
+  }
+  if (leadFieldConfig.emailFieldCode && channels.hasEmail) fields[leadFieldConfig.emailFieldCode] = channels.email;
   if (contactId) fields.CONTACT_ID = contactId;
   if (comments) fields.COMMENTS = comments;
 
@@ -1267,6 +1540,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
         o.deliveryCost,
         comments,
         env,
+        dealFieldConfig,
         warnings
       );
       if (dealSyncMethod) productRowsSyncMethod = `${productRowsSyncMethod || 'lead_unknown'}|${dealSyncMethod}`;
