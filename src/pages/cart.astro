@@ -161,6 +161,30 @@ import Layout from '../layouts/Layout.astro';
     let cdekPvzRequestId = 0;
     let cdekPvzLoadedCity = '';
     let cartItemsTotal = 0;
+    const imageDimensions: Record<string, { width: number; height: number }> = {
+      '/images/products/vspomnit-vse-cutout.png': { width: 1800, height: 1124 },
+      '/images/products/vspomnit-vse.jpg': { width: 7680, height: 4796 },
+      '/images/products/plaud-note-black.webp': { width: 2000, height: 2000 },
+      '/images/products/plaud-note-silver.webp': { width: 4000, height: 4000 },
+      '/images/products/plaud-note-color-black.webp': { width: 2000, height: 2000 },
+      '/images/products/plaud-note-color-blue.webp': { width: 2000, height: 2000 },
+      '/images/products/plaud-note-color-gold.webp': { width: 2000, height: 2000 },
+      '/images/products/plaud-note-color-silver.webp': { width: 2000, height: 2000 },
+      '/images/products/Plaud_Note_Pro-front-black.webp': { width: 4000, height: 4000 },
+      '/images/products/Plaud_Note_Pro-front-silver.webp': { width: 4000, height: 4000 },
+      '/images/products/plaud-notepin.webp': { width: 3240, height: 3240 },
+      '/images/products/plaud-notepin-gray.webp': { width: 2000, height: 2000 },
+      '/images/products/plaud-notepin-silver.webp': { width: 2000, height: 2000 },
+      '/images/products/plaud-notepin-purple.webp': { width: 2000, height: 2000 },
+      '/images/products/plaud-accessories.webp': { width: 2000, height: 2000 },
+      '/images/products/note-magnetic-case-black-0225.webp': { width: 2000, height: 2000 },
+      '/images/products/note-magnetic-case-blue-0225.webp': { width: 2000, height: 2000 },
+      '/images/products/note-magnetic-case-brown-0225.webp': { width: 2000, height: 2000 },
+      '/images/products/note-magnetic-case-green-0225.webp': { width: 2000, height: 2000 },
+      '/images/products/f1nr2y5y5kueey0bkyhn44866pz20o9l.png': { width: 608, height: 588 },
+      '/images/products/plaud-ai-pro-12m.svg': { width: 1200, height: 1200 },
+      '/images/products/plaud-ai-unlimited-12m.svg': { width: 1200, height: 1200 }
+    };
 
     function money(value) {
       return `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
@@ -429,9 +453,10 @@ import Layout from '../layouts/Layout.astro';
           cartList.innerHTML = items
             .map((item) => {
               const qty = Math.max(1, Number(item.qty) || 1);
+              const imageSize = imageDimensions[String(item.image || '')] || { width: 2000, height: 2000 };
               return `
                 <article class="cart-item" data-item-id="${item.id}">
-                  <img src="${item.image}" alt="Товар ${item.name}" />
+                  <img src="${item.image}" alt="Товар ${item.name}" width="${Number(item.width) || imageSize.width}" height="${Number(item.height) || imageSize.height}" loading="lazy" decoding="async" fetchpriority="low" />
                   <div class="cart-item-main">
                     <h3>${item.name}</h3>
                     ${item.color ? `<p class="cart-item-color">${item.color}</p>` : ''}

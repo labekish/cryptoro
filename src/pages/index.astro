@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { loadLegacyPage } from '../lib/legacy';
+import { loadLegacyPage, optimizeLegacyImages } from '../lib/legacy';
 import { getCollection } from 'astro:content';
 
 const page = loadLegacyPage('index.html');
@@ -157,6 +157,17 @@ if (reviewEntries.length) {
     }
   });
 }
+
+// Русский комментарий: lazy-loading изображений уже проставляется на этапе SSR, поэтому удаляем legacy-скрипт с getBoundingClientRect.
+syncedBody = syncedBody.replace(
+  /<script>\s*\/\*\s*── Mobile: шаги "Как работает" показываем полностью \(без аккордеона\)\s*── \*\/[\s\S]*?<\/script>/i,
+  ''
+);
+
+// Русский комментарий: добавляем размеры/ленивую загрузку для legacy-изображений, чтобы снизить CLS и вес первого рендера.
+syncedBody = optimizeLegacyImages(syncedBody, {
+  eagerFirstMatchSrc: ['/images/products/vspomnit-vse-cutout.png']
+});
 ---
 <Layout
   title={page.title}

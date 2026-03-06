@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { loadLegacyPage } from '../lib/legacy';
+import { loadLegacyPage, optimizeLegacyImages } from '../lib/legacy';
 
 const page = loadLegacyPage('about.html');
+const optimizedBody = optimizeLegacyImages(page.body);
 ---
 <Layout
   title={page.title}
@@ -12,5 +13,5 @@ const page = loadLegacyPage('about.html');
   withChrome={true}
   active="about"
 >
-  <Fragment set:html={page.body} />
+  <Fragment set:html={optimizedBody} />
 </Layout>

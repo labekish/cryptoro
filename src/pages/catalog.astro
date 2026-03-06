@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { parseLegacyPage } from '../lib/legacy';
+import { optimizeLegacyImages, parseLegacyPage } from '../lib/legacy';
 import catalogHtml from '../../catalog.html?raw';
 
 const page = parseLegacyPage(catalogHtml);
@@ -182,6 +182,25 @@ syncedBody = syncedBody.replace(
 if (!syncedBody.includes('data-seo-block="catalog-ai-dictophones"')) {
   syncedBody = syncedBody.replace('</main>', `${catalogSeoTextSection}\n  </main>`);
 }
+
+// Русский комментарий: убираем внешний runtime иконок (unpkg) и заменяем на inline SVG.
+syncedBody = syncedBody.replace(/<script\s+src="https:\/\/unpkg\.com\/lucide@latest"><\/script>\s*/i, '');
+syncedBody = syncedBody.replace(/\s*lucide\.createIcons\(\);\s*/i, '\n');
+syncedBody = syncedBody.replace(
+  /<i data-lucide="sparkles" class="h-4 w-4"><\/i>/i,
+  '<svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4" fill="none"><path d="M12 3l1.9 4.5L18 9.4l-4.1 1.9L12 16l-1.9-4.7L6 9.4l4.1-1.9L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>'
+);
+
+// Русский комментарий: убираем принудительный reflow ради анимации фильтра, чтобы не ловить Forced reflow в Lighthouse.
+syncedBody = syncedBody.replace(
+  /void activeBtn\.offsetWidth;\s*activeBtn\.classList\.add\('is-activating'\);/i,
+  "window.requestAnimationFrame(() => activeBtn.classList.add('is-activating'));"
+);
+
+// Русский комментарий: добавляем размеры/ленивую загрузку карточек каталога.
+syncedBody = optimizeLegacyImages(syncedBody, {
+  eagerFirstMatchSrc: ['/images/products/vspomnit-vse-cutout.png']
+});
 ---
 <Layout
   title={catalogSeoTitle}

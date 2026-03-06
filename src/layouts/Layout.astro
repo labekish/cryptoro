@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import Bitrix24Chat from '../components/Bitrix24Chat.astro';
 
 interface Props {
   title?: string;
@@ -69,7 +68,11 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
     <meta name="keywords" content="AI диктофон, CRYPTORO, Plaud Note, транскрипция, запись встреч, диктофон с ChatGPT" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap" />
+    </noscript>
     {includeNetlifyIdentity && <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>}
     {globalCss && <style is:global set:html={globalCss} />}
     {headScripts && <Fragment set:html={headScripts} />}
@@ -374,7 +377,7 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
       }
       .section-divider,.foot-div,hr{border-color:rgba(0,0,0,.12)!important}
       .reveal,.pcard,.rcard,.fcard,.dcard,.wcard,.paycard,.mstat,.faqitem{
-        transition:all .3s ease-out!important;
+        transition:transform .3s ease-out,box-shadow .3s ease-out,opacity .3s ease-out!important;
       }
       .pcard:hover,.rcard:hover,.fcard:hover,.dcard:hover,.wcard:hover,.paycard:hover,.mstat:hover{
         transform:translateY(-4px) scale(1.02)!important;
@@ -1613,20 +1616,31 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
           }, { once: true });
         }
 
+        function runWhenIdle(callback, timeout = 1200) {
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => callback(), { timeout });
+            return;
+          }
+          window.setTimeout(callback, Math.min(240, timeout));
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
           sync();
           bindCartButtons();
           syncMoysklad();
           setupMobileNav();
-          window.addEventListener('resize', setupMobileNav);
+          let resizeTimer = 0;
+          window.addEventListener('resize', () => {
+            if (resizeTimer) window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(setupMobileNav, 140);
+          }, { passive: true });
           setupConsultModal();
           setupFadeIn();
-          setupAccessibilityLabels();
-          normalizeExternalLinks();
-          dedupeCatalogTabs();
+          runWhenIdle(setupAccessibilityLabels, 1800);
+          runWhenIdle(normalizeExternalLinks, 1500);
+          runWhenIdle(dedupeCatalogTabs, 900);
         });
       })();
     </script>
-    <Bitrix24Chat />
   </body>
 </html>

@@ -69,6 +69,37 @@ const primarySku = allSkus[0] ?? '';
 const allSkusCsv = allSkus.join(',');
 
 const gallery = (product.gallery && product.gallery.length ? product.gallery : [product.image]).filter(Boolean);
+const heroImageSrc = gallery[0] ?? product.image;
+
+const PRODUCT_IMAGE_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  '/images/products/vspomnit-vse-cutout.png': { width: 1800, height: 1124 },
+  '/images/products/vspomnit-vse.jpg': { width: 7680, height: 4796 },
+  '/images/products/plaud-note-black.webp': { width: 2000, height: 2000 },
+  '/images/products/plaud-note-silver.webp': { width: 4000, height: 4000 },
+  '/images/products/plaud-note-color-black.webp': { width: 2000, height: 2000 },
+  '/images/products/plaud-note-color-blue.webp': { width: 2000, height: 2000 },
+  '/images/products/plaud-note-color-gold.webp': { width: 2000, height: 2000 },
+  '/images/products/plaud-note-color-silver.webp': { width: 2000, height: 2000 },
+  '/images/products/Plaud_Note_Pro-front-black.webp': { width: 4000, height: 4000 },
+  '/images/products/Plaud_Note_Pro-front-silver.webp': { width: 4000, height: 4000 },
+  '/images/products/plaud-notepin.webp': { width: 3240, height: 3240 },
+  '/images/products/plaud-notepin-gray.webp': { width: 2000, height: 2000 },
+  '/images/products/plaud-notepin-silver.webp': { width: 2000, height: 2000 },
+  '/images/products/plaud-notepin-purple.webp': { width: 2000, height: 2000 },
+  '/images/products/plaud-accessories.webp': { width: 2000, height: 2000 },
+  '/images/products/note-magnetic-case-black-0225.webp': { width: 2000, height: 2000 },
+  '/images/products/note-magnetic-case-blue-0225.webp': { width: 2000, height: 2000 },
+  '/images/products/note-magnetic-case-brown-0225.webp': { width: 2000, height: 2000 },
+  '/images/products/note-magnetic-case-green-0225.webp': { width: 2000, height: 2000 },
+  '/images/products/f1nr2y5y5kueey0bkyhn44866pz20o9l.png': { width: 608, height: 588 },
+  '/images/products/plaud-ai-pro-12m.svg': { width: 1200, height: 1200 },
+  '/images/products/plaud-ai-unlimited-12m.svg': { width: 1200, height: 1200 }
+};
+
+function getProductImageDimensions(src: string | undefined): { width: number; height: number } {
+  if (!src) return { width: 2000, height: 2000 };
+  return PRODUCT_IMAGE_DIMENSIONS[src] ?? { width: 2000, height: 2000 };
+}
 
 const specsRows = [
   { label: 'Размеры', value: product.specs?.dimensions },
@@ -146,6 +177,9 @@ const editorialSupportline = product.editorialSupportline ?? fallbackEditorialSu
 const editorialCinematicHeadline = product.editorialCinematicHeadline ?? fallbackCinematicHeadline;
 const editorialCinematicImage = product.editorialCinematicImage ?? product.editorialSecondaryImage ?? product.editorialImage ?? gallery[0] ?? product.image;
 const editorialCinematicImageAlt = product.editorialCinematicImageAlt ?? product.editorialSecondaryImageAlt ?? product.editorialImageAlt ?? `Фото ${product.title}`;
+const heroImageDimensions = getProductImageDimensions(heroImageSrc);
+const productImageDimensions = getProductImageDimensions(product.image);
+const cinematicImageDimensions = getProductImageDimensions(editorialCinematicImage);
 const editorialProofLabels = (
   editorialHighlights.length
     ? editorialHighlights.map((item) => item.title)
@@ -229,7 +263,16 @@ const BOX_ICONS = [
 
         <div class="pdp-hero__media">
           <div class="pdp-hero__main-img">
-            <img id="mainImg" src={gallery[0] ?? product.image} alt={`AI-диктофон ${product.title}`} />
+            <img
+              id="mainImg"
+              src={heroImageSrc}
+              alt={`AI-диктофон ${product.title}`}
+              width={heroImageDimensions.width}
+              height={heroImageDimensions.height}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
           </div>
         </div>
 
@@ -325,7 +368,15 @@ const BOX_ICONS = [
             <h2 class="pdp-cinematic__headline">{editorialCinematicHeadline}</h2>
           </div>
           <div class="pdp-cinematic__media reveal">
-            <img src={editorialCinematicImage} alt={editorialCinematicImageAlt} />
+            <img
+              src={editorialCinematicImage}
+              alt={editorialCinematicImageAlt}
+              width={cinematicImageDimensions.width}
+              height={cinematicImageDimensions.height}
+              loading="lazy"
+              decoding="async"
+              fetchpriority="low"
+            />
           </div>
         </div>
       </section>
@@ -416,7 +467,15 @@ const BOX_ICONS = [
           <div class="pdp-compare__grid">
             <div class="pdp-compare-card pdp-compare-card--current reveal">
               <span class="pdp-compare-card__badge">Вы смотрите</span>
-              <img src={product.image} alt={product.title} />
+              <img
+                src={product.image}
+                alt={product.title}
+                width={productImageDimensions.width}
+                height={productImageDimensions.height}
+                loading="lazy"
+                decoding="async"
+                fetchpriority="low"
+              />
               <h3>{product.title}</h3>
               <span class="pdp-compare-card__price" data-ms-price={product.slug}>{price}&nbsp;₽</span>
               {keySpecs.length > 0 && (
@@ -427,7 +486,15 @@ const BOX_ICONS = [
             </div>
             {related.map((item, idx) => (
               <a class="pdp-compare-card pdp-compare-card--alt reveal" style={`--stagger:${idx + 1}`} href={`/products/${item.slug}`}>
-                <img src={item.image} alt={item.title} />
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  width={getProductImageDimensions(item.image).width}
+                  height={getProductImageDimensions(item.image).height}
+                  loading="lazy"
+                  decoding="async"
+                  fetchpriority="low"
+                />
                 <h3>{item.title}</h3>
                 <span class="pdp-compare-card__price" data-ms-price={item.slug}>{new Intl.NumberFormat('ru-RU').format(item.price)}&nbsp;₽</span>
                 <span class="pdp-compare-card__cta">Подробнее →</span>
@@ -455,14 +522,23 @@ const BOX_ICONS = [
   <!-- Lightbox -->
   <div class="lightbox" id="productLightbox" aria-hidden="true">
     <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Закрыть просмотр">&times;</button>
-    <img id="lightboxImg" src={gallery[0] ?? product.image} alt={`Увеличенное фото ${product.title}`} />
+    <img
+      id="lightboxImg"
+      src={heroImageSrc}
+      alt={`Увеличенное фото ${product.title}`}
+      width={heroImageDimensions.width}
+      height={heroImageDimensions.height}
+      loading="lazy"
+      decoding="async"
+      fetchpriority="low"
+    />
   </div>
 
   <!-- Cart Toast -->
   <div class="cart-toast" id="cartToast" role="status" aria-live="polite">Товар добавлен в корзину</div>
 
   <!-- Cart & Color JS (preserved) -->
-  <script define:vars={{ baseProduct: { id: product.slug, name: product.title, price: product.price, image: product.image }, hasColors: colors.length > 1, colorSkus, baseSku }} is:inline>
+  <script define:vars={{ baseProduct: { id: product.slug, name: product.title, price: product.price, image: product.image, width: productImageDimensions.width, height: productImageDimensions.height }, hasColors: colors.length > 1, colorSkus, baseSku }} is:inline>
     function showToast() {
       const toast = document.getElementById('cartToast');
       if (!toast) return;
@@ -532,6 +608,8 @@ const BOX_ICONS = [
         // Русский комментарий: цена в корзину всегда берётся из текущего UI (после синка МС), а не из статичного frontmatter.
         price: getLiveProductPrice(),
         image: baseProduct.image,
+        width: baseProduct.width,
+        height: baseProduct.height,
         qty: 1,
         color: color || undefined,
         sku: sku || undefined
