@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /order-success/
+
+Sitemap: https://cryptoro-site.pages.dev/sitemap.xml
