@@ -5,6 +5,8 @@ type Env = {
   B24_ORIGINATOR_ID?: string;
   B24_CONSULT_DEDUP_MINUTES?: string;
   B24_AUTO_FIELD_DISCOVERY?: string;
+  B24_LEAD_SOURCE_ID?: string;
+  B24_CONTACT_SOURCE_ID?: string;
   B24_PRODUCT_MAP_JSON?: string;
   B24_CURRENCY_ID?: string;
   B24_CONTACT_SYNC?: string;
@@ -134,6 +136,10 @@ const EMPTY_CRM_FIELD_CONFIG: ResolvedCrmFieldConfig = {
 function parsePositiveInt(value: string | undefined, fallback: number): number {
   const n = Number(value);
   return isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+}
+
+function parseB24SourceId(value: string | undefined): string {
+  return sanitizeMeta(value, 40).toUpperCase();
 }
 
 function normalizePhone(input: string): string {
@@ -1218,6 +1224,7 @@ async function findOrCreateContact(
 
   const personName = splitPersonName(payload.name);
   const telegramFieldCode = sanitizeMeta(env.B24_TELEGRAM_FIELD_CODE, 80);
+  const contactSourceId = parseB24SourceId(env.B24_CONTACT_SOURCE_ID);
 
   const contactComments = [
     'Источник лида с сайта:',
@@ -1231,7 +1238,7 @@ async function findOrCreateContact(
     NAME: personName.firstName,
     ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
     TYPE_ID: 'CLIENT',
-    SOURCE_ID: 'WEB',
+    ...(contactSourceId ? { SOURCE_ID: contactSourceId } : {}),
     COMMENTS: contactComments,
   };
 
@@ -1283,6 +1290,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   const orderIdNormalized = isOrder && o ? sanitizeMeta(o.orderId, 80) : '';
   const consultDedupMinutes = parsePositiveInt(env.B24_CONSULT_DEDUP_MINUTES, DEFAULT_CONSULT_DEDUP_MINUTES);
   const originatorId = (env.B24_ORIGINATOR_ID || DEFAULT_ORIGINATOR_ID).trim() || DEFAULT_ORIGINATOR_ID;
+  const leadSourceId = parseB24SourceId(env.B24_LEAD_SOURCE_ID);
   const channels = parseContactChannels(phone, email);
   const productMap = parseProductMap(env.B24_PRODUCT_MAP_JSON);
   const currencyId = sanitizeMeta(env.B24_CURRENCY_ID || 'RUB', 6) || 'RUB';
@@ -1486,7 +1494,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     TITLE: title,
     NAME: personName.firstName,
     ...(personName.lastName ? { LAST_NAME: personName.lastName } : {}),
-    SOURCE_ID: 'WEB',
+    ...(leadSourceId ? { SOURCE_ID: leadSourceId } : {}),
     // Русский комментарий: сохраняем точку входа, чтобы в CRM различать каждую кнопку/форму.
     SOURCE_DESCRIPTION: `${isOrder ? 'Корзина' : 'Консультация по диктофонам'} | ${entryPoint}`,
     ORIGINATOR_ID: originatorId,
