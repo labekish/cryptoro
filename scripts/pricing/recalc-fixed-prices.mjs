@@ -66,6 +66,12 @@ function unique(items) {
   return Array.from(new Set(items));
 }
 
+function roundUpToStep(value, step) {
+  const safeValue = Math.max(0, Number(value) || 0);
+  const safeStep = Math.max(1, Math.floor(Number(step) || 1));
+  return Math.ceil(safeValue / safeStep) * safeStep;
+}
+
 function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) throw new Error('Frontmatter block not found');
@@ -291,7 +297,7 @@ async function calculateGroupSurcharges(apiBase, config, timeoutMs) {
   return out;
 }
 
-function buildProductPlan({ contentProducts, groupBySlug, msSnapshot, groupSurcharges }) {
+function buildProductPlan({ contentProducts, groupBySlug, msSnapshot, groupSurcharges, priceRoundingStepRub }) {
   const planned = [];
 
   for (const [slug, product] of contentProducts.entries()) {
@@ -311,7 +317,8 @@ function buildProductPlan({ contentProducts, groupBySlug, msSnapshot, groupSurch
     }
 
     const surcharge = Math.max(0, Number(groupCalc.surchargeRub) || 0);
-    const finalPrice = Math.round(basePriceFromMs + surcharge);
+    const rawFinalPrice = basePriceFromMs + surcharge;
+    const finalPrice = roundUpToStep(rawFinalPrice, priceRoundingStepRub);
 
     planned.push({
       slug,
@@ -321,6 +328,8 @@ function buildProductPlan({ contentProducts, groupBySlug, msSnapshot, groupSurch
       groupKey,
       groupLabel: groupCalc.groupLabel,
       surchargeRub: surcharge,
+      rawFinalPrice,
+      roundingStepRub: Math.max(1, Math.floor(Number(priceRoundingStepRub) || 1)),
       finalPrice,
       changed: finalPrice !== product.contentPrice,
     });
@@ -354,6 +363,7 @@ async function main() {
 
   const apiBase = normalizeApiBase(args.apiBase);
   const groupBySlug = mapGroupBySlug(PRICING_RECALC_CONFIG.groups);
+  const priceRoundingStepRub = Math.max(1, Math.floor(Number(PRICING_RECALC_CONFIG.priceRoundingStepRub) || 1));
   const contentProducts = await readContentProducts();
   const contentSlugs = Array.from(contentProducts.keys());
   const configuredSlugs = Array.from(groupBySlug.keys());
@@ -367,6 +377,7 @@ async function main() {
     groupBySlug,
     msSnapshot,
     groupSurcharges,
+    priceRoundingStepRub,
   });
 
   if (args.apply) {
@@ -382,6 +393,7 @@ async function main() {
       deliveryType: 'pickup',
       pricesSource: 'moysklad_snapshot',
       subscriptionsSurchargeRub: 0,
+      priceRoundingStepRub,
     },
     cities: PRICING_RECALC_CONFIG.cities,
     groupSurcharges,
