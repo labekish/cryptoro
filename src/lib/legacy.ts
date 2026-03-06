@@ -4,6 +4,8 @@ type LegacyImageSize = { width: number; height: number };
 
 const LEGACY_IMAGE_DIMENSIONS: Record<string, LegacyImageSize> = {
   '/images/products/vspomnit-vse-cutout.png': { width: 1800, height: 1124 },
+  '/images/products/vspomnit-vse-cutout-1200.png': { width: 1200, height: 749 },
+  '/images/products/vspomnit-vse-cutout-900.png': { width: 900, height: 562 },
   '/images/products/vspomnit-vse.jpg': { width: 7680, height: 4796 },
   '/images/products/plaud-note-black.webp': { width: 2000, height: 2000 },
   '/images/products/plaud-note-silver.webp': { width: 4000, height: 4000 },

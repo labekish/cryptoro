@@ -158,6 +158,40 @@ if (reviewEntries.length) {
   });
 }
 
+// Русский комментарий: убираем delayed typewriter в hero, чтобы LCP/FCP считались по готовому контенту без задержки печати.
+syncedBody = syncedBody.replace(
+  /<script>\s*\(function \(\) \{\s*var title = document\.querySelector\('\.hero-title'\);[\s\S]*?<\/script>/i,
+  ''
+);
+syncedBody = syncedBody.replace(/\sdata-typewriter="[^"]*"/i, '');
+syncedBody = syncedBody.replace(/<script>[\s\S]*?heroTypeTarget[\s\S]*?<\/script>/i, '');
+syncedBody = syncedBody.replace(/<span\s+id="heroTypeTarget">/i, '<span>');
+syncedBody = syncedBody.replace(
+  /<h1 class="hero-title d1"[^>]*>\s*<span id="heroTypeTarget">([\s\S]*?)<\/span>\s*<\/h1>/i,
+  '<h1 class="hero-title d1"><span>$1</span></h1>'
+);
+
+// Русский комментарий: fallback-скрипт pvis живёт в headScripts legacy-страницы — удаляем и его.
+const syncedHeadScripts = '';
+
+// Русский комментарий: hero-контент показываем сразу, без ожидания JS.
+syncedBody = syncedBody
+  .replace('<p class="hero-sub d2">', '<p class="hero-sub d2 pvis">')
+  .replace('<div class="btns d3">', '<div class="btns d3 pvis">')
+  .replace('<div class="hero-visual d4">', '<div class="hero-visual d4 pvis">');
+
+// Русский комментарий: для LCP-картинки отдаём WebP + PNG fallback через picture и адаптивные размеры.
+syncedBody = syncedBody.replace(
+  /<img src="\/images\/products\/vspomnit-vse-cutout\.png" alt="AI-диктофон Вспомни всё"\s*\/>/i,
+  `<picture><source type="image/webp" srcset="/images/products/vspomnit-vse-cutout-900.webp 900w, /images/products/vspomnit-vse-cutout-1200.webp 1200w, /images/products/vspomnit-vse-cutout.webp 1800w" sizes="(max-width: 768px) 82vw, (max-width: 1200px) 46vw, 560px" /><img src="/images/products/vspomnit-vse-cutout-900.png" srcset="/images/products/vspomnit-vse-cutout-900.png 900w, /images/products/vspomnit-vse-cutout-1200.png 1200w, /images/products/vspomnit-vse-cutout.png 1800w" sizes="(max-width: 768px) 82vw, (max-width: 1200px) 46vw, 560px" alt="AI-диктофон Вспомни всё" loading="eager" decoding="async" fetchpriority="high" /></picture>`
+);
+
+// Русский комментарий: карусель отзывов не запускаем на мобильных, чтобы избежать forced reflow при первом рендере.
+syncedBody = syncedBody.replace(
+  /const reviewsSection = document\.querySelector\('\.sec-reviews'\);/,
+  "if (window.matchMedia('(max-width: 900px)').matches) return;\n    const reviewsSection = document.querySelector('.sec-reviews');"
+);
+
 // Русский комментарий: lazy-loading изображений уже проставляется на этапе SSR, поэтому удаляем legacy-скрипт с getBoundingClientRect.
 syncedBody = syncedBody.replace(
   /<script>\s*\/\*\s*── Mobile: шаги "Как работает" показываем полностью \(без аккордеона\)\s*── \*\/[\s\S]*?<\/script>/i,
@@ -166,14 +200,14 @@ syncedBody = syncedBody.replace(
 
 // Русский комментарий: добавляем размеры/ленивую загрузку для legacy-изображений, чтобы снизить CLS и вес первого рендера.
 syncedBody = optimizeLegacyImages(syncedBody, {
-  eagerFirstMatchSrc: ['/images/products/vspomnit-vse-cutout.png']
+  eagerFirstMatchSrc: ['/images/products/vspomnit-vse-cutout-900.png']
 });
 ---
 <Layout
   title={page.title}
   description="CRYPTORO — AI-диктофоны с ChatGPT. Записывайте встречи и лекции, получайте автоматическую расшифровку. Официальный дистрибьютор Plaud в России."
   globalCss={page.css}
-  headScripts={page.headScripts}
+  headScripts={syncedHeadScripts}
   withChrome={true}
   includeNetlifyIdentity={false}
   active="home"

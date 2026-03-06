@@ -30,8 +30,30 @@ const {
     {description && <meta name="description" content={description} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <script is:inline>
+      // Русский комментарий: отложенная загрузка шрифтов, чтобы старт страницы был быстрее.
+      (() => {
+        const href = 'https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap';
+        const applyFonts = () => {
+          if (document.querySelector('link[data-fonts="cryptoro-base"]')) return;
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          link.media = 'print';
+          link.onload = () => {
+            link.media = 'all';
+          };
+          link.setAttribute('data-fonts', 'cryptoro-base');
+          document.head.appendChild(link);
+        };
+
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(applyFonts, { timeout: 1200 });
+          return;
+        }
+        window.addEventListener('load', applyFonts, { once: true });
+      })();
+    </script>
     <noscript>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" />
     </noscript>

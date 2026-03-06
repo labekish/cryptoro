@@ -68,8 +68,30 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
     <meta name="keywords" content="AI диктофон, CRYPTORO, Plaud Note, транскрипция, запись встреч, диктофон с ChatGPT" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <script is:inline>
+      // Русский комментарий: грузим внешние шрифты после первого кадра, чтобы не блокировать стартовый рендер.
+      (() => {
+        const href = 'https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap';
+        const applyFonts = () => {
+          if (document.querySelector('link[data-fonts="cryptoro-main"]')) return;
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          link.media = 'print';
+          link.onload = () => {
+            link.media = 'all';
+          };
+          link.setAttribute('data-fonts', 'cryptoro-main');
+          document.head.appendChild(link);
+        };
+
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(applyFonts, { timeout: 1200 });
+          return;
+        }
+        window.addEventListener('load', applyFonts, { once: true });
+      })();
+    </script>
     <noscript>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&subset=latin,cyrillic&family=Inter:wght@300;400;500;600;700&display=swap" />
     </noscript>
