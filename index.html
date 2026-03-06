@@ -3280,6 +3280,14 @@ body .sec-how .smock {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
+    transition: none !important;
+  }
+  .hero-overlay--transcript,
+  .hero-overlay--lang,
+  .hero-overlay--accuracy {
+    opacity: 1 !important;
+    animation: none !important;
+    transition: none !important;
   }
   .hero::after { animation: none !important }
   #lead .lsubmit::after { animation: none !important }
@@ -3296,6 +3304,160 @@ body .sec-how .smock {
     animation: none !important; opacity: 1 !important; transform: none !important;
   }
   .hero-trust .hero-trust-item{opacity:1!important;transform:none!important}
+}
+
+/* ═══════════════════════════════════════════════
+   PREMIUM HERO UPGRADE
+   ═══════════════════════════════════════════════ */
+
+/* Фон — чистый белый как было */
+.hero {
+  background: #ffffff !important;
+}
+.hero::before {
+  display: none !important;
+}
+
+/* Eyebrow label */
+.hero-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  color: #b76626 !important;
+  background: rgba(232,134,53,.1) !important;
+  border: 1px solid rgba(232,134,53,.22) !important;
+  border-radius: 999px !important;
+  padding: 6px 14px !important;
+  margin-bottom: 20px !important;
+}
+
+/* Hero heading — насыщенный чёрный без текстового градиента (typewriter-safe) */
+.hero-title,
+.hero-title span {
+  color: #0c0c0d !important;
+  -webkit-text-fill-color: #0c0c0d !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+/* Trust metrics bar */
+.hero-trust {
+  display: flex !important;
+  margin-top: 26px !important;
+  border: 1px solid rgba(17,17,17,.1) !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,.76) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  max-width: 400px !important;
+  overflow: hidden !important;
+  gap: 0 !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06) !important;
+}
+.hero-trust .hero-trust-item {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  padding: 14px 16px !important;
+  gap: 2px !important;
+  border: none !important;
+  border-right: 1px solid rgba(17,17,17,.09) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.hero-trust .hero-trust-item:last-child {
+  border-right: none !important;
+}
+.hero-metric-value {
+  color: #0c0c0d !important;
+  font-size: 24px !important;
+  line-height: 1.05 !important;
+  font-weight: 700 !important;
+  letter-spacing: -.02em !important;
+}
+.hero-metric-label {
+  color: #6e6e73 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  font-weight: 500 !important;
+}
+
+/* Hero visual: скрыт до конца typewriter, показывается через revealPostType */
+.hero-visual {
+  opacity: 0 !important;
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1) !important;
+}
+.hero-visual.pvis {
+  opacity: 1 !important;
+}
+
+/* Floating UI cards - glass refinement */
+.hero-overlay {
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.1), 0 1px 0 rgba(255,255,255,.8) inset !important;
+}
+
+/* Overlays: скрыты, появляются каскадом после pvis на родителе */
+.hero-overlay--transcript,
+.hero-overlay--lang,
+.hero-overlay--accuracy {
+  opacity: 0 !important;
+  transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1) !important;
+  /* отменяем heroCalmFade, оставляем только float */
+  animation-name: heroBadgeFloat !important;
+  animation-play-state: paused !important;
+}
+.hero-overlay--lang {
+  background: linear-gradient(145deg, #e88635 0%, #d4721a 100%) !important;
+}
+.hero-visual.pvis .hero-overlay--transcript {
+  opacity: 1 !important;
+  transition-delay: 60ms !important;
+  animation-duration: 7s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: infinite !important;
+  animation-play-state: running !important;
+}
+.hero-visual.pvis .hero-overlay--lang {
+  opacity: 1 !important;
+  transition-delay: 200ms !important;
+  animation-duration: 7s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-delay: 2.3s !important;
+  animation-iteration-count: infinite !important;
+  animation-play-state: running !important;
+}
+.hero-visual.pvis .hero-overlay--accuracy {
+  opacity: 1 !important;
+  transition-delay: 340ms !important;
+  animation-duration: 7s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-delay: 4.6s !important;
+  animation-iteration-count: infinite !important;
+  animation-play-state: running !important;
+}
+@keyframes heroBadgeFloat {
+  0%, 100% { transform: translateY(0px) }
+  50% { transform: translateY(-7px) }
+}
+
+/* Primary CTA — refined dark with depth */
+.hero .btn-blue {
+  background: linear-gradient(160deg, #1e1e20 0%, #0d0d0f 100%) !important;
+  box-shadow: 0 4px 18px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.07) !important;
+  border-radius: 14px !important;
+  letter-spacing: .01em !important;
+}
+.hero .btn-blue:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.07) !important;
+  transform: translateY(-1px) scale(1.01) !important;
 }
 </style>
 
@@ -3348,6 +3510,7 @@ body .sec-how .smock {
           function revealPostType() {
             addClassWhenReady('.hero-sub', 'pvis', 0);
             addClassWhenReady('.hero .btns', 'pvis', 120);
+            addClassWhenReady('.hero-visual', 'pvis', 420);
           }
 
           if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
