@@ -85,8 +85,14 @@ async function rewriteHtmlWithMsPrices(html: string, items: Record<string, MsPri
 export const onRequest = async (context: { request: Request; next: () => Promise<Response> }): Promise<Response> => {
   const { request, next } = context;
   const url = new URL(request.url);
+  const env = (context as { env?: { MS_EDGE_PRICE_SYNC?: string } }).env;
+  const edgePriceSyncEnabled = String(env?.MS_EDGE_PRICE_SYNC || '').trim() === '1';
 
   if (request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+    return next();
+  }
+  // Русский комментарий: по умолчанию подмена цен на edge отключена, чтобы использовать фиксированные цены из контента.
+  if (!edgePriceSyncEnabled) {
     return next();
   }
 

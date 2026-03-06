@@ -98,7 +98,7 @@ import Layout from '../layouts/Layout.astro';
                 <strong id="deliveryQuoteTitle">Расчёт СДЭК</strong>
                 <p id="deliveryQuoteMeta">Заполните адрес и выберите способ доставки</p>
               </div>
-              <p id="deliveryQuoteHint" class="delivery-note">Предварительный расчёт. Точную стоимость подтверждаем при оформлении заказа.</p>
+              <p id="deliveryQuoteHint" class="delivery-note">Стоимость доставки уже включена в цену товара.</p>
             </div>
 
             <div class="checkout-totals" aria-live="polite">
@@ -106,14 +106,11 @@ import Layout from '../layouts/Layout.astro';
                 <span>Товары</span>
                 <strong id="cartSubtotal">0 ₽</strong>
               </div>
-              <div id="deliverySummaryRow" class="summary-row summary-row-delivery" hidden>
-                <span id="deliverySummaryLabel">Доставка</span>
-                <strong id="deliverySummaryValue">0 ₽</strong>
-              </div>
               <div class="summary-row summary-row-total">
                 <span id="cartTotalLabel">Итоговая сумма</span>
                 <strong id="cartTotal">0 ₽</strong>
               </div>
+              <p class="checkout-totals-note">Доставка уже включена в цену</p>
             </div>
 
             <div class="actions">
@@ -130,21 +127,13 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     import { clearCart, getCart, getCartCount, removeFromCart, updateCartQty } from '../utils/cart';
-    import { fetchCdekCalculation, fetchCdekPvz } from '../lib/api/cdek';
-
-    const DEFAULT_ITEM_WEIGHT_G = 80;
-    const DEFAULT_LENGTH_MM = 86;
-    const DEFAULT_WIDTH_MM = 54;
-    const DEFAULT_HEIGHT_MM = 3;
+    import { fetchCdekPvz } from '../lib/api/cdek';
 
     const cartList = document.getElementById('cartList');
     const cartEmpty = document.getElementById('cartEmpty');
     const cartSubtotal = document.getElementById('cartSubtotal');
     const cartTotal = document.getElementById('cartTotal');
     const cartTotalLabel = document.getElementById('cartTotalLabel');
-    const deliverySummaryRow = document.getElementById('deliverySummaryRow');
-    const deliverySummaryLabel = document.getElementById('deliverySummaryLabel');
-    const deliverySummaryValue = document.getElementById('deliverySummaryValue');
     const checkoutForm = document.getElementById('checkoutForm');
     const checkoutPanel = document.getElementById('checkoutPanel');
     const checkoutHint = document.getElementById('checkoutHint');
@@ -167,11 +156,8 @@ import Layout from '../layouts/Layout.astro';
     const deliveryQuoteMeta = document.getElementById('deliveryQuoteMeta');
     const deliveryQuoteHint = document.getElementById('deliveryQuoteHint');
     let cdekQuoteSummary = '';
-    let cdekQuotePrice = 0;
     let cdekQuoteTariffCode = 0;
-    let cdekBasePrice = 0;
     let cdekQuoteTimer: ReturnType<typeof setTimeout> | null = null;
-    let cdekQuoteRequestId = 0;
     let cdekPvzRequestId = 0;
     let cdekPvzLoadedCity = '';
     let cartItemsTotal = 0;
@@ -180,32 +166,15 @@ import Layout from '../layouts/Layout.astro';
       return `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
     }
 
-    function getDeliveryChargeForTotal() {
-      if (!isCdekSelected()) return 0;
-      return Math.max(0, Number(cdekQuotePrice) || 0);
-    }
-
     function refreshCheckoutTotals() {
-      const deliveryCharge = getDeliveryChargeForTotal();
-      const finalTotal = cartItemsTotal + deliveryCharge;
-
       if (cartSubtotal instanceof HTMLElement) {
         cartSubtotal.textContent = money(cartItemsTotal);
       }
-      if (deliverySummaryRow instanceof HTMLElement) {
-        deliverySummaryRow.hidden = !(deliveryCharge > 0);
-      }
-      if (deliverySummaryLabel instanceof HTMLElement) {
-        deliverySummaryLabel.textContent = isCdekSelected() ? 'Доставка СДЭК' : 'Доставка';
-      }
-      if (deliverySummaryValue instanceof HTMLElement) {
-        deliverySummaryValue.textContent = money(deliveryCharge);
-      }
       if (cartTotalLabel instanceof HTMLElement) {
-        cartTotalLabel.textContent = deliveryCharge > 0 ? 'Итоговая сумма (с доставкой)' : 'Итоговая сумма';
+        cartTotalLabel.textContent = 'Итоговая сумма';
       }
       if (cartTotal instanceof HTMLElement) {
-        cartTotal.textContent = money(finalTotal);
+        cartTotal.textContent = money(cartItemsTotal);
       }
     }
 
@@ -240,26 +209,6 @@ import Layout from '../layouts/Layout.astro';
     function getSelectedPvzId() {
       if (!(cdekPvzSelect instanceof HTMLSelectElement)) return '';
       return String(cdekPvzSelect.value || '').trim();
-    }
-
-    function pluralizeDays(value) {
-      const n = Math.abs(Number(value) || 0);
-      const n10 = n % 10;
-      const n100 = n % 100;
-      if (n10 === 1 && n100 !== 11) return `${n} день`;
-      if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return `${n} дня`;
-      return `${n} дней`;
-    }
-
-    function formatEtaDays(rawEta) {
-      const raw = String(rawEta || '').trim();
-      const rangeMatch = raw.match(/^(\d+)\s*-\s*(\d+)/);
-      if (!rangeMatch) return raw || 'срок уточняется';
-      const min = Number(rangeMatch[1]);
-      const max = Number(rangeMatch[2]);
-      if (!Number.isFinite(min) || !Number.isFinite(max)) return raw;
-      if (min === max) return pluralizeDays(min);
-      return `${min}-${max} дней`;
     }
 
     function setPvzHint(message) {
@@ -347,9 +296,7 @@ import Layout from '../layouts/Layout.astro';
         deliveryQuote.classList.remove('is-error');
       }
       cdekQuoteSummary = '';
-      cdekQuotePrice = 0;
       cdekQuoteTariffCode = 0;
-      cdekBasePrice = 0;
       refreshCheckoutTotals();
     }
 
@@ -363,70 +310,34 @@ import Layout from '../layouts/Layout.astro';
       deliveryQuoteTitle.textContent = 'Расчёт СДЭК';
       deliveryQuoteMeta.textContent = message;
       cdekQuoteSummary = '';
-      cdekQuotePrice = 0;
       cdekQuoteTariffCode = 0;
-      cdekBasePrice = 0;
       refreshCheckoutTotals();
     }
 
-    function setDeliveryQuoteLoading() {
-      if (!(deliveryQuote instanceof HTMLElement)) return;
-      if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
-      if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
-      deliveryQuote.hidden = false;
-      deliveryQuote.classList.remove('is-idle');
-      deliveryQuote.classList.remove('is-error');
-      deliveryQuoteTitle.textContent = 'Считаем доставку СДЭК...';
-      deliveryQuoteMeta.textContent = 'Проверяем город и индекс';
-      if (deliveryQuoteHint instanceof HTMLElement) {
-        deliveryQuoteHint.textContent = 'Расчёт обновляется автоматически';
-      }
-    }
-
-    function setDeliveryQuoteError() {
-      if (!(deliveryQuote instanceof HTMLElement)) return;
-      if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
-      if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
-      deliveryQuote.hidden = false;
-      deliveryQuote.classList.remove('is-idle');
-      deliveryQuote.classList.add('is-error');
-      deliveryQuoteTitle.textContent = 'Не удалось получить расчёт СДЭК';
-      deliveryQuoteMeta.textContent = 'Заказ можно оформить, менеджер уточнит стоимость вручную';
-      if (deliveryQuoteHint instanceof HTMLElement) {
-        deliveryQuoteHint.textContent = 'Точную стоимость доставки сообщим после оформления заказа';
-      }
-      cdekQuoteSummary = '';
-      cdekQuotePrice = 0;
-      cdekQuoteTariffCode = 0;
-      cdekBasePrice = 0;
-      refreshCheckoutTotals();
-    }
-
-    function setDeliveryQuoteData(quote, mode) {
+    function setDeliveryQuoteReady() {
       if (!(deliveryQuote instanceof HTMLElement)) return;
       if (!(deliveryQuoteTitle instanceof HTMLElement)) return;
       if (!(deliveryQuoteMeta instanceof HTMLElement)) return;
 
       const quoteTitle = getCdekDeliveryType() === 'door' ? 'СДЭК до двери' : 'СДЭК до ПВЗ';
-      const quotePrice = Math.max(0, Number(quote?.priceRub) || 0);
-      const quoteEta = formatEtaDays(quote?.etaDays);
-      const quoteTariff = Number(quote?.tariffCode);
-      const modeLabel = mode === 'live' ? '' : ' • тестовый расчёт';
       const deliveryTypeLabel = getCdekDeliveryTypeLabel();
+      const hasSelectedPvz = Boolean(getSelectedPvzId());
 
       deliveryQuote.hidden = false;
       deliveryQuote.classList.remove('is-idle');
       deliveryQuote.classList.remove('is-error');
-      deliveryQuoteTitle.textContent = `${quoteTitle} (${deliveryTypeLabel}): ${money(quotePrice)}`;
-      deliveryQuoteMeta.textContent = `${quoteEta}${modeLabel}`;
+      deliveryQuoteTitle.textContent = `${quoteTitle} (${deliveryTypeLabel})`;
+      deliveryQuoteMeta.textContent = getCdekDeliveryType() === 'door'
+        ? 'Курьер доставит по адресу из формы'
+        : hasSelectedPvz
+          ? 'ПВЗ выбран и будет передан в заявку'
+          : 'Выберите удобный ПВЗ из списка';
       if (deliveryQuoteHint instanceof HTMLElement) {
-        deliveryQuoteHint.textContent = 'Предварительный расчёт. Точную стоимость подтверждаем при оформлении заказа.';
+        deliveryQuoteHint.textContent = 'Стоимость доставки уже включена в цену товара.';
       }
 
-      cdekQuoteSummary = `${quoteTitle} (${deliveryTypeLabel}) ${money(quotePrice)}, ${quoteEta}`;
-      cdekQuotePrice = quotePrice;
-      cdekQuoteTariffCode = Number.isFinite(quoteTariff) && quoteTariff > 0 ? quoteTariff : 0;
-      cdekBasePrice = 0;
+      cdekQuoteSummary = `${quoteTitle} (${deliveryTypeLabel}), стоимость доставки включена`;
+      cdekQuoteTariffCode = 0;
       refreshCheckoutTotals();
     }
 
@@ -449,62 +360,14 @@ import Layout from '../layouts/Layout.astro';
       const city = String(cityInput.value || '').trim();
       const street = String(streetInput.value || '').trim();
       const zip = String(zipInput.value || '').trim();
-      const apartment = apartmentInput instanceof HTMLInputElement ? String(apartmentInput.value || '').trim() : '';
       if (isCdekPickupType()) await loadCdekPvz();
-      const pvzId = isCdekPickupType() ? getSelectedPvzId() || null : null;
       if (!city || !street || zip.length < 6) {
         setDeliveryQuoteIdle('Заполните город, улицу и 6-значный индекс');
         return;
       }
 
-      const orderTotal = items.reduce((sum, item) => sum + item.price * Math.max(1, Number(item.qty) || 1), 0);
-      const payload = {
-        city,
-        pvzId,
-        street,
-        zip,
-        apartment,
-        deliveryType: getCdekDeliveryType(),
-        orderTotal,
-        items: items.map((item) => ({
-          // Русский комментарий: расчет СДЭК идет по весу и габаритам каждой позиции.
-          weight: Math.max(1, Number(item.weight) || DEFAULT_ITEM_WEIGHT_G),
-          length: Math.max(1, Number(item.length) || DEFAULT_LENGTH_MM),
-          width: Math.max(1, Number(item.width) || DEFAULT_WIDTH_MM),
-          height: Math.max(1, Number(item.height) || DEFAULT_HEIGHT_MM),
-          qty: Math.max(1, Number(item.qty) || 1),
-          price: Math.max(0, Number(item.price) || 0),
-        })),
-      };
-
-      const requestId = ++cdekQuoteRequestId;
-      setDeliveryQuoteLoading();
-
-      try {
-        const data = await fetchCdekCalculation(payload);
-
-        if (requestId !== cdekQuoteRequestId) return;
-        const hasNewShape = Number(data?.finalPrice) > 0 && Number(data?.tariffCode) > 0;
-        const hasLegacyShape = Boolean(data?.quote);
-        if (!data?.ok || (!hasNewShape && !hasLegacyShape)) {
-          setDeliveryQuoteError();
-          return;
-        }
-
-        const quote = hasLegacyShape
-          ? data.quote
-          : {
-              title: getCdekDeliveryType() === 'door' ? 'СДЭК до двери' : 'СДЭК до ПВЗ',
-              priceRub: Math.ceil(Number(data.finalPrice) || 0),
-              etaDays: Number(data.deliveryDays) > 0 ? `${Number(data.deliveryDays)} дней` : 'срок уточняется',
-              tariffCode: Number(data.tariffCode) || undefined,
-            };
-
-        setDeliveryQuoteData(quote, data.mode);
-      } catch {
-        if (requestId !== cdekQuoteRequestId) return;
-        setDeliveryQuoteError();
-      }
+      // Русский комментарий: ценовой расчет отключен — только логистические параметры доставки (тип/ПВЗ) для заявки.
+      setDeliveryQuoteReady();
     }
 
     function scheduleCdekQuoteCalculation(delay = 350) {
@@ -679,9 +542,6 @@ import Layout from '../layouts/Layout.astro';
         ...(isCdek && selectedPvzId ? { pvzId: selectedPvzId } : {}),
         // Русский комментарий: если тариф известен из расчета — отправляем явным числом.
         ...(isCdek && cdekQuoteTariffCode > 0 ? { deliveryTariffCode: cdekQuoteTariffCode } : {}),
-        // Русский комментарий: стоимость доставки СДЭК как отдельное числовое поле для B24_LEAD_DELIVERY_COST_FIELD_CODE.
-        ...(isCdek && cdekQuotePrice > 0 ? { deliveryCost: cdekQuotePrice } : {}),
-        ...(isCdek && cdekBasePrice > 0 ? { deliveryBaseCost: cdekBasePrice } : {}),
         items: items.map((item) => ({
           ...(item.sku ? { sku: item.sku } : {}),
           name: item.name,
@@ -717,9 +577,7 @@ import Layout from '../layouts/Layout.astro';
       });
       cdekTypeInputs.forEach((input) => {
         input.addEventListener('change', () => {
-          cdekQuotePrice = 0;
           cdekQuoteTariffCode = 0;
-          cdekBasePrice = 0;
           updateCdekTypeState();
           refreshCheckoutTotals();
           void loadCdekPvz();
@@ -890,16 +748,6 @@ import Layout from '../layouts/Layout.astro';
       border-bottom:1px solid rgba(0,0,0,.06);
       padding-top:2px;
     }
-    .summary-row-delivery{
-      border-bottom:1px dashed rgba(0,0,0,.12);
-      padding-top:8px;
-      padding-bottom:8px;
-    }
-    .summary-row-delivery span,.summary-row-delivery strong{
-      font-size:13px;
-      font-weight:600;
-      color:#4b5563;
-    }
     .summary-row-total{
       padding-top:10px;
       padding-bottom:2px;
@@ -910,6 +758,12 @@ import Layout from '../layouts/Layout.astro';
     }
     .summary-row-total strong{
       font-size:30px;
+    }
+    .checkout-totals-note{
+      margin:4px 0 0;
+      font-size:12px;
+      line-height:1.45;
+      color:#6b7280;
     }
     .checkout-form{display:grid;gap:16px}
     .field-grid{display:grid;gap:12px}
@@ -1136,7 +990,6 @@ import Layout from '../layouts/Layout.astro';
       .checkout-totals{padding:10px 12px}
       .summary-row span{font-size:13px}
       .summary-row strong{font-size:20px}
-      .summary-row-delivery span,.summary-row-delivery strong{font-size:12px}
       .summary-row-total span{font-size:14px}
       .summary-row-total strong{font-size:26px}
       .field-grid label{font-size:15px}

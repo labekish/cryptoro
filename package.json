@@ -8,7 +8,8 @@
     "build": "./node_modules/.bin/astro build",
     "build:tina": "./node_modules/.bin/tinacms build --skip-indexing --skip-cloud-checks && ./node_modules/.bin/astro build",
     "preview": "./node_modules/.bin/astro preview",
-    "dev:tina": "./node_modules/.bin/tinacms dev -c \"./node_modules/.bin/astro dev\""
+    "dev:tina": "./node_modules/.bin/tinacms dev -c \"./node_modules/.bin/astro dev\"",
+    "pricing:recalc": "node ./scripts/pricing/recalc-fixed-prices.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",

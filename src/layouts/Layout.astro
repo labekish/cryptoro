@@ -43,6 +43,8 @@ const bodyClass = [
 ]
   .filter(Boolean)
   .join(' ');
+// Русский комментарий: по умолчанию не синхронизируем цены с МойСклад в рантайме — используем фиксированные цены из контента.
+const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0').trim() === '1';
 ---
 <!doctype html>
 <html lang="ru">
@@ -899,7 +901,7 @@ const bodyClass = [
     {withChrome && <Header active={active} />}
     <slot />
     {withChrome && <Footer />}
-    <script is:inline>
+    <script is:inline define:vars={{ msSyncPricesEnabled }}>
       (function () {
         const KEY = 'cryptoro_cart_count';
         const ITEMS_KEY = 'cryptoro_cart';
@@ -1309,7 +1311,10 @@ const bodyClass = [
         }
 
         function syncMoysklad() {
-          const targets = Array.from(document.querySelectorAll('[data-ms-price], [data-ms-stock], [data-ms-buy-btn], [data-ms-variants]'));
+          const selectors = msSyncPricesEnabled
+            ? '[data-ms-price], [data-ms-stock], [data-ms-buy-btn], [data-ms-variants]'
+            : '[data-ms-stock], [data-ms-buy-btn], [data-ms-variants]';
+          const targets = Array.from(document.querySelectorAll(selectors));
           if (!targets.length) return;
           const priceNodes = targets.filter((node) => node.hasAttribute('data-ms-price'));
           let firstSyncResolved = false;
@@ -1375,11 +1380,13 @@ const bodyClass = [
 
           const applyItems = (items) => {
             Object.entries(items || {}).forEach(([slug, item]) => {
-              document.querySelectorAll(`[data-ms-price="${slug}"]`).forEach((node) => {
-                node.textContent = formatRub(item.price);
-                node.setAttribute('data-ms-price-value', String(Math.round(Number(item.price || 0))));
-                node.classList.remove('ms-price-pending');
-              });
+              if (msSyncPricesEnabled) {
+                document.querySelectorAll(`[data-ms-price="${slug}"]`).forEach((node) => {
+                  node.textContent = formatRub(item.price);
+                  node.setAttribute('data-ms-price-value', String(Math.round(Number(item.price || 0))));
+                  node.classList.remove('ms-price-pending');
+                });
+              }
 
               document.querySelectorAll(`[data-ms-stock="${slug}"]`).forEach((node) => {
                 const qty = Math.max(0, Number(item.stock || 0));
@@ -1580,7 +1587,7 @@ const bodyClass = [
 
           // Если есть свежий кэш — показываем цены мгновенно, фоново обновляем.
           const cachedPrices = loadPriceCache();
-          const hasServerPrefilledPrices = priceNodes.some((node) => {
+          const hasServerPrefilledPrices = msSyncPricesEnabled && priceNodes.some((node) => {
             const value = Number(node.getAttribute('data-ms-price-value') || '');
             return Number.isFinite(value) && value > 0;
           });
