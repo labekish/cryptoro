@@ -47,6 +47,8 @@ type MsStockReportRow = {
 const API_BASE = 'https://api.moysklad.ru/api/remap/1.2';
 const DEFAULT_SKU_MAP: Record<string, string[]> = {
   vspomnit: ['CR-228'],
+  // Русский комментарий: CR-227 в витрине отдельной карточкой, цена/остатки подтягиваются из МойСклад как для остальных устройств.
+  'lovi-moment-pin': ['CR-227'],
   'plaud-note': ['CR-191', 'CR-400', 'CR-197', 'CR-209'],
   'plaud-note-pro': ['CR-327'],
   notepin: ['CR-217', 'CR-256', 'CR-258'],
@@ -61,6 +63,7 @@ const DEFAULT_GROUP_NAME = 'Товары для самовыкупов';
 
 const DEFAULT_SKU_META: Record<string, { color?: string; title?: string }> = {
   'CR-228': { color: 'Graphite', title: 'Вспомни всё' },
+  'CR-227': { title: 'Лови Момент Pin' },
   'CR-191': { color: 'Black', title: 'Plaud Note' },
   'CR-400': { color: 'Navy Blue', title: 'Plaud Note' },
   'CR-197': { color: 'Silver', title: 'Plaud Note' },

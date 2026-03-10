@@ -26,7 +26,11 @@ const LEGACY_IMAGE_DIMENSIONS: Record<string, LegacyImageSize> = {
   '/images/products/note-magnetic-case-green-0225.webp': { width: 2000, height: 2000 },
   '/images/products/f1nr2y5y5kueey0bkyhn44866pz20o9l.png': { width: 608, height: 588 },
   '/images/products/plaud-ai-pro-12m.svg': { width: 1200, height: 1200 },
-  '/images/products/plaud-ai-unlimited-12m.svg': { width: 1200, height: 1200 }
+  '/images/products/plaud-ai-unlimited-12m.svg': { width: 1200, height: 1200 },
+  '/images/products/lovi-moment-pin-placeholder.svg': { width: 1200, height: 1200 },
+  '/images/products/lovi-moment-pin-1.png': { width: 1280, height: 1280 },
+  '/images/products/lovi-moment-pin-2.png': { width: 1280, height: 1280 },
+  '/images/products/lovi-moment-pin-3.png': { width: 1280, height: 1280 }
 };
 
 function hasAttr(attrs: string, attrName: string): boolean {

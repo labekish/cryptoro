@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Лови Момент Pin — фото скоро</title>
+  <desc id="desc">Временная заглушка карточки товара CR-227 до загрузки финального фото</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f4f4f5"/>
+      <stop offset="100%" stop-color="#e5e7eb"/>
+    </linearGradient>
+    <linearGradient id="pin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#bg)"/>
+  <g transform="translate(600 510)">
+    <rect x="-170" y="-150" width="340" height="300" rx="88" fill="url(#pin)" opacity="0.95"/>
+    <circle cx="0" cy="0" r="88" fill="#f9fafb" opacity="0.96"/>
+    <circle cx="0" cy="0" r="44" fill="#111827"/>
+  </g>
+  <text x="600" y="870" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="700" fill="#111827">
+    Лови Момент Pin
+  </text>
+  <text x="600" y="935" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="34" fill="#4b5563">
+    CR-227 • Фото скоро появится
+  </text>
+</svg>

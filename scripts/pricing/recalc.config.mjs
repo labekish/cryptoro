@@ -17,7 +17,8 @@ export const PRICING_RECALC_CONFIG = {
   groups: {
     devices: {
       label: 'Устройства',
-      slugs: ['vspomnit', 'plaud-note', 'plaud-note-pro', 'notepin'],
+      // Русский комментарий: новый CR-227 считаем по той же формуле доставки, что и остальные устройства.
+      slugs: ['vspomnit', 'lovi-moment-pin', 'plaud-note', 'plaud-note-pro', 'notepin'],
       pickupRequest: {
         // Русский комментарий: репрезентативный профиль отправления для расчета средней доставки по группе.
         item: { weight: 80, length: 86, width: 54, height: 3, qty: 1, price: 1000 },
