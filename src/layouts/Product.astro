@@ -61,7 +61,8 @@ interface Props {
 }
 
 const { product, related = [] } = Astro.props;
-const heroH1 = product.seoH1 ?? product.title;
+// Русский комментарий: по ТЗ в hero на всех PDP показываем только название модели.
+const heroH1 = product.title;
 const price = new Intl.NumberFormat('ru-RU').format(product.price);
 const stockLabel = product.inStock === false ? 'Предзаказ' : 'Купить сейчас';
 const allSkus = Array.from(new Set([...(Array.isArray(product.skus) ? product.skus : []), ...(product.sku ? [product.sku] : [])]));
@@ -93,7 +94,11 @@ const PRODUCT_IMAGE_DIMENSIONS: Record<string, { width: number; height: number }
   '/images/products/note-magnetic-case-green-0225.webp': { width: 2000, height: 2000 },
   '/images/products/f1nr2y5y5kueey0bkyhn44866pz20o9l.png': { width: 608, height: 588 },
   '/images/products/plaud-ai-pro-12m.svg': { width: 1200, height: 1200 },
-  '/images/products/plaud-ai-unlimited-12m.svg': { width: 1200, height: 1200 }
+  '/images/products/plaud-ai-unlimited-12m.svg': { width: 1200, height: 1200 },
+  '/images/products/lovi-moment-pin-placeholder.svg': { width: 1200, height: 1200 },
+  '/images/products/lovi-moment-pin-1.png': { width: 1280, height: 1280 },
+  '/images/products/lovi-moment-pin-2.png': { width: 1280, height: 1280 },
+  '/images/products/lovi-moment-pin-3.png': { width: 1280, height: 1280 }
 };
 
 function getProductImageDimensions(src: string | undefined): { width: number; height: number } {
@@ -193,6 +198,8 @@ const hasEnhancedEditorial = Boolean(
   editorialProofLabels.length
 );
 const hasCinematicSection = Boolean(editorialCinematicHeadline && editorialCinematicImage);
+// Русский комментарий: по ТЗ скрываем "Plaud Intelligence™" для отдельных карточек.
+const hideAiDarkKicker = product.slug === 'lovi-moment-pin' || product.slug === 'vspomnit';
 
 function getColorToneKey(colorName: string): string {
   const name = colorName.toLowerCase();
@@ -275,6 +282,32 @@ const BOX_ICONS = [
             />
           </div>
         </div>
+        {gallery.length > 1 && colors.length <= 1 && (
+          <div class="pdp-hero__thumbs" aria-label={`Галерея ${product.title}`}>
+            {/* Русский комментарий: мини-галерея подключена для товаров без цветовых вариаций. */}
+            {gallery.map((src, idx) => {
+              const dims = getProductImageDimensions(src);
+              return (
+                <button
+                  class={`pdp-thumb${idx === 0 ? ' active' : ''}`}
+                  type="button"
+                  data-gallery-thumb
+                  data-src={src}
+                  aria-label={`Фото ${idx + 1}`}
+                >
+                  <img
+                    src={src}
+                    alt={`Фото ${idx + 1} — ${product.title}`}
+                    width={dims.width}
+                    height={dims.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {colors.length > 1 && (
           <div class="pdp-hero__colors">
@@ -310,7 +343,7 @@ const BOX_ICONS = [
     {product.features && product.features.length > 0 && (
       <section class="pdp-ai-dark">
         <div class="pdp-container">
-          <p class="pdp-ai-dark__kicker">Plaud Intelligence™</p>
+          {!hideAiDarkKicker && <p class="pdp-ai-dark__kicker">Plaud Intelligence™</p>}
           <h2 class="pdp-ai-dark__headline">{subtitle}</h2>
           <ul class="pdp-ai-dark__list">
             {product.features.map((feat) => (
@@ -465,17 +498,19 @@ const BOX_ICONS = [
         <div class="pdp-container pdp-container--wide">
           <h2 class="pdp-section-title reveal">Сравните модели</h2>
           <div class="pdp-compare__grid">
-            <div class="pdp-compare-card pdp-compare-card--current reveal">
+            <div class="pdp-compare-card pdp-compare-card--current reveal" data-compare-slug={product.slug}>
               <span class="pdp-compare-card__badge">Вы смотрите</span>
-              <img
-                src={product.image}
-                alt={product.title}
-                width={productImageDimensions.width}
-                height={productImageDimensions.height}
-                loading="lazy"
-                decoding="async"
-                fetchpriority="low"
-              />
+              <div class="pdp-compare-card__media">
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  width={productImageDimensions.width}
+                  height={productImageDimensions.height}
+                  loading="lazy"
+                  decoding="async"
+                  fetchpriority="low"
+                />
+              </div>
               <h3>{product.title}</h3>
               <span class="pdp-compare-card__price" data-ms-price={product.slug}>{price}&nbsp;₽</span>
               {keySpecs.length > 0 && (
@@ -485,16 +520,18 @@ const BOX_ICONS = [
               )}
             </div>
             {related.map((item, idx) => (
-              <a class="pdp-compare-card pdp-compare-card--alt reveal" style={`--stagger:${idx + 1}`} href={`/products/${item.slug}`}>
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  width={getProductImageDimensions(item.image).width}
-                  height={getProductImageDimensions(item.image).height}
-                  loading="lazy"
-                  decoding="async"
-                  fetchpriority="low"
-                />
+              <a class="pdp-compare-card pdp-compare-card--alt reveal" data-compare-slug={item.slug} style={`--stagger:${idx + 1}`} href={`/products/${item.slug}`}>
+                <div class="pdp-compare-card__media">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    width={getProductImageDimensions(item.image).width}
+                    height={getProductImageDimensions(item.image).height}
+                    loading="lazy"
+                    decoding="async"
+                    fetchpriority="low"
+                  />
+                </div>
                 <h3>{item.title}</h3>
                 <span class="pdp-compare-card__price" data-ms-price={item.slug}>{new Intl.NumberFormat('ru-RU').format(item.price)}&nbsp;₽</span>
                 <span class="pdp-compare-card__cta">Подробнее →</span>
@@ -915,7 +952,7 @@ const BOX_ICONS = [
       aiObs.observe(aiDark);
     }
 
-    /* ── KEY SPECS COUNT-UP ── */
+    /* ── KEY SPECS REVEAL (без count-up) ── */
     var specNums = document.querySelectorAll('.pdp-spec-card__num');
     if(specNums.length && 'IntersectionObserver' in window){
       var specsDone = false;
@@ -930,22 +967,7 @@ const BOX_ICONS = [
               document.querySelectorAll('.pdp-spec-card').forEach(function(card){
                 card.classList.add('pdp-spec-vis');
               });
-              /* Count-up */
-              specNums.forEach(function(el){
-                var target = parseInt(el.textContent, 10);
-                if(isNaN(target)) return;
-                var duration = 1200;
-                var startTime = null;
-                function step(ts){
-                  if(!startTime) startTime = ts;
-                  var progress = Math.min((ts - startTime) / duration, 1);
-                  var eased = 1 - Math.pow(1 - progress, 3);
-                  el.textContent = String(Math.round(eased * target));
-                  if(progress < 1) requestAnimationFrame(step);
-                }
-                el.textContent = '0';
-                requestAnimationFrame(step);
-              });
+              // Русский комментарий: отключили анимацию чисел, чтобы не было "прыгающих" значений и визуального шума.
             }
           });
         }, { threshold:0.25 });
@@ -1154,7 +1176,8 @@ const BOX_ICONS = [
     .pdp-compare-card{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--pdp-surface);border:1px solid rgba(0,0,0,.07);border-radius:20px;padding:34px 24px;text-decoration:none;color:inherit;transition:transform .3s ease,box-shadow .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.04)}
     .pdp-compare-card--current{transform:scale(1.03);border-color:rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.1)}
     .pdp-compare-card__badge{display:inline-block;background:var(--pdp-text);color:#fff;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px}
-    .pdp-compare-card img{width:100%;max-width:196px;height:172px;object-fit:contain;margin-bottom:18px}
+    .pdp-compare-card__media{display:flex;align-items:center;justify-content:center;width:100%;min-height:190px;margin:0 auto 18px}
+    .pdp-compare-card img{width:100%;max-width:196px;height:172px;object-fit:contain;object-position:center center;display:block;margin:0 auto}
     .pdp-compare-card h3{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
     .pdp-compare-card__price{font-size:19px;font-weight:700;margin-bottom:12px;display:block}
     .pdp-compare-card__specs{list-style:none;padding:0;margin:0;font-size:13px;color:var(--pdp-muted);line-height:1.8}
@@ -1429,7 +1452,8 @@ const BOX_ICONS = [
       box-shadow: 0 8px 32px rgba(0,0,0,.1) !important;
     }
     .pdp-compare-card { padding: 34px 24px !important }
-    .pdp-compare-card img { max-width: 196px !important; height: 172px !important; margin-bottom: 18px !important }
+    .pdp-compare-card__media { min-height: 190px !important; margin: 0 auto 18px !important }
+    .pdp-compare-card img { max-width: 196px !important; height: 172px !important; margin: 0 auto !important; object-position: center center !important }
     .pdp-compare-card--alt {
       background: var(--pdp-surface) !important;
       border: 1px solid rgba(0,0,0,.06) !important;
@@ -1757,6 +1781,41 @@ const BOX_ICONS = [
     }
     .pdp-compare-card img { transition:transform .4s cubic-bezier(.16,1,.3,1) }
 
+    /* Русский комментарий: фиксируем центрирование и контраст в блоке сравнения моделей. */
+    .pdp-compare-card{
+      --compare-img-scale:1;
+      --compare-img-offset-x:0px;
+      --compare-img-offset-y:0px;
+      justify-content:flex-start!important;
+    }
+    .pdp-compare-card__badge{
+      background:linear-gradient(135deg,#111827,#0f172a)!important;
+      color:#f8fafc!important;
+      border:1px solid rgba(96,165,250,.34)!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 14px rgba(15,23,42,.22)!important;
+      font-size:11px!important;
+      letter-spacing:.08em!important;
+      padding:5px 14px!important;
+    }
+    .pdp-compare-card h3,
+    .pdp-compare-card__price,
+    .pdp-compare-card__cta{
+      width:100%;
+      text-align:center!important;
+    }
+    .pdp-compare-card img{
+      transform:translate(var(--compare-img-offset-x),var(--compare-img-offset-y)) scale(var(--compare-img-scale))!important;
+      transform-origin:center center!important;
+    }
+    .pdp-compare-card[data-compare-slug="lovi-moment-pin"]{ --compare-img-scale:1.16 }
+    .pdp-compare-card[data-compare-slug="vspomnit"]{ --compare-img-scale:1.14 }
+    .pdp-compare-card[data-compare-slug="notepin"]{ --compare-img-scale:1.08 }
+    @media(hover:hover){
+      .pdp-compare-card--alt:hover img{
+        transform:translate(var(--compare-img-offset-x),var(--compare-img-offset-y)) scale(calc(var(--compare-img-scale) + .04))!important;
+      }
+    }
+
     /* ── ACCORDION ICON ROTATION ── */
     .pdp-accordion__icon { transition:transform .3s cubic-bezier(.16,1,.3,1) !important }
     .pdp-accordion[open] .pdp-accordion__icon { transform:rotate(180deg) !important }
@@ -1844,6 +1903,318 @@ const BOX_ICONS = [
       }
       .pdp-sticky-bar__inner{
         padding:10px 16px!important;
+      }
+    }
+
+    /* Русский комментарий: стабилизация главного фото у товаров с цветами — без смещений при смене варианта. */
+    .pdp[data-slug="plaud-note"] .pdp-hero__media,
+    .pdp[data-slug="plaud-note-pro"] .pdp-hero__media,
+    .pdp[data-slug="notepin"] .pdp-hero__media{
+      max-width:720px!important;
+      margin:8px auto 0!important;
+    }
+    .pdp[data-slug="plaud-note"] .pdp-hero__main-img,
+    .pdp[data-slug="plaud-note-pro"] .pdp-hero__main-img,
+    .pdp[data-slug="notepin"] .pdp-hero__main-img{
+      aspect-ratio:1/1!important;
+      width:min(100%,720px)!important;
+      margin:0 auto!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      overflow:hidden!important;
+    }
+    .pdp[data-slug="plaud-note"] .pdp-hero__main-img img,
+    .pdp[data-slug="plaud-note-pro"] .pdp-hero__main-img img,
+    .pdp[data-slug="notepin"] .pdp-hero__main-img img{
+      width:100%!important;
+      height:100%!important;
+      max-width:none!important;
+      object-fit:contain!important;
+      object-position:center center!important;
+      transform-origin:center center!important;
+    }
+    @media(max-width:640px){
+      .pdp[data-slug="plaud-note"] .pdp-hero__media,
+      .pdp[data-slug="plaud-note-pro"] .pdp-hero__media,
+      .pdp[data-slug="notepin"] .pdp-hero__media{
+        max-width:440px!important;
+      }
+      .pdp[data-slug="plaud-note"] .pdp-hero__main-img,
+      .pdp[data-slug="plaud-note-pro"] .pdp-hero__main-img,
+      .pdp[data-slug="notepin"] .pdp-hero__main-img{
+        width:min(100%,440px)!important;
+      }
+    }
+
+    /* ── Lovi Moment Pin: точечное выравнивание под эталон /products/plaud-note ── */
+    .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark .pdp-container{
+      max-width:1120px!important;
+    }
+    .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark__headline{
+      max-width:820px;
+      margin:0 auto 40px!important;
+      text-align:center;
+      text-wrap:balance;
+    }
+    /* Русский комментарий: фиксируем 3 ровные колонки преимуществ в темной секции */
+    .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark__list{
+      display:grid!important;
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      align-items:stretch!important;
+      justify-items:center!important;
+      width:100%;
+      max-width:1080px;
+      margin:0 auto!important;
+      gap:0!important;
+    }
+    .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark__item{
+      width:100%;
+      padding:0 24px!important;
+      text-align:center!important;
+      white-space:nowrap!important;
+    }
+    .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark__item:not(:first-child){
+      border-left:1px solid rgba(255,255,255,.2)!important;
+    }
+
+    /* Русский комментарий: выравниваем baseline и высоту карточек в блоке "Ключевые параметры" */
+    .pdp[data-slug="lovi-moment-pin"] .pdp-key-specs__grid{
+      align-items:stretch!important;
+      gap:40px!important;
+    }
+    .pdp[data-slug="lovi-moment-pin"] .pdp-spec-card{
+      display:grid!important;
+      grid-template-rows:minmax(92px,auto) auto;
+      align-items:center!important;
+    }
+    .pdp[data-slug="lovi-moment-pin"] .pdp-spec-card__value{
+      min-height:92px;
+      justify-content:center!important;
+      align-items:flex-end!important;
+      margin-bottom:10px!important;
+    }
+    .pdp[data-slug="lovi-moment-pin"] .pdp-spec-card__unit{
+      max-width:14ch!important;
+      text-align:left!important;
+    }
+
+    /* Русский комментарий: единый редизайн editorial-секций для всех продуктовых страниц (Premium Black Band + White Card). */
+    .pdp .pdp-editorial--enhanced{
+      padding:78px 0 14px!important;
+    }
+    .pdp .pdp-editorial--enhanced .pdp-container--narrow{
+      max-width:1060px!important;
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__showcase{
+      max-width:1000px;
+      margin:0 auto;
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__headline{
+      max-width:840px!important;
+      margin:0 auto;
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__subline{
+      max-width:560px!important;
+      margin:18px auto 28px!important;
+      color:rgba(71,85,105,.86)!important;
+      font-size:clamp(18px,1.75vw,22px)!important;
+      line-height:1.42!important;
+      opacity:1!important;
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row{
+      display:grid!important;
+      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      width:100%!important;
+      max-width:none!important;
+      margin:0 auto!important;
+      gap:0!important;
+      padding:12px 16px!important;
+      border-radius:20px!important;
+      border:1px solid rgba(148,163,184,.34)!important;
+      background:linear-gradient(135deg,#0b0f15 0%,#111827 58%,#0e131b 100%)!important;
+      box-shadow:0 18px 40px rgba(2,6,23,.24),inset 0 1px 0 rgba(255,255,255,.05)!important;
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      min-height:74px;
+      margin:0!important;
+      padding:0 20px!important;
+      font-size:clamp(17px,1.35vw,20px)!important;
+      font-weight:650!important;
+      line-height:1.22!important;
+      letter-spacing:-.01em!important;
+      color:rgba(248,250,252,.98)!important;
+      text-shadow:0 1px 0 rgba(0,0,0,.26);
+      white-space:nowrap;
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li:not(:first-child){
+      border-left:1px solid rgba(203,213,225,.2);
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li::before{
+      content:'';
+      width:24px;
+      height:24px;
+      flex:0 0 24px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.25);
+      background-color:rgba(148,163,184,.14);
+      background-repeat:no-repeat;
+      background-position:center;
+      background-size:15px 15px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li:nth-child(1)::before{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E2E8F0' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='6' width='17' height='12' rx='2.5'/%3E%3Cline x1='3.5' y1='10' x2='20.5' y2='10'/%3E%3C/svg%3E");
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li:nth-child(2)::before{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E2E8F0' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='7.5'/%3E%3Ccircle cx='12' cy='12' r='2.5'/%3E%3C/svg%3E");
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li:nth-child(3)::before{
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E2E8F0' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='4.5' width='15' height='15' rx='3'/%3E%3Cline x1='8' y1='9' x2='16' y2='9'/%3E%3Cline x1='8' y1='13' x2='14' y2='13'/%3E%3Cpath d='M16.7 15.8l.8 1.7 1.7.8-1.7.8-.8 1.7-.8-1.7-1.7-.8 1.7-.8z'/%3E%3C/svg%3E");
+    }
+    .pdp .pdp-editorial--enhanced .pdp-editorial__transition-divider{
+      display:none!important;
+    }
+    /* Русский комментарий: на desktop фиксируем равную геометрию плашки, чтобы она стояла ровно и не выглядела "узкой". */
+    @media(min-width:981px){
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row{
+        min-height:88px;
+      }
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li{
+        align-items:center;
+        justify-content:center;
+      }
+    }
+
+    .pdp .pdp-editorial--seo{
+      padding:28px 0 62px!important;
+    }
+    .pdp .pdp-editorial--seo .pdp-container--narrow{
+      max-width:1060px!important;
+    }
+    .pdp .pdp-editorial--seo .pdp-editorial__copy{
+      max-width:none!important;
+      width:100%;
+      margin:0 auto!important;
+      padding:44px 50px 42px!important;
+      border-radius:22px!important;
+      border:1px solid rgba(15,23,42,.08)!important;
+      background:#fff!important;
+      box-shadow:0 18px 36px rgba(15,23,42,.06),0 3px 8px rgba(15,23,42,.04)!important;
+      display:block;
+    }
+    .pdp .pdp-editorial--seo .pdp-section-title{
+      margin:0 0 18px!important;
+      font-size:clamp(34px,3.4vw,44px)!important;
+      line-height:1.06!important;
+      letter-spacing:-.028em!important;
+      text-wrap:balance;
+    }
+    .pdp .pdp-editorial--seo .pdp-editorial__body{
+      max-width:none;
+      margin:0;
+      font-size:18px!important;
+      line-height:1.72!important;
+      color:#475569!important;
+      font-weight:500!important;
+    }
+    .pdp .pdp-editorial--seo .pdp-editorial__body p{
+      margin:0 0 14px!important;
+    }
+    .pdp .pdp-editorial--seo .pdp-editorial__body p:last-child{
+      margin-bottom:0!important;
+    }
+
+    @media(max-width:980px){
+      .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark__list{
+        grid-template-columns:1fr!important;
+        max-width:320px;
+      }
+      .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark__item{
+        white-space:normal!important;
+        padding:12px 0!important;
+      }
+      .pdp[data-slug="lovi-moment-pin"] .pdp-ai-dark__item:not(:first-child){
+        border-left:none!important;
+        border-top:1px solid rgba(255,255,255,.14)!important;
+      }
+      .pdp .pdp-editorial--enhanced{
+        padding:64px 0 10px!important;
+      }
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row{
+        grid-template-columns:1fr!important;
+        max-width:560px;
+        padding:8px 12px!important;
+      }
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li{
+        justify-content:flex-start;
+        white-space:normal;
+        min-height:62px;
+        padding:0 16px!important;
+      }
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li:not(:first-child){
+        border-left:none;
+        border-top:1px solid rgba(203,213,225,.18);
+      }
+
+      .pdp .pdp-editorial--seo{
+        padding:20px 0 52px!important;
+      }
+      .pdp .pdp-editorial--seo .pdp-editorial__copy{
+        display:block;
+        padding:36px 34px 34px!important;
+      }
+      .pdp .pdp-editorial--seo .pdp-section-title{
+        margin:0 0 18px!important;
+      }
+      .pdp .pdp-editorial--seo .pdp-editorial__body{
+        max-width:none;
+        font-size:18px!important;
+        line-height:1.72!important;
+      }
+    }
+
+    @media(max-width:640px){
+      .pdp .pdp-editorial--enhanced .pdp-editorial__subline{
+        margin:12px auto 18px!important;
+        max-width:280px!important;
+        font-size:16px!important;
+        line-height:1.46!important;
+      }
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row{
+        border-radius:18px!important;
+      }
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li{
+        font-size:15px!important;
+        min-height:56px;
+      }
+      .pdp .pdp-editorial--enhanced .pdp-editorial__proof-row li::before{
+        width:20px;
+        height:20px;
+        flex-basis:20px;
+        background-size:12px 12px;
+      }
+
+      .pdp .pdp-editorial--seo .pdp-editorial__copy{
+        padding:30px 22px 28px!important;
+        border-radius:18px!important;
+      }
+      .pdp .pdp-editorial--seo .pdp-section-title{
+        font-size:clamp(28px,8vw,34px)!important;
+        margin-bottom:16px!important;
+      }
+      .pdp .pdp-editorial--seo .pdp-editorial__body{
+        max-width:none;
+        font-size:17px!important;
+        line-height:1.68!important;
+      }
+      .pdp .pdp-editorial--seo .pdp-editorial__body p{
+        margin-bottom:16px!important;
       }
     }
 
