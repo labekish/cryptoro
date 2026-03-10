@@ -375,7 +375,16 @@ body .catalog-controls .catalog-chips .filter-btn::after{
   background:#f3f4f6!important;
 }
 #productsGrid .pcard .catalog-media img{
-  max-height:224px!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:220px!important;
+  max-height:220px!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin:0 auto!important;
+  padding:0!important;
+  transform:scale(var(--catalog-img-scale,1))!important;
+  transform-origin:center center!important;
   transition:transform .2s ease!important;
 }
 #productsGrid .pcard .catalog-price-row{
@@ -402,7 +411,10 @@ body .catalog-controls .catalog-chips .filter-btn::after{
   #productsGrid{grid-template-columns:1fr!important;gap:18px!important}
   #productsGrid .pcard{border-radius:14px!important;padding:12px 12px 14px!important}
   #productsGrid .pcard .catalog-media{height:218px!important}
-  #productsGrid .pcard .catalog-media img{max-height:192px!important}
+  #productsGrid .pcard .catalog-media img{
+    max-width:188px!important;
+    max-height:188px!important;
+  }
   #productsGrid .pcard h3{font-size:24px!important}
 }
 
@@ -484,7 +496,7 @@ main{padding-top:40px!important}
   box-shadow:0 10px 24px rgba(0,0,0,.08) !important;
 }
 #productsGrid .pcard:hover .catalog-media img {
-  transform:scale(1.02) !important;
+  transform:scale(var(--catalog-img-scale,1)) !important;
 }
 #productsGrid .pcard .catalog-media img {
   transition:transform .22s ease !important;
@@ -606,6 +618,38 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
   min-height:42px!important;
   align-items:flex-end!important;
 }
+/* Русский комментарий: единый визуальный размер и строгий центр для всех карточек каталога. */
+#productsGrid .pcard .catalog-media{
+  overflow:hidden!important;
+}
+#productsGrid .pcard .catalog-media img{
+  width:auto!important;
+  height:auto!important;
+  max-width:220px!important;
+  max-height:220px!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin:0 auto!important;
+  padding:0!important;
+  transform:scale(var(--catalog-img-scale,1))!important;
+  transform-origin:center center!important;
+}
+/* Русский комментарий: калибровка визуального масштаба, чтобы продукты в каталоге выглядели одинаково крупно. */
+#productsGrid .pcard{ --catalog-img-scale:1; }
+#productsGrid .pcard[data-card-id="vspomnit"]{ --catalog-img-scale:1.46; }
+#productsGrid .pcard[data-card-id="lovi-moment-pin"]{ --catalog-img-scale:1.36; }
+#productsGrid .pcard[data-card-id="notepin"]{ --catalog-img-scale:1.22; }
+#productsGrid .pcard[data-card-id="plaud-note-pro"]{ --catalog-img-scale:1.08; }
+@media (max-width:640px){
+  #productsGrid .pcard .catalog-media img{
+    max-width:188px!important;
+    max-height:188px!important;
+  }
+  #productsGrid .pcard[data-card-id="vspomnit"]{ --catalog-img-scale:1.22; }
+  #productsGrid .pcard[data-card-id="lovi-moment-pin"]{ --catalog-img-scale:1.16; }
+  #productsGrid .pcard[data-card-id="notepin"]{ --catalog-img-scale:1.12; }
+  #productsGrid .pcard[data-card-id="plaud-note-pro"]{ --catalog-img-scale:1.04; }
+}
 #productsGrid .pcard[data-card-id="accessories"] .catalog-color-row,
 #productsGrid .pcard[data-card-id="vspomnit"] .catalog-color-row,
 #productsGrid .pcard[data-card-id="plaud-ai-pro-12m"] .catalog-color-row,
@@ -665,7 +709,7 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
 
   <main class="px-6 pb-24 pt-8">
     <div class="mx-auto max-w-7xl">
-      <div id="productsCount" class="mb-5 text-sm text-zinc-500" aria-live="polite">8 товаров</div>
+      <div id="productsCount" class="mb-5 text-sm text-zinc-500" aria-live="polite">9 товаров</div>
 
       <div id="productsGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <a href="/products/vspomnit" data-card-id="vspomnit" data-cat="plaud" data-price="11990" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
@@ -683,6 +727,27 @@ body .catalog-controls .filter-btn.is-selected:not(.is-activating) {
             <p class="mt-2 text-sm leading-6 text-zinc-600">AI-диктофон с ChatGPT. Бесплатный год безлимитной подписки в комплекте.</p>
             <div class="catalog-price-row">
               <div class="text-2xl font-bold">11 990 ₽</div>
+            </div>
+          </div>
+        </a>
+
+        <a href="/products/lovi-moment-pin" data-card-id="lovi-moment-pin" data-cat="plaud" data-price="16100" class="pcard reveal group relative flex flex-col text-inherit no-underline opacity-0 translate-y-5 transition-all duration-500">
+          <div class="catalog-card-top">
+            <div class="catalog-card-tags">
+              <span class="card-tag card-tag--new">NEW</span>
+              <span class="card-tag card-tag--year">2025</span>
+            </div>
+          </div>
+          <div class="catalog-media">
+            <!-- Русский комментарий: заменили placeholder на реальное фото товара в едином стиле каталога. -->
+            <img src="/images/products/lovi-moment-pin-1.png" alt="Лови Момент Pin — AI-диктофон CR-227" class="h-full w-full object-contain p-1 drop-shadow-[0_14px_24px_rgba(17,24,39,.16)]" />
+          </div>
+          <div class="catalog-card-content">
+            <h3 class="text-xl font-semibold">Лови Момент Pin</h3>
+            <!-- Русский комментарий: описание карточки обновлено по материалам Ozon (без упоминания цены). -->
+            <p class="mt-2 text-sm leading-6 text-zinc-600">Умный диктофон с искусственным интеллектом для записи и транскрипции разговоров. Бесплатный год безлимитной подписки в комплекте.</p>
+            <div class="catalog-price-row">
+              <div class="text-2xl font-bold">16 100 ₽</div>
             </div>
           </div>
         </a>
