@@ -1,3 +1,5 @@
+import { guardMutationRequest } from '../../_lib/request-guard';
+
 type Env = {
   PK_SERVER_URL?: string;
   PK_USER?: string;
@@ -104,6 +106,10 @@ async function fetchJson<T>(request: Promise<Response>): Promise<{ ok: true; dat
 export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
   const traceId = toTraceId();
   const { request, env } = context;
+  const guard = await guardMutationRequest(request, env, { scope: 'paykeeper_create_session', maxPerWindow: 15, windowSec: 60 });
+  if (!guard.ok) {
+    return json(guard.status, { ok: false, error: guard.error, traceId });
+  }
 
   let body: Partial<CreateSessionPayload>;
   try {
@@ -224,4 +230,3 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
     },
   });
 };
-

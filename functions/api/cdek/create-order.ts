@@ -1,3 +1,5 @@
+import { guardMutationRequest } from '../../_lib/request-guard';
+
 type Env = {
   CDEK_CLIENT_ID?: string;
   CDEK_CLIENT_SECRET?: string;
@@ -488,6 +490,10 @@ export async function createCdekOrder(env: Env, payload: CdekCreateOrderPayload)
 export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
   const headers = { 'Content-Type': 'application/json' };
   const { request, env } = context;
+  const guard = await guardMutationRequest(request, env, { scope: 'cdek_create_order', maxPerWindow: 20, windowSec: 60 });
+  if (!guard.ok) {
+    return new Response(JSON.stringify({ ok: false, error: guard.error }), { status: guard.status, headers });
+  }
 
   let body: CdekCreateOrderPayload;
   try {

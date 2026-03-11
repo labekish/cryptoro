@@ -1,4 +1,5 @@
 import { createCdekOrder, type CdekCreateOrderPayload, type CdekCreateOrderResult } from '../cdek/create-order';
+import { guardMutationRequest } from '../../_lib/request-guard';
 
 type Env = {
   B24_WEBHOOK_URL?: string;
@@ -1267,6 +1268,10 @@ async function findOrCreateContact(
 export const onRequestPost = async (context: { request: Request; env: Env }): Promise<Response> => {
   const { request, env } = context;
   const headers = { 'Content-Type': 'application/json' };
+  const guard = await guardMutationRequest(request, env, { scope: 'b24_lead', maxPerWindow: 20, windowSec: 60 });
+  if (!guard.ok) {
+    return new Response(JSON.stringify({ ok: false, error: guard.error }), { status: guard.status, headers });
+  }
 
   const webhookUrl = (env.B24_WEBHOOK_URL || '').trim().replace(/\/$/, '');
   if (!webhookUrl) {
@@ -1379,7 +1384,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
   });
 
   if (existingLeadRes.ok === false) {
-    return new Response(JSON.stringify({ ok: false, error: existingLeadRes.error, detail: existingLeadRes.detail }), {
+    return new Response(JSON.stringify({ ok: false, error: existingLeadRes.error }), {
       status: 502,
       headers,
     });
@@ -1535,7 +1540,7 @@ export const onRequestPost = async (context: { request: Request; env: Env }): Pr
 
   if (createLeadRes.ok === false) {
     return new Response(
-      JSON.stringify({ ok: false, error: createLeadRes.error, detail: createLeadRes.detail }),
+      JSON.stringify({ ok: false, error: createLeadRes.error }),
       { status: 502, headers }
     );
   }

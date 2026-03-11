@@ -10,6 +10,7 @@ type Env = {
   MS_STOCK_ZERO_MODE?: string;
   MS_PRICE_RULE?: string;
   MS_STOCK_RULE?: string;
+  MS_DEBUG?: string;
 };
 
 type MsAssortmentRow = {
@@ -518,11 +519,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   try {
     const url = new URL(context.request.url);
-    const debugEnabled = ['1', 'true', 'yes', 'on'].includes(
+    const debugRequested = ['1', 'true', 'yes', 'on'].includes(
       String(url.searchParams.get('debug') || '')
         .trim()
         .toLowerCase()
     );
+    // Русский комментарий: debug-ответы с внутренней диагностикой включаем только при server-side флаге.
+    const debugEnabled = debugRequested && String(context.env.MS_DEBUG || '').trim() === '1';
     const debugSkuSet = new Set(
       String(url.searchParams.get('debugSku') || '')
         .split(',')
@@ -711,10 +714,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       }
     );
   } catch (error) {
+    const traceId = `ms_${crypto.randomUUID()}`;
+    console.error('[moysklad/prices]', traceId, error);
     return new Response(
       JSON.stringify({
         ok: false,
-        error: error instanceof Error ? error.message : 'Unknown MoySklad error'
+        error: 'moysklad_unreachable',
+        traceId
       }),
       {
         status: 500,
