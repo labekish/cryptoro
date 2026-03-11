@@ -40,13 +40,13 @@ import Layout from '../layouts/Layout.astro';
                 <input name="city" type="text" placeholder="Москва" autocomplete="address-level2" required />
               </label>
               <label>Улица, дом
-                <input name="street" type="text" placeholder="Тверская, 10" autocomplete="street-address" required />
+                <input name="street" type="text" placeholder="Тверская, 10" autocomplete="street-address" data-address-field required />
               </label>
               <label>Квартира / офис
                 <input name="apartment" type="text" placeholder="Необязательно" />
               </label>
               <label>Индекс
-                <input name="zip" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456" autocomplete="postal-code" data-mask="zip" required />
+                <input name="zip" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456" autocomplete="postal-code" data-mask="zip" data-address-field required />
               </label>
             </div>
 
@@ -115,7 +115,7 @@ import Layout from '../layouts/Layout.astro';
 
             <div class="actions">
               <button type="submit" id="submitBtn" class="dark-btn">Оформить заказ</button>
-              <button type="button" id="cardPayBtn" class="ghost-btn" title="Оплата картой будет доступна в ближайшее время">Оплатить картой (скоро)</button>
+              <button type="button" id="cardPayBtn" class="ghost-btn" disabled aria-disabled="true" title="Оплата картой будет доступна в ближайшее время">Оплатить картой (скоро)</button>
             </div>
           </form>
 
@@ -255,6 +255,23 @@ import Layout from '../layouts/Layout.astro';
       const pickup = isCdekPickupType();
       cdekTypeGroup.hidden = !cdekSelected;
       if (cdekPvzGroup instanceof HTMLElement) cdekPvzGroup.hidden = !(cdekSelected && pickup);
+    }
+
+    function isPickupSelected() {
+      const selected = deliveryInputs.find((input) => input.checked);
+      return String(selected?.value || '').includes('Самовывоз');
+    }
+
+    function updateAddressRequired() {
+      const pickup = isPickupSelected();
+      const addressFields = checkoutForm?.querySelectorAll('[data-address-field]');
+      addressFields?.forEach((field) => {
+        if (pickup) {
+          field.removeAttribute('required');
+        } else {
+          field.setAttribute('required', '');
+        }
+      });
     }
 
     async function loadCdekPvz() {
@@ -595,6 +612,7 @@ import Layout from '../layouts/Layout.astro';
         input.addEventListener('change', () => {
           updateDeliveryOptionState();
           updateCdekTypeState();
+          updateAddressRequired();
           refreshCheckoutTotals();
           void loadCdekPvz();
           scheduleCdekQuoteCalculation();
@@ -637,7 +655,9 @@ import Layout from '../layouts/Layout.astro';
         const orderId = generateOrderId();
         const payload = buildPayload(formData, items, orderId);
 
-        const requiredOk = payload.name && payload.phone && payload.city && payload.street && payload.zip;
+        const pickup = isPickupSelected();
+        const requiredOk = payload.name && payload.phone && payload.city &&
+          (pickup || (payload.street && payload.zip));
         if (!requiredOk) return;
 
         isSubmitting = true;
@@ -671,6 +691,7 @@ import Layout from '../layouts/Layout.astro';
     setupInputMasks();
     updateDeliveryOptionState();
     updateCdekTypeState();
+    updateAddressRequired();
     void loadCdekPvz();
     renderCart();
     scheduleCdekQuoteCalculation(0);

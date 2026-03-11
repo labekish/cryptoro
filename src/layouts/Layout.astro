@@ -49,7 +49,7 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="robots" content="index, follow" />
@@ -65,6 +65,7 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={ogUrl} />
     <meta name="keywords" content="AI диктофон, CRYPTORO, Plaud Note, транскрипция, запись встреч, диктофон с ChatGPT" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -86,7 +87,7 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
         };
 
         if ('requestIdleCallback' in window) {
-          window.requestIdleCallback(applyFonts, { timeout: 1200 });
+          window.requestIdleCallback(applyFonts, { timeout: 700 });
           return;
         }
         window.addEventListener('load', applyFonts, { once: true });
