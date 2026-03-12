@@ -859,9 +859,28 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
       .site-shell .hero .btns{
         transform:none!important;
       }
+      /* Русский комментарий: ужимаем hero по высоте, чтобы первый экран на desktop чаще помещался целиком. */
+      .page-home .hero{
+        min-height:100svh!important;
+        padding-top:92px!important;
+        padding-bottom:56px!important;
+        background:var(--bg)!important;
+        overflow:visible!important;
+      }
+      .page-home .hero-title{
+        font-size:clamp(48px,5.4vw,64px)!important;
+        line-height:1.02!important;
+      }
       .page-home .hero-overlay{
         border-radius:var(--ui-radius-md)!important;
         box-shadow:var(--ui-shadow-soft)!important;
+      }
+      /* Русский комментарий: по запросу убираем все hero-бейджи на главной (рейтинг + плавающие карточки). */
+      .page-home .hero-rating-badge,
+      .page-home .hero-overlay--transcript,
+      .page-home .hero-overlay--lang,
+      .page-home .hero-overlay--accuracy{
+        display:none!important;
       }
       .page-home .hero-overlay--transcript,
       .page-home .hero-overlay--lang,
@@ -869,10 +888,88 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
         animation:none!important;
       }
       .page-home .hero-product{
+        position:relative!important;
         overflow:visible!important;
+        clip-path:none!important;
+        background:transparent!important;
+        border:none!important;
+        border-radius:0!important;
+        box-shadow:none!important;
+        max-width:640px!important;
+        margin-left:auto!important;
+        margin-right:auto!important;
+      }
+      /* Русский комментарий: полностью отключаем старые псевдо-слои, чтобы не было артефактного прямоугольника. */
+      .page-home .hero-product::before,
+      .page-home .hero-product::after{
+        display:none!important;
+      }
+      /* Русский комментарий: без декоративных подложек — работаем только с мягким краем у самой картинки. */
+      .page-home .hero-product-image{
+        min-height:520px!important;
+        position:relative!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        animation:none!important;
+        transform:none!important;
+        overflow:visible!important;
+        clip-path:none!important;
+        background:transparent!important;
+        border:none!important;
+        border-radius:0!important;
+        box-shadow:none!important;
+      }
+      .page-home .hero-product-image img{
+        position:relative!important;
+        z-index:1!important;
+        width:100%!important;
+        max-width:600px!important;
+        height:auto!important;
+        object-fit:contain!important;
+        animation:none!important;
+        transform:none!important;
+        overflow:visible!important;
+        clip-path:none!important;
+        background:transparent!important;
+        border:none!important;
+        border-radius:0!important;
+        /* Русский комментарий: маска из двух градиентов — убираем жёсткие срезы справа/снизу и в верхнем углу. */
+        -webkit-mask-image:
+          linear-gradient(to right, transparent 0%, black 15%, black 70%, transparent 100%),
+          linear-gradient(to bottom, black 40%, transparent 100%);
+        mask-image:
+          linear-gradient(to right, transparent 0%, black 15%, black 70%, transparent 100%),
+          linear-gradient(to bottom, black 40%, transparent 100%);
+        -webkit-mask-composite:destination-in;
+        mask-composite:intersect;
+        -webkit-mask-repeat:no-repeat;
+        mask-repeat:no-repeat;
+        -webkit-mask-size:100% 100%;
+        mask-size:100% 100%;
+        filter:drop-shadow(0 26px 38px rgba(15,23,42,.18)) drop-shadow(0 8px 14px rgba(15,23,42,.08))!important;
       }
       .page-home .hero-trust{
         display:none!important;
+      }
+      @media (max-width: 768px){
+        .page-home .hero-title{
+          font-size:clamp(32px,9vw,40px)!important;
+        }
+        .page-home .hero-product{
+          max-width:300px!important;
+        }
+        .page-home .hero-product-image{
+          min-height:280px!important;
+          overflow:visible!important;
+          clip-path:none!important;
+          background:transparent!important;
+          border:none!important;
+          border-radius:0!important;
+        }
+        .page-home .hero-product-image img{
+          max-width:300px!important;
+        }
       }
 
       .page-catalog .catalog-controls{
@@ -1333,6 +1430,53 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
           });
         }
 
+        function preventHangingPrepositions(root = document.body) {
+          if (!root) return;
+          const blockedTags = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'CODE', 'PRE', 'KBD', 'SAMP', 'TEXTAREA']);
+          const noBreakWords = [
+            // Русский комментарий: короткие служебные слова, которые не должны "висеть" на конце строки.
+            'через', 'между', 'для', 'под', 'над', 'без', 'при', 'про',
+            'обо', 'ко', 'со', 'во',
+            'в', 'к', 'с', 'у', 'о', 'об',
+            'и', 'а', 'но', 'на', 'по', 'за', 'от', 'до', 'из',
+            'не', 'ни', 'же', 'ли', 'бы'
+          ];
+          const escapedWords = noBreakWords
+            .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .sort((a, b) => b.length - a.length)
+            .join('|');
+          const re = new RegExp(`(^|[\\s\\u00A0«„(\\["'])(${escapedWords})(\\s+)(?=[A-Za-zА-Яа-яЁё0-9])`, 'gi');
+          const walker = document.createTreeWalker(
+            root,
+            NodeFilter.SHOW_TEXT,
+            {
+              acceptNode(node) {
+                const parent = node.parentElement;
+                if (!parent) return NodeFilter.FILTER_REJECT;
+                if (blockedTags.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
+                if (parent.closest('[data-no-typography], .no-typography')) return NodeFilter.FILTER_REJECT;
+                const value = node.nodeValue || '';
+                if (!/[A-Za-zА-Яа-яЁё]\s+[A-Za-zА-Яа-яЁё0-9]/.test(value)) return NodeFilter.FILTER_SKIP;
+                return NodeFilter.FILTER_ACCEPT;
+              }
+            }
+          );
+          const nodes = [];
+          let nextNode = walker.nextNode();
+          while (nextNode) {
+            nodes.push(nextNode);
+            nextNode = walker.nextNode();
+          }
+          nodes.forEach((node) => {
+            const value = node.nodeValue || '';
+            const fixed = value.replace(re, (match, prefix, word) => {
+              // Русский комментарий: заменяем обычный пробел после служебного слова на неразрывный.
+              return `${prefix}${word}\u00A0`;
+            });
+            if (fixed !== value) node.nodeValue = fixed;
+          });
+        }
+
         function dedupeCatalogTabs() {
           if (window.location.pathname.indexOf('/catalog') !== 0) return;
           const rows = Array.from(document.querySelectorAll('.catalog-chips'));
@@ -1571,6 +1715,8 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
                 }
               });
             });
+            // Русский комментарий: после динамической подстановки текста повторно убираем висячие предлоги.
+            preventHangingPrepositions(document.body);
           };
 
           // --- localStorage price cache ---
@@ -1652,6 +1798,7 @@ const msSyncPricesEnabled = String(import.meta.env.PUBLIC_MS_SYNC_PRICES ?? '0')
           bindCartButtons();
           syncMoysklad();
           setupMobileNav();
+          preventHangingPrepositions(document.body);
           let resizeTimer = 0;
           window.addEventListener('resize', () => {
             if (resizeTimer) window.clearTimeout(resizeTimer);

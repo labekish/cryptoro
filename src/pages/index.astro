@@ -91,10 +91,19 @@ if (prices['plaud-note'] != null) {
 
 if (homePage) {
   if (homePage.heroTitle) {
+    // Русский комментарий: поддерживаем обе версии legacy-разметки hero (старую и актуальную).
     syncedBody = syncedBody.replace(/(<h1 class="h1">)([\s\S]*?)(<\/h1>)/i, `$1${escapeHtml(homePage.heroTitle)}$3`);
+    syncedBody = syncedBody.replace(
+      /(<h1 class="hero-title d1"[^>]*>\s*<span[^>]*>)([\s\S]*?)(<\/span>\s*<\/h1>)/i,
+      `$1${escapeHtml(homePage.heroTitle)}$3`
+    );
   }
   if (homePage.heroSubtitle) {
     syncedBody = syncedBody.replace(/(<p class="sub">)([\s\S]*?)(<\/p>)/i, `$1${escapeHtml(homePage.heroSubtitle)}$3`);
+    syncedBody = syncedBody.replace(
+      /(<p class="hero-sub d2[^"]*">)([\s\S]*?)(<\/p>)/i,
+      `$1${escapeHtml(homePage.heroSubtitle)}$3`
+    );
   }
   if (homePage.productsTitle) {
     syncedBody = syncedBody.replace(/(<h2 class="sec-title">)Выберите AI диктофон(<\/h2>)/i, `$1${escapeHtml(homePage.productsTitle)}$2`);
@@ -124,6 +133,20 @@ if (homePage) {
     syncedBody = syncedBody.replace(/(<p class="lead-sub">)([\s\S]*?)(<\/p>)/i, `$1${escapeHtml(homePage.leadSubtitle)}$3`);
   }
 }
+
+// Русский комментарий: fallback-оффер для hero, если данные CMS временно не подгрузились.
+const finalHeroTitle = homePage?.heroTitle ?? 'Говорите — AI сделает конспект.';
+const finalHeroSubtitle =
+  homePage?.heroSubtitle ??
+  'Запись, точная транскрипция и готовое резюме за минуты.';
+syncedBody = syncedBody.replace(
+  /(<h1 class="hero-title d1"[^>]*>\s*<span[^>]*>)([\s\S]*?)(<\/span>\s*<\/h1>)/i,
+  `$1${escapeHtml(finalHeroTitle)}$3`
+);
+syncedBody = syncedBody.replace(
+  /(<p class="hero-sub d2[^"]*">)([\s\S]*?)(<\/p>)/i,
+  `$1${escapeHtml(finalHeroSubtitle)}$3`
+);
 
 if (reviewEntries.length) {
   reviewEntries.forEach((review, idx) => {
@@ -180,11 +203,18 @@ syncedBody = syncedBody
   .replace('<div class="btns d3">', '<div class="btns d3 pvis">')
   .replace('<div class="hero-visual d4">', '<div class="hero-visual d4 pvis">');
 
-// Русский комментарий: для LCP-картинки отдаём WebP + PNG fallback через picture и адаптивные размеры.
-syncedBody = syncedBody.replace(
-  /<img src="\/images\/products\/vspomnit-vse-cutout\.png" alt="AI-диктофон Вспомни всё"\s*\/>/i,
-  `<picture><source type="image/webp" srcset="/images/products/vspomnit-vse-cutout-900.webp 900w, /images/products/vspomnit-vse-cutout-1200.webp 1200w, /images/products/vspomnit-vse-cutout.webp 1800w" sizes="(max-width: 768px) 82vw, (max-width: 1200px) 46vw, 560px" /><img src="/images/products/vspomnit-vse-cutout-900.png" srcset="/images/products/vspomnit-vse-cutout-900.png 900w, /images/products/vspomnit-vse-cutout-1200.png 1200w, /images/products/vspomnit-vse-cutout.png 1800w" sizes="(max-width: 768px) 82vw, (max-width: 1200px) 46vw, 560px" alt="AI-диктофон Вспомни всё" loading="eager" decoding="async" fetchpriority="high" /></picture>`
-);
+// Русский комментарий: аккуратно подменяем hero-картинку на новый файл из public/images/products.
+const heroImageMarkup =
+  '<img src="/images/products/dff4463e-ef4b-4220-9ad0-b79aa5032ce6-cutout.webp" width="1024" height="1024" alt="AI-диктофон Вспомни всё" sizes="(max-width: 768px) 82vw, (max-width: 1200px) 46vw, 560px" loading="eager" decoding="async" fetchpriority="high" />';
+syncedBody = syncedBody
+  .replace(
+    /<picture>[\s\S]*?alt="AI-диктофон Вспомни всё"[\s\S]*?<\/picture>/i,
+    heroImageMarkup
+  )
+  .replace(
+    /<img src="\/images\/products\/vspomnit-vse-cutout\.png" alt="AI-диктофон Вспомни всё"\s*\/>/i,
+    heroImageMarkup
+  );
 
 // Русский комментарий: карусель отзывов не запускаем на мобильных, чтобы избежать forced reflow при первом рендере.
 syncedBody = syncedBody.replace(
@@ -200,7 +230,7 @@ syncedBody = syncedBody.replace(
 
 // Русский комментарий: добавляем размеры/ленивую загрузку для legacy-изображений, чтобы снизить CLS и вес первого рендера.
 syncedBody = optimizeLegacyImages(syncedBody, {
-  eagerFirstMatchSrc: ['/images/products/vspomnit-vse-cutout-900.png']
+  eagerFirstMatchSrc: ['/images/products/dff4463e-ef4b-4220-9ad0-b79aa5032ce6-cutout.webp']
 });
 ---
 <Layout
